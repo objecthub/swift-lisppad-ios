@@ -72,6 +72,8 @@ open class LispTextView: UITextView {
 */
 
 struct CodeEditor: UIViewRepresentable {
+  typealias Coordinator = CodeEditorTextViewDelegate
+  
   @EnvironmentObject var docManager: DocumentationManager
 
   @Binding var text: String
@@ -105,7 +107,7 @@ struct CodeEditor: UIViewRepresentable {
   }
 
   public func makeCoordinator() -> Coordinator {
-    return Coordinator(self)
+    return CodeEditorTextViewDelegate(self)
   }
   
   public func makeUIView(context: Context) -> UITextView {
@@ -144,38 +146,6 @@ struct CodeEditor: UIViewRepresentable {
     textView.tintColor = insertionPointColor ?? textView.tintColor
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject
     textInputTraits?.setValue(textView.tintColor, forKey: "insertionPointColor")
-  }
-
-  public class Coordinator: NSObject, UITextViewDelegate {
-    var parent: CodeEditor
-    
-    init(_ codeEditor: CodeEditor) {
-      self.parent = codeEditor
-    }
-    
-    public func textViewDidChange(_ textView: UITextView) {
-      guard textView.markedTextRange == nil else {
-        return
-      }
-      DispatchQueue.main.async {
-        self.parent.text = textView.text ?? ""
-      }
-    }
-    
-    public func textViewDidChangeSelection(_ textView: UITextView) {
-      guard let onSelectionChange = parent.onSelectionChange else {
-        return
-      }
-      onSelectionChange([textView.selectedRange])
-    }
-    
-    public func textViewDidBeginEditing(_ textView: UITextView) {
-      parent.onEditingChanged()
-    }
-    
-    public func textViewDidEndEditing(_ textView: UITextView) {
-      parent.onCommit()
-    }
   }
 }
 
