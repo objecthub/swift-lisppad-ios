@@ -1,4 +1,4 @@
-<img src="Assets/LispPad_small.png" alt="LispPad" width="80" height="80" align="middle" />&nbsp;LispPad for iOS
+<img src="Assets/LispPad_small.png" alt="LispPad" width="80" height="80" align="middle" />&nbsp;&nbsp; LispPad for iOS
 ========================
 
 [![Platform: iOS](https://img.shields.io/badge/Platform-iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
