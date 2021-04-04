@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>builtin</key>
+	<dict>
+		<key>lisppad audio</key>
+		<string>(lisppad audio).md</string>
+		<key>lisppad system</key>
+		<string>(lisppad system).md</string>
+		<key>lispkit archive zip</key>
+		<string>(lispkit archive zip).md</string>
+		<key>lispkit base</key>
+		<string>(lispkit base).md</string>
+		<key>lispkit box</key>
+		<string>(lispkit box).md</string>
+		<key>lispkit core</key>
+		<string>(lispkit core).md</string>
+		<key>lispkit control</key>
+		<string>(lispkit control).md</string>
+		<key>lispkit system</key>
+		<string>(lispkit system).md</string>
+		<key>lispkit system os</key>
+		<string>(lispkit system os).md</string>
+		<key>lispkit math</key>
+		<string>(lispkit math).md</string>
+		<key>lispkit list</key>
+		<string>(lispkit list).md</string>
+		<key>lispkit hashtable</key>
+		<string>(lispkit hashtable).md</string>
+		<key>lispkit dynamic</key>
+		<string>(lispkit dynamic).md</string>
+		<key>lispkit type</key>
+		<string>(lispkit type).md</string>
+		<key>lispkit vector</key>
+		<string>(lispkit vector).md</string>
+		<key>lispkit gvector</key>
+		<string>(lispkit gvector).md</string>
+		<key>lispkit record</key>
+		<string>(lispkit record).md</string>
+		<key>lispkit bytevector</key>
+		<string>(lispkit bytevector).md</string>
+		<key>lispkit char</key>
+		<string>(lispkit char).md</string>
+		<key>lispkit char-set</key>
+		<string>(lispkit char-set).md</string>
+		<key>lispkit string</key>
+		<string>(lispkit string).md</string>
+		<key>lispkit regexp</key>
+		<string>(lispkit regexp).md</string>
+		<key>lispkit port</key>
+		<string>(lispkit port).md</string>
+		<key>lispkit date-time</key>
+		<string>(lispkit date-time).md</string>
+		<key>lispkit draw</key>
+		<string>(lispkit draw).md</string>
+		<key>lispkit draw turtle</key>
+		<string>(lispkit draw turtle).md</string>
+		<key>lispkit datatype</key>
+		<string>(lispkit datatype).md</string>
+		<key>lispkit object</key>
+		<string>(lispkit object).md</string>
+		<key>lispkit enum</key>
+		<string>(lispkit enum).md</string>
+		<key>lispkit stream</key>
+		<string>(lispkit stream).md</string>
+		<key>lispkit iterate</key>
+		<string>(lispkit iterate).md</string>
+		<key>lispkit comparator</key>
+		<string>(lispkit comparator).md</string>
+		<key>lispkit set</key>
+		<string>(lispkit set).md</string>
+		<key>lispkit stack</key>
+		<string>(lispkit stack).md</string>
+		<key>lispkit queue</key>
+		<string>(lispkit queue).md</string>
+		<key>lispkit heap</key>
+		<string>(lispkit heap).md</string>
+		<key>lispkit disjoint-set</key>
+		<string>(lispkit disjoint-set).md</string>
+		<key>lispkit combinator</key>
+		<string>(lispkit combinator).md</string>
+		<key>lispkit match</key>
+		<string>(lispkit match).md</string>
+		<key>lispkit sqlite</key>
+		<string>(lispkit sqlite).md</string>
+		<key>lispkit markdown</key>
+		<string>(lispkit markdown).md</string>
+		<key>lispkit csv</key>
+		<string>(lispkit csv).md</string>
+		<key>lispkit log</key>
+		<string>(lispkit log).md</string>
+		<key>lispkit test</key>
+		<string>(lispkit test).md</string>
+		<key>lispkit debug</key>
+		<string>(lispkit debug).md</string>
+	</dict>
+</dict>
+</plist>

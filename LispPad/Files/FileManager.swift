@@ -1,0 +1,255 @@
+//
+//  FileManager.swift
+//  LispPad
+//
+//  Created by Matthias Zenger on 01/04/2021.
+//  Copyright © 2021 Matthias Zenger. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import Foundation
+import UIKit
+import LispKit
+
+///
+/// Class `FileManager` provides access to all files related to LispPad.
+/// 
+class FileManager: ObservableObject {
+  
+  /// Struct `NamedURL` associates names with URLs.
+  struct NamedURL {
+    let name: String
+    let image: String
+    let url: URL
+  }
+  
+  /// The default iOS file manager.
+  let sysFileManager = Foundation.FileManager.default
+  
+  /// Builtin resources
+  let systemRootDirectories: [NamedURL] = {
+    var roots: [NamedURL] = [
+      NamedURL(name: "LispPad",
+               image: "folder.badge.gear",
+               url: URL(fileURLWithPath: "Root", relativeTo: Bundle.main.bundleURL.absoluteURL))
+    ]
+    if let base = Context.bundle?.bundleURL.absoluteURL {
+      roots.append(NamedURL(name: "LispKit",
+                            image: "folder.badge.gear",
+                            url: URL(fileURLWithPath: Context.rootDirectory, relativeTo: base)))
+    }
+    return roots
+  }()
+  
+  /// User-defined resources
+  private(set) var userRootDirectories: [NamedURL] = []
+  
+  /// Constructor, responsible for defining the named resources as well as for setting them up
+  /// initially.
+  init() {
+    if let url = self.icloudDirectory() {
+      self.userRootDirectories.append(NamedURL(name: "iCloud Drive",
+                                               image: "icloud",
+                                               url: url))
+      _ = self.createExtensionDirectories(in: url)
+    }
+    if let url = self.documentsDirectory() {
+      let name: String
+      let image: String
+      switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+          name = "On My iPhone"
+          image = "iphone"
+        case .pad:
+          name = "On My iPad"
+          image = "ipad"
+        default:
+          name = "On My Device"
+          image = "desktopcomputer"
+      }
+      self.userRootDirectories.append(NamedURL(name: name, image: image, url: url))
+      _ = self.createExtensionDirectories(in: url)
+    }
+  }
+  
+  /// Creates the following directories under the given `container` URL:
+  ///   - `Libraries`
+  ///   - `Assets`:
+  ///       - `Images`
+  ///       - `Audio`
+  ///       - `Documents`
+  ///       - `Datasets`
+  ///       - `ColorLists`
+  func createExtensionDirectories(in container: URL) -> Bool {
+    let libDir = self.createExtensionDirectory(in: container, name: "Libraries")
+    if let assetDir = self.createExtensionDirectory(in: container, name: "Assets") {
+      _ = self.createExtensionDirectory(in: assetDir, name: "Images")
+      _ = self.createExtensionDirectory(in: assetDir, name: "Audio")
+      _ = self.createExtensionDirectory(in: assetDir, name: "Documents")
+      _ = self.createExtensionDirectory(in: assetDir, name: "Datasets")
+      _ = self.createExtensionDirectory(in: assetDir, name: "ColorLists")
+      return libDir != nil
+    } else {
+      return false
+    }
+  }
+  
+  /// Creates a new directory with the given name under the `container` URL.
+  func createExtensionDirectory(in container: URL, name: String) -> URL? {
+    let root = container.appendingPathComponent(name, isDirectory: true)
+    var dir: ObjCBool = false
+    guard self.sysFileManager.fileExists(atPath: container.absoluteURL.path, isDirectory: &dir),
+          dir.boolValue,
+          !self.sysFileManager.fileExists(atPath: root.absoluteURL.path) else {
+      return nil
+    }
+    do {
+      try sysFileManager.createDirectory(at: root, withIntermediateDirectories: false)
+      return root
+    } catch {
+      return nil
+    }
+  }
+  
+  func makeDirectory(at url: URL, name base: String = "New Folder") -> URL? {
+    do {
+      var folderUrl = url.appendingPathComponent(base)
+      if self.sysFileManager.fileExists(atPath: folderUrl.absoluteURL.path) {
+        var i = 0
+        repeat {
+          i += 1
+          if i > 100 {
+            return nil
+          }
+          folderUrl = url.appendingPathComponent(base + " \(i)")
+        } while self.sysFileManager.fileExists(atPath: folderUrl.absoluteURL.path)
+      }
+      try self.sysFileManager.createDirectory(at: folderUrl,
+                                              withIntermediateDirectories: false,
+                                              attributes: nil)
+      return folderUrl
+    } catch {
+      return nil
+    }
+  }
+  
+  func copy(_ url: URL, into dir: URL) -> Bool {
+    do {
+      let name = url.lastPathComponent
+      let dest = dir.appendingPathComponent(name)
+      try self.sysFileManager.copyItem(at: url, to: dest)
+      return true
+    } catch {
+      return false
+    }
+  }
+  
+  func duplicate(_ url: URL) -> Bool {
+    let name = url.deletingPathExtension().lastPathComponent
+    let ext = url.pathExtension
+    var target: URL? = nil
+    if name.count >= 3 && name.last!.isNumber {
+      let idx = name.index(name.endIndex, offsetBy: -2)
+      if name[idx].isWhitespace, let n = Int(String(name.last!)) {
+        target = url.deletingLastPathComponent()
+                    .appendingPathComponent(String("\(name[name.startIndex..<idx]) \(n + 1)"))
+                    .appendingPathExtension(ext)
+      }
+    }
+    if target == nil {
+      target = url.deletingLastPathComponent()
+                  .appendingPathComponent(name + " 2")
+                  .appendingPathExtension(ext)
+    }
+    if let target = target {
+      do {
+        try self.sysFileManager.copyItem(at: url, to: target)
+        return true
+      } catch {
+        return false
+      }
+    }
+    return false
+  }
+  
+  func rename(_ url: URL, to name: String) -> Bool {
+    do {
+      let target = url.deletingLastPathComponent().appendingPathComponent(name)
+      try self.sysFileManager.moveItem(at: url, to: target)
+      return true
+    } catch {
+      return false
+    }
+  }
+  
+  func delete(_ url: URL) -> Bool {
+    do {
+      try self.sysFileManager.removeItem(at: url)
+      return true
+    } catch {
+      return false
+    }
+  }
+  
+  /// Returns the "iCloud Drive" URL if available.
+  func icloudDirectory() -> URL? {
+    return self.sysFileManager.url(forUbiquityContainerIdentifier: nil)?
+                                 .appendingPathComponent("Documents")
+  }
+  
+  /// Returns the "On my iPhone" URL if available (creating it if it does not exist already).
+  func documentsDirectory() -> URL? {
+    return try? self.sysFileManager.url(for: .documentDirectory,
+                                           in: .userDomainMask,
+                                           appropriateFor: nil,
+                                           create: true)
+  }
+
+  /// Returns the internal application support URL if available (creating it if it does not
+  /// exist already).
+  func appSupportDirectory() -> URL? {
+    return try? self.sysFileManager.url(for: .applicationSupportDirectory,
+                                           in: .userDomainMask,
+                                           appropriateFor: nil,
+                                           create: true)
+  }
+
+  /// Returns a cache URL if available.
+  func cacheDirectory() -> URL? {
+    return self.sysFileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+  }
+  
+  /*
+  Swift.print("documents = \(self.documentsDirectory()!)")
+  Swift.print("appSupport = \(self.appSupportDirectory()!)")
+  Swift.print("cacheSupport = \(self.cacheDirectory()!)")
+  Swift.print("icloud = \(self.icloudDirectory())")
+  let str = "This is a short\ntext message"
+  let url = self.icloudDirectory()!.appendingPathComponent("message.txt")
+  do {
+    try str.write(to: url, atomically: true, encoding: .utf8)
+    let input = try String(contentsOf: url)
+    Swift.print("content = \(input)")
+  } catch let error {
+    print(error.localizedDescription)
+  }
+ */
+}
+
+struct FileType: OptionSet {
+  let rawValue: Int
+  static let file = FileType(rawValue: 1 << 0)
+  static let directory = FileType(rawValue: 1 << 1)
+  static let all: FileType = [.file, .directory]
+}
