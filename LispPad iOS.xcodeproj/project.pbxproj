@@ -92,6 +92,7 @@
 		CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563E2617A8960080B96E /* FileHierarchy.swift */; };
 		CCC85649261995030080B96E /* LispKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; };
 		CCC8564A261995030080B96E /* LispKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CCC856502619F6970080B96E /* LispPad_small.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC8564F2619F6970080B96E /* LispPad_small.png */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -316,6 +317,7 @@
 		CCC8563E2617A8960080B96E /* FileHierarchy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchy.swift; sourceTree = "<group>"; };
 		CCC8564C261995A70080B96E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CCC8564D261995B30080B96E /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		CCC8564F2619F6970080B96E /* LispPad_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LispPad_small.png; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -342,6 +344,7 @@
 				CCC8564D261995B30080B96E /* LICENSE */,
 				CC84C26B25FE783600758581 /* Cartfile */,
 				CC84C26C25FE784800758581 /* Makefile */,
+				CCC8564E2619F67A0080B96E /* Assets */,
 				CC84C24825FE59EE00758581 /* LispPad */,
 				CC84C24725FE59EE00758581 /* Products */,
 				CC84C26625FE77BF00758581 /* Frameworks */,
@@ -583,6 +586,14 @@
 			path = "Generic Views";
 			sourceTree = "<group>";
 		};
+		CCC8564E2619F67A0080B96E /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				CCC8564F2619F6970080B96E /* LispPad_small.png */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
 		CCFBC5BA25FE8E0A00E29F99 /* Editor */ = {
 			isa = PBXGroup;
 			children = (
@@ -677,6 +688,7 @@
 				CC327C36260BF98100BD7E32 /* (lisppad system).md in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
+				CCC856502619F6970080B96E /* LispPad_small.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
