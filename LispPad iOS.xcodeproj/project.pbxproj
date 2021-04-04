@@ -27,8 +27,6 @@
 		CC84C25025FE59F000758581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C24F25FE59F000758581 /* Assets.xcassets */; };
 		CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C25225FE59F000758581 /* Preview Assets.xcassets */; };
 		CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26125FE6BFF00758581 /* InterpreterView.swift */; };
-		CC84C26825FE77BF00758581 /* LispKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; };
-		CC84C26925FE77BF00758581 /* LispKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26D25FE78A600758581 /* ConsoleScrollView.swift */; };
 		CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26F25FE78E100758581 /* ConsoleOutput.swift */; };
 		CC84C27225FE791000758581 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27125FE791000758581 /* ConsoleView.swift */; };
@@ -92,6 +90,8 @@
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
 		CCC8563D261767660080B96E /* FileHierarchyViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563C261767660080B96E /* FileHierarchyViewer.swift */; };
 		CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563E2617A8960080B96E /* FileHierarchy.swift */; };
+		CCC85649261995030080B96E /* LispKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; };
+		CCC8564A261995030080B96E /* LispKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -100,17 +100,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		CC84C26A25FE77BF00758581 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				CC84C26925FE77BF00758581 /* LispKit.xcframework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CC8B957E2607B44200830B4F /* Copy Documentation/Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -222,6 +211,17 @@
 			name = "Copy Root/Examples";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCC8564B261995030080B96E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CCC8564A261995030080B96E /* LispKit.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -314,6 +314,8 @@
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyViewer.swift; sourceTree = "<group>"; };
 		CCC8563E2617A8960080B96E /* FileHierarchy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchy.swift; sourceTree = "<group>"; };
+		CCC8564C261995A70080B96E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CCC8564D261995B30080B96E /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -326,7 +328,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC84C26825FE77BF00758581 /* LispKit.xcframework in Frameworks */,
+				CCC85649261995030080B96E /* LispKit.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,6 +338,8 @@
 		CC84C23D25FE59EE00758581 = {
 			isa = PBXGroup;
 			children = (
+				CCC8564C261995A70080B96E /* README.md */,
+				CCC8564D261995B30080B96E /* LICENSE */,
 				CC84C26B25FE783600758581 /* Cartfile */,
 				CC84C26C25FE784800758581 /* Makefile */,
 				CC84C24825FE59EE00758581 /* LispPad */,
@@ -610,8 +614,8 @@
 			buildPhases = (
 				CC84C24225FE59EE00758581 /* Sources */,
 				CC84C24325FE59EE00758581 /* Frameworks */,
+				CCC8564B261995030080B96E /* Embed Frameworks */,
 				CC84C24425FE59EE00758581 /* Resources */,
-				CC84C26A25FE77BF00758581 /* Embed Frameworks */,
 				CC8B957E2607B44200830B4F /* Copy Documentation/Libraries */,
 				CC8B95B02607FC7F00830B4F /* Copy Root */,
 				CC8B95CC2608111200830B4F /* Copy Root/Examples */,
