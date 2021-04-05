@@ -22,22 +22,51 @@ import SwiftUI
 
 struct CodeEditorView: View {
   @State var text: String = "This is a test"
+  @State var showSearchField: Bool = false
   
   var body: some View {
-    CodeEditor(text: $text,
-               onEditingChanged: {},
-               onCommit: {},
-               onTextChange: { str in })
-      .defaultFont(.monospacedSystemFont(ofSize: 13, weight: .regular))
-      .autocorrectionType(.no)
-      .autocapitalizationType(.none)
-      .multilineTextAlignment(.leading)
-      .keyboardType(.default)
+    VStack {
+      if self.showSearchField {
+        SearchField(showCancel: $showSearchField) { str in
+          return true
+        }
+        .font(.subheadline)
+        Divider()
+        Spacer(minLength: -8)
+      }
+      CodeEditor(text: $text,
+                 onEditingChanged: {},
+                 onCommit: {},
+                 onTextChange: { str in })
+        .defaultFont(.monospacedSystemFont(ofSize: 13, weight: .regular))
+        .autocorrectionType(.no)
+        .autocapitalizationType(.none)
+        .multilineTextAlignment(.leading)
+        .keyboardType(.default)
+    }
+    .navigationBarHidden(false)
+    // .navigationBarTitle("Untitled.scm", displayMode: .inline)
+    .navigationBarItems(
+      trailing:
+        HStack(alignment: .center, spacing: 16) {
+            Button(action: {
+              withAnimation(.default) {
+                self.showSearchField = true
+              }
+            }) {
+              Image(systemName: "magnifyingglass")
+                .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            }
+            .disabled(self.showSearchField)
+        })
   }
 }
 
 struct CodeEditorView_Previews: PreviewProvider {
   static var previews: some View {
-    CodeEditorView()
+    NavigationView {
+      CodeEditorView()
+        .environmentObject(DocumentationManager())
+    }
   }
 }

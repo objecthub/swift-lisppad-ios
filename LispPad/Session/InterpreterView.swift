@@ -23,7 +23,7 @@ import LispKit
 
 struct InterpreterView: View {
   // Static parameters
-  private static let toolbarItemSize: CGFloat = 20
+  static let toolbarItemSize: CGFloat = 20
   
   // User settings and defaults
   @AppStorage("Console.maxHistory") private var maxHistory: Int = 20

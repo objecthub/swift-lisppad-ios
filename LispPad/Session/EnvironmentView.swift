@@ -45,7 +45,7 @@ struct EnvironmentView: View {
               .opacity(searchText == "" ? 0 : 1)
             }
         }
-        .padding(EdgeInsets(top: 8, leading: 6, bottom: 8, trailing: 6))
+        .padding(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
         .foregroundColor(.secondary)
         .background(Color(.secondarySystemBackground))
         .cornerRadius(12)
@@ -58,6 +58,7 @@ struct EnvironmentView: View {
           .foregroundColor(Color(.systemBlue))
         }
       }
+      .font(.callout)
       .padding(.horizontal)
       .padding(.top, self.showCancel ? 0 : 8)
       .navigationBarHidden(showCancel)

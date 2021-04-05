@@ -22,14 +22,17 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct LispPadDocument: FileDocument {
-  var text: String
+  
+  static let readableContentTypes: [UTType] = [
+    .plainText,
+    .schemeProgram,
+    .schemeLibrary
+  ]
 
-  init(text: String = "Hello, world!") {
-    self.text = text
-  }
-
-  static var readableContentTypes: [UTType] {
-    [.plainText, .exampleText]
+  var text = ""
+  
+  init(initialText: String = "") {
+    self.text = initialText
   }
 
   init(configuration: ReadConfiguration) throws {
@@ -37,17 +40,16 @@ struct LispPadDocument: FileDocument {
           let string = String(data: data, encoding: .utf8) else {
       throw CocoaError(.fileReadCorruptFile)
     }
-    text = string
+    self.text = string
   }
   
   func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
     let data = text.data(using: .utf8)!
-    return .init(regularFileWithContents: data)
+    return FileWrapper(regularFileWithContents: data)
   }
 }
 
 extension UTType {
-  static var exampleText: UTType {
-    UTType(importedAs: "com.example.plain-text")
-  }
+  static let schemeProgram = UTType(importedAs: "net.objecthub.scheme-program")
+  static let schemeLibrary = UTType(importedAs: "net.objecthub.scheme-library")
 }
