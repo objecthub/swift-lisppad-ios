@@ -77,15 +77,7 @@ struct CodeEditor: UIViewRepresentable {
   @EnvironmentObject var docManager: DocumentationManager
 
   @Binding var text: String
-  /* {
-    didSet {
-      self.onTextChange(text)
-    }
-  } */
-  
-  var onEditingChanged: () -> Void = {}
-  var onCommit: () -> Void = {}
-  var onTextChange: (String) -> Void = { _ in }
+  @Binding var position: NSRange?
   
   var autocapitalizationType: UITextAutocapitalizationType = .sentences
   var autocorrectionType: UITextAutocorrectionType = .default
@@ -97,17 +89,13 @@ struct CodeEditor: UIViewRepresentable {
   private(set) var onSelectionChange: OnSelectionChangeCallback? = nil
   
   public init(text: Binding<String>,
-              onEditingChanged: @escaping () -> Void = {},
-              onCommit: @escaping () -> Void = {},
-              onTextChange: @escaping (String) -> Void = { _ in }) {
+              position: Binding<NSRange?>) {
     self._text = text
-    self.onEditingChanged = onEditingChanged
-    self.onCommit = onCommit
-    self.onTextChange = onTextChange
+    self._position = position
   }
 
   public func makeCoordinator() -> Coordinator {
-    return CodeEditorTextViewDelegate(self)
+    return CodeEditorTextViewDelegate(_text)
   }
   
   public func makeUIView(context: Context) -> UITextView {
@@ -124,13 +112,20 @@ struct CodeEditor: UIViewRepresentable {
     textView.smartQuotesType = .no
     textView.smartDashesType = .no
     textView.smartInsertDeleteType = .no
-    textView.textAlignment = .natural // or .left ?
+    textView.textAlignment = .left // or .natural ?
     updateTextViewModifiers(textView)
     return textView
   }
 
   public func updateUIView(_ uiView: UITextView, context: Context) {
     // uiView.text = self.text
+    if let pos = self.position {
+      uiView.selectedRange = pos
+      uiView.scrollRangeToVisible(pos)
+      DispatchQueue.main.async {
+        self.position = nil
+      }
+    }
   }
   
   private func updateTextViewModifiers(_ textView: UITextView) {

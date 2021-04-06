@@ -168,7 +168,7 @@ struct InterpreterView: View {
         .disabled(!self.docManager.initialized)
         NavigationLink(destination: LazyView(
           EnvironmentView(envManager: interpreter.envManager))) {
-          Image(systemName: "questionmark.circle") // function
+          Image(systemName: "square.3.stack.3d") // function
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
       })

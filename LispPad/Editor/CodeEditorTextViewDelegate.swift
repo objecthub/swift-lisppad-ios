@@ -19,12 +19,13 @@
 //
 
 import UIKit
+import SwiftUI
 
 class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
-  var parent: CodeEditor
+  @Binding var text: String
   
-  init(_ codeEditor: CodeEditor) {
-    self.parent = codeEditor
+  init(_ text: Binding<String>) {
+    self._text = text
   }
   
   public func textViewDidChange(_ textView: UITextView) {
@@ -32,24 +33,19 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
       return
     }
     DispatchQueue.main.async {
-      self.parent.text = textView.text ?? ""
+      self.text = textView.text ?? ""
     }
   }
   
+  /*
   public func textViewDidChangeSelection(_ textView: UITextView) {
+    Swift.print("textViewDidChangeSelection")
     guard let onSelectionChange = parent.onSelectionChange else {
       return
     }
     onSelectionChange([textView.selectedRange])
   }
-  
-  public func textViewDidBeginEditing(_ textView: UITextView) {
-    parent.onEditingChanged()
-  }
-  
-  public func textViewDidEndEditing(_ textView: UITextView) {
-    parent.onCommit()
-  }
+  */
   
   private func lispIndent(_ str: NSString, _ selectedRange: NSRange) -> String {
     // Find the beginning of the current line

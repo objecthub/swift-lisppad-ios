@@ -24,20 +24,48 @@ struct SearchField: View {
   @State var showNext: Bool = false
   @State var searchText: String = ""
   @State var lastSearchText: String = ""
-  @Binding var showCancel: Bool
-  let search: (String) -> Bool
+  @Binding var showSearchField: Bool
+  @Binding var searchHistory: [String]
+  let maxHistory: Int
+  let search: (String, Bool) -> Bool
+  
+  func insert(term: String) {
+    var i = 0
+    while i < self.searchHistory.count && term != self.searchHistory[i] {
+      i += 1
+    }
+    if i < self.searchHistory.count {
+      self.searchHistory.remove(at: i)
+    }
+    self.searchHistory.insert(term, at: 0)
+    if self.searchHistory.count > self.maxHistory {
+      self.searchHistory.removeLast()
+    }
+  }
   
   var body: some View {
     HStack {
       HStack {
-        Image(systemName: "magnifyingglass")
+        Menu {
+          ForEach(self.searchHistory, id: \.self) { term in
+            Button(action: {
+              self.searchText = term
+            }) {
+              Text(term)
+            }
+          }
+        } label: {
+          Image(systemName: "magnifyingglass")
+        }
         TextField("Search", text: $searchText, onEditingChanged: { isEditing in
-          self.showCancel = true
+          self.showSearchField = true
         }, onCommit: {
           if !self.searchText.isEmpty {
-            let more = self.search(self.searchText)
+            let term = self.searchText
+            self.insert(term: term)
+            let more = self.search(term, true)
             withAnimation(.default) {
-              self.lastSearchText = searchText
+              self.lastSearchText = term
               self.showNext = more
             }
           }
@@ -60,11 +88,11 @@ struct SearchField: View {
       .foregroundColor(.secondary)
       .background(Color(.secondarySystemBackground))
       .cornerRadius(12)
-      if showNext && showCancel && self.searchText == self.lastSearchText {
+      if showNext && showSearchField && self.searchText == self.lastSearchText {
         Button("Next") {
           UIApplication.shared.endEditing(true)
           if !self.searchText.isEmpty {
-            let more = self.search(self.searchText)
+            let more = self.search(self.searchText, false)
             withAnimation(.default) {
               self.showNext = more
             }
@@ -72,12 +100,12 @@ struct SearchField: View {
         }
         .foregroundColor(Color(.systemBlue))
       }
-      if showCancel  {
+      if showSearchField  {
         Button("Cancel") {
           UIApplication.shared.endEditing(true)
           withAnimation(.default) {
             self.searchText = ""
-            self.showCancel = false
+            self.showSearchField = false
             self.showNext = false
           }
         }
@@ -91,8 +119,11 @@ struct SearchField: View {
 
 struct SearchField_Previews: PreviewProvider {
   @State static var showCancel = true
+  @State static var history: [String] = ["One", "Two", "Three", "Four"]
   static var previews: some View {
-    SearchField(showCancel: $showCancel) { str in
+    SearchField(showSearchField: $showCancel,
+                searchHistory: $history,
+                maxHistory: 10) { str, initial in
        return true
     }
   }
