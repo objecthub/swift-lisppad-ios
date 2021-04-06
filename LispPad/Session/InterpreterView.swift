@@ -22,6 +22,17 @@ import SwiftUI
 import LispKit
 
 struct InterpreterView: View {
+  
+  enum DocumentPickerAction: Int, Identifiable {
+    case editFile = 0
+    case executeFile = 1
+    case organizeFiles = 2
+    
+    var id: Int {
+      self.rawValue
+    }
+  }
+  
   // Static parameters
   static let toolbarItemSize: CGFloat = 20
   
@@ -39,7 +50,7 @@ struct InterpreterView: View {
   @State private var showResetActionSheet = false
   @State private var showShareSheet = false
   @State private var showImportSheet = false
-  @State private var showDocumentPicker = false
+  @State private var documentPickerAction: DocumentPickerAction? = nil
   
   // The main view
   var master: some View {
@@ -74,9 +85,53 @@ struct InterpreterView: View {
     .navigationBarItems(
       leading: HStack(alignment: .center, spacing: 16) {
         NavigationLink(destination: LazyView(CodeEditorView())) {
-          Image(systemName: "ellipsis.circle")
+          Image(systemName: "pencil.circle")
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
+        Menu {
+          Button(action: {
+            
+          }) {
+              Label("New File", systemImage: "square.and.pencil")
+          }
+          Button(action: {
+            self.documentPickerAction = .editFile
+          }) {
+              Label("Edit File…", systemImage: "doc.text")
+          }
+          Button(action: {
+            self.documentPickerAction = .executeFile
+          }) {
+              Label("Execute File…", systemImage: "arrow.down.doc")
+          }
+          Divider()
+          Button(action: {
+            self.documentPickerAction = .organizeFiles
+          }) {
+            Label("Organize Files…", systemImage: "doc.on.doc")
+          }
+        } label: {
+          Image(systemName: "doc")
+            .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
+        }
+        .sheet(item: $documentPickerAction,
+               onDismiss: { },
+               content: { action in
+                 DocumentPicker("Select file to edit",
+                                fileType: .file,
+                                action: { url in print("selected \(url)") })})
+        Button(action: {
+          self.showShareSheet = true
+        }) {
+          Image(systemName: "square.and.arrow.up")
+            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+        }
+        .disabled(self.interpreter.consoleContent.isEmpty)
+        .sheet(isPresented: $showShareSheet) {
+          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+        }
+      },
+      trailing: HStack(alignment: .center, spacing: 16) {
         if self.interpreter.isReady {
           Button(action: {
             self.showResetActionSheet = true
@@ -114,52 +169,6 @@ struct InterpreterView: View {
                   }))
           }
         }
-        Button(action: {
-          self.showShareSheet = true
-        }) {
-          Image(systemName: "square.and.arrow.up")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
-        }
-        .disabled(self.interpreter.consoleContent.isEmpty)
-        .sheet(isPresented: $showShareSheet) {
-          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
-        }
-      },
-      trailing: HStack(alignment: .center, spacing: 16) {
-        /* Button(action: {
-          self.showDocumentPicker = true
-        }) {
-          Image(systemName: "doc")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
-        }
-        .sheet(isPresented: $showDocumentPicker) {
-          DocumentPicker()
-        } */
-        Menu {
-          Button(action: {
-            self.showImportSheet.toggle()
-          }) {
-              Label("Load file", systemImage: "plus.circle")
-          }
-          Button(action: {
-            self.showDocumentPicker = true
-          }) {
-              Label("Load LispKit file", systemImage: "minus.circle")
-          }
-          Button(action: {
-              
-          }) {
-              Label("Load LispPad file", systemImage: "pencil.circle")
-          }
-        } label: {
-          Image(systemName: "doc" /* "doc.badge.plus" */)
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
-        }
-        .sheet(isPresented: $showDocumentPicker) {
-          DocumentPicker("Select program to load",
-                         fileType: .file,
-                         action: { url in print("selected \(url)") })
-        }
         NavigationLink(destination: LazyView(
           LibraryView(libManager: interpreter.libManager))) {
           Image(systemName: "building.columns")
@@ -168,35 +177,10 @@ struct InterpreterView: View {
         .disabled(!self.docManager.initialized)
         NavigationLink(destination: LazyView(
           EnvironmentView(envManager: interpreter.envManager))) {
-          Image(systemName: "square.3.stack.3d") // function
+          Image(systemName: "square.stack.3d.up") // function - square.stack.3d.up.badge.a - square.3.stack.3d
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
       })
-    .fileImporter(isPresented: $showImportSheet,
-                  allowedContentTypes: [.plainText],
-                  allowsMultipleSelection: true) { result in
-      do {
-        print("returned")
-        guard let selectedFile: URL = try result.get().first else { return }
-        if selectedFile.startAccessingSecurityScopedResource() {
-          defer {
-            selectedFile.stopAccessingSecurityScopedResource()
-          }
-          print("file found")
-          guard let input = String(data: try Data(contentsOf: selectedFile), encoding: .utf8) else {
-            return
-          }
-          print("data read: \(input)")
-        } else {
-          // Handle denied access
-          print("access denied")
-        }
-      } catch {
-        // Handle failure.
-        print("Unable to read file contents")
-        print(error.localizedDescription)
-      }
-    }
   }
   
   var body: some View {

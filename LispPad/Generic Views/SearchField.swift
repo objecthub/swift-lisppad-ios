@@ -112,7 +112,7 @@ struct SearchField: View {
         .foregroundColor(Color(.systemBlue))
       }
     }
-    .padding(EdgeInsets(top: 8, leading: 8, bottom: -1, trailing: 8))
+    .padding(8)
     .animation(.default)
   }
 }

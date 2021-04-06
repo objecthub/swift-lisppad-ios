@@ -21,20 +21,25 @@
 import SwiftUI
 
 struct CodeEditorView: View {
+  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
   @State var text: String = "This is a test"
   @State var position: NSRange? = nil
   @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
   @State var definitions: DefinitionMenu? = nil
+  @State var documentPickerAction: InterpreterView.DocumentPickerAction? = nil
   
   var body: some View {
-    VStack {
+    VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
         SearchField(showSearchField: $showSearchField,
                     searchHistory: $searchHistory,
                     maxHistory: 10) { str, initial in
           let text = self.text as NSString
-          let result = text.range(of: str, options: [.diacriticInsensitive], range: NSRange(location: 0, length: text.length), locale: nil)
+          let result = text.range(of: str,
+                                  options: [.diacriticInsensitive],
+                                  range: NSRange(location: 0, length: text.length), locale: nil)
           if result.location != NSNotFound {
             self.position = result
             return true
@@ -44,7 +49,6 @@ struct CodeEditorView: View {
         }
         .font(.subheadline)
         Divider()
-        Spacer(minLength: -8)
       }
       CodeEditor(text: $text, position: $position)
         .defaultFont(.monospacedSystemFont(ofSize: 13, weight: .regular))
@@ -52,12 +56,61 @@ struct CodeEditorView: View {
         .autocapitalizationType(.none)
         .multilineTextAlignment(.leading)
         .keyboardType(.default)
+      Divider()
     }
     .navigationBarHidden(false)
     .navigationBarTitle("Untitled.scm", displayMode: .inline)
+    .navigationBarBackButtonHidden(true)
     .navigationBarItems(
+      leading: HStack(alignment: .center, spacing: 14)  {
+        Button(action: {
+          self.presentationMode.wrappedValue.dismiss()
+        }) {
+          Image(systemName: "terminal")
+            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+        }
+        Menu {
+          Button(action: {
+            
+          }) {
+              Label("New File", systemImage: "square.and.pencil")
+          }
+          Button(action: {
+            self.documentPickerAction = .editFile
+          }) {
+              Label("Edit File…", systemImage: "doc.text")
+          }
+          Button(action: {
+            self.documentPickerAction = .executeFile
+          }) {
+              Label("Execute File…", systemImage: "arrow.down.doc")
+          }
+          Divider()
+          Button(action: {
+            self.documentPickerAction = .organizeFiles
+          }) {
+            Label("Organize Files…", systemImage: "doc.on.doc")
+          }
+        } label: {
+          Image(systemName: "doc")
+            .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
+        }
+        .sheet(item: $documentPickerAction,
+               onDismiss: { },
+               content: { action in
+                 DocumentPicker("Select file to edit",
+                                fileType: .file,
+                                action: { url in print("selected \(url)") })})
+      },
       trailing:
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 12) {
+          Button(action: {
+            
+          }) {
+            Image(systemName: "list.bullet.indent")
+              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          }
+          .disabled(self.showSearchField)
           Button(action: {
             self.definitions = self.determineDefinitions(self.text)
           }) {

@@ -123,6 +123,7 @@ struct CodeEditor: UIViewRepresentable {
       uiView.selectedRange = pos
       uiView.scrollRangeToVisible(pos)
       DispatchQueue.main.async {
+        uiView.becomeFirstResponder()
         self.position = nil
       }
     }

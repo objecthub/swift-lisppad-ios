@@ -105,7 +105,8 @@ class CodeEditorTextView: UITextView {
                             y: bounds.origin.y,
                             width: 0.2,
                             height: bounds.height))
-      self.layoutManager.drawBackground(forGlyphRange: NSRange(location: 0, length: 0), at: CGPoint(x: 0, y: 8))
+      self.layoutManager.drawBackground(forGlyphRange: NSRange(location: 0, length: 0),
+                                        at: CGPoint(x: 0, y: 8))
     }
     super.draw(rect)
   }
