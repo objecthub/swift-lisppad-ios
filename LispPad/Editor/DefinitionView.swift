@@ -13,60 +13,58 @@ struct DefinitionView: View {
   @Binding var position: NSRange?
   
   var body: some View {
-    Form {
-      Section(header:
-        HStack {
-          if self.defitions.isEmpty {
-            Text("No definitions found.")
-          }
-          Spacer()
-          Button(action: {
-            self.presentationMode.wrappedValue.dismiss()
-          }) {
-              Image(systemName: "xmark.circle.fill")
-                .foregroundColor(.gray)
-          }
+    VStack(alignment: .center, spacing: 0) {
+      HStack {
+        Spacer()
+        Button(action: {
+          self.presentationMode.wrappedValue.dismiss()
+        }) {
+          Text("Cancel")
         }
-        .textCase(nil)
-        .font(.callout)) {
       }
-      .padding(.bottom, -8)
-      if self.defitions.values.count > 0 {
-        Section(header: Text("Values")) {
-          ForEach(self.defitions.values, id: \.1) { tuple in
-            Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                             self.presentationMode.wrappedValue.dismiss() }) {
-              Text(tuple.0).font(.callout)
+      .font(.body)
+      .padding(.horizontal)
+      .padding(.top)
+      .edgesIgnoringSafeArea(.all)
+      .background(Color(UIColor.secondarySystemBackground))
+      Form {
+        if self.defitions.values.count > 0 {
+          Section(header: Text("Values")) {
+            ForEach(self.defitions.values, id: \.1) { tuple in
+              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
+                               self.presentationMode.wrappedValue.dismiss() }) {
+                Text(tuple.0).font(.callout)
+              }
             }
           }
         }
-      }
-      if self.defitions.syntax.count > 0 {
-        Section(header: Text("Syntax")) {
-          ForEach(self.defitions.syntax, id: \.1) { tuple in
-            Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                             self.presentationMode.wrappedValue.dismiss() }) {
-              Text(tuple.0).font(.callout)
+        if self.defitions.syntax.count > 0 {
+          Section(header: Text("Syntax")) {
+            ForEach(self.defitions.syntax, id: \.1) { tuple in
+              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
+                               self.presentationMode.wrappedValue.dismiss() }) {
+                Text(tuple.0).font(.callout)
+              }
             }
           }
         }
-      }
-      if self.defitions.records.count > 0 {
-        Section(header: Text("Records")) {
-          ForEach(self.defitions.records, id: \.1) { tuple in
-            Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                             self.presentationMode.wrappedValue.dismiss() }) {
-              Text(tuple.0).font(.callout)
+        if self.defitions.records.count > 0 {
+          Section(header: Text("Records")) {
+            ForEach(self.defitions.records, id: \.1) { tuple in
+              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
+                               self.presentationMode.wrappedValue.dismiss() }) {
+                Text(tuple.0).font(.callout)
+              }
             }
           }
         }
-      }
-      if self.defitions.types.count > 0 {
-        Section(header: Text("Types")) {
-          ForEach(self.defitions.types, id: \.1) { tuple in
-            Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                             self.presentationMode.wrappedValue.dismiss() }) {
-              Text(tuple.0).font(.callout)
+        if self.defitions.types.count > 0 {
+          Section(header: Text("Types")) {
+            ForEach(self.defitions.types, id: \.1) { tuple in
+              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
+                               self.presentationMode.wrappedValue.dismiss() }) {
+                Text(tuple.0).font(.callout)
+              }
             }
           }
         }

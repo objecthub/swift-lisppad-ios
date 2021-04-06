@@ -26,6 +26,7 @@ struct DocumentPicker: View {
   @State var showFileMover: Bool = false
   @State var showFileImporter: Bool = false
   @State var showFileSharer: Bool = false
+  @State var searchAndImport: Bool = false
   @State var selectedUrl: URL? = nil
   @State var editUrl: URL? = nil
   @State var editName: String = ""
@@ -43,43 +44,52 @@ struct DocumentPicker: View {
   }
   
   var body: some View {
-    Form {
-      Section(header: HStack {
-        Text(self.title)
+    VStack(alignment: .center, spacing: 0) {
+      HStack {
+        Button(action: {
+          self.showFileImporter = true
+          self.searchAndImport = true
+        }) {
+          Text("Search & Import")
+        }
         Spacer()
         Button(action: {
           self.presentationMode.wrappedValue.dismiss()
         }) {
-          Image(systemName: "xmark.circle.fill")
-            .foregroundColor(.gray)
+          Text("Cancel")
         }
-      }.textCase(nil).font(.callout)) {
       }
-      Section(header: Text("User")) {
-        FileHierarchyView(self.fileManager.userRootDirectories,
-                          fileType: fileType,
-                          mutable: true,
-                          showFileMover: $showFileMover,
-                          showFileImporter: $showFileImporter,
-                          showFileSharer: $showFileSharer,
-                          selectedUrl: $selectedUrl,
-                          editUrl: $editUrl,
-                          editName: $editName,
-                          action: action)
-          .font(.callout)
-      }
-      Section(header: Text("System")) {
-        FileHierarchyView(self.fileManager.systemRootDirectories,
-                          fileType: fileType,
-                          mutable: false,
-                          showFileMover: $showFileMover,
-                          showFileImporter: $showFileImporter,
-                          showFileSharer: $showFileSharer,
-                          selectedUrl: $selectedUrl,
-                          editUrl: $editUrl,
-                          editName: $editName,
-                          action: action)
-          .font(.callout)
+      .font(.body)
+      .padding()
+      .edgesIgnoringSafeArea(.all)
+      .background(Color(UIColor.secondarySystemBackground))
+      Form {
+        Section(header: Text("User")) {
+          FileHierarchyView(self.fileManager.userRootDirectories,
+                            fileType: fileType,
+                            mutable: true,
+                            showFileMover: $showFileMover,
+                            showFileImporter: $showFileImporter,
+                            showFileSharer: $showFileSharer,
+                            selectedUrl: $selectedUrl,
+                            editUrl: $editUrl,
+                            editName: $editName,
+                            action: action)
+            .font(.body)
+        }
+        Section(header: Text("System")) {
+          FileHierarchyView(self.fileManager.systemRootDirectories,
+                            fileType: fileType,
+                            mutable: false,
+                            showFileMover: $showFileMover,
+                            showFileImporter: $showFileImporter,
+                            showFileSharer: $showFileSharer,
+                            selectedUrl: $selectedUrl,
+                            editUrl: $editUrl,
+                            editName: $editName,
+                            action: action)
+            .font(.body)
+        }
       }
     }
     .sheet(isPresented: $showFileSharer) {
@@ -93,27 +103,41 @@ struct DocumentPicker: View {
     .fileImporter(isPresented: $showFileImporter,
                   allowedContentTypes: [.plainText],
                   allowsMultipleSelection: true) { result in
-      do {
-        guard let selectedFile: URL = try result.get().first else {
-          return
-        }
-        if selectedFile.startAccessingSecurityScopedResource() {
-          defer {
-            selectedFile.stopAccessingSecurityScopedResource()
-          }
-          if let target = self.selectedUrl {
-            if !self.fileManager.copy(selectedFile, into: target) {
-              // Handle copy failed
+      let sai = self.searchAndImport
+      self.searchAndImport = false
+      print("result = \(result)")
+      switch result {
+        case .success(let urls):
+          if !urls.isEmpty {
+            if !sai {
+              do {
+                guard let selectedFile: URL = try result.get().first else {
+                  return
+                }
+                if selectedFile.startAccessingSecurityScopedResource() {
+                  defer {
+                    selectedFile.stopAccessingSecurityScopedResource()
+                  }
+                  if let target = self.selectedUrl {
+                    if !self.fileManager.copy(selectedFile, into: target) {
+                      // Handle copy failed
+                    }
+                  }
+                } else {
+                  // Handle denied access
+                }
+              } catch {
+                // Handle general failure
+              }
+            } else {
+              
+              self.presentationMode.wrappedValue.dismiss()
             }
           }
-        } else {
-          // Handle denied access
-        }
-      } catch {
-        // Handle general failure
+        case .failure(let error):
+          break
       }
     }
-    // Add generic alert handling here
   }
 }
 

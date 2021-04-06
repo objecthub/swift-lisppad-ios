@@ -83,7 +83,7 @@ struct CodeEditorView: View {
   func determineDefinitions(_ text: String,
                             maxCount: Int = 10000,
                             maxDefs: Int = 100,
-                            maxLen: Int = 60) -> DefinitionMenu {
+                            maxLen: Int = 60) -> DefinitionMenu? {
     let str = text as NSString
     var valueDefs: [(String, Int)] = []
     var syntaxDefs: [(String, Int)] = []
@@ -304,10 +304,14 @@ struct CodeEditorView: View {
       }
       index += 1
     }
-    return DefinitionMenu(values: valueDefs,
-                          syntax: syntaxDefs,
-                          records: recordDefs,
-                          types: typeDefs)
+    if (valueDefs.count + syntaxDefs.count + recordDefs.count + typeDefs.count) > 0 {
+      return DefinitionMenu(values: valueDefs,
+                            syntax: syntaxDefs,
+                            records: recordDefs,
+                            types: typeDefs)
+    } else {
+      return nil
+    }
   }
 }
 
