@@ -95,6 +95,8 @@
 		CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */; };
 		CCC85659261B18C80080B96E /* SearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC85658261B18C70080B96E /* SearchField.swift */; };
 		CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565A261BADAD0080B96E /* DefinitionView.swift */; };
+		CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565C261CE5710080B96E /* TextDocument.swift */; };
+		CCC85660261D09410080B96E /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565F261D09410080B96E /* PreferencesView.swift */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -323,6 +325,8 @@
 		CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextViewDelegate.swift; sourceTree = "<group>"; };
 		CCC85658261B18C70080B96E /* SearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchField.swift; sourceTree = "<group>"; };
 		CCC8565A261BADAD0080B96E /* DefinitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefinitionView.swift; sourceTree = "<group>"; };
+		CCC8565C261CE5710080B96E /* TextDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDocument.swift; sourceTree = "<group>"; };
+		CCC8565F261D09410080B96E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -373,6 +377,7 @@
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
 				CCC85642261989710080B96E /* Documentation */,
 				CCC85639261677560080B96E /* Files */,
+				CCC8565E261D09190080B96E /* Preferences */,
 				CCC8564326198A500080B96E /* Generic Views */,
 				CCFBC5C92605F4D700E29F99 /* Util */,
 				CC8B95B82607FFBC00830B4F /* Libraries */,
@@ -567,6 +572,7 @@
 				CCC8563E2617A8960080B96E /* FileHierarchy.swift */,
 				CCC8563C261767660080B96E /* FileHierarchyViewer.swift */,
 				CCC856372615DC4A0080B96E /* DocumentPicker.swift */,
+				CCC8565C261CE5710080B96E /* TextDocument.swift */,
 			);
 			path = Files;
 			sourceTree = "<group>";
@@ -598,6 +604,14 @@
 				CCC856542619F93B0080B96E /* LispPad_small.png */,
 			);
 			path = Assets;
+			sourceTree = "<group>";
+		};
+		CCC8565E261D09190080B96E /* Preferences */ = {
+			isa = PBXGroup;
+			children = (
+				CCC8565F261D09410080B96E /* PreferencesView.swift */,
+			);
+			path = Preferences;
 			sourceTree = "<group>";
 		};
 		CCFBC5BA25FE8E0A00E29F99 /* Editor */ = {
@@ -715,6 +729,7 @@
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
+				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
@@ -724,6 +739,7 @@
 				CC327C552610B60400BD7E32 /* CodeEditorTextView.swift in Sources */,
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
+				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,

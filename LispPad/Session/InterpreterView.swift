@@ -41,7 +41,8 @@ struct InterpreterView: View {
   
   // Environment, observed and bound objects
   @EnvironmentObject var docManager: DocumentationManager
-  @ObservedObject var interpreter: Interpreter
+  @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var interpreter: Interpreter
   @ObservedObject var historyManager: HistoryManager
   
   // Internal state
@@ -50,6 +51,7 @@ struct InterpreterView: View {
   @State private var showResetActionSheet = false
   @State private var showShareSheet = false
   @State private var showImportSheet = false
+  @State private var showPreferences = false
   @State private var documentPickerAction: DocumentPickerAction? = nil
   
   // The main view
@@ -85,7 +87,7 @@ struct InterpreterView: View {
     .navigationBarItems(
       leading: HStack(alignment: .center, spacing: 16) {
         NavigationLink(destination: LazyView(CodeEditorView())) {
-          Image(systemName: "pencil.circle")
+          Image(systemName: "pencil")
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
         Menu {
@@ -133,19 +135,31 @@ struct InterpreterView: View {
       },
       trailing: HStack(alignment: .center, spacing: 16) {
         if self.interpreter.isReady {
-          Button(action: {
-            self.showResetActionSheet = true
-          }) {
-            Image(systemName: "trash")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          Menu {
+            Button(action: {
+              self.interpreter.consoleContent.removeAll()
+            }) {
+                Label("Clear Console…", systemImage: "clear")
+            }
+            Button(action: {
+              self.showResetActionSheet = true
+            }) {
+                Label("Reset Interpreter…", systemImage: "trash")
+            }
+            Divider()
+            Button(action: {
+              self.showPreferences = true
+            }) {
+              Label("Preferences…", systemImage: "switch.2")
+            }
+          } label: {
+            Image(systemName: "gearshape")
+              .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
           }
           .actionSheet(isPresented: $showResetActionSheet) {
             ActionSheet(title: Text("Reset"),
-                        message: Text("Discard console output or reset interpreter?"),
-                        buttons: [.default(Text("Reset console"), action: {
-                                    self.interpreter.consoleContent.removeAll()
-                                  }),
-                                  .destructive(Text("Reset interpreter"), action: {
+                        message: Text("Clear console and reset interpreter?"),
+                        buttons: [.destructive(Text("Reset interpreter"), action: {
                                     _ = self.interpreter.reset()
                                   }),
                                   .destructive(Text("Reset console & interpreter"), action: {
@@ -154,6 +168,10 @@ struct InterpreterView: View {
                                   }),
                                   .cancel()])
           }
+          .background(
+            NavigationLink(destination: LazyView(PreferencesView()), isActive: $showPreferences) {
+              EmptyView()
+            })
         } else {
           Button(action: {
             self.showAbortAlert = true

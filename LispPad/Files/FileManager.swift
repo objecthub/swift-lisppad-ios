@@ -55,6 +55,8 @@ class FileManager: ObservableObject {
   /// User-defined resources
   private(set) var userRootDirectories: [NamedURL] = []
   
+  @Published var editorDocument: TextDocument? = nil
+  
   /// Constructor, responsible for defining the named resources as well as for setting them up
   /// initially.
   init() {
@@ -80,6 +82,11 @@ class FileManager: ObservableObject {
       }
       self.userRootDirectories.append(NamedURL(name: name, image: image, url: url))
       _ = self.createExtensionDirectories(in: url)
+    }
+    if let appDirectory = self.appSupportDirectory() {
+      let scratchUrl = appDirectory.appendingPathComponent("Scratch")
+      self.editorDocument = TextDocument(fileURL: scratchUrl)
+      self.editorDocument?.loadFile()
     }
   }
   

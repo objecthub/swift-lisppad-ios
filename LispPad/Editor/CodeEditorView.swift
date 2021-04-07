@@ -22,13 +22,17 @@ import SwiftUI
 
 struct CodeEditorView: View {
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-
-  @State var text: String = "This is a test"
+  
+  @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var interpreter: Interpreter
+  
+  @State var text: String = ""
   @State var position: NSRange? = nil
   @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
   @State var definitions: DefinitionMenu? = nil
   @State var documentPickerAction: InterpreterView.DocumentPickerAction? = nil
+  @State var showAbortAlert = false
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -83,7 +87,7 @@ struct CodeEditorView: View {
           Button(action: {
             self.documentPickerAction = .executeFile
           }) {
-              Label("Execute File…", systemImage: "arrow.down.doc")
+              Label("Save As…", systemImage: "arrow.down.doc")
           }
           Divider()
           Button(action: {
@@ -101,6 +105,28 @@ struct CodeEditorView: View {
                  DocumentPicker("Select file to edit",
                                 fileType: .file,
                                 action: { url in print("selected \(url)") })})
+        if self.interpreter.isReady {
+          Button(action: {
+            
+          }) {
+            Image(systemName: "play")
+              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          }
+        } else {
+          Button(action: {
+            self.showAbortAlert = true
+          }) {
+            Image(systemName: "stop.circle")
+              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          }
+          .alert(isPresented: $showAbortAlert) {
+            Alert(title: Text("Abort evaluation?"),
+                  primaryButton: .cancel(),
+                  secondaryButton: .destructive(Text("Abort"), action: {
+                    self.interpreter.context?.machine.abort()
+                  }))
+          }
+        }
       },
       trailing:
         HStack(alignment: .center, spacing: 12) {
@@ -131,6 +157,10 @@ struct CodeEditorView: View {
           }
           .disabled(self.showSearchField)
         })
+    .onDisappear(perform: {
+      print("disappear")
+      // self.fileManager.editorDocument?.saveFile()
+    })
   }
   
   func determineDefinitions(_ text: String,

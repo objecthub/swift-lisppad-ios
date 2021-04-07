@@ -153,10 +153,11 @@ struct ConsoleView: View {
       RoundedRectangle(cornerRadius: 14).stroke(Color.gray, lineWidth: 1)
     )
     .padding(.horizontal, 6)
+    .padding(.bottom, -4)
   }
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 1) {
+    VStack(alignment: .leading, spacing: 0) {
       ScrollViewReader { scrollViewProxy in
         ConsoleScrollView(.vertical, offsetChanged: { coord in 
           // Swift.print("coord = \(coord)")

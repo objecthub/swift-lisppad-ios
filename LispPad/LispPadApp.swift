@@ -34,8 +34,8 @@ import SwiftUI
   // The scene powering the app
   var body: some Scene {
     WindowGroup {
-      InterpreterView(interpreter: self.interpreter,
-                      historyManager: self.histManager)
+      InterpreterView(historyManager: self.histManager)
+        .environmentObject(self.interpreter)
         .environmentObject(self.docManager)
         .environmentObject(self.fileManager)
     }
@@ -47,6 +47,7 @@ import SwiftUI
           break
         case .background:
           self.histManager.saveConsoleHistory()
+          self.fileManager.editorDocument?.saveFile()
         default:
           break
       }
