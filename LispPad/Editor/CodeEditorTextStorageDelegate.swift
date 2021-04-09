@@ -248,9 +248,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
       textStorage.addAttribute(.foregroundColor,
                                value: self.codeColor,
                                range: highlightRange)
-      textStorage.addAttribute(.backgroundColor,
+      /* textStorage.addAttribute(.backgroundColor,
                                value: self.codeBackground,
-                               range: str.lineRange(for: highlightRange))
+                               range: str.lineRange(for: highlightRange)) */
       start = endblock + 1
       emptyPrefix = false
     } else {
@@ -406,9 +406,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
             textStorage.addAttribute(.foregroundColor,
                                      value: self.codeColor,
                                      range: highlightRange)
-            textStorage.addAttribute(.backgroundColor,
+            /* textStorage.addAttribute(.backgroundColor,
                                      value: self.codeBackground,
-                                     range: str.lineRange(for: highlightRange))
+                                     range: str.lineRange(for: highlightRange)) */
             start = endblock
           } else if !escaped,
                     let i = self.findInParagraph(BQUOTE, in: str, start: start + 1, end: end) {
@@ -600,7 +600,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     }
     // Remove attribution in edited range
     textStorage.removeAttribute(.foregroundColor, range: range)
-    textStorage.removeAttribute(.backgroundColor, range: range)
+    // textStorage.removeAttribute(.backgroundColor, range: range)
     // Add syntax highlighting
     if self.lispSyntax {
       self.highlightLispSyntax(textStorage, str, range)

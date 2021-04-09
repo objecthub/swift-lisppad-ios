@@ -105,7 +105,6 @@ struct DocumentPicker: View {
                   allowsMultipleSelection: true) { result in
       let sai = self.searchAndImport
       self.searchAndImport = false
-      print("result = \(result)")
       switch result {
         case .success(let urls):
           if !urls.isEmpty {

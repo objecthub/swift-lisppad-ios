@@ -101,6 +101,11 @@ final class Interpreter: ContextDelegate, ObservableObject {
     if self.consoleContent.count >= Interpreter.maxConsoleEntries {
       self.consoleContent.removeFirst()
     }
+    if let last = self.consoleContent.last,
+       case .output = last.kind,
+       last.text.last == "\n" {
+      self.consoleContent[self.consoleContent.count - 1].text = String(last.text.dropLast())
+    }
     self.consoleContent.append(output)
   }
   
@@ -159,7 +164,11 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.isReady = false
     self.readingStatus = .reject
     self.processingQueue.addOperation { [weak self] in
-      let res = self?.execute(command)
+      let res = self?.execute { context in
+        try context.machine.eval(str: command,
+                                 sourceId: SourceManager.consoleSourceId,
+                                 in: context.global, as: "<repl>")
+      }
       DispatchQueue.main.sync {
         self?.isReady = true
         self?.readingStatus = .accept
@@ -171,6 +180,71 @@ final class Interpreter: ContextDelegate, ObservableObject {
           }
         } else {
           reset()
+        }
+      }
+    }
+  }
+  
+  func evaluate(_ text: String, url: URL?) {
+    self.readingCondition.lock()
+    defer {
+      self.readingCondition.signal()
+      self.readingCondition.unlock()
+    }
+    guard self.isReady else {
+      return
+    }
+    self.isReady = false
+    self.readingStatus = .reject
+    self.processingQueue.addOperation { [weak self] in
+      let res = self?.execute { context in
+        var sourceId = SourceManager.consoleSourceId
+        if let url = url {
+          sourceId = context.sources.obtainSourceId(for: url)
+        }
+        return try context.machine.eval(str: text,
+                                        sourceId: sourceId,
+                                        in: context.global,
+                                        as: "<loader>")
+      }
+      DispatchQueue.main.sync {
+        self?.isReady = true
+        self?.readingStatus = .accept
+        if let res = res {
+          if res.kind == .result, res.text.isEmpty {
+            // do nothing
+          } else {
+            self?.append(output: res)
+          }
+        }
+      }
+    }
+  }
+  
+  func load(_ url: URL) {
+    self.readingCondition.lock()
+    defer {
+      self.readingCondition.signal()
+      self.readingCondition.unlock()
+    }
+    guard self.isReady else {
+      return
+    }
+    self.isReady = false
+    self.readingStatus = .reject
+    self.processingQueue.addOperation { [weak self] in
+      let res = self?.execute { context in
+        try context.machine.eval(file: url.absoluteURL.path, in: context.global, as: "<loader>")
+      }
+      DispatchQueue.main.sync {
+        self?.isReady = true
+        self?.readingStatus = .accept
+        if let res = res {
+          if res.kind == .result, res.text.isEmpty {
+            // do nothing
+          } else {
+            self?.append(output: res)
+          }
         }
       }
     }
@@ -248,14 +322,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
-  func execute(_ command: String) -> ConsoleOutput? {
+  private func execute(action: (Context) throws -> Expr) -> ConsoleOutput? {
     guard let context = self.context else {
       return nil
     }
     let res = context.machine.onTopLevelDo {
-      return try context.machine.eval(str: command,
-                                      sourceId: SourceManager.consoleSourceId,
-                                      in: context.global, as: "<repl>")
+      try action(context)
     }
     if context.machine.exitTriggered {
       // Check if we should close this interpreter
@@ -362,6 +434,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
         self.consoleContent[self.consoleContent.count - 1].text += str
       } else if str.first == "\n" {
         self.append(output: ConsoleOutput(kind: .output, text: String(str.dropFirst())))
+      } else if last.text.last == "\n" {
+        let str = String(self.consoleContent[self.consoleContent.count - 1].text.dropLast())
+        self.consoleContent[self.consoleContent.count - 1].text = str
+        self.append(output: ConsoleOutput(kind: .output, text: str))
       } else {
         self.append(output: ConsoleOutput(kind: .output, text: str))
       }

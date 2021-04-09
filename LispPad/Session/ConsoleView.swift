@@ -112,11 +112,13 @@ struct ConsoleView: View {
               .resizable()
               .scaledToFit()
               .frame(height: 25)
+              .foregroundColor(.init(.sRGB, red: 0.8, green: 0.5, blue: 0.5, opacity: 1.0))
           } else {
             Image(systemName: "arrow.forward.circle.fill")
               .resizable()
               .scaledToFit()
               .frame(height: 25)
+              .foregroundColor(.red)
           }
         } else if self.input.isEmpty {
           Image(systemName: "pencil.circle.fill")

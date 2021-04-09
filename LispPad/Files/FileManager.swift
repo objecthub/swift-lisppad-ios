@@ -55,39 +55,67 @@ class FileManager: ObservableObject {
   /// User-defined resources
   private(set) var userRootDirectories: [NamedURL] = []
   
+  /// The URL of the application support directory, if available
+  private(set) var applicationSupportURL: URL? = nil
+  
   @Published var editorDocument: TextDocument? = nil
   
   /// Constructor, responsible for defining the named resources as well as for setting them up
   /// initially.
   init() {
-    if let url = self.icloudDirectory() {
-      self.userRootDirectories.append(NamedURL(name: "iCloud Drive",
-                                               image: "icloud",
-                                               url: url))
-      _ = self.createExtensionDirectories(in: url)
-    }
-    if let url = self.documentsDirectory() {
-      let name: String
-      let image: String
-      switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
-          name = "On My iPhone"
-          image = "iphone"
-        case .pad:
-          name = "On My iPad"
-          image = "ipad"
-        default:
-          name = "On My Device"
-          image = "desktopcomputer"
+    DispatchQueue.global(qos: .default).async {
+      if let url = self.icloudDirectory() {
+        self.userRootDirectories.append(NamedURL(name: "iCloud Drive",
+                                                 image: "icloud",
+                                                 url: url))
+        _ = self.createExtensionDirectories(in: url)
       }
-      self.userRootDirectories.append(NamedURL(name: name, image: image, url: url))
-      _ = self.createExtensionDirectories(in: url)
+      if let url = self.documentsDirectory() {
+        let name: String
+        let image: String
+        switch UIDevice.current.userInterfaceIdiom {
+          case .phone:
+            name = "On My iPhone"
+            image = "iphone"
+          case .pad:
+            name = "On My iPad"
+            image = "ipad"
+          default:
+            name = "On My Device"
+            image = "desktopcomputer"
+        }
+        self.userRootDirectories.append(NamedURL(name: name, image: image, url: url))
+        _ = self.createExtensionDirectories(in: url)
+      }
     }
-    if let appDirectory = self.appSupportDirectory() {
-      let scratchUrl = appDirectory.appendingPathComponent("Scratch")
-      self.editorDocument = TextDocument(fileURL: scratchUrl)
-      self.editorDocument?.loadFile()
+    if let appDir = self.appSupportDirectory() {
+      self.applicationSupportURL = appDir
+      self.newEditorDocument(action: { success in })
     }
+  }
+  
+  func isApplicationSupportURL(_ url: URL) -> Bool {
+    if let appDirectory = self.applicationSupportURL {
+      return url.isContained(in: appDirectory)
+    }
+    return false
+  }
+  
+  func canonicalPath(for url: URL) -> String {
+    var roots: [String] = []
+    for namedUrl in self.systemRootDirectories {
+      roots.append(namedUrl.url.absoluteURL.path)
+    }
+    for namedUrl in self.userRootDirectories {
+      roots.append(namedUrl.url.absoluteURL.path)
+    }
+    let path = url.absoluteURL.path
+    for root in roots {
+      if path.hasPrefix(root) {
+        return String(path[path.index(path.startIndex, offsetBy: root.count + 1)...])
+      }
+    }
+    return path
   }
   
   /// Creates the following directories under the given `container` URL:
@@ -209,6 +237,23 @@ class FileManager: ObservableObject {
     }
   }
   
+  func newEditorDocument(action: @escaping (Bool) -> Void) {
+    if let appDir = self.applicationSupportURL {
+      self.loadEditorDocument(appDir.appendingPathComponent("Untitled.scm"),
+                              new: true,
+                              action: action)
+    }
+  }
+  
+  func loadEditorDocument(_ url: URL, new: Bool, action: @escaping (Bool) -> Void) {
+    self.editorDocument?.saveFile(action: { success in 
+      self.editorDocument?.close(completionHandler: { success in })
+    })
+    self.editorDocument = TextDocument(fileURL: url)
+    self.editorDocument?.new = new
+    self.editorDocument?.loadFile(action: action)
+  }
+  
   /// Returns the "iCloud Drive" URL if available.
   func icloudDirectory() -> URL? {
     return self.sysFileManager.url(forUbiquityContainerIdentifier: nil)?
@@ -227,9 +272,9 @@ class FileManager: ObservableObject {
   /// exist already).
   func appSupportDirectory() -> URL? {
     return try? self.sysFileManager.url(for: .applicationSupportDirectory,
-                                           in: .userDomainMask,
-                                           appropriateFor: nil,
-                                           create: true)
+                                        in: .userDomainMask,
+                                        appropriateFor: nil,
+                                        create: true)
   }
 
   /// Returns a cache URL if available.

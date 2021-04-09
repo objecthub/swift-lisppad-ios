@@ -90,38 +90,28 @@ struct InterpreterView: View {
           Image(systemName: "pencil")
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
-        Menu {
-          Button(action: {
-            
-          }) {
-              Label("New File", systemImage: "square.and.pencil")
-          }
-          Button(action: {
-            self.documentPickerAction = .editFile
-          }) {
-              Label("Edit File…", systemImage: "doc.text")
-          }
-          Button(action: {
-            self.documentPickerAction = .executeFile
-          }) {
-              Label("Execute File…", systemImage: "arrow.down.doc")
-          }
-          Divider()
-          Button(action: {
-            self.documentPickerAction = .organizeFiles
-          }) {
-            Label("Organize Files…", systemImage: "doc.on.doc")
-          }
-        } label: {
-          Image(systemName: "doc")
-            .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
+        Button(action: {
+          self.documentPickerAction = .executeFile
+        }) {
+          Image(systemName: "arrow.down.doc")
+            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
+        .disabled(!self.interpreter.isReady)
         .sheet(item: $documentPickerAction,
                onDismiss: { },
                content: { action in
-                 DocumentPicker("Select file to edit",
-                                fileType: .file,
-                                action: { url in print("selected \(url)") })})
+                 DocumentPicker(
+                  "Select file to load",
+                  fileType: .file,
+                  action: { url in
+                    if self.interpreter.isReady {
+                      let input = InterpreterView.canonicalizeInput(
+                                    "(load \"\(self.fileManager.canonicalPath(for: url))\")")
+                      self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
+                      self.historyManager.addConsoleEntry(input)
+                      self.interpreter.load(url)
+                    }
+                  })})
         Button(action: {
           self.showShareSheet = true
         }) {

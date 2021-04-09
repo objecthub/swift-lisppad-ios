@@ -24,6 +24,8 @@ import SwiftUI
 class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
   @Binding var text: String
   
+  let parenBackground = UIColor(red: 0.87, green: 0.87, blue: 0.0, alpha: 1)
+  
   init(_ text: Binding<String>) {
     self._text = text
   }
@@ -257,18 +259,103 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
   public func textView(_ textView: UITextView,
                        shouldChangeTextIn range: NSRange,
                        replacementText text: String) -> Bool {
-    if text == "\n" {
-      let indent = lispIndent(textView.textStorage.string as NSString, range)
-      if let replaceStart = textView.position(from: textView.beginningOfDocument,
-                                              offset: range.location),
-          let replaceEnd = textView.position(from: replaceStart, offset: range.length),
-          let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
-        // textView.undoManager?.beginUndoGrouping()
-        textView.replace(textRange, withText: "\n" + indent)
-        // textView.undoManager?.endUndoGrouping()
-        return false
+    switch text {
+      case "\n":
+        let indent = lispIndent(textView.textStorage.string as NSString, range)
+        if let replaceStart = textView.position(from: textView.beginningOfDocument,
+                                                offset: range.location),
+            let replaceEnd = textView.position(from: replaceStart, offset: range.length),
+            let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
+          // textView.undoManager?.beginUndoGrouping()
+          textView.replace(textRange, withText: "\n" + indent)
+          // textView.undoManager?.endUndoGrouping()
+          return false
+        }
+        return true
+      case ")":
+        return self.highlight(LPAREN, RPAREN, back: true, in: textView, at: range, text: text)
+      case "(":
+        return self.highlight(RPAREN, LPAREN, back: false, in: textView, at: range, text: text)
+      case "]":
+        return self.highlight(LBRACKET, RBRACKET, back: true, in: textView, at: range, text: text)
+      case "[":
+        return self.highlight(RBRACKET, LBRACKET, back: false, in: textView, at: range, text: text)
+      case "}":
+        return self.highlight(LBRACE, RBRACE, back: true, in: textView, at: range, text: text)
+      case "{":
+        return self.highlight(RBRACE, LBRACE, back: false, in: textView, at: range, text: text)
+      default:
+        return true
+    }
+  }
+  
+  private func highlight(_ ch: UniChar,
+                         _ this: UniChar,
+                         back: Bool,
+                         in textView: UITextView,
+                         at range: NSRange,
+                         text: String) -> Bool {
+    if let replaceStart = textView.position(from: textView.beginningOfDocument,
+                                            offset: range.location),
+        let replaceEnd = textView.position(from: replaceStart, offset: range.length),
+        let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
+      textView.replace(textRange, withText: text)
+      let str = textView.text as NSString
+      let loc = back ? self.find(ch, matching: this, from: range.location, to: 0, in: str)
+                         : self.find(ch, matching: this, from: range.location, to: str.length,
+                                     in: str)
+      if loc >= 0 {
+        let storage = textView.textStorage
+        storage.removeAttribute(.backgroundColor,
+                                range: NSRange(location: 0, length: storage.length))
+        storage.addAttribute(.backgroundColor,
+                             value: self.parenBackground,
+                             range: NSRange(location: loc, length: 1))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, qos: .userInitiated, flags: []) {
+          storage.removeAttribute(.backgroundColor,
+                                  range: NSRange(location: 0, length: storage.length))
+        }
       }
+      return false
     }
     return true
+  }
+  
+  /// Find matching parenthesis between the indices `from` and `to`. If `from` is less than `to`,
+  /// then search forward, if `to` is less than `from`, search backward.
+  private func find(_ ch: UniChar,
+                    matching with: UniChar,
+                    from: Int,
+                    to: Int,
+                    in str: NSString) -> Int {
+    var open = 0
+    if to < from {
+      var i = from - 1
+      while i >= to {
+        if str.character(at: i) == with {
+          open += 1
+        } else if str.character(at: i) == ch {
+          if open == 0 {
+            return i
+          }
+          open -= 1
+        }
+        i -= 1
+      }
+    } else if to > from {
+      var i = from + 1
+      while i < to {
+        if str.character(at: i) == with {
+          open += 1
+        } else if str.character(at: i) == ch {
+          if open == 0 {
+            return i
+          }
+          open -= 1
+        }
+        i += 1
+      }
+    }
+    return -1
   }
 }

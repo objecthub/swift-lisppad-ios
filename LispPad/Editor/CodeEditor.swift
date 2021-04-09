@@ -16,67 +16,13 @@ public typealias OnSelectionChangeCallback = ([NSRange]) -> Void
 let defaultEditorFont = UIFont.preferredFont(forTextStyle: .body)
 let defaultEditorTextColor = UIColor.label
 
-/*
-open class LispTextView: UITextView {
-  
-  /// Find matching parenthesis between the indices `from` and `to`. If `from` < `to`,
-  /// then search forward, if `to` < `from`, search backward.
-  private func find(_ ch: UniChar,
-                    matching with: UniChar,
-                    from: Int,
-                    to: Int,
-                    in str: NSString) -> Int {
-    var open = 0
-    if to < from {
-      var i = from - 1
-      while i >= to {
-        if str.character(at: i) == with {
-          open += 1
-        } else if str.character(at: i) == ch {
-          if open == 0 {
-            return i
-          }
-          open -= 1
-        }
-        i -= 1
-      }
-    } else if to > from {
-      var i = from + 1
-      while i < to {
-        if str.character(at: i) == with {
-          open += 1
-        } else if str.character(at: i) == ch {
-          if open == 0 {
-            return i
-          }
-          open -= 1
-        }
-        i += 1
-      }
-    }
-    return -1
-  }
-  
-  /// Highlight the matching parenthesis between the indices `from` and `to`. If `from` is less
-  /// than `to`, then search forward, if `to` is less than `from`, search backward.
-  func highlight(in str: NSString, from: Int, to: Int, matching ch: UniChar) {
-    let loc = self.find(ch, matching: str.character(at: from), from: from, to: to, in: str)
-    if loc >= 0 {
-      super.showFindIndicator(for: NSRange(location: loc, length: 1))
-    }
-  }
-  
-  
-  
-}
-*/
-
 struct CodeEditor: UIViewRepresentable {
   typealias Coordinator = CodeEditorTextViewDelegate
   
   @EnvironmentObject var docManager: DocumentationManager
 
   @Binding var text: String
+  @Binding var forceUpdate: Bool
   @Binding var position: NSRange?
   
   var autocapitalizationType: UITextAutocapitalizationType = .sentences
@@ -89,8 +35,10 @@ struct CodeEditor: UIViewRepresentable {
   private(set) var onSelectionChange: OnSelectionChangeCallback? = nil
   
   public init(text: Binding<String>,
+              forceUpdate: Binding<Bool>,
               position: Binding<NSRange?>) {
     self._text = text
+    self._forceUpdate = forceUpdate
     self._position = position
   }
 
@@ -103,7 +51,7 @@ struct CodeEditor: UIViewRepresentable {
                                                     y: 0,
                                                     width: CGFloat.greatestFiniteMagnitude,
                                                     height: CGFloat.greatestFiniteMagnitude),
-                                      docManager: docManager)  // UITextView()
+                                      docManager: docManager)
     textView.delegate = context.coordinator
     textView.isEditable = true
     textView.isScrollEnabled = true
@@ -113,18 +61,27 @@ struct CodeEditor: UIViewRepresentable {
     textView.smartDashesType = .no
     textView.smartInsertDeleteType = .no
     textView.textAlignment = .left // or .natural ?
+    textView.text = self.text
     updateTextViewModifiers(textView)
     return textView
   }
 
   public func updateUIView(_ uiView: UITextView, context: Context) {
-    // uiView.text = self.text
     if let pos = self.position {
+      if self.forceUpdate {
+        uiView.text = self.text
+      }
       uiView.selectedRange = pos
       uiView.scrollRangeToVisible(pos)
       DispatchQueue.main.async {
         uiView.becomeFirstResponder()
         self.position = nil
+        self.forceUpdate = false
+      }
+    } else if self.forceUpdate {
+      uiView.text = self.text
+      DispatchQueue.main.async {
+        self.forceUpdate = false
       }
     }
   }
