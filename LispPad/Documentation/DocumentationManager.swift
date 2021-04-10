@@ -39,6 +39,23 @@ final class DocumentationManager: ObservableObject {
     }
   }
   
+  /// URL for LispPad Library Reference PDF
+  let lispPadRef = 
+    FileManager.NamedURL(name: "Library Reference",
+                         image: "doc.richtext",
+                         url: Bundle.main.url(forResource: "lisppad_ref",
+                                              withExtension: "pdf",
+                                              subdirectory: "Documentation/Documents")!)
+  
+  /// URL for R7RS Scheme Specification PDF
+  let r7rsSpec =
+    FileManager.NamedURL(name: "Language Specification",
+                         image: "doc.richtext",
+                         url: Bundle.main.url(forResource: "r7rs",
+                                              withExtension: "pdf",
+                                              subdirectory: "Documentation/Documents")!)
+  
+  /// Is the documentation manager initialized?
   @Published var initialized: Bool = false
   
   private var documentation: [[String] : LibraryDocumentation] = [:]

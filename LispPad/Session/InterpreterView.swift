@@ -53,6 +53,7 @@ struct InterpreterView: View {
   @State private var showImportSheet = false
   @State private var showPreferences = false
   @State private var documentPickerAction: DocumentPickerAction? = nil
+  @State private var documentationUrl: FileManager.NamedURL? = nil
   
   // The main view
   var master: some View {
@@ -87,7 +88,7 @@ struct InterpreterView: View {
     .navigationBarItems(
       leading: HStack(alignment: .center, spacing: 16) {
         NavigationLink(destination: LazyView(CodeEditorView())) {
-          Image(systemName: "pencil")
+          Image(systemName: "pencil.circle.fill")
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
         Button(action: {
@@ -127,9 +128,20 @@ struct InterpreterView: View {
         if self.interpreter.isReady {
           Menu {
             Button(action: {
+              self.documentationUrl = self.docManager.r7rsSpec
+            }) {
+              Label("Language Spec…", systemImage: "doc.richtext")
+            }
+            Button(action: {
+              self.documentationUrl = self.docManager.lispPadRef
+            }) {
+              Label("Library Reference…", systemImage: "doc.richtext")
+            }
+            Divider()
+            Button(action: {
               self.interpreter.consoleContent.removeAll()
             }) {
-                Label("Clear Console…", systemImage: "clear")
+                Label("Clear Console", systemImage: "clear")
             }
             Button(action: {
               self.showResetActionSheet = true
@@ -145,6 +157,9 @@ struct InterpreterView: View {
           } label: {
             Image(systemName: "gearshape")
               .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          }
+          .sheet(item: $documentationUrl) { docUrl in
+            DocumentView(title: docUrl.name, url: docUrl.url)
           }
           .actionSheet(isPresented: $showResetActionSheet) {
             ActionSheet(title: Text("Reset"),

@@ -28,10 +28,14 @@ import LispKit
 class FileManager: ObservableObject {
   
   /// Struct `NamedURL` associates names with URLs.
-  struct NamedURL {
+  struct NamedURL: Identifiable {
     let name: String
     let image: String
     let url: URL
+    
+    var id: URL {
+      url
+    }
   }
   
   /// The default iOS file manager.

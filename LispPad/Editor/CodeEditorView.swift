@@ -79,7 +79,7 @@ struct CodeEditorView: View {
         Button(action: {
           self.presentationMode.wrappedValue.dismiss()
         }) {
-          Image(systemName: "terminal")
+          Image(systemName: "terminal.fill")
             .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
         }
         Menu {

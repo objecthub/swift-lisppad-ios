@@ -25,6 +25,7 @@ struct EnvironmentView: View {
   @ObservedObject var envManager: EnvironmentManager
   @State var searchText: String = ""
   @State var showCancel: Bool = false
+  @State var showLispPadRef: Bool = false
   
   var body: some View {
     VStack {
@@ -81,6 +82,16 @@ struct EnvironmentView: View {
       .resignKeyboardOnDragGesture()
       .listStyle(DefaultListStyle())
       .navigationTitle("Environment")
+      .navigationBarItems(
+        trailing: HStack(alignment: .center, spacing: 16) {
+          Button(action: { self.showLispPadRef = true }) {
+            Image(systemName: "info.circle")
+              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          }
+          .sheet(isPresented: $showLispPadRef) {
+            DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url)
+          }
+        })
     }
   }
 }
