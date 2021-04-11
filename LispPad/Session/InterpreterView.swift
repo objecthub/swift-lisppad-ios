@@ -40,7 +40,7 @@ struct InterpreterView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var interpreter: Interpreter
-  @ObservedObject var historyManager: HistoryManager
+  @EnvironmentObject var historyManager: HistoryManager
   
   // Internal state
   @State private var consoleInput = ""

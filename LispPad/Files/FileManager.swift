@@ -63,7 +63,8 @@ struct NamedRef: Identifiable {
 /// 
 class FileManager: ObservableObject {
   
-  let maxRecentlyEdited = 8
+  /// The history manager.
+  var histManager: HistoryManager? = nil
   
   /// The default iOS file manager.
   let sysFileManager = Foundation.FileManager.default
@@ -95,11 +96,6 @@ class FileManager: ObservableObject {
   /// The document currently loaded into the editor
   @Published var editorDocument: TextDocument? = nil
   
-  /// URLs to documents previously loaded into the editor
-  @Published var recentlyEdited: [URL] = []
-  
-  @Published var favoriteFiles: [URL] = []
-  
   /// Constructor, responsible for defining the named resources as well as for setting them up
   /// initially.
   init() {
@@ -129,10 +125,10 @@ class FileManager: ObservableObject {
       }
     }
     self.usageRootDirectories.append(NamedRef(name: "Recent", image: "clock") { [weak self] in
-      return self?.recentlyEdited ?? []
+      return self?.histManager?.recentlyEdited ?? []
     })
     self.usageRootDirectories.append(NamedRef(name: "Favorites", image: "star") { [weak self] in
-      return self?.favoriteFiles ?? []
+      return self?.histManager?.favoriteFiles ?? []
     })
     if let appDir = self.appSupportDirectory() {
       self.applicationSupportURL = appDir
@@ -291,19 +287,6 @@ class FileManager: ObservableObject {
     }
   }
   
-  func newRecentlyEdited(_ url: URL) {
-    loop: for i in self.recentlyEdited.indices {
-      if self.recentlyEdited[i] == url {
-        self.recentlyEdited.remove(at: i)
-        break loop
-      }
-    }
-    self.recentlyEdited.insert(url, at: 0)
-    if self.recentlyEdited.count > self.maxRecentlyEdited {
-      self.recentlyEdited.removeLast()
-    }
-  }
-  
   func newEditorDocument(action: @escaping (Bool) -> Void) {
     self.loadEditorDocument(action: action)
   }
@@ -338,7 +321,7 @@ class FileManager: ObservableObject {
           }
           try self.sysFileManager.removeItem(at: targetUrl)
           try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
-          self.newRecentlyEdited(sourceUrl)
+          self.histManager?.addFileEntry(sourceUrl)
         } else {
           return
         }
@@ -348,7 +331,7 @@ class FileManager: ObservableObject {
     }
     if let document = self.editorDocument, document.fileURL != targetUrl {
       if !document.new {
-        self.newRecentlyEdited(document.fileURL)
+        self.histManager?.addFileEntry(document.fileURL)
       }
       document.saveFile(action: { success in
         document.close(completionHandler: { success in

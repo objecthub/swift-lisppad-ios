@@ -28,30 +28,33 @@ import SwiftUI
   // Application-level state
   @StateObject private var interpreter = Interpreter()
   @StateObject private var docManager = DocumentationManager()
-  @StateObject private var fileManager = FileManager()
   @StateObject private var histManager = HistoryManager()
+  @StateObject private var fileManager = FileManager()
   
   // The scene powering the app
   var body: some Scene {
     WindowGroup {
-      InterpreterView(historyManager: self.histManager)
+      InterpreterView()
         .environmentObject(self.interpreter)
         .environmentObject(self.docManager)
+        .environmentObject(self.histManager)
         .environmentObject(self.fileManager)
     }
     .onChange(of: scenePhase, perform: { phase in
       switch phase {
         case .active:
-          break
+          self.fileManager.histManager = self.histManager
         case .inactive:
           break
         case .background:
           self.histManager.saveConsoleHistory()
+          self.histManager.saveFilesHistory()
           self.fileManager.editorDocument?.saveFile()
         default:
           break
       }
     })
+    
     /* Do not use a second scene yet
     DocumentGroup(newDocument: LispPadDocument()) { file in
       ContentView(document: file.$document)

@@ -24,6 +24,7 @@ struct CodeEditorView: View {
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   
   @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
   
   @State var position: NSRange? = nil
@@ -112,8 +113,8 @@ struct CodeEditorView: View {
                      "Save…" : "Save As…", systemImage: "arrow.down.doc")
           }
           Divider()
-          if !self.fileManager.recentlyEdited.isEmpty {
-            ForEach(self.fileManager.recentlyEdited, id: \.self) { url in
+          if !self.histManager.recentlyEdited.isEmpty {
+            ForEach(self.histManager.recentlyEdited, id: \.self) { url in
               Button(action: {
                 self.fileManager.loadEditorDocument(
                   source: url,
@@ -253,6 +254,7 @@ struct CodeEditorView: View {
                })
     .onDisappear(perform: {
       self.fileManager.editorDocument?.saveFile()
+      self.histManager.saveFilesHistory()
     })
   }
   

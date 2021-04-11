@@ -21,45 +21,110 @@
 import SwiftUI
 
 final class HistoryManager: ObservableObject {
-  private static let historyUserDefaultsKey = "Console.history"
-  private static let maxHistoryUserDefaultsKey = "Console.maxHistory"
-  private static let maxHistoryMax = 100
+  private static let consoleHistoryUserDefaultsKey = "Console.history"
+  private static let maxConsoleHistoryUserDefaultsKey = "Console.maxHistory"
+  private static let maxConsoleHistoryMax = 100
+  
+  private static let filesHistoryUserDefaultsKey = "Files.history"
+  private static let maxFilesHistoryUserDefaultsKey = "Files.maxHistory"
+  private static let maxFilesHistoryMax = 20
   
   @Published var consoleHistory: [String] = {
-    return UserDefaults.standard.object(forKey: HistoryManager.historyUserDefaultsKey)
+    return UserDefaults.standard.object(forKey: HistoryManager.consoleHistoryUserDefaultsKey)
              as? [String] ?? ["(string-append (os-name) \" \" (os-release))"]
   }()
   
-  private(set) var maxHistory: Int = {
-    let maxCount = UserDefaults.standard.integer(forKey: HistoryManager.maxHistoryUserDefaultsKey)
+  @Published var recentlyEdited: [URL] = {
+    let strs = UserDefaults.standard.object(forKey: HistoryManager.filesHistoryUserDefaultsKey)
+                 as? [String] ?? []
+    var res: [URL] = []
+    for str in strs {
+      if let url = URL(string: str) {
+        res.append(url)
+      }
+    }
+    return res
+  }()
+  
+  @Published var favoriteFiles: [URL] = []
+  
+  // Console History
+  
+  private(set) var maxConsoleHistory: Int = {
+    let maxCount = UserDefaults.standard.integer(forKey: HistoryManager.maxConsoleHistoryUserDefaultsKey)
     return maxCount == 0 ? 20 : maxCount
   }()
   
-  private var historyRequiresSaving: Bool = false
+  private var consoleHistoryRequiresSaving: Bool = false
   
   func addConsoleEntry(_ str: String) {
     self.consoleHistory.append(str)
-    if self.maxHistory < self.consoleHistory.count {
-      self.consoleHistory.removeFirst(self.consoleHistory.count - self.maxHistory)
+    if self.maxConsoleHistory < self.consoleHistory.count {
+      self.consoleHistory.removeFirst(self.consoleHistory.count - self.maxConsoleHistory)
     }
-    self.historyRequiresSaving = true
+    self.consoleHistoryRequiresSaving = true
   }
   
-  func setMaxHistoryCount(to max: Int) {
-    if max > 0 && max <= HistoryManager.maxHistoryMax {
-      UserDefaults.standard.set(max, forKey: HistoryManager.maxHistoryUserDefaultsKey)
-      self.maxHistory = max
+  func setMaxConsoleHistoryCount(to max: Int) {
+    if max > 0 && max <= HistoryManager.maxConsoleHistoryMax {
+      UserDefaults.standard.set(max, forKey: HistoryManager.maxConsoleHistoryUserDefaultsKey)
+      self.maxConsoleHistory = max
       if max < self.consoleHistory.count {
         self.consoleHistory.removeFirst(self.consoleHistory.count - max)
-        self.historyRequiresSaving = true
+        self.consoleHistoryRequiresSaving = true
       }
     }
   }
   
   func saveConsoleHistory() {
-    if self.historyRequiresSaving {
-      UserDefaults.standard.set(self.consoleHistory, forKey: HistoryManager.historyUserDefaultsKey)
-      self.historyRequiresSaving = false
+    if self.consoleHistoryRequiresSaving {
+      UserDefaults.standard.set(self.consoleHistory, forKey: HistoryManager.consoleHistoryUserDefaultsKey)
+      self.consoleHistoryRequiresSaving = false
+    }
+  }
+  
+  // Files history
+  
+  private(set) var maxFilesHistory: Int = {
+    let maxCount = UserDefaults.standard.integer(forKey: HistoryManager.maxFilesHistoryUserDefaultsKey)
+    return maxCount == 0 ? 8 : maxCount
+  }()
+  
+  private var filesHistoryRequiresSaving: Bool = false
+  
+  func addFileEntry(_ url: URL) {
+    loop: for i in self.recentlyEdited.indices {
+      if self.recentlyEdited[i] == url {
+        self.recentlyEdited.remove(at: i)
+        break loop
+      }
+    }
+    self.recentlyEdited.insert(url, at: 0)
+    if self.maxFilesHistory < self.recentlyEdited.count {
+      self.recentlyEdited.removeLast(self.recentlyEdited.count - self.maxFilesHistory)
+    }
+    self.filesHistoryRequiresSaving = true
+  }
+  
+  func setMaxFilesHistoryCount(to max: Int) {
+    if max > 0 && max <= HistoryManager.maxFilesHistoryMax {
+      UserDefaults.standard.set(max, forKey: HistoryManager.maxFilesHistoryUserDefaultsKey)
+      self.maxFilesHistory = max
+      if max < self.recentlyEdited.count {
+        self.recentlyEdited.removeLast(self.recentlyEdited.count - max)
+        self.filesHistoryRequiresSaving = true
+      }
+    }
+  }
+  
+  func saveFilesHistory() {
+    if self.filesHistoryRequiresSaving {
+      var strs: [String] = []
+      for url in self.recentlyEdited {
+        strs.append(url.absoluteString)
+      }
+      UserDefaults.standard.set(strs, forKey: HistoryManager.filesHistoryUserDefaultsKey)
+      self.filesHistoryRequiresSaving = false
     }
   }
 }
