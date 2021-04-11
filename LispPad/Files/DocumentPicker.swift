@@ -33,11 +33,11 @@ struct DocumentPicker: View {
   
   let title: String
   let fileType: FileType
-  let action: ((URL) -> Void)?
+  let action: ((URL, Bool) -> Void)?
   
   init(_ title: String,
        fileType: FileType = .all,
-       action: ((URL) -> Void)? = nil) {
+       action: ((URL, Bool) -> Void)? = nil) {
     self.title = title
     self.fileType = fileType
     self.action = action
@@ -64,6 +64,19 @@ struct DocumentPicker: View {
       .edgesIgnoringSafeArea(.all)
       .background(Color(UIColor.secondarySystemBackground))
       Form {
+        Section(header: Text("Usage")) {
+          FileHierarchyView(self.fileManager.usageRootDirectories,
+                            fileType: fileType,
+                            mutable: false,
+                            showFileMover: $showFileMover,
+                            showFileImporter: $showFileImporter,
+                            showFileSharer: $showFileSharer,
+                            selectedUrl: $selectedUrl,
+                            editUrl: $editUrl,
+                            editName: $editName,
+                            action: action)
+            .font(.body)
+        }
         Section(header: Text("User")) {
           FileHierarchyView(self.fileManager.userRootDirectories,
                             fileType: fileType,
@@ -133,7 +146,7 @@ struct DocumentPicker: View {
               self.presentationMode.wrappedValue.dismiss()
             }
           }
-        case .failure(let error):
+        case .failure(_):
           break
       }
     }

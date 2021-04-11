@@ -36,7 +36,7 @@ struct FileHierarchyView: View {
   private let roots: [FileHierarchy]
   private let fileType: FileType
   private let mutable: Bool
-  private let action: ((URL) -> Void)?
+  private let action: ((URL, Bool) -> Void)?
   
   // Bindings to communicate with the context of the view
   @Binding var showFileMover: Bool
@@ -47,7 +47,7 @@ struct FileHierarchyView: View {
   @Binding var editName: String
   
   /// Constructor
-  init(_ namedUrls: [FileManager.NamedURL],
+  init(_ namedRefs: [NamedRef],
        fileType: FileType = .all,
        mutable: Bool = true,
        showFileMover: Binding<Bool>,
@@ -56,7 +56,7 @@ struct FileHierarchyView: View {
        selectedUrl: Binding<URL?>,
        editUrl: Binding<URL?>,
        editName: Binding<String>,
-       action: ((URL) -> Void)? = nil) {
+       action: ((URL, Bool) -> Void)? = nil) {
     self.fileType = fileType
     self.mutable = mutable
     self.action = action
@@ -67,8 +67,8 @@ struct FileHierarchyView: View {
     self._editUrl = editUrl
     self._editName = editName
     var roots: [FileHierarchy] = []
-    for namedUrl in namedUrls {
-      if let root = FileHierarchy(namedUrl) {
+    for namedRef in namedRefs {
+      if let root = FileHierarchy(namedRef) {
         roots.append(root)
       }
     }
@@ -114,9 +114,10 @@ struct FileHierarchyView: View {
         }
       } else {
         Button(action: {
-          if let action = self.action {
+          if let action = self.action,
+             let url = hierarchy.url {
             DispatchQueue.main.async {
-              action(hierarchy.url)
+              action(url, self.mutable)
             }
             self.presentationMode.wrappedValue.dismiss()
           }
@@ -134,14 +135,16 @@ struct FileHierarchyView: View {
           if self.editUrl == nil {
             if self.mutable && hierarchy.kind != .file {
               Button(action: {
-                if let url = self.fileManager.makeDirectory(at: hierarchy.url) {
+                if let url = hierarchy.url,
+                   let dir = self.fileManager.makeDirectory(at: url) {
                   hierarchy.container?.reset()
-                  self.editName = url.lastPathComponent
-                  self.editUrl = url
+                  self.editName = dir.lastPathComponent
+                  self.editUrl = dir
                 }
               }) {
                 Label("New Folder", systemImage: "folder.badge.plus")
               }
+              .disabled(hierarchy.type == .collection)
               Button(action: {
                 self.showFileImporter = true
                 self.selectedUrl = hierarchy.url
@@ -158,8 +161,9 @@ struct FileHierarchyView: View {
                 Label("Rename", systemImage: "pencil")
               }
               Button(action: {
-                if let parent = hierarchy.parent {
-                  if self.fileManager.duplicate(hierarchy.url) {
+                if let parent = hierarchy.parent,
+                   let url = hierarchy.url {
+                  if self.fileManager.duplicate(url) {
                     parent.reset()
                     self.refresher.updateView()
                   }
@@ -176,8 +180,9 @@ struct FileHierarchyView: View {
             }
             if self.mutable && (hierarchy.kind == .file || hierarchy.kind == .directory) {
               Button(action: {
-                if let parent = hierarchy.parent {
-                  if self.fileManager.delete(hierarchy.url) {
+                if let parent = hierarchy.parent,
+                   let url = hierarchy.url {
+                  if self.fileManager.delete(url) {
                     parent.reset()
                     self.refresher.updateView()
                   }
@@ -204,7 +209,6 @@ struct FileHierarchyView: View {
   
   var body: some View {
     List(self.roots,
-         id: \.url,
          children: \.children,
          rowContent: self.rowContent)
     .resignKeyboardOnDragGesture()

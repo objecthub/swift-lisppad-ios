@@ -103,7 +103,7 @@ struct CodeEditorView: View {
               self.documentPickerAction = .editFile
             }
           }) {
-            Label("Open…", systemImage: "doc.text")
+            Label("Open…", systemImage: "doc.badge.plus")
           }
           Button(action: {
             self.showFileMover = true
@@ -112,6 +112,19 @@ struct CodeEditorView: View {
                      "Save…" : "Save As…", systemImage: "arrow.down.doc")
           }
           Divider()
+          if !self.fileManager.recentlyEdited.isEmpty {
+            ForEach(self.fileManager.recentlyEdited, id: \.self) { url in
+              Button(action: {
+                self.fileManager.loadEditorDocument(
+                  source: url,
+                  makeUntitled: self.fileManager.isWritable(url),
+                  action: { success in self.forceEditorUpdate = true })
+              }) {
+                Label(url.lastPathComponent, systemImage: "doc.text")
+              }
+            }
+            Divider()
+          }
           Button(action: {
             self.documentPickerAction = .organizeFiles
           }) {
@@ -148,19 +161,23 @@ struct CodeEditorView: View {
         .sheet(item: $documentPickerAction,
                onDismiss: { },
                content: { action in
-                 DocumentPicker("Select file to edit",
-                                fileType: .file,
-                                action: { url in
-                                  switch action {
-                                    case .editFile:
-                                      self.fileManager.loadEditorDocument(url, new: false, action: { success in
-                                        self.forceEditorUpdate = true
-                                      })
-                                    default:
-                                      print("selected \(url)")
-                                      break
-                                  }
-        })})
+                 DocumentPicker(
+                  "Select file to edit",
+                  fileType: .file,
+                  action: { url, mutable in
+                    switch action {
+                      case .editFile:
+                        self.fileManager.loadEditorDocument(
+                          source: url,
+                          makeUntitled: !mutable,
+                          action: { success in self.forceEditorUpdate = true })
+                      default:
+                        print("selected \(url)")
+                        break
+                    }
+                  })
+                  .environmentObject(self.fileManager) // There must be a bug; it's needed for no reason
+               })
         if self.interpreter.isReady {
           Button(action: {
             if !(self.fileManager.editorDocument?.text.isEmpty ?? true) {

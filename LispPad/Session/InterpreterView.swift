@@ -36,9 +36,6 @@ struct InterpreterView: View {
   // Static parameters
   static let toolbarItemSize: CGFloat = 20
   
-  // User settings and defaults
-  @AppStorage("Console.maxHistory") private var maxHistory: Int = 20
-  
   // Environment, observed and bound objects
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
@@ -53,7 +50,7 @@ struct InterpreterView: View {
   @State private var showImportSheet = false
   @State private var showPreferences = false
   @State private var documentPickerAction: DocumentPickerAction? = nil
-  @State private var documentationUrl: FileManager.NamedURL? = nil
+  @State private var documentationUrl: NamedRef? = nil
   
   // The main view
   var master: some View {
@@ -104,7 +101,7 @@ struct InterpreterView: View {
                  DocumentPicker(
                   "Select file to load",
                   fileType: .file,
-                  action: { url in
+                  action: { url, mutable in
                     if self.interpreter.isReady {
                       let input = InterpreterView.canonicalizeInput(
                                     "(load \"\(self.fileManager.canonicalPath(for: url))\")")
@@ -112,7 +109,9 @@ struct InterpreterView: View {
                       self.historyManager.addConsoleEntry(input)
                       self.interpreter.load(url)
                     }
-                  })})
+                  })
+                  .environmentObject(self.fileManager) // There must be a bug; it's needed for no reason
+               })
         Button(action: {
           self.showShareSheet = true
         }) {
@@ -159,7 +158,9 @@ struct InterpreterView: View {
               .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
           }
           .sheet(item: $documentationUrl) { docUrl in
-            DocumentView(title: docUrl.name, url: docUrl.url)
+            if let url = docUrl.url {
+              DocumentView(title: docUrl.name, url: url)
+            }
           }
           .actionSheet(isPresented: $showResetActionSheet) {
             ActionSheet(title: Text("Reset"),

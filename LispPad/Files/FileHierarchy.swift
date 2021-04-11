@@ -20,7 +20,7 @@
 
 import Foundation
 
-struct FileHierarchy: Hashable {
+struct FileHierarchy: Hashable, Identifiable {
   
   enum Kind: Hashable {
     case file
@@ -29,32 +29,44 @@ struct FileHierarchy: Hashable {
   }
   
   final class Children {
-    let url: URL
+    let kind: NamedRef.Kind
     private var cache: [FileHierarchy]? = nil
     
-    init(_ url: URL) {
-      self.url = url
+    init(_ kind: NamedRef.Kind) {
+      self.kind = kind
     }
     
     var children: [FileHierarchy] {
       if self.cache == nil {
-        if let contents = try? Foundation.FileManager.default.contentsOfDirectory(
-                                 at: self.url,
-                                 includingPropertiesForKeys: nil,
-                                 options: [.skipsPackageDescendants, .skipsHiddenFiles]) {
-          let sortedContents = contents.sorted { a, b in
-            return a.lastPathComponent.localizedStandardCompare(b.lastPathComponent)
-                     == .orderedAscending
-          }
-          var res: [FileHierarchy] = []
-          for url in sortedContents {
-            if let child = FileHierarchy(url, parent: self) {
-              res.append(child)
+        switch kind {
+          case .url(let url):
+            if let contents = try? Foundation.FileManager.default.contentsOfDirectory(
+                                     at: url,
+                                     includingPropertiesForKeys: nil,
+                                     options: [.skipsPackageDescendants, .skipsHiddenFiles]) {
+              let sortedContents = contents.sorted { a, b in
+                return a.lastPathComponent.localizedStandardCompare(b.lastPathComponent)
+                         == .orderedAscending
+              }
+              var res: [FileHierarchy] = []
+              for url in sortedContents {
+                if let child = FileHierarchy(url, parent: self) {
+                  res.append(child)
+                }
+              }
+              self.cache = res
+            } else {
+              self.cache = []
             }
-          }
-          self.cache = res
-        } else {
-          self.cache = []
+          case .collection(let gen):
+            var res: [FileHierarchy] = []
+            let urls = gen()
+            for url in urls {
+              if let child = FileHierarchy(url, parent: self) {
+                res.append(child)
+              }
+            }
+            self.cache = res
         }
       }
       return self.cache ?? []
@@ -65,10 +77,14 @@ struct FileHierarchy: Hashable {
     }
   }
   
-  let url: URL
+  let url: URL?
   let kind: Kind
   let container: Children?
   unowned let parent: Children?
+  
+  var id: String {
+    return self.url?.absoluteString ?? self.name
+  }
   
   var children: [FileHierarchy]? {
     self.container?.children
@@ -79,30 +95,38 @@ struct FileHierarchy: Hashable {
     if Foundation.FileManager.default.fileExists(atPath: url.absoluteURL.path, isDirectory: &dir) {
       self.url = url
       self.kind = dir.boolValue ? .directory : .file
-      self.container = dir.boolValue ? Children(url) : nil
+      self.container = dir.boolValue ? Children(.url(url)) : nil
       self.parent = parent
     } else {
       return nil
     }
   }
   
-  init?(_ namedUrl: FileManager.NamedURL, parent: Children? = nil) {
-    var dir: ObjCBool = false
-    if Foundation.FileManager.default.fileExists(atPath: namedUrl.url.absoluteURL.path,
-                                                 isDirectory: &dir) {
-      self.url = namedUrl.url
-      self.kind = dir.boolValue ? .root(namedUrl.name, namedUrl.image) : .file
-      self.container = dir.boolValue ? Children(url) : nil
-      self.parent = parent
-    } else {
-      return nil
+  init?(_ namedRef: NamedRef, parent: Children? = nil) {
+    switch namedRef.kind {
+      case .collection(_):
+        self.url = nil
+        self.kind = .root(namedRef.name, namedRef.image)
+        self.container = Children(namedRef.kind)
+        self.parent = parent
+      case .url(let url):
+        var dir: ObjCBool = false
+        if Foundation.FileManager.default.fileExists(atPath: url.absoluteURL.path,
+                                                     isDirectory: &dir) {
+          self.url = url
+          self.kind = dir.boolValue ? .root(namedRef.name, namedRef.image) : .file
+          self.container = dir.boolValue ? Children(namedRef.kind) : nil
+          self.parent = parent
+        } else {
+          return nil
+        }
     }
   }
   
   var name: String {
     switch self.kind {
       case .file, .directory:
-        return self.url.lastPathComponent
+        return self.url?.lastPathComponent ?? "<unknown>"
       case .root(let name, _):
         return name
     }
@@ -120,21 +144,25 @@ struct FileHierarchy: Hashable {
   var systemImage: String {
     switch self.kind {
       case .file:
-        switch self.url.pathExtension {
-          case "scm", "sps", "ss", "sld", "sls", "lisp", "rkt", "md", "markdown", "txt":
-            return "doc.text"
-          case "png", "jpg", "jpeg":
-            return "photo"
-          case "pdf", "pages":
-            return "doc.richtext"
-          case "mp3", "m4a", "m4b":
-            return "hifispeaker"
-          case "mp4":
-            return "film"
-          case "zip":
-            return "doc.zipper"
-          default:
-            return "doc"
+        if let url = self.url {
+          switch url.pathExtension {
+            case "scm", "sps", "ss", "sld", "sls", "lisp", "rkt", "md", "markdown", "txt":
+              return "doc.text"
+            case "png", "jpg", "jpeg":
+              return "photo"
+            case "pdf", "pages":
+              return "doc.richtext"
+            case "mp3", "m4a", "m4b":
+              return "hifispeaker"
+            case "mp4":
+              return "film"
+            case "zip":
+              return "doc.zipper"
+            default:
+              return "doc"
+          }
+        } else {
+          return "doc"
         }
       case .directory:
         return "folder"
@@ -145,14 +173,26 @@ struct FileHierarchy: Hashable {
   
   func hash(into hasher: inout Hasher) {
     hasher.combine(self.url)
+    hasher.combine(self.kind)
   }
   
+  /*
   static func <(lhs: FileHierarchy, rhs: FileHierarchy) -> Bool {
     return lhs.url.path.localizedStandardCompare(rhs.url.path)
              == .orderedAscending
   }
+  */
   
   static func ==(lhs: FileHierarchy, rhs: FileHierarchy) -> Bool {
-    return lhs.url == rhs.url
+    if case .root(let lname, _) = lhs.kind {
+      if case .root(let rname, _) = rhs.kind {
+        return lname == rname
+      }
+      return false
+    } else if case .root(_, _) = rhs.kind {
+      return false
+    } else {
+      return lhs.url == rhs.url
+    }
   }
 }

@@ -89,7 +89,7 @@ struct EnvironmentView: View {
               .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
           }
           .sheet(isPresented: $showLispPadRef) {
-            DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url)
+            DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)
           }
         })
     }

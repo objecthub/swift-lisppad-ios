@@ -22,34 +22,61 @@ import Foundation
 import UIKit
 import LispKit
 
+/// Struct `NamedRef` associates names with URLs.
+struct NamedRef: Identifiable {
+  
+  enum Kind {
+    case url(URL)
+    case collection(() -> [URL])
+  }
+  
+  let name: String
+  let image: String
+  let kind: Kind
+  
+  init(name: String, image: String, url: URL) {
+    self.name = name
+    self.image = image
+    self.kind = .url(url)
+  }
+  
+  init(name: String, image: String, gen: @escaping () -> [URL]) {
+    self.name = name
+    self.image = image
+    self.kind = .collection(gen)
+  }
+  
+  var id: String {
+    return self.url?.absoluteString ?? self.name
+  }
+  
+  var url: URL? {
+    guard case .url(let url) = self.kind else {
+      return nil
+    }
+    return url
+  }
+}
+
 ///
 /// Class `FileManager` provides access to all files related to LispPad.
 /// 
 class FileManager: ObservableObject {
   
-  /// Struct `NamedURL` associates names with URLs.
-  struct NamedURL: Identifiable {
-    let name: String
-    let image: String
-    let url: URL
-    
-    var id: URL {
-      url
-    }
-  }
+  let maxRecentlyEdited = 8
   
   /// The default iOS file manager.
   let sysFileManager = Foundation.FileManager.default
   
   /// Builtin resources
-  let systemRootDirectories: [NamedURL] = {
-    var roots: [NamedURL] = [
-      NamedURL(name: "LispPad",
+  let systemRootDirectories: [NamedRef] = {
+    var roots: [NamedRef] = [
+      NamedRef(name: "LispPad",
                image: "folder.badge.gear",
                url: URL(fileURLWithPath: "Root", relativeTo: Bundle.main.bundleURL.absoluteURL))
     ]
     if let base = Context.bundle?.bundleURL.absoluteURL {
-      roots.append(NamedURL(name: "LispKit",
+      roots.append(NamedRef(name: "LispKit",
                             image: "folder.badge.gear",
                             url: URL(fileURLWithPath: Context.rootDirectory, relativeTo: base)))
     }
@@ -57,19 +84,28 @@ class FileManager: ObservableObject {
   }()
   
   /// User-defined resources
-  private(set) var userRootDirectories: [NamedURL] = []
+  private(set) var userRootDirectories: [NamedRef] = []
+  
+  /// Favorite and recently edited resources
+  private(set) var usageRootDirectories: [NamedRef] = []
   
   /// The URL of the application support directory, if available
   private(set) var applicationSupportURL: URL? = nil
   
+  /// The document currently loaded into the editor
   @Published var editorDocument: TextDocument? = nil
+  
+  /// URLs to documents previously loaded into the editor
+  @Published var recentlyEdited: [URL] = []
+  
+  @Published var favoriteFiles: [URL] = []
   
   /// Constructor, responsible for defining the named resources as well as for setting them up
   /// initially.
   init() {
     DispatchQueue.global(qos: .default).async {
       if let url = self.icloudDirectory() {
-        self.userRootDirectories.append(NamedURL(name: "iCloud Drive",
+        self.userRootDirectories.append(NamedRef(name: "iCloud Drive",
                                                  image: "icloud",
                                                  url: url))
         _ = self.createExtensionDirectories(in: url)
@@ -88,10 +124,16 @@ class FileManager: ObservableObject {
             name = "On My Device"
             image = "desktopcomputer"
         }
-        self.userRootDirectories.append(NamedURL(name: name, image: image, url: url))
+        self.userRootDirectories.append(NamedRef(name: name, image: image, url: url))
         _ = self.createExtensionDirectories(in: url)
       }
     }
+    self.usageRootDirectories.append(NamedRef(name: "Recent", image: "clock") { [weak self] in
+      return self?.recentlyEdited ?? []
+    })
+    self.usageRootDirectories.append(NamedRef(name: "Favorites", image: "star") { [weak self] in
+      return self?.favoriteFiles ?? []
+    })
     if let appDir = self.appSupportDirectory() {
       self.applicationSupportURL = appDir
       self.newEditorDocument(action: { success in })
@@ -107,11 +149,15 @@ class FileManager: ObservableObject {
   
   func canonicalPath(for url: URL) -> String {
     var roots: [String] = []
-    for namedUrl in self.systemRootDirectories {
-      roots.append(namedUrl.url.absoluteURL.path)
+    for namedRef in self.systemRootDirectories {
+      if let url = namedRef.url {
+        roots.append(url.absoluteURL.path)
+      }
     }
-    for namedUrl in self.userRootDirectories {
-      roots.append(namedUrl.url.absoluteURL.path)
+    for namedRef in self.userRootDirectories {
+      if let url = namedRef.url {
+        roots.append(url.absoluteURL.path)
+      }
     }
     let path = url.absoluteURL.path
     for root in roots {
@@ -120,6 +166,10 @@ class FileManager: ObservableObject {
       }
     }
     return path
+  }
+  
+  func isWritable(_ url: URL) -> Bool {
+    return self.sysFileManager.isWritableFile(atPath: url.absoluteURL.path)
   }
   
   /// Creates the following directories under the given `container` URL:
@@ -241,21 +291,79 @@ class FileManager: ObservableObject {
     }
   }
   
-  func newEditorDocument(action: @escaping (Bool) -> Void) {
-    if let appDir = self.applicationSupportURL {
-      self.loadEditorDocument(appDir.appendingPathComponent("Untitled.scm"),
-                              new: true,
-                              action: action)
+  func newRecentlyEdited(_ url: URL) {
+    loop: for i in self.recentlyEdited.indices {
+      if self.recentlyEdited[i] == url {
+        self.recentlyEdited.remove(at: i)
+        break loop
+      }
+    }
+    self.recentlyEdited.insert(url, at: 0)
+    if self.recentlyEdited.count > self.maxRecentlyEdited {
+      self.recentlyEdited.removeLast()
     }
   }
   
-  func loadEditorDocument(_ url: URL, new: Bool, action: @escaping (Bool) -> Void) {
-    self.editorDocument?.saveFile(action: { success in 
-      self.editorDocument?.close(completionHandler: { success in })
-    })
-    self.editorDocument = TextDocument(fileURL: url)
-    self.editorDocument?.new = new
-    self.editorDocument?.loadFile(action: action)
+  func newEditorDocument(action: @escaping (Bool) -> Void) {
+    self.loadEditorDocument(action: action)
+  }
+  
+  func completeURL(_ url: URL?) -> URL? {
+    if url == nil, let appDir = self.applicationSupportURL {
+      return appDir.appendingPathComponent("Untitled.scm")
+    }
+    return url
+  }
+  
+  func loadEditorDocument(source: URL? = nil,
+                          makeUntitled: Bool = true,
+                          action: @escaping (Bool) -> Void) {
+    let sourceUrl: URL
+    if let url = self.completeURL(source) {
+      sourceUrl = url
+    } else {
+      return
+    }
+    let targetUrl: URL
+    if let url = self.completeURL(makeUntitled ? nil : source) {
+      targetUrl = url
+    } else {
+      return
+    }
+    if sourceUrl != targetUrl {
+      do {
+        if sourceUrl.startAccessingSecurityScopedResource() {
+          defer {
+            sourceUrl.stopAccessingSecurityScopedResource()
+          }
+          try self.sysFileManager.removeItem(at: targetUrl)
+          try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
+          self.newRecentlyEdited(sourceUrl)
+        } else {
+          return
+        }
+      } catch {
+        return
+      }
+    }
+    if let document = self.editorDocument, document.fileURL != targetUrl {
+      if !document.new {
+        self.newRecentlyEdited(document.fileURL)
+      }
+      document.saveFile(action: { success in
+        document.close(completionHandler: { success in
+          self.editorDocument = TextDocument(fileURL: targetUrl)
+          self.editorDocument?.new = makeUntitled
+          self.editorDocument?.recomputeTitle(targetUrl)
+          self.editorDocument?.loadFile(action: action)
+        })
+      })
+    } else {
+      self.editorDocument = TextDocument(fileURL: targetUrl)
+      self.editorDocument?.new = makeUntitled
+      self.editorDocument?.recomputeTitle(targetUrl)
+      self.editorDocument?.loadFile(action: action)
+    }
   }
   
   /// Returns the "iCloud Drive" URL if available.
@@ -307,5 +415,6 @@ struct FileType: OptionSet {
   let rawValue: Int
   static let file = FileType(rawValue: 1 << 0)
   static let directory = FileType(rawValue: 1 << 1)
-  static let all: FileType = [.file, .directory]
+  static let collection = FileType(rawValue: 1 << 2)
+  static let all: FileType = [.file, .directory, .collection]
 }
