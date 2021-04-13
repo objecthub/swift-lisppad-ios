@@ -8,14 +8,6 @@
 import SwiftUI
 import UIKit
 
-public typealias SystemFontAlias = UIFont
-public typealias SystemColorAlias = UIColor
-public typealias SymbolicTraits = UIFontDescriptor.SymbolicTraits
-public typealias OnSelectionChangeCallback = ([NSRange]) -> Void
-
-let defaultEditorFont = UIFont.preferredFont(forTextStyle: .body)
-let defaultEditorTextColor = UIColor.label
-
 struct CodeEditor: UIViewRepresentable {
   typealias Coordinator = CodeEditorTextViewDelegate
   
@@ -32,7 +24,6 @@ struct CodeEditor: UIViewRepresentable {
   private(set) var font: UIFont? = nil
   private(set) var insertionPointColor: UIColor? = nil
   var keyboardType: UIKeyboardType = .default
-  private(set) var onSelectionChange: OnSelectionChangeCallback? = nil
   
   public init(text: Binding<String>,
               forceUpdate: Binding<Bool>,
@@ -143,23 +134,6 @@ extension CodeEditor {
   public func insertionPointColor(_ color: UIColor) -> Self {
     var new = self
     new.insertionPointColor = color
-    return new
-  }
-  
-  public func onSelectionChange(_ callback: @escaping ([NSRange]) -> Void) -> Self {
-    var new = self
-    new.onSelectionChange = callback
-    return new
-  }
-  
-  public func onSelectionChange(_ callback: @escaping (NSRange) -> Void) -> Self {
-    var new = self
-    new.onSelectionChange = { ranges in
-      guard let range = ranges.first else {
-        return
-      }
-      callback(range)
-    }
     return new
   }
 }

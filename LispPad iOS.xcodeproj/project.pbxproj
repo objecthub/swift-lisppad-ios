@@ -101,6 +101,8 @@
 		CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E4232621A31A00E3DC6A /* DocumentView.swift */; };
 		CCE8E4282621A49F00E3DC6A /* lisppad_ref.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */; };
 		CCE8E42A2621A4C900E3DC6A /* r7rs.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4292621A4BF00E3DC6A /* r7rs.pdf */; };
+		CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */; };
+		CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -347,6 +349,8 @@
 		CCE8E4232621A31A00E3DC6A /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = lisppad_ref.pdf; sourceTree = "<group>"; };
 		CCE8E4292621A4BF00E3DC6A /* r7rs.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = r7rs.pdf; sourceTree = "<group>"; };
+		CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortableURL.swift; sourceTree = "<group>"; };
+		CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamedRef.swift; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -589,6 +593,8 @@
 		CCC85639261677560080B96E /* Files */ = {
 			isa = PBXGroup;
 			children = (
+				CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */,
+				CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */,
 				CCC8563A2616778D0080B96E /* FileManager.swift */,
 				CCC8563E2617A8960080B96E /* FileHierarchy.swift */,
 				CCC8563C261767660080B96E /* FileHierarchyViewer.swift */,
@@ -768,6 +774,7 @@
 				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
+				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
 				CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */,
 				CC327C4D260FBD0800BD7E32 /* HistoryManager.swift in Sources */,
 				CC327C552610B60400BD7E32 /* CodeEditorTextView.swift in Sources */,
@@ -777,6 +784,7 @@
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,
+				CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */,
 				CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,

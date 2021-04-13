@@ -60,9 +60,10 @@ struct FileHierarchy: Hashable, Identifiable {
             }
           case .collection(let gen):
             var res: [FileHierarchy] = []
-            let urls = gen()
-            for url in urls {
-              if let child = FileHierarchy(url, parent: self) {
+            let purls = gen()
+            for purl in purls {
+              if let url = purl.absoluteURL,
+                 let child = FileHierarchy(url, parent: self) {
                 res.append(child)
               }
             }

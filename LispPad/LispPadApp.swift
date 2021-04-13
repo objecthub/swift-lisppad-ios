@@ -47,9 +47,10 @@ import SwiftUI
         case .inactive:
           break
         case .background:
+          self.fileManager.editorDocument?.saveFile()
           self.histManager.saveConsoleHistory()
           self.histManager.saveFilesHistory()
-          self.fileManager.editorDocument?.saveFile()
+          self.histManager.saveFavorites()
         default:
           break
       }

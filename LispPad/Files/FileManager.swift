@@ -22,42 +22,6 @@ import Foundation
 import UIKit
 import LispKit
 
-/// Struct `NamedRef` associates names with URLs.
-struct NamedRef: Identifiable {
-  
-  enum Kind {
-    case url(URL)
-    case collection(() -> [URL])
-  }
-  
-  let name: String
-  let image: String
-  let kind: Kind
-  
-  init(name: String, image: String, url: URL) {
-    self.name = name
-    self.image = image
-    self.kind = .url(url)
-  }
-  
-  init(name: String, image: String, gen: @escaping () -> [URL]) {
-    self.name = name
-    self.image = image
-    self.kind = .collection(gen)
-  }
-  
-  var id: String {
-    return self.url?.absoluteString ?? self.name
-  }
-  
-  var url: URL? {
-    guard case .url(let url) = self.kind else {
-      return nil
-    }
-    return url
-  }
-}
-
 ///
 /// Class `FileManager` provides access to all files related to LispPad.
 /// 
@@ -96,17 +60,19 @@ class FileManager: ObservableObject {
   /// The document currently loaded into the editor
   @Published var editorDocument: TextDocument? = nil
   
+  var baseURLs: [(URL, Int)] = []
+  
   /// Constructor, responsible for defining the named resources as well as for setting them up
   /// initially.
   init() {
     DispatchQueue.global(qos: .default).async {
-      if let url = self.icloudDirectory() {
+      if let url = FileManager.icloudDirectory() {
         self.userRootDirectories.append(NamedRef(name: "iCloud Drive",
                                                  image: "icloud",
                                                  url: url))
         _ = self.createExtensionDirectories(in: url)
       }
-      if let url = self.documentsDirectory() {
+      if let url = FileManager.documentsDirectory() {
         let name: String
         let image: String
         switch UIDevice.current.userInterfaceIdiom {
@@ -130,9 +96,22 @@ class FileManager: ObservableObject {
     self.usageRootDirectories.append(NamedRef(name: "Favorites", image: "star") { [weak self] in
       return self?.histManager?.favoriteFiles ?? []
     })
-    if let appDir = self.appSupportDirectory() {
+    if let appDir = FileManager.appSupportDirectory() {
       self.applicationSupportURL = appDir
       self.newEditorDocument(action: { success in })
+    }
+    self.baseURLs.append((URL(fileURLWithPath: Context.rootDirectory,
+                              relativeTo: Context.bundle!.bundleURL.absoluteURL), 0))
+    self.baseURLs.append((URL(fileURLWithPath: "Root",
+                              relativeTo: Bundle.main.bundleURL.absoluteURL), 1))
+    if let url = FileManager.documentsDirectory() {
+      self.baseURLs.append((url, 2))
+    }
+    if let url = FileManager.icloudDirectory() {
+      self.baseURLs.append((url, 3))
+    }
+    if let url = FileManager.appSupportDirectory() {
+      self.baseURLs.append((url, 4))
     }
   }
   
@@ -321,17 +300,18 @@ class FileManager: ObservableObject {
           }
           try self.sysFileManager.removeItem(at: targetUrl)
           try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
-          self.histManager?.addFileEntry(sourceUrl)
         } else {
-          return
+          try self.sysFileManager.removeItem(at: targetUrl)
+          try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
         }
+        self.histManager?.trackRecentFile(sourceUrl)
       } catch {
         return
       }
     }
     if let document = self.editorDocument, document.fileURL != targetUrl {
       if !document.new {
-        self.histManager?.addFileEntry(document.fileURL)
+        self.histManager?.trackRecentFile(document.fileURL)
       }
       document.saveFile(action: { success in
         document.close(completionHandler: { success in
@@ -350,31 +330,31 @@ class FileManager: ObservableObject {
   }
   
   /// Returns the "iCloud Drive" URL if available.
-  func icloudDirectory() -> URL? {
-    return self.sysFileManager.url(forUbiquityContainerIdentifier: nil)?
-                                 .appendingPathComponent("Documents")
+  static func icloudDirectory() -> URL? {
+    return Foundation.FileManager.default.url(forUbiquityContainerIdentifier: nil)?
+                                               .appendingPathComponent("Documents")
   }
   
   /// Returns the "On my iPhone" URL if available (creating it if it does not exist already).
-  func documentsDirectory() -> URL? {
-    return try? self.sysFileManager.url(for: .documentDirectory,
-                                           in: .userDomainMask,
-                                           appropriateFor: nil,
-                                           create: true)
+  static func documentsDirectory() -> URL? {
+    return try? Foundation.FileManager.default.url(for: .documentDirectory,
+                                                   in: .userDomainMask,
+                                                   appropriateFor: nil,
+                                                   create: true)
   }
 
   /// Returns the internal application support URL if available (creating it if it does not
   /// exist already).
-  func appSupportDirectory() -> URL? {
-    return try? self.sysFileManager.url(for: .applicationSupportDirectory,
-                                        in: .userDomainMask,
-                                        appropriateFor: nil,
-                                        create: true)
+  static func appSupportDirectory() -> URL? {
+    return try? Foundation.FileManager.default.url(for: .applicationSupportDirectory,
+                                                   in: .userDomainMask,
+                                                   appropriateFor: nil,
+                                                   create: true)
   }
-
+  
   /// Returns a cache URL if available.
-  func cacheDirectory() -> URL? {
-    return self.sysFileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
+  static func cacheDirectory() -> URL? {
+    return Foundation.FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
   }
   
   /*

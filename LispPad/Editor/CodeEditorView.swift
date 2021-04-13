@@ -65,7 +65,7 @@ struct CodeEditorView: View {
                                 }}),
                  forceUpdate: $forceEditorUpdate,
                  position: $position)
-        .defaultFont(.monospacedSystemFont(ofSize: 13, weight: .regular))
+        .defaultFont(.monospacedSystemFont(ofSize: 12, weight: .regular))
         .autocorrectionType(.no)
         .autocapitalizationType(.none)
         .multilineTextAlignment(.leading)
@@ -114,14 +114,16 @@ struct CodeEditorView: View {
           }
           Divider()
           if !self.histManager.recentlyEdited.isEmpty {
-            ForEach(self.histManager.recentlyEdited, id: \.self) { url in
-              Button(action: {
-                self.fileManager.loadEditorDocument(
-                  source: url,
-                  makeUntitled: self.fileManager.isWritable(url),
-                  action: { success in self.forceEditorUpdate = true })
-              }) {
-                Label(url.lastPathComponent, systemImage: "doc.text")
+            ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+              if let url = purl.url {
+                Button(action: {
+                  self.fileManager.loadEditorDocument(
+                    source: url,
+                    makeUntitled: !purl.mutable,
+                    action: { success in self.forceEditorUpdate = true })
+                }) {
+                  Label(url.lastPathComponent, systemImage: "doc.text")
+                }
               }
             }
             Divider()
@@ -255,6 +257,7 @@ struct CodeEditorView: View {
     .onDisappear(perform: {
       self.fileManager.editorDocument?.saveFile()
       self.histManager.saveFilesHistory()
+      self.histManager.saveFavorites()
     })
   }
   
