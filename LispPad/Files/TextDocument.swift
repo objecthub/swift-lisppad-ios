@@ -24,13 +24,14 @@ import SwiftUI
 final class TextDocument: UIDocument, ObservableObject, Identifiable {
   
   // Manage appearance of text document
-  @Published var title: String = "Untitled"
+  @Published var title = "Untitled"
   var new: Bool = true
   
   // State of text document
-  @Published var text: String = ""
-  @Published var selectedRange: NSRange? = nil
-   
+  @Published var text = ""
+  @Published var selectedRange = NSRange(location: 0, length: 0)
+  var lastContentOffset = CGPoint(x: 0, y: 0)
+  
   var id: URL {
     return self.fileURL
   }

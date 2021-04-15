@@ -23,31 +23,41 @@ import SwiftUI
 
 class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
   @Binding var text: String
+  @Binding var selectedRange: NSRange
+  let fileManager: FileManager
+  var lastSelectedRange = NSRange(location: 0, length: 0)
   
   let parenBackground = UIColor(red: 0.87, green: 0.87, blue: 0.0, alpha: 1)
   
-  init(_ text: Binding<String>) {
+  init(text: Binding<String>, selectedRange: Binding<NSRange>, fileManager: FileManager) {
     self._text = text
+    self._selectedRange = selectedRange
+    self.fileManager = fileManager
   }
   
   public func textViewDidChange(_ textView: UITextView) {
     guard textView.markedTextRange == nil else {
       return
     }
+    self.lastSelectedRange = textView.selectedRange
     DispatchQueue.main.async {
       self.text = textView.text ?? ""
+      self.selectedRange = textView.selectedRange
     }
   }
   
-  /*
   public func textViewDidChangeSelection(_ textView: UITextView) {
-    Swift.print("textViewDidChangeSelection")
-    guard let onSelectionChange = parent.onSelectionChange else {
-      return
+    if self.lastSelectedRange != textView.selectedRange {
+      self.lastSelectedRange = textView.selectedRange
+      DispatchQueue.main.async {
+        self.selectedRange = textView.selectedRange
+      }
     }
-    onSelectionChange([textView.selectedRange])
   }
-  */
+  
+  public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    self.fileManager.editorDocument?.lastContentOffset = scrollView.contentOffset
+  }
   
   private func lispIndent(_ str: NSString, _ selectedRange: NSRange) -> String {
     // Find the beginning of the current line

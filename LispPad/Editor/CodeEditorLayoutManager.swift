@@ -124,7 +124,8 @@ class CodeEditorLayoutManager: NSLayoutManager {
         // Only draw line numbers for the line's first line fragment. Subsequent fragments
         // are wrapped portions of the line and don't get the line number.
         if charRange.location == lineRange.location {
-          gutterRect = CGRect(x: 0, y: rect.origin.y, width: 40.0, height: rect.size.height)
+          gutterRect = CGRect(x: 0, y: rect.origin.y,
+                              width: CodeEditorTextView.gutterWidth, height: rect.size.height)
                          .offsetBy(dx: origin.x, dy: origin.y)
           lineNumber = self.lineNumber(for: charRange, in: textStorage)
           let ln = NSString(format: "%ld", UInt64(lineNumber + 1))

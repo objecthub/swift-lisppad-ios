@@ -21,7 +21,7 @@
 import UIKit
 
 class CodeEditorTextView: UITextView {
-  private static let gutterWidth: CGFloat = 40.0
+  static let gutterWidth: CGFloat = 35.0
   
   let textStorageDelegate: CodeEditorTextStorageDelegate
   
@@ -101,7 +101,7 @@ class CodeEditorTextView: UITextView {
                           height: bounds.size.height))
       context.setStrokeColor(self.codingBorderColor.cgColor);
       context.setLineWidth(0.2);
-      context.stroke(CGRect(x: bounds.origin.x + 39.2,
+      context.stroke(CGRect(x: bounds.origin.x + CodeEditorTextView.gutterWidth - 0.8,
                             y: bounds.origin.y,
                             width: 0.2,
                             height: bounds.height))

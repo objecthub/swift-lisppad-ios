@@ -303,7 +303,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
       preconditionFailure("cannot import required lispkit libraries")
     }
     // Evaluate prelude
-    let preludePath = Context.defaultPreludePath
+    let preludePath = Bundle.main.path(forResource: "Prelude",
+                                       ofType: "scm",
+                                       inDirectory: Interpreter.lispPadResourcePath) ??
+                      Context.defaultPreludePath
     self.context = context
     do {
       _ = try context.machine.eval(file: preludePath, in: context.global, as: "<prelude>")

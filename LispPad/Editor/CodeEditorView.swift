@@ -42,12 +42,17 @@ struct CodeEditorView: View {
     VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
         SearchField(showSearchField: $showSearchField,
+                    forceEditorUpdate: $forceEditorUpdate,
                     searchHistory: $searchHistory,
                     maxHistory: 10) { str, initial in
-          let text = (self.fileManager.editorDocument?.text ?? "") as NSString
+          let doc = self.fileManager.editorDocument
+          let text = (doc?.text ?? "") as NSString
+          let pos = initial ? 0 : (doc?.selectedRange.location ?? 0) +
+                                    ((doc?.selectedRange.length ?? 0) > 0 ? 1 : 0)
           let result = text.range(of: str,
                                   options: [.diacriticInsensitive],
-                                  range: NSRange(location: 0, length: text.length), locale: nil)
+                                  range: NSRange(location: pos, length: text.length - pos),
+                                  locale: nil)
           if result.location != NSNotFound {
             self.position = result
             return true
@@ -55,16 +60,21 @@ struct CodeEditorView: View {
             return false
           }
         }
-        .font(.subheadline)
+        .font(.callout)
         Divider()
       }
       CodeEditor(text: .init(
                          get: { self.fileManager.editorDocument?.text ?? "" },
-                         set: { if let doc = self.fileManager.editorDocument {
-                                  doc.text = $0
-                                }}),
-                 forceUpdate: $forceEditorUpdate,
-                 position: $position)
+                         set: { if let doc = self.fileManager.editorDocument { doc.text = $0 }}),
+                 selectedRange: .init(
+                                  get: { self.fileManager.editorDocument?.selectedRange ??
+                                           NSRange(location: 0, length: 0) },
+                                  set: { if let doc = self.fileManager.editorDocument {
+                                           doc.selectedRange = $0
+                                         }
+                                       }),
+                 position: $position,
+                 forceUpdate: $forceEditorUpdate)
         .defaultFont(.monospacedSystemFont(ofSize: 12, weight: .regular))
         .autocorrectionType(.no)
         .autocapitalizationType(.none)
@@ -81,7 +91,7 @@ struct CodeEditorView: View {
           self.presentationMode.wrappedValue.dismiss()
         }) {
           Image(systemName: "terminal.fill")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
         Menu {
           Button(action: {
@@ -135,7 +145,7 @@ struct CodeEditorView: View {
           }
         } label: {
           Image(systemName: "doc")
-            .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
         .alert(item: $notSavedAlertAction) { alertAction in
           if alertAction == .newFile {
@@ -191,14 +201,14 @@ struct CodeEditorView: View {
             }
           }) {
             Image(systemName: "play")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
         } else {
           Button(action: {
             self.showAbortAlert = true
           }) {
             Image(systemName: "stop.circle")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .alert(isPresented: $showAbortAlert) {
             Alert(title: Text("Abort evaluation?"),
@@ -215,7 +225,7 @@ struct CodeEditorView: View {
             
           }) {
             Image(systemName: "list.bullet.indent")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
           Button(action: {
@@ -223,7 +233,7 @@ struct CodeEditorView: View {
                                                           ?? "")
           }) {
             Image(systemName: "f.cursive")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
           .sheet(item: $definitions) { defs in 
@@ -235,7 +245,7 @@ struct CodeEditorView: View {
             }
           }) {
             Image(systemName: "magnifyingglass")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
         })

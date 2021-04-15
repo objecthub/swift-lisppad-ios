@@ -25,6 +25,7 @@ struct SearchField: View {
   @State var searchText: String = ""
   @State var lastSearchText: String = ""
   @Binding var showSearchField: Bool
+  @Binding var forceEditorUpdate: Bool
   @Binding var searchHistory: [String]
   let maxHistory: Int
   let search: (String, Bool) -> Bool
@@ -107,6 +108,7 @@ struct SearchField: View {
             self.searchText = ""
             self.showSearchField = false
             self.showNext = false
+            self.forceEditorUpdate = true
           }
         }
         .foregroundColor(Color(.systemBlue))
@@ -119,9 +121,11 @@ struct SearchField: View {
 
 struct SearchField_Previews: PreviewProvider {
   @State static var showCancel = true
+  @State static var forceEditorUpdate = false
   @State static var history: [String] = ["One", "Two", "Three", "Four"]
   static var previews: some View {
     SearchField(showSearchField: $showCancel,
+                forceEditorUpdate: $forceEditorUpdate,
                 searchHistory: $history,
                 maxHistory: 10) { str, initial in
        return true

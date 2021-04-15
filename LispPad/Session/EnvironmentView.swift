@@ -86,7 +86,7 @@ struct EnvironmentView: View {
         trailing: HStack(alignment: .center, spacing: 16) {
           Button(action: { self.showLispPadRef = true }) {
             Image(systemName: "info.circle")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .sheet(isPresented: $showLispPadRef) {
             DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)

@@ -35,6 +35,7 @@ struct InterpreterView: View {
   
   // Static parameters
   static let toolbarItemSize: CGFloat = 20
+  static let toolbarFont: Font = .system(size: InterpreterView.toolbarItemSize, weight: .light)
   
   // Environment, observed and bound objects
   @EnvironmentObject var docManager: DocumentationManager
@@ -86,13 +87,13 @@ struct InterpreterView: View {
       leading: HStack(alignment: .center, spacing: 16) {
         NavigationLink(destination: LazyView(CodeEditorView())) {
           Image(systemName: "pencil.circle.fill")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
         Button(action: {
           self.documentPickerAction = .executeFile
         }) {
           Image(systemName: "arrow.down.doc")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
         .disabled(!self.interpreter.isReady)
         .sheet(item: $documentPickerAction,
@@ -116,7 +117,7 @@ struct InterpreterView: View {
           self.showShareSheet = true
         }) {
           Image(systemName: "square.and.arrow.up")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
         .disabled(self.interpreter.consoleContent.isEmpty)
         .sheet(isPresented: $showShareSheet) {
@@ -155,7 +156,7 @@ struct InterpreterView: View {
             }
           } label: {
             Image(systemName: "gearshape")
-              .font(.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .sheet(item: $documentationUrl) { docUrl in
             if let url = docUrl.url {
@@ -183,7 +184,7 @@ struct InterpreterView: View {
             self.showAbortAlert = true
           }) {
             Image(systemName: "stop.circle")
-              .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+            // .font(InterpreterView.toolbarFont)
           }
           .alert(isPresented: $showAbortAlert) {
             Alert(title: Text("Abort evaluation?"),
@@ -196,13 +197,13 @@ struct InterpreterView: View {
         NavigationLink(destination: LazyView(
           LibraryView(libManager: interpreter.libManager))) {
           Image(systemName: "building.columns")
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
         .disabled(!self.docManager.initialized)
         NavigationLink(destination: LazyView(
           EnvironmentView(envManager: interpreter.envManager))) {
           Image(systemName: "square.stack.3d.up") // function - square.stack.3d.up.badge.a - square.3.stack.3d
-            .font(Font.system(size: InterpreterView.toolbarItemSize, weight: .light))
+          // .font(InterpreterView.toolbarFont)
         }
       })
   }
