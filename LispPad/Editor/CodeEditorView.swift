@@ -146,7 +146,9 @@ struct CodeEditorView: View {
               Label("Open…", systemImage: "doc.badge.plus")
             }
             Button(action: {
-              self.showFileMover = true
+              self.fileManager.editorDocument?.saveFile { success in
+                self.showFileMover = true
+              }
             }) {
               Label((self.fileManager.editorDocument?.new ?? true) ?
                        "Save…" : "Save As…", systemImage: "arrow.down.doc")
@@ -246,8 +248,9 @@ struct CodeEditorView: View {
                                     self.showFileMover = true },
                                   discard: {
                                     self.fileManager.editorDocument?.text = ""
-                                    self.fileManager.editorDocument?.saveFile(action: { succ in
-                                      self.forceEditorUpdate = true })})
+                                    self.fileManager.editorDocument?.saveFile { succ in
+                                      self.forceEditorUpdate = true
+                                    }})
       } else {
         return self.notSavedAlert(save: {
                                     self.fileMoverAction = {
@@ -272,6 +275,7 @@ struct CodeEditorView: View {
               
             }
           }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $position)
       }

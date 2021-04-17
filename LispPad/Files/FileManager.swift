@@ -66,11 +66,12 @@ class FileManager: ObservableObject {
   /// initially.
   init() {
     DispatchQueue.global(qos: .default).async {
+      let sysFileManager = Foundation.FileManager()
       if let url = FileManager.icloudDirectory() {
         self.userRootDirectories.append(NamedRef(name: "iCloud Drive",
                                                  image: "icloud",
                                                  url: url))
-        _ = self.createExtensionDirectories(in: url)
+        _ = self.createExtensionDirectories(in: url, using: sysFileManager)
       }
       if let url = FileManager.documentsDirectory() {
         let name: String
@@ -87,7 +88,7 @@ class FileManager: ObservableObject {
             image = "desktopcomputer"
         }
         self.userRootDirectories.append(NamedRef(name: name, image: image, url: url))
-        _ = self.createExtensionDirectories(in: url)
+        _ = self.createExtensionDirectories(in: url, using: sysFileManager)
       }
     }
     self.usageRootDirectories.append(NamedRef(name: "Recent", image: "clock") { [weak self] in
@@ -155,14 +156,19 @@ class FileManager: ObservableObject {
   ///       - `Documents`
   ///       - `Datasets`
   ///       - `ColorLists`
-  func createExtensionDirectories(in container: URL) -> Bool {
-    let libDir = self.createExtensionDirectory(in: container, name: "Libraries")
-    if let assetDir = self.createExtensionDirectory(in: container, name: "Assets") {
-      _ = self.createExtensionDirectory(in: assetDir, name: "Images")
-      _ = self.createExtensionDirectory(in: assetDir, name: "Audio")
-      _ = self.createExtensionDirectory(in: assetDir, name: "Documents")
-      _ = self.createExtensionDirectory(in: assetDir, name: "Datasets")
-      _ = self.createExtensionDirectory(in: assetDir, name: "ColorLists")
+  func createExtensionDirectories(in container: URL,
+                                  using sysFileManager: Foundation.FileManager) -> Bool {
+    let libDir = self.createExtensionDirectory(in: container,
+                                               name: "Libraries",
+                                               using: sysFileManager)
+    if let assetDir = self.createExtensionDirectory(in: container,
+                                                    name: "Assets",
+                                                    using: sysFileManager) {
+      _ = self.createExtensionDirectory(in: assetDir, name: "Images", using: sysFileManager)
+      _ = self.createExtensionDirectory(in: assetDir, name: "Audio", using: sysFileManager)
+      _ = self.createExtensionDirectory(in: assetDir, name: "Documents", using: sysFileManager)
+      _ = self.createExtensionDirectory(in: assetDir, name: "Datasets", using: sysFileManager)
+      _ = self.createExtensionDirectory(in: assetDir, name: "ColorLists", using: sysFileManager)
       return libDir != nil
     } else {
       return false
@@ -170,12 +176,14 @@ class FileManager: ObservableObject {
   }
   
   /// Creates a new directory with the given name under the `container` URL.
-  func createExtensionDirectory(in container: URL, name: String) -> URL? {
+  func createExtensionDirectory(in container: URL,
+                                name: String,
+                                using sysFileManager: Foundation.FileManager) -> URL? {
     let root = container.appendingPathComponent(name, isDirectory: true)
     var dir: ObjCBool = false
-    guard self.sysFileManager.fileExists(atPath: container.absoluteURL.path, isDirectory: &dir),
+    guard sysFileManager.fileExists(atPath: container.absoluteURL.path, isDirectory: &dir),
           dir.boolValue,
-          !self.sysFileManager.fileExists(atPath: root.absoluteURL.path) else {
+          !sysFileManager.fileExists(atPath: root.absoluteURL.path) else {
       return nil
     }
     do {
@@ -247,13 +255,30 @@ class FileManager: ObservableObject {
     return false
   }
   
-  func rename(_ url: URL, to name: String) -> Bool {
-    do {
-      let target = url.deletingLastPathComponent().appendingPathComponent(name)
-      try self.sysFileManager.moveItem(at: url, to: target)
-      return true
-    } catch {
-      return false
+  func rename(_ url: URL, to name: String, complete: @escaping (URL?) -> Void) {
+    let target = url.deletingLastPathComponent().appendingPathComponent(name)
+    DispatchQueue.global(qos: .default).async {
+      var coordinatorError: NSError?
+      let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+      fileCoordinator.coordinate(writingItemAt: url,
+                                 options: .forMoving,
+                                 writingItemAt: target,
+                                 options: .forReplacing,
+                                 error: &coordinatorError) { newURL1, newURL2 in
+        let fileManager = Foundation.FileManager()
+        fileCoordinator.item(at: newURL1, willMoveTo: newURL2)
+        do {
+          try fileManager.moveItem(at: newURL1, to: newURL2)
+          fileCoordinator.item(at: newURL1, didMoveTo: newURL2)
+          DispatchQueue.main.async {
+            complete(coordinatorError == nil ? newURL2 : nil)
+          }
+        } catch {
+          DispatchQueue.main.async {
+            complete(nil)
+          }
+        }
+      }
     }
   }
   
@@ -313,14 +338,14 @@ class FileManager: ObservableObject {
       if !document.new {
         self.histManager?.trackRecentFile(document.fileURL)
       }
-      document.saveFile(action: { success in
+      document.saveFile { success in
         document.close(completionHandler: { success in
           self.editorDocument = TextDocument(fileURL: targetUrl)
           self.editorDocument?.new = makeUntitled
           self.editorDocument?.recomputeTitle(targetUrl)
           self.editorDocument?.loadFile(action: action)
         })
-      })
+      }
     } else {
       self.editorDocument = TextDocument(fileURL: targetUrl)
       self.editorDocument?.new = makeUntitled

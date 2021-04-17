@@ -60,22 +60,33 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     self.save(to: self.fileURL, for: .forOverwriting, completionHandler: action)
   }
   
-  func moveFile(to url: URL) {
+  func rename(to name: String, complete: @escaping (URL?) -> Void) {
+    self.moveFile(to: self.fileURL.deletingLastPathComponent().appendingPathComponent(name),
+                  complete: complete)
+  }
+  
+  func moveFile(to url: URL, complete: @escaping (URL?) -> Void) {
     let oldUrl = self.fileURL
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
-      let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+      let fileCoordinator = NSFileCoordinator(filePresenter: self)
       fileCoordinator.coordinate(writingItemAt: oldUrl,
                                  options: .forMoving,
                                  writingItemAt: url,
                                  options: .forReplacing,
                                  error: &coordinatorError) { newURL1, newURL2 in
-        let fileManager = Foundation.FileManager.default
-        fileCoordinator.item(at: oldUrl, willMoveTo: url)
+        let fileManager = Foundation.FileManager()
         do {
           try fileManager.moveItem(at: newURL1, to: newURL2)
-          fileCoordinator.item(at: oldUrl, didMoveTo: url)
+          self.presentedItemDidMove(to: newURL2)
+          DispatchQueue.main.async {
+            self.recomputeTitle(newURL2)
+            complete(newURL2)
+          }
         } catch {
+          DispatchQueue.main.async {
+            complete(nil)
+          }
         }
       }
     }

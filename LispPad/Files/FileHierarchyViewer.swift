@@ -86,10 +86,24 @@ struct FileHierarchyView: View {
           TextField("", text: $editName, onEditingChanged: { isEditing in }, onCommit: {
             if !self.editName.isEmpty,
                let url = self.editUrl {
-              _ = self.fileManager.rename(url, to: self.editName)
-              hierarchy.parent?.reset()
-              self.editUrl = nil
-              self.editName = ""
+              if let doc = self.fileManager.editorDocument,
+                 url.absoluteURL == doc.fileURL {
+                doc.rename(to: self.editName) { newURL in
+                  if newURL != nil {
+                    hierarchy.parent?.reset()
+                  }
+                  self.editUrl = nil
+                  self.editName = ""
+                }
+              } else {
+                self.fileManager.rename(url, to: self.editName) { newURL in
+                  if newURL != nil {
+                    hierarchy.parent?.reset()
+                  }
+                  self.editUrl = nil
+                  self.editName = ""
+                }
+              }
             }
           })
           .autocapitalization(.none)

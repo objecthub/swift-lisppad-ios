@@ -404,9 +404,9 @@
 				CC84C24925FE59EE00758581 /* LispPadApp.swift */,
 				CC84C27525FE7B1100758581 /* Session */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
-				CCC85642261989710080B96E /* Documentation */,
 				CCC85639261677560080B96E /* Files */,
 				CCC8565E261D09190080B96E /* Preferences */,
+				CCC85642261989710080B96E /* Help */,
 				CCC8564326198A500080B96E /* Generic Views */,
 				CCFBC5C92605F4D700E29F99 /* Util */,
 				CC8B95B82607FFBC00830B4F /* Libraries */,
@@ -451,7 +451,6 @@
 				CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */,
 				CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */,
 				CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */,
-				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
 			);
 			path = Session;
 			sourceTree = "<group>";
@@ -611,12 +610,13 @@
 			path = Files;
 			sourceTree = "<group>";
 		};
-		CCC85642261989710080B96E /* Documentation */ = {
+		CCC85642261989710080B96E /* Help */ = {
 			isa = PBXGroup;
 			children = (
+				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
 				CC33237E260A8E6900AD3307 /* DocumentationManager.swift */,
 			);
-			path = Documentation;
+			path = Help;
 			sourceTree = "<group>";
 		};
 		CCC8564326198A500080B96E /* Generic Views */ = {
