@@ -30,16 +30,13 @@ struct AboutView: View {
   
   let aboutText: NSAttributedString = {
     if let url = AboutView.creditsUrl,
-       let astr = try? NSAttributedString(url: url,
-                                          options: [.documentType: NSAttributedString.DocumentType.rtf],
-                                          documentAttributes: nil) {
+       let astr = try? NSAttributedString(
+                         url: url,
+                         options: [.documentType: NSAttributedString.DocumentType.rtf],
+                         documentAttributes: nil) {
       return astr
     }
-    return NSAttributedString(string: "LispPad is based on the LispKit engine which provides a " +
-                                      "R7RS-compliant Scheme implementation. LispKit comes with " +
-                                      "a broad range of Scheme libraries, including standard " +
-                                      "libraries defined via the Scheme Requests for " +
-                                      "Implementation process (SRFI).")
+    return NSAttributedString(string: "")
   }()
   
   var body: some View {
@@ -53,7 +50,7 @@ struct AboutView: View {
             .padding(.trailing, 16)
         }
       }
-      .offset(x: 0.0, y: -40.0)
+      .offset(x: 0.0, y: -32.0)
       HStack(alignment: .center, spacing: 16) {
         Image("SmallLogo")
           .resizable()
@@ -62,16 +59,19 @@ struct AboutView: View {
         VStack(alignment: .leading, spacing: 4) {
           Text("LispPad")
             .font(.title2)
+            .padding(.top, 12)
           (Text("Version ") +
            Text(AboutView.appVersion ?? "?") +
            Text(" (") + Text(AboutView.buildVersion ?? "?") + Text(")"))
             .font(.footnote)
           Text(AboutView.copyright ?? "Copyright © Matthias Zenger. All rights reserved.")
             .font(.caption)
-            .padding(.top, 16)
+            .padding(.top, 12)
         }
-        .frame(width: 170, height: 100, alignment: .center)
+        .padding(.trailing, 20)
+        .frame(width: 170, height: 110, alignment: .center)
         .padding(.leading, 8)
+        .padding(.bottom, 16)
       }
       RichText(self.aboutText).padding(24)
     }
@@ -79,7 +79,7 @@ struct AboutView: View {
 }
 
 struct AboutView_Previews: PreviewProvider {
-    static var previews: some View {
-        AboutView()
-    }
+  static var previews: some View {
+    AboutView()
+  }
 }
