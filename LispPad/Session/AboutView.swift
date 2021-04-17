@@ -12,6 +12,7 @@ struct AboutView: View {
   
   static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
   static let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+  static let copyright = Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String
   static let creditsUrl = Bundle.main.url(forResource: "Credits", withExtension: "rtf")
   
   let aboutText: NSAttributedString = {
@@ -52,8 +53,11 @@ struct AboutView: View {
            Text(AboutView.appVersion ?? "?") +
            Text(" (") + Text(AboutView.buildVersion ?? "?") + Text(")"))
             .font(.footnote)
+          Text(AboutView.copyright ?? "Copyright © Matthias Zenger. All rights reserved.")
+            .font(.caption)
+            .padding(.top, 16)
         }
-        .frame(width: 150, height: 100, alignment: .center)
+        .frame(width: 170, height: 100, alignment: .center)
         .padding(.leading, 8)
       }
       RichText(self.aboutText).padding(24)

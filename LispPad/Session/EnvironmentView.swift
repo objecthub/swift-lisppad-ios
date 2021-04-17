@@ -60,7 +60,7 @@ struct EnvironmentView: View {
           .foregroundColor(Color(.systemBlue))
         }
       }
-      .font(.callout)
+      .font(.body)
       .padding(.horizontal)
       .padding(.top, self.showCancel ? 0 : 8)
       .navigationBarHidden(showCancel)
@@ -73,7 +73,7 @@ struct EnvironmentView: View {
           NavigationLink(
             destination: LazyView(EnvironmentDetailView(symbol: symbol))) {
             Text(symbol.description)
-              .font(.callout)
+              .font(.body)
           }
           .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 8))
           .disabled(!self.docManager.hasDocumentation(for: symbol.identifier))
@@ -91,7 +91,7 @@ struct EnvironmentView: View {
               self.showLispPadRef = self.docManager.lispPadRef.url != nil
             }) {
               Image(systemName: "info.circle")
-              // .font(InterpreterView.toolbarFont)
+                .font(InterpreterView.toolbarFont)
             }
           }
         }

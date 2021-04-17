@@ -33,7 +33,7 @@ struct DefinitionView: View {
             ForEach(self.defitions.values, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.presentationMode.wrappedValue.dismiss() }) {
-                Text(tuple.0).font(.callout)
+                Text(tuple.0).font(.body)
               }
             }
           }
@@ -43,7 +43,7 @@ struct DefinitionView: View {
             ForEach(self.defitions.syntax, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.presentationMode.wrappedValue.dismiss() }) {
-                Text(tuple.0).font(.callout)
+                Text(tuple.0).font(.body)
               }
             }
           }
@@ -53,7 +53,7 @@ struct DefinitionView: View {
             ForEach(self.defitions.records, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.presentationMode.wrappedValue.dismiss() }) {
-                Text(tuple.0).font(.callout)
+                Text(tuple.0).font(.body)
               }
             }
           }
@@ -63,7 +63,7 @@ struct DefinitionView: View {
             ForEach(self.defitions.types, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.presentationMode.wrappedValue.dismiss() }) {
-                Text(tuple.0).font(.callout)
+                Text(tuple.0).font(.body)
               }
             }
           }

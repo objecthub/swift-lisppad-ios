@@ -86,7 +86,7 @@ struct CodeEditorView: View {
             return false
           }
         }
-        .font(.callout)
+        .font(.body)
         Divider()
       }
       CodeEditor(text: .init(
@@ -120,8 +120,7 @@ struct CodeEditorView: View {
           }) {
             Image(systemName: "terminal.fill")
               .foregroundColor(.primary)
-              .font(.system(size: 19, weight: .bold))
-            // .font(InterpreterView.toolbarFont)
+              .font(.system(size: InterpreterView.toolbarItemSize, weight: .bold))
           }
           Menu {
             Button(action: {
@@ -175,7 +174,7 @@ struct CodeEditorView: View {
             }
           } label: {
             Image(systemName: "doc")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           if self.interpreter.isReady {
             Button(action: {
@@ -187,14 +186,14 @@ struct CodeEditorView: View {
               }
             }) {
               Image(systemName: "play")
-              // .font(InterpreterView.toolbarFont)
+                .font(InterpreterView.toolbarFont)
             }
           } else {
             Button(action: {
               self.showAbortAlert = true
             }) {
               Image(systemName: "stop.circle")
-              // .font(InterpreterView.toolbarFont)
+                .font(InterpreterView.toolbarFont)
             }
             .alert(isPresented: $showAbortAlert) {
               Alert(title: Text("Abort evaluation?"),
@@ -212,7 +211,7 @@ struct CodeEditorView: View {
             
           }) {
             Image(systemName: "list.bullet.indent")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
           Button(action: {
@@ -221,7 +220,7 @@ struct CodeEditorView: View {
             }
           }) {
             Image(systemName: "f.cursive")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
           Button(action: {
@@ -230,7 +229,7 @@ struct CodeEditorView: View {
             }
           }) {
             Image(systemName: "magnifyingglass")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
         }

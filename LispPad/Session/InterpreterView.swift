@@ -97,21 +97,20 @@ struct InterpreterView: View {
           NavigationLink(destination: LazyView(CodeEditorView())) {
             Image(systemName: "pencil.circle.fill")
               .foregroundColor(.primary)
-              .font(.system(size: 19, weight: .bold))
-            // .font(InterpreterView.toolbarFont)
+              .font(.system(size: InterpreterView.toolbarItemSize, weight: .bold))
           }
           Button(action: {
             self.showSheet = .loadFile
           }) {
             Image(systemName: "arrow.down.doc")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           .disabled(!self.interpreter.isReady)
           Button(action: {
             self.showSheet = .shareConsole
           }) {
             Image(systemName: "square.and.arrow.up")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           .disabled(self.interpreter.consoleContent.isEmpty)
         }
@@ -140,15 +139,17 @@ struct InterpreterView: View {
               Label("Library Reference…", systemImage: "doc.richtext")
             }
           } label: {
-            Image("SmallLogo")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 28.0,height: 28.0)
-              .padding(.bottom, -3)
+            /* Let's not display a logo here for now.
+               Image("SmallLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 28.0,height: 28.0)
+                .padding(.bottom, -3) */
+            Text("LispPad")
+              .font(.body)
+              .bold()
+              .foregroundColor(.primary)
           }
-          Text("LispPad")
-            .font(.body)
-            .bold()
         }
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -173,7 +174,7 @@ struct InterpreterView: View {
               }
             } label: {
               Image(systemName: "gearshape")
-              // .font(InterpreterView.toolbarFont)
+                .font(InterpreterView.toolbarFont)
             }
             .background(
               NavigationLink(destination: LazyView(PreferencesView()), isActive: $showPreferences) {
@@ -185,19 +186,19 @@ struct InterpreterView: View {
             }) {
               Image(systemName: "stop.circle")
                 .foregroundColor(Color.red)
-              // .font(InterpreterView.toolbarFont)
+                .font(InterpreterView.toolbarFont)
             }
           }
           NavigationLink(destination: LazyView(
             LibraryView(libManager: interpreter.libManager))) {
             Image(systemName: "building.columns")
-            // .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarFont)
           }
           .disabled(!self.docManager.initialized)
           NavigationLink(destination: LazyView(
             EnvironmentView(envManager: interpreter.envManager))) {
-            Image(systemName: "square.stack.3d.up") // function - square.stack.3d.up.badge.a - square.3.stack.3d
-            // .font(InterpreterView.toolbarFont)
+            Image(systemName: "square.stack.3d.up")
+              .font(InterpreterView.toolbarFont)
           }
         }
       }

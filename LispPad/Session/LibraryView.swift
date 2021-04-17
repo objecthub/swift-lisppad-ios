@@ -60,7 +60,7 @@ struct LibraryView: View {
               selection: self.$tapped) {
               HStack(spacing: 15) {
                 Text(library.name.description)
-                  .font(.callout)
+                  .font(.body)
                   .foregroundColor(.primary)
                 Spacer()
                 Text(library.state.description)
