@@ -29,9 +29,9 @@ struct EnvironmentDetailView: View {
   var body: some View {
     ScrollView(.vertical) {
       MarkdownText(self.docManager.documentation(for: symbol.identifier))
-        .padding(8)
-        .navigationTitle(self.symbol.identifier)
+        .padding(16)
     }
+    .navigationTitle(self.symbol.identifier)
   }
 }
 

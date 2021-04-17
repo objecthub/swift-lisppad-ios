@@ -79,6 +79,7 @@ struct CodeEditor: UIViewRepresentable {
     if let font = self.font {
       textView.font = font
     }
+    textView.textColor = UIColor(named: "CodeEditorTextColor")
     textView.tintColor = insertionPointColor ?? textView.tintColor
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject
     textInputTraits?.setValue(textView.tintColor, forKey: "insertionPointColor")

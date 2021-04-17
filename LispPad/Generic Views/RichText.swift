@@ -182,7 +182,7 @@ struct AttributedText_Previews: PreviewProvider {
   static var previews: some View {
     RichText(NSAttributedString(string: "Hello World!\nWelcome!\nAnd one more..."))
       .font(.body)
-      .border(Color.black, width: 1)
+      .border(Color.primary, width: 1)
       .padding()
   }
 }

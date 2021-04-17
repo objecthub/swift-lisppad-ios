@@ -91,6 +91,15 @@ class CodeEditorTextView: UITextView {
     fatalError("init(coder:) has not been implemented")
   }
   
+  /* DOES NOT WORK! Why?
+   
+  private lazy var codeEditorTokenizer = CodeEditorTextTokenizer(textInput: self)
+
+  override var tokenizer: UITextInputTokenizer {
+    return self.codeEditorTokenizer
+  }
+  */
+  
   override func draw(_ rect: CGRect) {
     if let context: CGContext = UIGraphicsGetCurrentContext() {
       let bounds = self.bounds

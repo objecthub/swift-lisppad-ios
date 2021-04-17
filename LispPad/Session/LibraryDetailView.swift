@@ -29,8 +29,8 @@ struct LibraryDetailView: View {
   var body: some View {
     ScrollView(.vertical) {
       MarkdownText(self.docManager.libraryDocumentation(for: self.name))
-        .padding(8)
-        .navigationTitle(self.name.description)
+        .padding(12)
     }
+    .navigationTitle(self.name.description)
   }
 }

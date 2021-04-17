@@ -27,6 +27,8 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   private static let subsequentIdentCharacters = CharacterSet(charactersIn: "+-.")
   private static let digitCharacters = CharacterSet(charactersIn: "0123456789")
   
+  let textColor = UIColor(named: "CodeEditorTextColor") ??
+                  UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1)
   let parenColor = UIColor(red: 0.6, green: 0.35, blue: 0.2, alpha: 1)
   let literalColor = UIColor(red: 0.0, green: 0.6, blue: 0.0, alpha: 1)
   let identColor = UIColor(red: 0.0, green: 0.0, blue: 0.7, alpha: 1)
@@ -68,6 +70,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     var stringStart = Int.min
     var numberStart = Int.min
     var symbolStart = Int.min
+    textStorage.addAttribute(.foregroundColor,
+                             value: self.textColor,
+                             range: range)
     while start < end {
       let ch = str.character(at: start)
       if symbolStart < 0 {

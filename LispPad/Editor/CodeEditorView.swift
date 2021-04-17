@@ -21,6 +21,33 @@
 import SwiftUI
 
 struct CodeEditorView: View {
+  
+  enum SheetAction: Identifiable {
+    case editFile
+    case organizeFiles
+    case showDefinitions(DefinitionMenu)
+    
+    var id: Int {
+      switch self {
+        case .editFile:
+          return 0
+        case .organizeFiles:
+          return 1
+        case .showDefinitions(_):
+          return 2
+      }
+    }
+  }
+  
+  enum NotSavedAlertAction: Int, Identifiable {
+    case newFile = 0
+    case editFile = 1
+      
+    var id: Int {
+      self.rawValue
+    }
+  }
+  
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   
   @EnvironmentObject var fileManager: FileManager
@@ -30,8 +57,7 @@ struct CodeEditorView: View {
   @State var position: NSRange? = nil
   @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
-  @State var definitions: DefinitionMenu? = nil
-  @State var documentPickerAction: InterpreterView.DocumentPickerAction? = nil
+  @State var showSheet: SheetAction? = nil
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var showFileMover = false
@@ -83,144 +109,105 @@ struct CodeEditorView: View {
       Divider()
     }
     .navigationBarHidden(false)
-    .navigationBarTitle(self.fileManager.editorDocument?.title ?? "Untitled", displayMode: .inline)
+    .navigationBarTitleDisplayMode(.inline)
+    .navigationTitle(self.fileManager.editorDocument?.title ?? "Untitled")
     .navigationBarBackButtonHidden(true)
-    .navigationBarItems(
-      leading: HStack(alignment: .center, spacing: 14)  {
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          Image(systemName: "terminal.fill")
-          // .font(InterpreterView.toolbarFont)
-        }
-        Menu {
+    .toolbar {
+      ToolbarItemGroup(placement: .navigationBarLeading) {
+        HStack(alignment: .center, spacing: 16)  {
           Button(action: {
-            if (self.fileManager.editorDocument?.new ?? false) &&
-               !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-              self.notSavedAlertAction = .newFile
-            } else {
-              self.fileManager.newEditorDocument(action: { success in
-                self.forceEditorUpdate = true
-              })
-            }
+            self.presentationMode.wrappedValue.dismiss()
           }) {
-            Label("New", systemImage: "square.and.pencil")
+            Image(systemName: "terminal.fill")
+              .foregroundColor(.primary)
+              .font(.system(size: 19, weight: .bold))
+            // .font(InterpreterView.toolbarFont)
           }
-          Button(action: {
-            if (self.fileManager.editorDocument?.new ?? false) &&
-               !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-              self.notSavedAlertAction = .editFile
-            } else {
-              self.documentPickerAction = .editFile
-            }
-          }) {
-            Label("Open…", systemImage: "doc.badge.plus")
-          }
-          Button(action: {
-            self.showFileMover = true
-          }) {
-            Label((self.fileManager.editorDocument?.new ?? true) ?
-                     "Save…" : "Save As…", systemImage: "arrow.down.doc")
-          }
-          Divider()
-          if !self.histManager.recentlyEdited.isEmpty {
-            ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-              if let url = purl.url {
-                Button(action: {
-                  self.fileManager.loadEditorDocument(
-                    source: url,
-                    makeUntitled: !purl.mutable,
-                    action: { success in self.forceEditorUpdate = true })
-                }) {
-                  Label(url.lastPathComponent, systemImage: "doc.text")
-                }
+          Menu {
+            Button(action: {
+              if (self.fileManager.editorDocument?.new ?? false) &&
+                 !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+                self.notSavedAlertAction = .newFile
+              } else {
+                self.fileManager.newEditorDocument(action: { success in
+                  self.forceEditorUpdate = true
+                })
               }
+            }) {
+              Label("New", systemImage: "square.and.pencil")
+            }
+            Button(action: {
+              if (self.fileManager.editorDocument?.new ?? false) &&
+                 !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+                self.notSavedAlertAction = .editFile
+              } else {
+                self.showSheet = .editFile
+              }
+            }) {
+              Label("Open…", systemImage: "doc.badge.plus")
+            }
+            Button(action: {
+              self.showFileMover = true
+            }) {
+              Label((self.fileManager.editorDocument?.new ?? true) ?
+                       "Save…" : "Save As…", systemImage: "arrow.down.doc")
             }
             Divider()
-          }
-          Button(action: {
-            self.documentPickerAction = .organizeFiles
-          }) {
-            Label("Organize…", systemImage: "doc.on.doc")
-          }
-        } label: {
-          Image(systemName: "doc")
-          // .font(InterpreterView.toolbarFont)
-        }
-        .alert(item: $notSavedAlertAction) { alertAction in
-          if alertAction == .newFile {
-            return self.notSavedAlert(save: {
-                                        self.fileMoverAction = {
-                                          self.fileManager.newEditorDocument(action: { success in
-                                            self.forceEditorUpdate = true
-                                          })
-                                        }
-                                        self.showFileMover = true },
-                                      discard: {
-                                        self.fileManager.editorDocument?.text = ""
-                                        self.fileManager.editorDocument?.saveFile(action: { succ in
-                                          self.forceEditorUpdate = true })})
-          } else {
-            return self.notSavedAlert(save: {
-                                        self.fileMoverAction = {
-                                          self.documentPickerAction = .editFile
-                                        }
-                                        self.showFileMover = true },
-                                      discard: {
-                                        self.fileManager.editorDocument?.text = ""
-                                        self.documentPickerAction = .editFile })
-          }
-        }
-        .sheet(item: $documentPickerAction,
-               onDismiss: { },
-               content: { action in
-                 DocumentPicker(
-                  "Select file to edit",
-                  fileType: .file,
-                  action: { url, mutable in
-                    switch action {
-                      case .editFile:
-                        self.fileManager.loadEditorDocument(
-                          source: url,
-                          makeUntitled: !mutable,
-                          action: { success in self.forceEditorUpdate = true })
-                      default:
-                        print("selected \(url)")
-                        break
-                    }
-                  })
-                  .environmentObject(self.fileManager) // There must be a bug; it's needed for no reason
-               })
-        if self.interpreter.isReady {
-          Button(action: {
-            if !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-              self.interpreter.append(output: ConsoleOutput(kind: .command, text: "<execute code from editor>"))
-              self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
-                                        url: self.fileManager.editorDocument?.fileURL)
-              self.presentationMode.wrappedValue.dismiss()
+            if !self.histManager.recentlyEdited.isEmpty {
+              ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                if let url = purl.url {
+                  Button(action: {
+                    self.fileManager.loadEditorDocument(
+                      source: url,
+                      makeUntitled: !purl.mutable,
+                      action: { success in self.forceEditorUpdate = true })
+                  }) {
+                    Label(url.lastPathComponent, systemImage: "doc.text")
+                  }
+                }
+              }
+              Divider()
             }
-          }) {
-            Image(systemName: "play")
+            Button(action: {
+              self.showSheet = .organizeFiles
+            }) {
+              Label("Organize…", systemImage: "doc.on.doc")
+            }
+          } label: {
+            Image(systemName: "doc")
             // .font(InterpreterView.toolbarFont)
           }
-        } else {
-          Button(action: {
-            self.showAbortAlert = true
-          }) {
-            Image(systemName: "stop.circle")
-            // .font(InterpreterView.toolbarFont)
-          }
-          .alert(isPresented: $showAbortAlert) {
-            Alert(title: Text("Abort evaluation?"),
-                  primaryButton: .cancel(),
-                  secondaryButton: .destructive(Text("Abort"), action: {
-                    self.interpreter.context?.machine.abort()
-                  }))
+          if self.interpreter.isReady {
+            Button(action: {
+              if !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+                self.interpreter.append(output: ConsoleOutput(kind: .command, text: "<execute code from editor>"))
+                self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
+                                          url: self.fileManager.editorDocument?.fileURL)
+                self.presentationMode.wrappedValue.dismiss()
+              }
+            }) {
+              Image(systemName: "play")
+              // .font(InterpreterView.toolbarFont)
+            }
+          } else {
+            Button(action: {
+              self.showAbortAlert = true
+            }) {
+              Image(systemName: "stop.circle")
+              // .font(InterpreterView.toolbarFont)
+            }
+            .alert(isPresented: $showAbortAlert) {
+              Alert(title: Text("Abort evaluation?"),
+                    primaryButton: .cancel(),
+                    secondaryButton: .destructive(Text("Abort"), action: {
+                      self.interpreter.context?.machine.abort()
+                    }))
+            }
           }
         }
-      },
-      trailing:
-        HStack(alignment: .center, spacing: 12) {
+      }
+      ToolbarItemGroup(placement: .navigationBarTrailing) {
+        HStack(alignment: .center, spacing: 16) {
           Button(action: {
             
           }) {
@@ -229,16 +216,14 @@ struct CodeEditorView: View {
           }
           .disabled(self.showSearchField)
           Button(action: {
-            self.definitions = self.determineDefinitions(self.fileManager.editorDocument?.text
-                                                          ?? "")
+            if let defs = self.determineDefinitions(self.fileManager.editorDocument?.text ?? "") {
+              self.showSheet = .showDefinitions(defs)
+            }
           }) {
             Image(systemName: "f.cursive")
             // .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
-          .sheet(item: $definitions) { defs in 
-            DefinitionView(defitions: defs, position: $position)
-          }
           Button(action: {
             withAnimation(.default) {
               self.showSearchField = true
@@ -248,7 +233,50 @@ struct CodeEditorView: View {
             // .font(InterpreterView.toolbarFont)
           }
           .disabled(self.showSearchField)
-        })
+        }
+      }
+    }
+    .alert(item: $notSavedAlertAction) { alertAction in
+      if alertAction == .newFile {
+        return self.notSavedAlert(save: {
+                                    self.fileMoverAction = {
+                                      self.fileManager.newEditorDocument(action: { success in
+                                        self.forceEditorUpdate = true
+                                      })
+                                    }
+                                    self.showFileMover = true },
+                                  discard: {
+                                    self.fileManager.editorDocument?.text = ""
+                                    self.fileManager.editorDocument?.saveFile(action: { succ in
+                                      self.forceEditorUpdate = true })})
+      } else {
+        return self.notSavedAlert(save: {
+                                    self.fileMoverAction = {
+                                      self.showSheet = .editFile
+                                    }
+                                    self.showFileMover = true },
+                                  discard: {
+                                    self.fileManager.editorDocument?.text = ""
+                                    self.showSheet = .editFile })
+      }
+    }
+    .sheet(item: $showSheet, onDismiss: { }) { sheet in
+      switch sheet {
+        case .editFile, .organizeFiles:
+          DocumentPicker("Select file to edit", fileType: .file) { url, mutable in
+            if case .editFile = sheet {
+              self.fileManager.loadEditorDocument(
+                source: url,
+                makeUntitled: !mutable,
+                action: { success in self.forceEditorUpdate = true })
+            } else {
+              
+            }
+          }
+        case .showDefinitions(let definitions):
+          DefinitionView(defitions: definitions, position: $position)
+      }
+    }
     .fileMover(isPresented: $showFileMover,
                file: self.fileManager.editorDocument?.fileURL,
                onCompletion: { result in
@@ -264,11 +292,11 @@ struct CodeEditorView: View {
                     print("error = \(error)")
                 }
                })
-    .onDisappear(perform: {
+    .onDisappear {
       self.fileManager.editorDocument?.saveFile()
       self.histManager.saveFilesHistory()
       self.histManager.saveFavorites()
-    })
+    }
   }
   
   func notSavedAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {
@@ -511,15 +539,6 @@ struct CodeEditorView: View {
     } else {
       return nil
     }
-  }
-}
-
-enum NotSavedAlertAction: Int, Identifiable {
-  case newFile = 0
-  case editFile = 1
-    
-  var id: Int {
-    self.rawValue
   }
 }
 

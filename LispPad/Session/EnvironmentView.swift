@@ -23,6 +23,7 @@ import SwiftUI
 struct EnvironmentView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var envManager: EnvironmentManager
+  
   @State var searchText: String = ""
   @State var showCancel: Bool = false
   @State var showLispPadRef: Bool = false
@@ -82,16 +83,22 @@ struct EnvironmentView: View {
       .resignKeyboardOnDragGesture()
       .listStyle(DefaultListStyle())
       .navigationTitle("Environment")
-      .navigationBarItems(
-        trailing: HStack(alignment: .center, spacing: 16) {
-          Button(action: { self.showLispPadRef = true }) {
-            Image(systemName: "info.circle")
-            // .font(InterpreterView.toolbarFont)
+      .navigationBarBackButtonHidden(false)
+      .toolbar {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+          HStack(alignment: .center, spacing: 16) {
+            Button(action: {
+              self.showLispPadRef = self.docManager.lispPadRef.url != nil
+            }) {
+              Image(systemName: "info.circle")
+              // .font(InterpreterView.toolbarFont)
+            }
           }
-          .sheet(isPresented: $showLispPadRef) {
-            DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)
-          }
-        })
+        }
+      }
+    }
+    .sheet(isPresented: $showLispPadRef) {
+      DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)
     }
   }
 }

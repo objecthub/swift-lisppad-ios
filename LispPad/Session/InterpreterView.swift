@@ -23,13 +23,23 @@ import LispKit
 
 struct InterpreterView: View {
   
-  enum DocumentPickerAction: Int, Identifiable {
-    case editFile = 0
-    case executeFile = 1
-    case organizeFiles = 2
+  enum SheetAction: Identifiable {
+    case loadFile
+    case shareConsole
+    case showAbout
+    case showPDF(String, URL)
     
     var id: Int {
-      self.rawValue
+      switch self {
+        case .loadFile:
+          return 0
+        case .shareConsole:
+          return 1
+        case .showAbout:
+          return 2
+        case .showPDF(_, _):
+          return 3
+      }
     }
   }
   
@@ -47,11 +57,8 @@ struct InterpreterView: View {
   @State private var consoleInput = ""
   @State private var showAbortAlert = false
   @State private var showResetActionSheet = false
-  @State private var showShareSheet = false
-  @State private var showImportSheet = false
   @State private var showPreferences = false
-  @State private var documentPickerAction: DocumentPickerAction? = nil
-  @State private var documentationUrl: NamedRef? = nil
+  @State private var showSheet: SheetAction? = nil
   
   // The main view
   var master: some View {
@@ -82,130 +89,158 @@ struct InterpreterView: View {
           ready: $interpreter.isReady)
       Spacer()
     }
-    .navigationBarTitle("LispPad", displayMode: .inline)
-    .navigationBarItems(
-      leading: HStack(alignment: .center, spacing: 16) {
-        NavigationLink(destination: LazyView(CodeEditorView())) {
-          Image(systemName: "pencil.circle.fill")
-          // .font(InterpreterView.toolbarFont)
+    .navigationBarTitleDisplayMode(.inline)
+    .navigationTitle("LispPad")
+    .toolbar {
+      ToolbarItemGroup(placement: .navigationBarLeading) {
+        HStack(alignment: .center, spacing: 16) {
+          NavigationLink(destination: LazyView(CodeEditorView())) {
+            Image(systemName: "pencil.circle.fill")
+              .foregroundColor(.primary)
+              .font(.system(size: 19, weight: .bold))
+            // .font(InterpreterView.toolbarFont)
+          }
+          Button(action: {
+            self.showSheet = .loadFile
+          }) {
+            Image(systemName: "arrow.down.doc")
+            // .font(InterpreterView.toolbarFont)
+          }
+          .disabled(!self.interpreter.isReady)
+          Button(action: {
+            self.showSheet = .shareConsole
+          }) {
+            Image(systemName: "square.and.arrow.up")
+            // .font(InterpreterView.toolbarFont)
+          }
+          .disabled(self.interpreter.consoleContent.isEmpty)
         }
-        Button(action: {
-          self.documentPickerAction = .executeFile
-        }) {
-          Image(systemName: "arrow.down.doc")
-          // .font(InterpreterView.toolbarFont)
-        }
-        .disabled(!self.interpreter.isReady)
-        .sheet(item: $documentPickerAction,
-               onDismiss: { },
-               content: { action in
-                 DocumentPicker(
-                  "Select file to load",
-                  fileType: .file,
-                  action: { url, mutable in
-                    if self.interpreter.isReady {
-                      let input = InterpreterView.canonicalizeInput(
-                                    "(load \"\(self.fileManager.canonicalPath(for: url))\")")
-                      self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-                      self.historyManager.addConsoleEntry(input)
-                      self.interpreter.load(url)
-                    }
-                  })
-                  .environmentObject(self.fileManager) // There must be a bug; it's needed for no reason
-               })
-        Button(action: {
-          self.showShareSheet = true
-        }) {
-          Image(systemName: "square.and.arrow.up")
-          // .font(InterpreterView.toolbarFont)
-        }
-        .disabled(self.interpreter.consoleContent.isEmpty)
-        .sheet(isPresented: $showShareSheet) {
-          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
-        }
-      },
-      trailing: HStack(alignment: .center, spacing: 16) {
-        if self.interpreter.isReady {
+      }
+      ToolbarItemGroup(placement: .principal) {
+        HStack(alignment: .center, spacing: 6) {
           Menu {
             Button(action: {
-              self.documentationUrl = self.docManager.r7rsSpec
+              self.showSheet = .showAbout
+            }) {
+              Label("About…", systemImage: "questionmark.square")
+            }
+            Divider()
+            Button(action: {
+              if let url = self.docManager.r7rsSpec.url {
+                self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+              }
             }) {
               Label("Language Spec…", systemImage: "doc.richtext")
             }
             Button(action: {
-              self.documentationUrl = self.docManager.lispPadRef
+              if let url = self.docManager.lispPadRef.url {
+                self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+              }
             }) {
               Label("Library Reference…", systemImage: "doc.richtext")
             }
-            Divider()
-            Button(action: {
-              self.interpreter.consoleContent.removeAll()
-            }) {
-                Label("Clear Console", systemImage: "clear")
-            }
-            Button(action: {
-              self.showResetActionSheet = true
-            }) {
-                Label("Reset Interpreter…", systemImage: "trash")
-            }
-            Divider()
-            Button(action: {
-              self.showPreferences = true
-            }) {
-              Label("Preferences…", systemImage: "switch.2")
-            }
           } label: {
-            Image(systemName: "gearshape")
-            // .font(InterpreterView.toolbarFont)
+            Image("SmallLogo")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 28.0,height: 28.0)
+              .padding(.bottom, -3)
           }
-          .sheet(item: $documentationUrl) { docUrl in
-            if let url = docUrl.url {
-              DocumentView(title: docUrl.name, url: url)
+          Text("LispPad")
+            .font(.body)
+            .bold()
+        }
+      }
+      ToolbarItemGroup(placement: .navigationBarTrailing) {
+        HStack(alignment: .center, spacing: 16) {
+          if self.interpreter.isReady {
+            Menu {
+              Button(action: {
+                self.interpreter.consoleContent.removeAll()
+              }) {
+                  Label("Clear Console", systemImage: "clear")
+              }
+              Button(action: {
+                self.showResetActionSheet = true
+              }) {
+                  Label("Reset Interpreter…", systemImage: "trash")
+              }
+              Divider()
+              Button(action: {
+                self.showPreferences = true
+              }) {
+                Label("Preferences…", systemImage: "switch.2")
+              }
+            } label: {
+              Image(systemName: "gearshape")
+              // .font(InterpreterView.toolbarFont)
+            }
+            .background(
+              NavigationLink(destination: LazyView(PreferencesView()), isActive: $showPreferences) {
+                EmptyView()
+              })
+          } else {
+            Button(action: {
+              self.showAbortAlert = true
+            }) {
+              Image(systemName: "stop.circle")
+                .foregroundColor(Color.red)
+              // .font(InterpreterView.toolbarFont)
             }
           }
-          .actionSheet(isPresented: $showResetActionSheet) {
-            ActionSheet(title: Text("Reset"),
-                        message: Text("Clear console and reset interpreter?"),
-                        buttons: [.destructive(Text("Reset interpreter"), action: {
-                                    _ = self.interpreter.reset()
-                                  }),
-                                  .destructive(Text("Reset console & interpreter"), action: {
-                                    self.interpreter.consoleContent.removeAll()
-                                    _ = self.interpreter.reset()
-                                  }),
-                                  .cancel()])
-          }
-          .background(
-            NavigationLink(destination: LazyView(PreferencesView()), isActive: $showPreferences) {
-              EmptyView()
-            })
-        } else {
-          Button(action: {
-            self.showAbortAlert = true
-          }) {
-            Image(systemName: "stop.circle")
+          NavigationLink(destination: LazyView(
+            LibraryView(libManager: interpreter.libManager))) {
+            Image(systemName: "building.columns")
             // .font(InterpreterView.toolbarFont)
           }
-          .alert(isPresented: $showAbortAlert) {
-            Alert(title: Text("Abort evaluation?"),
-                  primaryButton: .cancel(),
-                  secondaryButton: .destructive(Text("Abort"), action: {
-                    self.interpreter.context?.machine.abort()
-                  }))
+          .disabled(!self.docManager.initialized)
+          NavigationLink(destination: LazyView(
+            EnvironmentView(envManager: interpreter.envManager))) {
+            Image(systemName: "square.stack.3d.up") // function - square.stack.3d.up.badge.a - square.3.stack.3d
+            // .font(InterpreterView.toolbarFont)
           }
         }
-        NavigationLink(destination: LazyView(
-          LibraryView(libManager: interpreter.libManager))) {
-          Image(systemName: "building.columns")
-          // .font(InterpreterView.toolbarFont)
-        }
-        .disabled(!self.docManager.initialized)
-        NavigationLink(destination: LazyView(
-          EnvironmentView(envManager: interpreter.envManager))) {
-          Image(systemName: "square.stack.3d.up") // function - square.stack.3d.up.badge.a - square.3.stack.3d
-          // .font(InterpreterView.toolbarFont)
-        }
-      })
+      }
+    }
+    .sheet(item: $showSheet, onDismiss: { }) { sheet in
+      switch sheet {
+        case .loadFile:
+          DocumentPicker("Select file to load", fileType: .file) { url, mutable in
+            if self.interpreter.isReady {
+              let input = InterpreterView.canonicalizeInput(
+                            "(load \"\(self.fileManager.canonicalPath(for: url))\")")
+              self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
+              self.historyManager.addConsoleEntry(input)
+              self.interpreter.load(url)
+            }
+          }
+        case .shareConsole:
+          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+        case .showAbout:
+          AboutView()
+        case .showPDF(let name, let url):
+          DocumentView(title: name, url: url)
+      }
+    }
+    .actionSheet(isPresented: $showResetActionSheet) {
+      ActionSheet(title: Text("Reset"),
+                  message: Text("Clear console and reset interpreter?"),
+                  buttons: [.destructive(Text("Reset interpreter"), action: {
+                              _ = self.interpreter.reset()
+                            }),
+                            .destructive(Text("Reset console & interpreter"), action: {
+                              self.interpreter.consoleContent.removeAll()
+                              _ = self.interpreter.reset()
+                            }),
+                            .cancel()])
+    }
+    .alert(isPresented: $showAbortAlert) {
+      Alert(title: Text("Abort evaluation?"),
+            primaryButton: .cancel(),
+            secondaryButton: .destructive(Text("Abort"), action: {
+              self.interpreter.context?.machine.abort()
+            }))
+    }
   }
   
   var body: some View {

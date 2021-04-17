@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CC327C36260BF98100BD7E32 /* (lisppad system).md in Resources */ = {isa = PBXBuildFile; fileRef = CC327C35260BF98100BD7E32 /* (lisppad system).md */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
@@ -103,6 +102,9 @@
 		CCE8E42A2621A4C900E3DC6A /* r7rs.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4292621A4BF00E3DC6A /* r7rs.pdf */; };
 		CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */; };
 		CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */; };
+		CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E431262975E900E3DC6A /* CodeEditorTextTokenizer.swift */; };
+		CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E433262A3C2500E3DC6A /* AboutView.swift */; };
+		CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = CCE8E435262A415500E3DC6A /* Credits.rtf */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -351,6 +353,9 @@
 		CCE8E4292621A4BF00E3DC6A /* r7rs.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = r7rs.pdf; sourceTree = "<group>"; };
 		CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortableURL.swift; sourceTree = "<group>"; };
 		CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NamedRef.swift; sourceTree = "<group>"; };
+		CCE8E431262975E900E3DC6A /* CodeEditorTextTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextTokenizer.swift; sourceTree = "<group>"; };
+		CCE8E433262A3C2500E3DC6A /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		CCE8E435262A415500E3DC6A /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -407,6 +412,7 @@
 				CC8B95B82607FFBC00830B4F /* Libraries */,
 				CC8B951F26079EC700830B4F /* Resources */,
 				CC84C24F25FE59F000758581 /* Assets.xcassets */,
+				CCE8E435262A415500E3DC6A /* Credits.rtf */,
 				CC8B95CE260813EC00830B4F /* Documentation.plist */,
 				CC84C25425FE59F000758581 /* Info.plist */,
 				CC84C25125FE59F000758581 /* Preview Content */,
@@ -445,6 +451,7 @@
 				CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */,
 				CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */,
 				CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */,
+				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
 			);
 			path = Session;
 			sourceTree = "<group>";
@@ -663,6 +670,7 @@
 				CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */,
 				CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */,
 				CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */,
+				CCE8E431262975E900E3DC6A /* CodeEditorTextTokenizer.swift */,
 				CCC8565A261BADAD0080B96E /* DefinitionView.swift */,
 			);
 			path = Editor;
@@ -745,8 +753,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
-				CC327C36260BF98100BD7E32 /* (lisppad system).md in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 			);
@@ -783,10 +791,12 @@
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
+				CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,
 				CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */,
 				CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
+				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
