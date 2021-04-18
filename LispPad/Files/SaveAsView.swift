@@ -61,12 +61,31 @@ struct SaveAsView: View {
     self.onSave = onSave
   }
   
-  var descriptionBlock: Text {
+  var targetDescription: Text {
     if let folder = self.folder {
-      let portableURL = PortableURL(folder.appendingPathComponent(self.fileName))
-      return Text("SAVE AS:\n") + Text(portableURL?.description ?? "?").bold()
+      if let portableURL = PortableURL(folder.appendingPathComponent(self.fileName)) {
+        return Text("SAVE AS:\n") +
+               Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
+               Text("  \(portableURL.relativeString)").bold()
+      }
+      return Text("SAVE AS:\n?")
     } else {
       return Text("Select folder below")
+    }
+  }
+  
+  func tapSave() {
+    if !self.fileName.isEmpty,
+       let url = self.folder?.appendingPathComponent(self.fileName) {
+      let item = self.fileManager.item(at: url)
+      if item == .directory {
+        self.alertAction = .overrideDirectory
+      } else if item == .file && (self.firstSave || url != self.url) {
+        self.alertAction = .overrideFile
+      } else {
+        self.presentationMode.wrappedValue.dismiss()
+        self.onSave(url)
+      }
     }
   }
   
@@ -79,21 +98,7 @@ struct SaveAsView: View {
         }) {
           Text("Cancel")
         }
-        Button(action: {
-          if !self.fileName.isEmpty,
-             let url = self.folder?.appendingPathComponent(self.fileName) {
-            let item = self.fileManager.item(at: url)
-            if item == .directory {
-              self.alertAction = .overrideDirectory
-            } else if item == .file && (self.firstSave || url != self.url) {
-              self.alertAction = .overrideFile
-            } else {
-              self.presentationMode.wrappedValue.dismiss()
-              self.onSave(url)
-            }
-            print("save action done")
-          }
-        }) {
+        Button(action: self.tapSave) {
           Text("Save")
         }
         .disabled(self.folder == nil || self.fileName.isEmpty)
@@ -103,7 +108,7 @@ struct SaveAsView: View {
       .edgesIgnoringSafeArea(.all)
       .background(Color(.secondarySystemBackground))
       HStack(alignment: .top, spacing: 16) {
-        self.descriptionBlock
+        self.targetDescription
           .font(.footnote)
           .foregroundColor(.secondary)
         Spacer(minLength: 0)
@@ -112,7 +117,7 @@ struct SaveAsView: View {
       .background(Color(.secondarySystemBackground))
       Form {
         Section(header: Text("File")) {
-          TextField("", text: $fileName)
+          TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)
             .autocapitalization(.none)
             .disableAutocorrection(true)
         }
@@ -153,7 +158,6 @@ struct SaveAsView: View {
                            let url = self.folder?.appendingPathComponent(self.fileName) {
                           self.presentationMode.wrappedValue.dismiss()
                           self.onSave(url)
-                          print("save action confirmed and done")
                         }
                        }))
       }

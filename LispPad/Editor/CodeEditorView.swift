@@ -243,7 +243,7 @@ struct CodeEditorView: View {
           Button(action: {
             self.showSheet = .renameFile
           }) {
-            Label("Rename", systemImage: "questionmark.square")
+            Label("Rename", systemImage: "pencil")
           }
         } label: {
           Text(self.fileManager.editorDocumentTitle)

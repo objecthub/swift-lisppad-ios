@@ -37,12 +37,12 @@ class FileManager: ObservableObject {
   let systemRootDirectories: [NamedRef] = {
     var roots: [NamedRef] = [
       NamedRef(name: "LispPad",
-               image: "folder.badge.gear",
+               image: "building.columns.fill",
                url: URL(fileURLWithPath: "Root", relativeTo: Bundle.main.bundleURL.absoluteURL))
     ]
     if let base = Context.bundle?.bundleURL.absoluteURL {
       roots.append(NamedRef(name: "LispKit",
-                            image: "folder.badge.gear",
+                            image: "building.columns",
                             url: URL(fileURLWithPath: Context.rootDirectory, relativeTo: base)))
     }
     return roots

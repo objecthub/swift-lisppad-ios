@@ -43,11 +43,26 @@ public final class SystemLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
-    self.define(Procedure("dark-mode?", isDarkMode))
+    self.define(Procedure("project-directory", self.projectDirectory))
+    self.define(Procedure("screen-size", self.screenSize))
+    self.define(Procedure("dark-mode?", self.isDarkMode))
     self.define(Procedure("sleep", self.sleep))
   }
   
   public override func initializations() {
+  }
+  
+  private func projectDirectory() -> Expr {
+    if let path = PortableURL.Base.documents.url?.absoluteURL.path {
+      return .makeString(path)
+    } else {
+      return .false
+    }
+  }
+  
+  private func screenSize(docid: Expr?) throws -> Expr {
+    let screen = UIScreen.main.bounds
+    return .pair(.flonum(Double(screen.width)), .flonum(Double(screen.height)))
   }
   
   private func isDarkMode() -> Expr {
