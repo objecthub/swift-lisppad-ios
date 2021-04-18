@@ -59,9 +59,11 @@ class FileManager: ObservableObject {
   
   /// The document currently loaded into the editor
   @Published var editorDocument: TextDocument? = nil
+  @Published var editorDocumentTitle: String = "Untitled"
+  @Published var editorDocumentNew: Bool = true
   
   var baseURLs: [(URL, Int)] = []
-  
+
   /// Constructor, responsible for defining the named resources as well as for setting them up
   /// initially.
   init() {
@@ -191,6 +193,15 @@ class FileManager: ObservableObject {
       return root
     } catch {
       return nil
+    }
+  }
+  
+  func item(at url: URL) -> FileType {
+    var dir: ObjCBool = false
+    if self.sysFileManager.fileExists(atPath: url.absoluteURL.path, isDirectory: &dir) {
+      return dir.boolValue ? .directory : .file
+    } else {
+      return []
     }
   }
   
@@ -341,6 +352,7 @@ class FileManager: ObservableObject {
       document.saveFile { success in
         document.close(completionHandler: { success in
           self.editorDocument = TextDocument(fileURL: targetUrl)
+          self.editorDocument?.fileManager = self
           self.editorDocument?.new = makeUntitled
           self.editorDocument?.recomputeTitle(targetUrl)
           self.editorDocument?.loadFile(action: action)
@@ -348,6 +360,7 @@ class FileManager: ObservableObject {
       }
     } else {
       self.editorDocument = TextDocument(fileURL: targetUrl)
+      self.editorDocument?.fileManager = self
       self.editorDocument?.new = makeUntitled
       self.editorDocument?.recomputeTitle(targetUrl)
       self.editorDocument?.loadFile(action: action)

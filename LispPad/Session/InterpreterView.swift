@@ -60,6 +60,9 @@ struct InterpreterView: View {
   @State private var showPreferences = false
   @State private var showSheet: SheetAction? = nil
   
+  @State var fileName: String = ""
+  
+  
   // The main view
   var master: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -116,40 +119,38 @@ struct InterpreterView: View {
         }
       }
       ToolbarItemGroup(placement: .principal) {
-        HStack(alignment: .center, spacing: 6) {
-          Menu {
-            Button(action: {
-              self.showSheet = .showAbout
-            }) {
-              Label("About…", systemImage: "questionmark.square")
-            }
-            Divider()
-            Button(action: {
-              if let url = self.docManager.r7rsSpec.url {
-                self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
-              }
-            }) {
-              Label("Language Spec…", systemImage: "doc.richtext")
-            }
-            Button(action: {
-              if let url = self.docManager.lispPadRef.url {
-                self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
-              }
-            }) {
-              Label("Library Reference…", systemImage: "doc.richtext")
-            }
-          } label: {
-            /* Let's not display a logo here for now.
-               Image("SmallLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 28.0,height: 28.0)
-                .padding(.bottom, -3) */
-            Text("LispPad")
-              .font(.body)
-              .bold()
-              .foregroundColor(.primary)
+        Menu {
+          Button(action: {
+            self.showSheet = .showAbout
+          }) {
+            Label("About…", systemImage: "questionmark.square")
           }
+          Divider()
+          Button(action: {
+            if let url = self.docManager.r7rsSpec.url {
+              self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+            }
+          }) {
+            Label("Language Spec…", systemImage: "doc.richtext")
+          }
+          Button(action: {
+            if let url = self.docManager.lispPadRef.url {
+              self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+            }
+          }) {
+            Label("Library Reference…", systemImage: "doc.richtext")
+          }
+        } label: {
+          /* Let's not display a logo here for now.
+             Image("SmallLogo")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 28.0,height: 28.0)
+              .padding(.bottom, -3) */
+          Text("LispPad")
+            .font(.body)
+            .bold()
+            .foregroundColor(.primary)
         }
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -206,7 +207,10 @@ struct InterpreterView: View {
     .sheet(item: $showSheet, onDismiss: { }) { sheet in
       switch sheet {
         case .loadFile:
-          DocumentPicker("Select file to load", fileType: .file) { url, mutable in
+          DocumentPicker("Select file to load",
+                         kind: .open,
+                         selectDirectory: false,
+                         fileName: $fileName) { url, mutable in
             if self.interpreter.isReady {
               let input = InterpreterView.canonicalizeInput(
                             "(load \"\(self.fileManager.canonicalPath(for: url))\")")
@@ -214,6 +218,7 @@ struct InterpreterView: View {
               self.historyManager.addConsoleEntry(input)
               self.interpreter.load(url)
             }
+            return true
           }
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])

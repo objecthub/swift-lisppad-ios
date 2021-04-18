@@ -34,21 +34,30 @@ struct FileHierarchyView: View {
   
   // Internal state
   private let roots: [FileHierarchy]
-  private let fileType: FileType
+  private let selectDirectory: Bool
   private let mutable: Bool
   private let action: ((URL, Bool) -> Void)?
   
   // Bindings to communicate with the context of the view
+  
+  /// Other modal views defined outside
   @Binding var showFileMover: Bool
   @Binding var showFileImporter: Bool
   @Binding var showFileSharer: Bool
+  
+  /// The URL used by file mover, file importer and file sharer
   @Binding var selectedUrl: URL?
+  
+  /// Rename support
   @Binding var editUrl: URL?
   @Binding var editName: String
   
+  /// Selection support
+  @Binding var selectedUrls: Set<URL>
+  
   /// Constructor
   init(_ namedRefs: [NamedRef],
-       fileType: FileType = .all,
+       selectDirectory: Bool,
        mutable: Bool = true,
        showFileMover: Binding<Bool>,
        showFileImporter: Binding<Bool>,
@@ -56,8 +65,9 @@ struct FileHierarchyView: View {
        selectedUrl: Binding<URL?>,
        editUrl: Binding<URL?>,
        editName: Binding<String>,
+       selectedUrls: Binding<Set<URL>>,
        action: ((URL, Bool) -> Void)? = nil) {
-    self.fileType = fileType
+    self.selectDirectory = selectDirectory
     self.mutable = mutable
     self.action = action
     self._showFileMover = showFileMover
@@ -66,13 +76,21 @@ struct FileHierarchyView: View {
     self._selectedUrl = selectedUrl
     self._editUrl = editUrl
     self._editName = editName
+    self._selectedUrls = selectedUrls
     var roots: [FileHierarchy] = []
     for namedRef in namedRefs {
-      if let root = FileHierarchy(namedRef) {
+      if let root = FileHierarchy(namedRef, filter: selectDirectory ? .directory : .file) {
         roots.append(root)
       }
     }
     self.roots = roots
+  }
+  
+  func isSelected(_ hierarchy: FileHierarchy) -> Bool {
+    guard let url = hierarchy.url else {
+      return false
+    }
+    return self.selectedUrls.contains(url)
   }
   
   func rowContent(_ hierarchy: FileHierarchy) -> some View {
@@ -130,19 +148,23 @@ struct FileHierarchyView: View {
         Button(action: {
           if let action = self.action,
              let url = hierarchy.url {
-            DispatchQueue.main.async {
-              action(url, self.mutable)
-            }
-            self.presentationMode.wrappedValue.dismiss()
+            action(url, self.mutable)
           }
         }) {
           HStack {
-            Label(title: { Text(hierarchy.name).foregroundColor(.primary) },
-                  icon: { Image(systemName: hierarchy.systemImage) })
+            Label(title: {
+                    Text(hierarchy.name)
+                      .foregroundColor(.primary)
+                      .fontWeight(self.isSelected(hierarchy) ? .bold : .regular)
+                  },
+                  icon: {
+                    Image(systemName: hierarchy.systemImage)
+                      .foregroundColor(self.isSelected(hierarchy) ? .green : .primary)
+                  })
             Spacer()
           }
         }
-        .disabled(!self.fileType.contains(hierarchy.type) ||
+        .disabled(// !self.fileType.contains(hierarchy.type) ||
                   self.action == nil ||
                   self.editUrl != nil)
         .contextMenu {

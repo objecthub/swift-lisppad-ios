@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import UIKit
 import LispKit
 
 ///
@@ -50,18 +51,40 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       }
     }
     
-    var description: String {
+    var imageName: String {
       switch self {
         case .application:
-          return "application"
+          return "internaldrive"
         case .documents:
-          return "documents"
+          switch UIDevice.current.userInterfaceIdiom {
+            case .phone:
+              return "iphone"
+            case .pad:
+              return "ipad"
+            default:
+              return "desktopcomputer"
+          }
         case .icloud:
           return "icloud"
         case .lispkit:
-          return "lispkit"
+          return "building.columns"
         case .lisppad:
-          return "lisppad"
+          return "building.columns.fill"
+      }
+    }
+    
+    var description: String {
+      switch self {
+        case .application:
+          return "Internal"
+        case .documents:
+          return "Documents"
+        case .icloud:
+          return "iCloud"
+        case .lispkit:
+          return "LispKit"
+        case .lisppad:
+          return "LispPad"
       }
     }
     
@@ -158,7 +181,7 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       case .absolute(let url):
         return url.absoluteString
       case .relative(let rel, let base):
-        return "@\(base):\(rel)"
+        return "[\(base)] \(rel)"
     }
   }
   
@@ -168,6 +191,15 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
         return url.relativeString
       case .relative(let rel, _):
         return rel
+    }
+  }
+  
+  var base: Base? {
+    switch self {
+      case .absolute(_):
+        return nil
+      case .relative(_, let base):
+        return base
     }
   }
   

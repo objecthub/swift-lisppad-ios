@@ -23,18 +23,39 @@ import SwiftUI
 struct CodeEditorView: View {
   
   enum SheetAction: Identifiable {
+    case renameFile
+    case saveFile
     case editFile
     case organizeFiles
     case showDefinitions(DefinitionMenu)
     
     var id: Int {
       switch self {
-        case .editFile:
+        case .renameFile:
           return 0
-        case .organizeFiles:
+        case .saveFile:
           return 1
-        case .showDefinitions(_):
+        case .editFile:
           return 2
+        case .organizeFiles:
+          return 3
+        case .showDefinitions(_):
+          return 4
+      }
+    }
+    
+    var pickerKind: DocumentPicker.Kind? {
+      switch self {
+        case .renameFile:
+          return .save
+        case .saveFile:
+          return .save
+        case .editFile:
+          return .open
+        case .organizeFiles:
+          return .organize
+        case .showDefinitions(_):
+          return nil
       }
     }
   }
@@ -42,7 +63,8 @@ struct CodeEditorView: View {
   enum NotSavedAlertAction: Int, Identifiable {
     case newFile = 0
     case editFile = 1
-      
+    case notSaved = 2
+    
     var id: Int {
       self.rawValue
     }
@@ -63,6 +85,8 @@ struct CodeEditorView: View {
   @State var showFileMover = false
   @State var fileMoverAction: (() -> Void)? = nil
   @State var forceEditorUpdate = false
+  
+  @State var fileName: String = "Untitled.scm"
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -110,7 +134,6 @@ struct CodeEditorView: View {
     }
     .navigationBarHidden(false)
     .navigationBarTitleDisplayMode(.inline)
-    .navigationTitle(self.fileManager.editorDocument?.title ?? "Untitled")
     .navigationBarBackButtonHidden(true)
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarLeading) {
@@ -124,7 +147,7 @@ struct CodeEditorView: View {
           }
           Menu {
             Button(action: {
-              if (self.fileManager.editorDocument?.new ?? false) &&
+              if (self.fileManager.editorDocumentNew) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .newFile
               } else {
@@ -136,7 +159,7 @@ struct CodeEditorView: View {
               Label("New", systemImage: "square.and.pencil")
             }
             Button(action: {
-              if (self.fileManager.editorDocument?.new ?? false) &&
+              if (self.fileManager.editorDocumentNew) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .editFile
               } else {
@@ -147,11 +170,11 @@ struct CodeEditorView: View {
             }
             Button(action: {
               self.fileManager.editorDocument?.saveFile { success in
-                self.showFileMover = true
+                self.showSheet = .saveFile
               }
             }) {
-              Label((self.fileManager.editorDocument?.new ?? true) ?
-                       "Save…" : "Save As…", systemImage: "arrow.down.doc")
+              Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
+                    systemImage: "arrow.down.doc")
             }
             Divider()
             if !self.histManager.recentlyEdited.isEmpty {
@@ -207,6 +230,28 @@ struct CodeEditorView: View {
           }
         }
       }
+      ToolbarItemGroup(placement: .principal) {
+        Menu {
+          Button(action: {
+            
+          }) {
+            Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativeString ?? "Unknown",
+                  systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
+          }
+          .disabled(true)
+          Divider()
+          Button(action: {
+            self.showSheet = .renameFile
+          }) {
+            Label("Rename", systemImage: "questionmark.square")
+          }
+        } label: {
+          Text(self.fileManager.editorDocumentTitle)
+            .font(.body)
+            .bold()
+            .foregroundColor(.primary)
+        }
+      }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: 16) {
           Button(action: {
@@ -237,47 +282,77 @@ struct CodeEditorView: View {
         }
       }
     }
-    .alert(item: $notSavedAlertAction) { alertAction in
-      if alertAction == .newFile {
-        return self.notSavedAlert(save: {
-                                    self.fileMoverAction = {
-                                      self.fileManager.newEditorDocument(action: { success in
-                                        self.forceEditorUpdate = true
-                                      })
-                                    }
-                                    self.showFileMover = true },
-                                  discard: {
-                                    self.fileManager.editorDocument?.text = ""
-                                    self.fileManager.editorDocument?.saveFile { succ in
-                                      self.forceEditorUpdate = true
-                                    }})
-      } else {
-        return self.notSavedAlert(save: {
-                                    self.fileMoverAction = {
-                                      self.showSheet = .editFile
-                                    }
-                                    self.showFileMover = true },
-                                  discard: {
-                                    self.fileManager.editorDocument?.text = ""
-                                    self.showSheet = .editFile })
-      }
-    }
     .sheet(item: $showSheet, onDismiss: { }) { sheet in
       switch sheet {
+        case .renameFile:
+          SaveAsView(url: self.fileManager.editorDocument?.saveAsURL,
+                     firstSave: self.fileManager.editorDocumentNew,
+                     lockFolder: true) { url in
+            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+              if newURL == nil {
+                self.notSavedAlertAction = .notSaved
+              }
+            }
+          }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
+        case .saveFile:
+          SaveAsView(url: self.fileManager.editorDocument?.saveAsURL,
+                     firstSave: self.fileManager.editorDocumentNew) { url in
+            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+              if newURL == nil {
+                self.notSavedAlertAction = .notSaved
+              }
+            }
+          }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
         case .editFile, .organizeFiles:
-          DocumentPicker("Select file to edit", fileType: .file) { url, mutable in
+          DocumentPicker("Select file to edit",
+                         kind: sheet.pickerKind!,
+                         selectDirectory: false,
+                         fileName: $fileName) { url, mutable in
             if case .editFile = sheet {
               self.fileManager.loadEditorDocument(
                 source: url,
                 makeUntitled: !mutable,
                 action: { success in self.forceEditorUpdate = true })
+              return true
             } else {
-              
+              return false
             }
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $position)
+      }
+    }
+    .alert(item: $notSavedAlertAction) { alertAction in
+      switch alertAction {
+        case .newFile:
+          return self.notSavedAlert(
+                   save: { self.fileMoverAction = {
+                             self.fileManager.newEditorDocument(action: { success in
+                               self.forceEditorUpdate = true
+                             })
+                           }
+                           self.showFileMover = true
+                         },
+                   discard: { self.fileManager.editorDocument?.text = ""
+                              self.fileManager.editorDocument?.saveFile { succ in
+                                self.forceEditorUpdate = true
+                              }
+                            })
+        case .editFile:
+          return self.notSavedAlert(
+                   save: { self.fileMoverAction = {
+                             self.showSheet = .editFile
+                           }
+                           self.showFileMover = true
+                         },
+                   discard: { self.fileManager.editorDocument?.text = ""
+                              self.showSheet = .editFile
+                            })
+        case .notSaved:
+          return self.couldNotSave()
       }
     }
     .fileMover(isPresented: $showFileMover,
@@ -300,6 +375,12 @@ struct CodeEditorView: View {
       self.histManager.saveFilesHistory()
       self.histManager.saveFavorites()
     }
+  }
+  
+  func couldNotSave() -> Alert {
+    return Alert(title: Text("File not saved"),
+                 message: Text("Could not save file. Retry saving using a different name or path."),
+                 dismissButton: .default(Text("OK")))
   }
   
   func notSavedAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {

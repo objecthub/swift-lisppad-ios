@@ -23,13 +23,25 @@ import SwiftUI
 
 final class TextDocument: UIDocument, ObservableObject, Identifiable {
   
+  weak var fileManager: FileManager? = nil
+  
   // Manage appearance of text document
-  @Published var title = "Untitled"
-  var new: Bool = true
+  @Published var title = "Untitled" {
+    didSet {
+      self.fileManager?.editorDocumentTitle = self.title
+    }
+  }
+  
+  @Published var new: Bool = true {
+    didSet {
+      self.fileManager?.editorDocumentNew = self.new
+    }
+  }
   
   // State of text document
   @Published var text = ""
   @Published var selectedRange = NSRange(location: 0, length: 0)
+  
   var lastContentOffset = CGPoint(x: 0, y: 0)
   
   var id: URL {
@@ -38,6 +50,14 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   
   func recomputeTitle(_ url: URL? = nil) {
     self.title = (url ?? self.fileURL).deletingPathExtension().lastPathComponent
+  }
+  
+  var saveAsURL: URL? {
+    if self.new {
+      return PortableURL.Base.documents.url?.appendingPathComponent("Untitled.scm")
+    } else {
+      return self.fileURL
+    }
   }
   
   var fileExists: Bool {
@@ -60,6 +80,14 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     self.save(to: self.fileURL, for: .forOverwriting, completionHandler: action)
   }
   
+  func saveFileAs(_ url: URL, complete: @escaping (URL?) -> Void) {
+    if self.new {
+      self.moveFile(to: url, complete: complete)
+    } else {
+      self.copyFile(to: url, complete: complete)
+    }
+  }
+  
   func rename(to name: String, complete: @escaping (URL?) -> Void) {
     self.moveFile(to: self.fileURL.deletingLastPathComponent().appendingPathComponent(name),
                   complete: complete)
@@ -67,6 +95,12 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   
   func moveFile(to url: URL, complete: @escaping (URL?) -> Void) {
     let oldUrl = self.fileURL
+    guard url != oldUrl else {
+      self.saveFile { success in
+        complete(success ? url : nil)
+      }
+      return
+    }
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
       let fileCoordinator = NSFileCoordinator(filePresenter: self)
@@ -77,10 +111,47 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
                                  error: &coordinatorError) { newURL1, newURL2 in
         let fileManager = Foundation.FileManager()
         do {
+          _ = try? fileManager.removeItem(at: newURL2)
           try fileManager.moveItem(at: newURL1, to: newURL2)
           self.presentedItemDidMove(to: newURL2)
           DispatchQueue.main.async {
             self.recomputeTitle(newURL2)
+            self.new = false
+            complete(newURL2)
+          }
+        } catch {
+          DispatchQueue.main.async {
+            complete(nil)
+          }
+        }
+      }
+    }
+  }
+  
+  func copyFile(to url: URL, complete: @escaping (URL?) -> Void) {
+    let oldUrl = self.fileURL
+    guard url != oldUrl else {
+      self.saveFile { success in
+        complete(success ? url : nil)
+      }
+      return
+    }
+    DispatchQueue.global(qos: .default).async {
+      var coordinatorError: NSError?
+      let fileCoordinator = NSFileCoordinator(filePresenter: self)
+      fileCoordinator.coordinate(readingItemAt: oldUrl,
+                                 options: [],
+                                 writingItemAt: url,
+                                 options: .forReplacing,
+                                 error: &coordinatorError) { newURL1, newURL2 in
+        let fileManager = Foundation.FileManager()
+        do {
+          _ = try? fileManager.removeItem(at: newURL2)
+          try fileManager.copyItem(at: newURL1, to: newURL2)
+          self.presentedItemDidMove(to: newURL2)
+          DispatchQueue.main.async {
+            self.recomputeTitle(newURL2)
+            self.new = false
             complete(newURL2)
           }
         } catch {

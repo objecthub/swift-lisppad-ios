@@ -30,13 +30,15 @@ struct FileHierarchy: Hashable, Identifiable {
   
   final class Children {
     let kind: NamedRef.Kind
+    let filter: FileHierarchy.Kind?
     private var cache: [FileHierarchy]? = nil
     
-    init(_ kind: NamedRef.Kind) {
+    init(_ kind: NamedRef.Kind, filter: FileHierarchy.Kind?) {
       self.kind = kind
+      self.filter = filter
     }
     
-    var children: [FileHierarchy] {
+    var children: [FileHierarchy]? {
       if self.cache == nil {
         switch kind {
           case .url(let url):
@@ -70,7 +72,17 @@ struct FileHierarchy: Hashable, Identifiable {
             self.cache = res
         }
       }
-      return self.cache ?? []
+      if let res = self.cache {
+        if res.isEmpty, self.filter == .directory {
+          return nil
+        } else {
+          return res
+        }
+      } else if self.filter == .directory {
+        return nil
+      } else {
+        return []
+      }
     }
     
     func reset() {
@@ -91,33 +103,36 @@ struct FileHierarchy: Hashable, Identifiable {
     self.container?.children
   }
   
-  init?(_ url: URL, parent: Children? = nil) {
+  init?(_ url: URL, parent: Children) {
     var dir: ObjCBool = false
     if Foundation.FileManager.default.fileExists(atPath: url.absoluteURL.path, isDirectory: &dir) {
+      if let filter = parent.filter, filter == .directory, !dir.boolValue {
+        return nil
+      }
       self.url = url
       self.kind = dir.boolValue ? .directory : .file
-      self.container = dir.boolValue ? Children(.url(url)) : nil
+      self.container = dir.boolValue ? Children(.url(url), filter: parent.filter) : nil
       self.parent = parent
     } else {
       return nil
     }
   }
   
-  init?(_ namedRef: NamedRef, parent: Children? = nil) {
+  init?(_ namedRef: NamedRef, filter: Kind) {
     switch namedRef.kind {
       case .collection(_):
         self.url = nil
         self.kind = .root(namedRef.name, namedRef.image)
-        self.container = Children(namedRef.kind)
-        self.parent = parent
+        self.container = Children(namedRef.kind, filter: filter)
+        self.parent = nil
       case .url(let url):
         var dir: ObjCBool = false
         if Foundation.FileManager.default.fileExists(atPath: url.absoluteURL.path,
                                                      isDirectory: &dir) {
           self.url = url
           self.kind = dir.boolValue ? .root(namedRef.name, namedRef.image) : .file
-          self.container = dir.boolValue ? Children(namedRef.kind) : nil
-          self.parent = parent
+          self.container = dir.boolValue ? Children(namedRef.kind, filter: filter) : nil
+          self.parent = nil
         } else {
           return nil
         }

@@ -21,8 +21,16 @@
 import SwiftUI
 
 struct DocumentPicker: View {
+  
+  enum Kind {
+    case open
+    case save
+    case organize
+  }
+  
   @Environment(\.presentationMode) var presentationMode
   @EnvironmentObject var fileManager: FileManager
+  
   @State var showFileMover: Bool = false
   @State var showFileImporter: Bool = false
   @State var showFileSharer: Bool = false
@@ -30,27 +38,43 @@ struct DocumentPicker: View {
   @State var selectedUrl: URL? = nil
   @State var editUrl: URL? = nil
   @State var editName: String = ""
+  @State var selectedUrls: Set<URL> = []
+  
+  @Binding var fileName: String
   
   let title: String
-  let fileType: FileType
-  let action: ((URL, Bool) -> Void)?
+  let kind: Kind
+  let selectDirectory: Bool
+  let action: ((URL, Bool) -> Bool)?
   
   init(_ title: String,
-       fileType: FileType = .all,
-       action: ((URL, Bool) -> Void)? = nil) {
+       kind: Kind,
+       selectDirectory: Bool,
+       fileName: Binding<String>,
+       action: ((URL, Bool) -> Bool)? = nil) {
     self.title = title
-    self.fileType = fileType
+    self.kind = kind
+    self.selectDirectory = selectDirectory
+    self._fileName = fileName
     self.action = action
   }
   
   var body: some View {
     VStack(alignment: .center, spacing: 0) {
       HStack {
-        Button(action: {
-          self.showFileImporter = true
-          self.searchAndImport = true
-        }) {
-          Text("Search & Import")
+        if self.kind == .open {
+          Button(action: {
+            self.showFileImporter = true
+            self.searchAndImport = true
+          }) {
+            Text("Search & Import")
+          }
+        } else if self.kind == .save {
+          Button(action: {
+            self.presentationMode.wrappedValue.dismiss()
+          }) {
+            Text("Save")
+          }
         }
         Spacer()
         Button(action: {
@@ -64,22 +88,33 @@ struct DocumentPicker: View {
       .edgesIgnoringSafeArea(.all)
       .background(Color(UIColor.secondarySystemBackground))
       Form {
-        Section(header: Text("Usage")) {
-          FileHierarchyView(self.fileManager.usageRootDirectories,
-                            fileType: fileType,
-                            mutable: false,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            action: action)
-            .font(.body)
+        if self.kind == .save {
+          Section(header: Text("File name")) {
+            TextField("", text: $fileName)
+          }
+        } else {
+          Section(header: Text("Usage")) {
+            FileHierarchyView(self.fileManager.usageRootDirectories,
+                              selectDirectory: self.selectDirectory,
+                              mutable: false,
+                              showFileMover: $showFileMover,
+                              showFileImporter: $showFileImporter,
+                              showFileSharer: $showFileSharer,
+                              selectedUrl: $selectedUrl,
+                              editUrl: $editUrl,
+                              editName: $editName,
+                              selectedUrls: $selectedUrls,
+                              action: { url, mutable in
+                                if let action = self.action, action(url, mutable) {
+                                  self.presentationMode.wrappedValue.dismiss()
+                                }
+                              })
+              .font(.body)
+          }
         }
-        Section(header: Text("User")) {
+        Section(header: Text(self.kind == .save ? "Folder" : "User")) {
           FileHierarchyView(self.fileManager.userRootDirectories,
-                            fileType: fileType,
+                            selectDirectory: self.kind == .save ? true : self.selectDirectory,
                             mutable: true,
                             showFileMover: $showFileMover,
                             showFileImporter: $showFileImporter,
@@ -87,21 +122,33 @@ struct DocumentPicker: View {
                             selectedUrl: $selectedUrl,
                             editUrl: $editUrl,
                             editName: $editName,
-                            action: action)
+                            selectedUrls: $selectedUrls,
+                            action: { url, mutable in
+                              if let action = self.action, action(url, mutable) {
+                                self.presentationMode.wrappedValue.dismiss()
+                              }
+                            })
             .font(.body)
         }
-        Section(header: Text("System")) {
-          FileHierarchyView(self.fileManager.systemRootDirectories,
-                            fileType: fileType,
-                            mutable: false,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            action: action)
-            .font(.body)
+        if self.kind == .open {
+          Section(header: Text("System")) {
+            FileHierarchyView(self.fileManager.systemRootDirectories,
+                              selectDirectory: self.selectDirectory,
+                              mutable: false,
+                              showFileMover: $showFileMover,
+                              showFileImporter: $showFileImporter,
+                              showFileSharer: $showFileSharer,
+                              selectedUrl: $selectedUrl,
+                              editUrl: $editUrl,
+                              editName: $editName,
+                              selectedUrls: $selectedUrls,
+                              action: { url, mutable in
+                                if let action = self.action, action(url, mutable) {
+                                  self.presentationMode.wrappedValue.dismiss()
+                                }
+                              })
+              .font(.body)
+          }
         }
       }
     }
@@ -154,9 +201,13 @@ struct DocumentPicker: View {
 }
 
 struct DocumentPicker_Previews: PreviewProvider {
+  @State static var fileName: String = "test.txt"
+  
   static var previews: some View {
-    DocumentPicker("Select program to load")
+    DocumentPicker("Select program to load",
+                   kind: .save,
+                   selectDirectory: false,
+                   fileName: $fileName)
       .environmentObject(FileManager())
   }
 }
-
