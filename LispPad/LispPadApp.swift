@@ -44,9 +44,11 @@ import SwiftUI
       switch phase {
         case .active:
           self.fileManager.histManager = self.histManager
+          self.histManager.setupFilePresenters()
         case .inactive:
           break
         case .background:
+          self.histManager.suspendFilePresenters()
           self.fileManager.editorDocument?.saveFile()
           self.histManager.saveConsoleHistory()
           self.histManager.saveFilesHistory()

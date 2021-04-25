@@ -52,7 +52,7 @@ struct InterpreterView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var interpreter: Interpreter
-  @EnvironmentObject var historyManager: HistoryManager
+  @EnvironmentObject var histManager: HistoryManager
   
   // Internal state
   @State private var consoleInput = ""
@@ -77,7 +77,7 @@ struct InterpreterView: View {
             if self.interpreter.isReady {
               input = InterpreterView.canonicalizeInput(old)
               self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-              self.historyManager.addConsoleEntry(input)
+              self.histManager.addConsoleEntry(input)
             } else {
               input = old
             }
@@ -87,7 +87,7 @@ struct InterpreterView: View {
             })
           },
           content: $interpreter.consoleContent,
-          history: $historyManager.consoleHistory,
+          history: $histManager.consoleHistory,
           input: $consoleInput,
           readingStatus: $interpreter.readingStatus,
           ready: $interpreter.isReady)
@@ -216,11 +216,13 @@ struct InterpreterView: View {
               let input = InterpreterView.canonicalizeInput(
                             "(load \"\(self.fileManager.canonicalPath(for: url))\")")
               self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-              self.historyManager.addConsoleEntry(input)
+              self.histManager.addConsoleEntry(input)
               self.interpreter.load(url)
             }
             return true
           }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
         case .showAbout:

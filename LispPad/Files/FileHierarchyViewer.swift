@@ -26,6 +26,7 @@ struct FileHierarchyView: View {
   // Extract state from the environment
   @Environment(\.presentationMode) var presentationMode
   @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var histManager: HistoryManager
   
   // This is a hack to be able to refresh the view on demand (this is needed because the
   // file hierarchy gets computed on demand and the hierarchy might change for mutable
@@ -164,7 +165,9 @@ struct FileHierarchyView: View {
             Spacer()
           }
         }
-        .disabled(// !self.fileType.contains(hierarchy.type) ||
+        .disabled((self.selectDirectory && (hierarchy.type == .file) ||
+                    !self.selectDirectory && (hierarchy.type == .directory)) ||
+                  // !self.fileType.contains(hierarchy.type) ||
                   self.action == nil ||
                   self.editUrl != nil)
         .contextMenu {
@@ -218,9 +221,11 @@ struct FileHierarchyView: View {
               Button(action: {
                 if let parent = hierarchy.parent,
                    let url = hierarchy.url {
-                  if self.fileManager.delete(url) {
-                    parent.reset()
-                    self.refresher.updateView()
+                  self.fileManager.delete(url) { success in
+                    if success {
+                      parent.reset()
+                      self.refresher.updateView()
+                    }
                   }
                 }
               }) {
@@ -230,6 +235,17 @@ struct FileHierarchyView: View {
             }
             if self.mutable {
               Divider()
+            }
+            if hierarchy.parent != nil {
+              Button(action: {
+                self.histManager.toggleFavorite(hierarchy.url)
+              }) {
+                if self.histManager.isFavorite(hierarchy.url) {
+                  Label("Unstar", systemImage: "star.fill")
+                } else {
+                  Label("Star", systemImage: "star")
+                }
+              }
             }
             Button(action: {
               self.showFileSharer = true

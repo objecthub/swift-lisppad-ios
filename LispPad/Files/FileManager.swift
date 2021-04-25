@@ -69,13 +69,13 @@ class FileManager: ObservableObject {
   init() {
     DispatchQueue.global(qos: .default).async {
       let sysFileManager = Foundation.FileManager()
-      if let url = FileManager.icloudDirectory() {
+      if let url = PortableURL.Base.icloud.url {
         self.userRootDirectories.append(NamedRef(name: "iCloud Drive",
                                                  image: "icloud",
                                                  url: url))
         _ = self.createExtensionDirectories(in: url, using: sysFileManager)
       }
-      if let url = FileManager.documentsDirectory() {
+      if let url = PortableURL.Base.documents.url {
         let name: String
         let image: String
         switch UIDevice.current.userInterfaceIdiom {
@@ -99,7 +99,7 @@ class FileManager: ObservableObject {
     self.usageRootDirectories.append(NamedRef(name: "Favorites", image: "star") { [weak self] in
       return self?.histManager?.favoriteFiles ?? []
     })
-    if let appDir = FileManager.appSupportDirectory() {
+    if let appDir = PortableURL.Base.application.url {
       self.applicationSupportURL = appDir
       self.newEditorDocument(action: { success in })
     }
@@ -107,13 +107,13 @@ class FileManager: ObservableObject {
                               relativeTo: Context.bundle!.bundleURL.absoluteURL), 0))
     self.baseURLs.append((URL(fileURLWithPath: "Root",
                               relativeTo: Bundle.main.bundleURL.absoluteURL), 1))
-    if let url = FileManager.documentsDirectory() {
+    if let url = PortableURL.Base.documents.url {
       self.baseURLs.append((url, 2))
     }
-    if let url = FileManager.icloudDirectory() {
+    if let url = PortableURL.Base.icloud.url {
       self.baseURLs.append((url, 3))
     }
-    if let url = FileManager.appSupportDirectory() {
+    if let url = PortableURL.Base.application.url {
       self.baseURLs.append((url, 4))
     }
   }
@@ -266,23 +266,22 @@ class FileManager: ObservableObject {
     return false
   }
   
-  func rename(_ url: URL, to name: String, complete: @escaping (URL?) -> Void) {
-    let target = url.deletingLastPathComponent().appendingPathComponent(name)
+  func move(_ oldURL: URL, to newURL: URL, complete: @escaping (URL?) -> Void) {
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
       let fileCoordinator = NSFileCoordinator(filePresenter: nil)
-      fileCoordinator.coordinate(writingItemAt: url,
+      fileCoordinator.coordinate(writingItemAt: oldURL,
                                  options: .forMoving,
-                                 writingItemAt: target,
+                                 writingItemAt: newURL,
                                  options: .forReplacing,
-                                 error: &coordinatorError) { newURL1, newURL2 in
+                                 error: &coordinatorError) { from, to in
         let fileManager = Foundation.FileManager()
-        fileCoordinator.item(at: newURL1, willMoveTo: newURL2)
+        fileCoordinator.item(at: from, willMoveTo: to)
         do {
-          try fileManager.moveItem(at: newURL1, to: newURL2)
-          fileCoordinator.item(at: newURL1, didMoveTo: newURL2)
+          try fileManager.moveItem(at: from, to: to)
+          fileCoordinator.item(at: from, didMoveTo: to)
           DispatchQueue.main.async {
-            complete(coordinatorError == nil ? newURL2 : nil)
+            complete(coordinatorError == nil ? to : nil)
           }
         } catch {
           DispatchQueue.main.async {
@@ -293,12 +292,30 @@ class FileManager: ObservableObject {
     }
   }
   
-  func delete(_ url: URL) -> Bool {
-    do {
-      try self.sysFileManager.removeItem(at: url)
-      return true
-    } catch {
-      return false
+  func rename(_ url: URL, to name: String, complete: @escaping (URL?) -> Void) {
+    let target = url.deletingLastPathComponent().appendingPathComponent(name)
+    self.move(url, to: target, complete: complete)
+  }
+  
+  func delete(_ url: URL, complete: @escaping (Bool) -> Void) {
+    DispatchQueue.global(qos: .default).async {
+      var coordinatorError: NSError?
+      let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+      fileCoordinator.coordinate(writingItemAt: url,
+                                 options: .forDeleting,
+                                 error: &coordinatorError) { url in
+        let fileManager = Foundation.FileManager()
+        do {
+          try fileManager.removeItem(at: url)
+          DispatchQueue.main.async {
+            complete(coordinatorError == nil)
+          }
+        } catch {
+          DispatchQueue.main.async {
+            complete(false)
+          }
+        }
+      }
     }
   }
   
@@ -366,50 +383,6 @@ class FileManager: ObservableObject {
       self.editorDocument?.loadFile(action: action)
     }
   }
-  
-  /// Returns the "iCloud Drive" URL if available.
-  static func icloudDirectory() -> URL? {
-    return Foundation.FileManager.default.url(forUbiquityContainerIdentifier: nil)?
-                                               .appendingPathComponent("Documents")
-  }
-  
-  /// Returns the "On my iPhone" URL if available (creating it if it does not exist already).
-  static func documentsDirectory() -> URL? {
-    return try? Foundation.FileManager.default.url(for: .documentDirectory,
-                                                   in: .userDomainMask,
-                                                   appropriateFor: nil,
-                                                   create: true)
-  }
-
-  /// Returns the internal application support URL if available (creating it if it does not
-  /// exist already).
-  static func appSupportDirectory() -> URL? {
-    return try? Foundation.FileManager.default.url(for: .applicationSupportDirectory,
-                                                   in: .userDomainMask,
-                                                   appropriateFor: nil,
-                                                   create: true)
-  }
-  
-  /// Returns a cache URL if available.
-  static func cacheDirectory() -> URL? {
-    return Foundation.FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
-  }
-  
-  /*
-  Swift.print("documents = \(self.documentsDirectory()!)")
-  Swift.print("appSupport = \(self.appSupportDirectory()!)")
-  Swift.print("cacheSupport = \(self.cacheDirectory()!)")
-  Swift.print("icloud = \(self.icloudDirectory())")
-  let str = "This is a short\ntext message"
-  let url = self.icloudDirectory()!.appendingPathComponent("message.txt")
-  do {
-    try str.write(to: url, atomically: true, encoding: .utf8)
-    let input = try String(contentsOf: url)
-    Swift.print("content = \(input)")
-  } catch let error {
-    print(error.localizedDescription)
-  }
- */
 }
 
 struct FileType: OptionSet {

@@ -20,6 +20,7 @@
 		CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */; };
 		CC327C5C2611201100BD7E32 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
 		CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33237E260A8E6900AD3307 /* DocumentationManager.swift */; };
+		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
 		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
 		CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24D25FE59EE00758581 /* ContentView.swift */; };
@@ -265,6 +266,7 @@
 		CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextStorageDelegate.swift; sourceTree = "<group>"; };
 		CC327C5B2611201100BD7E32 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };
 		CC33237E260A8E6900AD3307 /* DocumentationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationManager.swift; sourceTree = "<group>"; };
+		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
 		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
@@ -442,7 +444,6 @@
 			isa = PBXGroup;
 			children = (
 				CC84C27325FE79F500758581 /* Interpreter.swift */,
-				CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */,
 				CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */,
 				CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */,
 				CC84C26125FE6BFF00758581 /* InterpreterView.swift */,
@@ -601,6 +602,8 @@
 		CCC85639261677560080B96E /* Files */ = {
 			isa = PBXGroup;
 			children = (
+				CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */,
+				CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */,
 				CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */,
 				CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */,
 				CCC8563A2616778D0080B96E /* FileManager.swift */,
@@ -794,6 +797,7 @@
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
+				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
 				CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,

@@ -209,5 +209,6 @@ struct DocumentPicker_Previews: PreviewProvider {
                    selectDirectory: false,
                    fileName: $fileName)
       .environmentObject(FileManager())
+      .environmentObject(HistoryManager())
   }
 }

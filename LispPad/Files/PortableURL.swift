@@ -88,9 +88,9 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       }
     }
     
-    private static let applicationUrl = FileManager.appSupportDirectory()
-    private static let documentsUrl = FileManager.documentsDirectory()
-    private static let icloudUrl = FileManager.icloudDirectory()
+    private static let applicationUrl = Self.appSupportDirectory()
+    private static let documentsUrl = Self.documentsDirectory()
+    private static let icloudUrl = Self.icloudDirectory()
     private static let lispkitUrl = { () -> URL? in
       guard let base = Context.bundle?.bundleURL.absoluteURL else {
         return nil
@@ -99,6 +99,34 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
     }()
     private static let lisppadUrl = URL(fileURLWithPath: "Root",
                                         relativeTo: Bundle.main.bundleURL.absoluteURL)
+    
+    /// Returns the "iCloud Drive" URL if available.
+    static func icloudDirectory() -> URL? {
+      return Foundation.FileManager.default.url(forUbiquityContainerIdentifier: nil)?
+                                                 .appendingPathComponent("Documents")
+    }
+    
+    /// Returns the "On my iPhone" URL if available (creating it if it does not exist already).
+    static func documentsDirectory() -> URL? {
+      return try? Foundation.FileManager.default.url(for: .documentDirectory,
+                                                     in: .userDomainMask,
+                                                     appropriateFor: nil,
+                                                     create: true)
+    }
+
+    /// Returns the internal application support URL if available (creating it if it does not
+    /// exist already).
+    static func appSupportDirectory() -> URL? {
+      return try? Foundation.FileManager.default.url(for: .applicationSupportDirectory,
+                                                     in: .userDomainMask,
+                                                     appropriateFor: nil,
+                                                     create: true)
+    }
+    
+    /// Returns a cache URL if available.
+    static func cacheDirectory() -> URL? {
+      return Foundation.FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+    }
   }
   
   enum CodingKeys: CodingKey {

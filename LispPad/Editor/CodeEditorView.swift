@@ -113,16 +113,14 @@ struct CodeEditorView: View {
         .font(.body)
         Divider()
       }
-      CodeEditor(text: .init(
-                         get: { self.fileManager.editorDocument?.text ?? "" },
-                         set: { if let doc = self.fileManager.editorDocument { doc.text = $0 }}),
+      CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
+                             set: { if let doc = self.fileManager.editorDocument {doc.text = $0}}),
                  selectedRange: .init(
                                   get: { self.fileManager.editorDocument?.selectedRange ??
                                            NSRange(location: 0, length: 0) },
                                   set: { if let doc = self.fileManager.editorDocument {
                                            doc.selectedRange = $0
-                                         }
-                                       }),
+                                       }}),
                  position: $position,
                  forceUpdate: $forceEditorUpdate)
         .defaultFont(.monospacedSystemFont(ofSize: 12, weight: .regular))
@@ -241,6 +239,15 @@ struct CodeEditorView: View {
           .disabled(true)
           Divider()
           Button(action: {
+            self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
+          }) {
+            if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
+              Label("Unstar", systemImage: "star.fill")
+            } else {
+              Label("Star", systemImage: "star")
+            }
+          }
+          Button(action: {
             self.showSheet = .renameFile
           }) {
             Label("Rename", systemImage: "pencil")
@@ -321,6 +328,7 @@ struct CodeEditorView: View {
             }
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $position)
       }
@@ -334,23 +342,19 @@ struct CodeEditorView: View {
                                self.forceEditorUpdate = true
                              })
                            }
-                           self.showFileMover = true
-                         },
+                           self.showFileMover = true },
                    discard: { self.fileManager.editorDocument?.text = ""
                               self.fileManager.editorDocument?.saveFile { succ in
                                 self.forceEditorUpdate = true
-                              }
-                            })
+                            }})
         case .editFile:
           return self.notSavedAlert(
                    save: { self.fileMoverAction = {
                              self.showSheet = .editFile
                            }
-                           self.showFileMover = true
-                         },
+                           self.showFileMover = true },
                    discard: { self.fileManager.editorDocument?.text = ""
-                              self.showSheet = .editFile
-                            })
+                              self.showSheet = .editFile })
         case .notSaved:
           return self.couldNotSave()
       }
