@@ -250,6 +250,36 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
+  func `import`(_ lib: [String]) {
+    self.readingCondition.lock()
+    defer {
+      self.readingCondition.signal()
+      self.readingCondition.unlock()
+    }
+    guard self.isReady else {
+      return
+    }
+    self.isReady = false
+    self.readingStatus = .reject
+    self.processingQueue.addOperation { [weak self] in
+      let res = self?.execute { context in
+        try context.environment.import(lib)
+        return .void
+      }
+      DispatchQueue.main.sync {
+        self?.isReady = true
+        self?.readingStatus = .accept
+        if let res = res {
+          if res.kind == .result, res.text.isEmpty {
+            // do nothing
+          } else {
+            self?.append(output: res)
+          }
+        }
+      }
+    }
+  }
+  
   private func initialize() {
     self.context = nil
     DispatchQueue.main.sync {

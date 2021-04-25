@@ -45,7 +45,8 @@ struct InterpreterView: View {
   
   // Static parameters
   static let toolbarItemSize: CGFloat = 20
-  static let toolbarFont: Font = .system(size: InterpreterView.toolbarItemSize, weight: .light)
+  static let toolbarFont: SwiftUI.Font = .system(size: InterpreterView.toolbarItemSize,
+                                                 weight: .light)
   
   // Environment, observed and bound objects
   @EnvironmentObject var docManager: DocumentationManager

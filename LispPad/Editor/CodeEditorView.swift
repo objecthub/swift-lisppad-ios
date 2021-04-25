@@ -145,7 +145,7 @@ struct CodeEditorView: View {
               .foregroundColor(.primary)
               .font(.system(size: InterpreterView.toolbarItemSize, weight: .bold))
           }
-          Menu {
+          Menu(content: {
             Button(action: {
               if (self.fileManager.editorDocumentNew) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
@@ -197,10 +197,10 @@ struct CodeEditorView: View {
             }) {
               Label("Organize…", systemImage: "doc.on.doc")
             }
-          } label: {
+          }, label: {
             Image(systemName: "doc")
               .font(InterpreterView.toolbarFont)
-          }
+          })
           if self.interpreter.isReady {
             Button(action: {
               if !(self.fileManager.editorDocument?.text.isEmpty ?? true) {

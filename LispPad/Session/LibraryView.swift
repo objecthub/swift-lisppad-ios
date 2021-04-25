@@ -22,6 +22,7 @@ import SwiftUI
 import LispKit
 
 struct LibraryView: View {
+  @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var libManager: LibraryManager
   @State var tapped: Library? = nil
@@ -41,6 +42,9 @@ struct LibraryView: View {
             }
             HStack {
               Button(action: {
+                if let name = self.stringComponents(from: library.name) {
+                  self.interpreter.import(name)
+                }
                 withAnimation(.default) {
                   self.tapped = nil
                   self.swiped = nil
@@ -54,6 +58,7 @@ struct LibraryView: View {
               .frame(width: 70)
               Spacer()
             }
+            .disabled(!self.interpreter.isReady)
             NavigationLink(
               destination: LazyView(LibraryDetailView(name: library.name)),
               tag: library,
@@ -120,5 +125,24 @@ struct LibraryView: View {
       }
     }
     .navigationTitle("Libraries")
+  }
+  
+  func stringComponents(from expr: Expr) -> [String]? {
+    var res: [String] = []
+    var lst = expr
+    while case .pair(let head, let tail) = lst {
+      switch head {
+        case .symbol(let sym):
+          res.append(sym.identifier)
+        case .string(let str):
+          res.append(str as String)
+        case .fixnum(let num):
+          res.append(String(num))
+        default:
+          return nil
+      }
+      lst = tail
+    }
+    return res
   }
 }
