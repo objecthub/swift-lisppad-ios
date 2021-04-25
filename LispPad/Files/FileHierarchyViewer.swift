@@ -20,7 +20,6 @@
 
 import SwiftUI
 
-
 struct FileHierarchyView: View {
   
   // Extract state from the environment
@@ -37,7 +36,7 @@ struct FileHierarchyView: View {
   private let roots: [FileHierarchy]
   private let selectDirectory: Bool
   private let mutable: Bool
-  private let action: ((URL, Bool) -> Void)?
+  private let onSelection: ((URL) -> Void)?
   
   // Bindings to communicate with the context of the view
   
@@ -67,10 +66,10 @@ struct FileHierarchyView: View {
        editUrl: Binding<URL?>,
        editName: Binding<String>,
        selectedUrls: Binding<Set<URL>>,
-       action: ((URL, Bool) -> Void)? = nil) {
+       onSelection: ((URL) -> Void)? = nil) {
     self.selectDirectory = selectDirectory
     self.mutable = mutable
-    self.action = action
+    self.onSelection = onSelection
     self._showFileMover = showFileMover
     self._showFileImporter = showFileImporter
     self._showFileSharer = showFileSharer
@@ -147,9 +146,9 @@ struct FileHierarchyView: View {
         }
       } else {
         Button(action: {
-          if let action = self.action,
+          if let action = self.onSelection,
              let url = hierarchy.url {
-            action(url, self.mutable)
+            action(url)
           }
         }) {
           HStack {
@@ -168,7 +167,7 @@ struct FileHierarchyView: View {
         .disabled((self.selectDirectory && (hierarchy.type == .file) ||
                     !self.selectDirectory && (hierarchy.type == .directory)) ||
                   // !self.fileType.contains(hierarchy.type) ||
-                  self.action == nil ||
+                  self.onSelection == nil ||
                   self.editUrl != nil)
         .contextMenu {
           if self.editUrl == nil {

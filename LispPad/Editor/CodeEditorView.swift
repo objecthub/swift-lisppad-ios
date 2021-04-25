@@ -312,20 +312,22 @@ struct CodeEditorView: View {
             }
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
-        case .editFile, .organizeFiles:
+        case .editFile:
+          OpenView(selectDirectory: false) { url, mutable in
+            self.fileManager.loadEditorDocument(
+              source: url,
+              makeUntitled: !mutable,
+              action: { success in self.forceEditorUpdate = true })
+            return true
+          }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
+        case .organizeFiles:
           DocumentPicker("Select file to edit",
                          kind: sheet.pickerKind!,
                          selectDirectory: false,
                          fileName: $fileName) { url, mutable in
-            if case .editFile = sheet {
-              self.fileManager.loadEditorDocument(
-                source: url,
-                makeUntitled: !mutable,
-                action: { success in self.forceEditorUpdate = true })
-              return true
-            } else {
-              return false
-            }
+            return false
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)

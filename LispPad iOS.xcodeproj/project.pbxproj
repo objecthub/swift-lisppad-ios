@@ -21,6 +21,7 @@
 		CC327C5C2611201100BD7E32 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
 		CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33237E260A8E6900AD3307 /* DocumentationManager.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
+		CC59FA3626361A3900EDA3CB /* OpenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* OpenView.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
 		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
 		CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24D25FE59EE00758581 /* ContentView.swift */; };
@@ -267,6 +268,7 @@
 		CC327C5B2611201100BD7E32 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };
 		CC33237E260A8E6900AD3307 /* DocumentationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationManager.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
+		CC59FA3526361A3900EDA3CB /* OpenView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenView.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
 		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
@@ -610,6 +612,7 @@
 				CCC8563E2617A8960080B96E /* FileHierarchy.swift */,
 				CCC8563C261767660080B96E /* FileHierarchyViewer.swift */,
 				CCC856372615DC4A0080B96E /* DocumentPicker.swift */,
+				CC59FA3526361A3900EDA3CB /* OpenView.swift */,
 				CCE8E443262C258400E3DC6A /* SaveAsView.swift */,
 				CCC8565C261CE5710080B96E /* TextDocument.swift */,
 			);
@@ -779,6 +782,7 @@
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
 				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,
+				CC59FA3626361A3900EDA3CB /* OpenView.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyViewer.swift in Sources */,
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,

@@ -133,7 +133,7 @@ struct SaveAsView: View {
                               editUrl: $editUrl,
                               editName: $editName,
                               selectedUrls: $selectedUrls,
-                              action: { url, mutable in
+                              onSelection: { url in
                                 self.selectedUrls.removeAll()
                                 self.selectedUrls.insert(url)
                                 self.folder = url
