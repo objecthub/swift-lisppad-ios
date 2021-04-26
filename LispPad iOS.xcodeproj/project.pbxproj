@@ -87,7 +87,7 @@
 		CC8B95D12608186500830B4F /* Documentation.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC8B95CE260813EC00830B4F /* Documentation.plist */; };
 		CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B95CF2608179000830B4F /* (lisppad audio).md */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
-		CCC856382615DC4A0080B96E /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* DocumentPicker.swift */; };
+		CCC856382615DC4A0080B96E /* FileOrganizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* FileOrganizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
 		CCC8563D261767660080B96E /* FileHierarchyViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563C261767660080B96E /* FileHierarchyViewer.swift */; };
 		CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563E2617A8960080B96E /* FileHierarchy.swift */; };
@@ -340,7 +340,7 @@
 		CC8B95CF2608179000830B4F /* (lisppad audio).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad audio).md"; sourceTree = "<group>"; };
 		CC8B95D32609462800830B4F /* LispPad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LispPad.entitlements; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
-		CCC856372615DC4A0080B96E /* DocumentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPicker.swift; sourceTree = "<group>"; };
+		CCC856372615DC4A0080B96E /* FileOrganizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileOrganizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyViewer.swift; sourceTree = "<group>"; };
 		CCC8563E2617A8960080B96E /* FileHierarchy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchy.swift; sourceTree = "<group>"; };
@@ -611,7 +611,7 @@
 				CCC8563A2616778D0080B96E /* FileManager.swift */,
 				CCC8563E2617A8960080B96E /* FileHierarchy.swift */,
 				CCC8563C261767660080B96E /* FileHierarchyViewer.swift */,
-				CCC856372615DC4A0080B96E /* DocumentPicker.swift */,
+				CCC856372615DC4A0080B96E /* FileOrganizer.swift */,
 				CC59FA3526361A3900EDA3CB /* OpenView.swift */,
 				CCE8E443262C258400E3DC6A /* SaveAsView.swift */,
 				CCC8565C261CE5710080B96E /* TextDocument.swift */,
@@ -778,7 +778,7 @@
 			files = (
 				CC327C582610CF4D00BD7E32 /* CodeEditor.swift in Sources */,
 				CCE8E444262C258400E3DC6A /* SaveAsView.swift in Sources */,
-				CCC856382615DC4A0080B96E /* DocumentPicker.swift in Sources */,
+				CCC856382615DC4A0080B96E /* FileOrganizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
 				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,

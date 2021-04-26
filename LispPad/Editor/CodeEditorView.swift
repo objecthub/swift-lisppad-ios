@@ -43,21 +43,6 @@ struct CodeEditorView: View {
           return 4
       }
     }
-    
-    var pickerKind: DocumentPicker.Kind? {
-      switch self {
-        case .renameFile:
-          return .save
-        case .saveFile:
-          return .save
-        case .editFile:
-          return .open
-        case .organizeFiles:
-          return .organize
-        case .showDefinitions(_):
-          return nil
-      }
-    }
   }
   
   enum NotSavedAlertAction: Int, Identifiable {
@@ -85,8 +70,6 @@ struct CodeEditorView: View {
   @State var showFileMover = false
   @State var fileMoverAction: (() -> Void)? = nil
   @State var forceEditorUpdate = false
-  
-  @State var fileName: String = "Untitled.scm"
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -139,9 +122,9 @@ struct CodeEditorView: View {
           Button(action: {
             self.presentationMode.wrappedValue.dismiss()
           }) {
-            Image(systemName: "terminal.fill")
+            Image(systemName: "terminal")
               .foregroundColor(.primary)
-              .font(.system(size: InterpreterView.toolbarItemSize, weight: .bold))
+              .font(InterpreterView.toolbarFont)
           }
           Menu(content: {
             Button(action: {
@@ -302,6 +285,7 @@ struct CodeEditorView: View {
             }
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
         case .saveFile:
           SaveAsView(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew) { url in
@@ -312,6 +296,7 @@ struct CodeEditorView: View {
             }
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
         case .editFile:
           OpenView(selectDirectory: false) { url, mutable in
             self.fileManager.loadEditorDocument(
@@ -323,14 +308,9 @@ struct CodeEditorView: View {
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
         case .organizeFiles:
-          DocumentPicker("Select file to edit",
-                         kind: sheet.pickerKind!,
-                         selectDirectory: false,
-                         fileName: $fileName) { url, mutable in
-            return false
-          }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
-          .environmentObject(self.histManager)
+          FileOrganizer()
+            .environmentObject(self.fileManager) // Why is this needed? Bug?
+            .environmentObject(self.histManager)
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $position)
       }

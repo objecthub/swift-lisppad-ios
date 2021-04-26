@@ -25,6 +25,7 @@ struct InterpreterView: View {
   
   enum SheetAction: Identifiable {
     case loadFile
+    case organizeFiles
     case shareConsole
     case showAbout
     case showPDF(String, URL)
@@ -33,12 +34,14 @@ struct InterpreterView: View {
       switch self {
         case .loadFile:
           return 0
-        case .shareConsole:
+        case .organizeFiles:
           return 1
-        case .showAbout:
+        case .shareConsole:
           return 2
-        case .showPDF(_, _):
+        case .showAbout:
           return 3
+        case .showPDF(_, _):
+          return 4
       }
     }
   }
@@ -99,9 +102,9 @@ struct InterpreterView: View {
       ToolbarItemGroup(placement: .navigationBarLeading) {
         HStack(alignment: .center, spacing: 16) {
           NavigationLink(destination: LazyView(CodeEditorView())) {
-            Image(systemName: "pencil.circle.fill")
+            Image(systemName: "pencil.circle")
               .foregroundColor(.primary)
-              .font(.system(size: InterpreterView.toolbarItemSize, weight: .bold))
+              .font(InterpreterView.toolbarFont)
           }
           Button(action: {
             self.showSheet = .loadFile
@@ -166,9 +169,14 @@ struct InterpreterView: View {
               Button(action: {
                 self.showResetActionSheet = true
               }) {
-                  Label("Reset Interpreter…", systemImage: "trash")
+                  Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
               }
               Divider()
+              Button(action: {
+                self.showSheet = .organizeFiles
+              }) {
+                Label("Organize Files…", systemImage: "doc.on.doc")
+              }
               Button(action: {
                 self.showPreferences = true
               }) {
@@ -220,6 +228,10 @@ struct InterpreterView: View {
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+        case .organizeFiles:
+          FileOrganizer()
+            .environmentObject(self.fileManager) // Why is this needed? Bug?
+            .environmentObject(self.histManager)
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
         case .showAbout:
