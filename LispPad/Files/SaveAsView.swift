@@ -66,7 +66,7 @@ struct SaveAsView: View {
       if let portableURL = PortableURL(folder.appendingPathComponent(self.fileName)) {
         return Text("SAVE AS:\n") +
                Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
-               Text("  \(portableURL.relativeString)").bold()
+               Text("  \(portableURL.relativePath)").bold()
       }
       return Text("SAVE AS:\n?")
     } else {

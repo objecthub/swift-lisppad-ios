@@ -216,7 +216,7 @@ struct CodeEditorView: View {
           Button(action: {
             
           }) {
-            Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativeString ?? "Unknown",
+            Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
                   systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
           }
           .disabled(true)

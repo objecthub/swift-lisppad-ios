@@ -51,6 +51,17 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       }
     }
     
+    var path: String? {
+      if let path = self.url?.absoluteURL.path {
+        if path.last == "/" {
+          return path
+        } else {
+          return path + "/"
+        }
+      }
+      return nil
+    }
+    
     var imageName: String {
       switch self {
         case .application:
@@ -213,10 +224,10 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
     }
   }
   
-  var relativeString: String {
+  var relativePath: String {
     switch self {
       case .absolute(let url):
-        return url.relativeString
+        return url.path
       case .relative(let rel, _):
         return rel
     }
@@ -291,10 +302,9 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
   }
   
   private static func normalizeURL(_ url: URL) -> (String, Base)? {
-    let aurl = url.absoluteString
+    let aurl = url.absoluteURL.path
     for base in Base.allCases {
-      if let baseUrl = base.url {
-        let abaseUrl = baseUrl.absoluteString
+      if let abaseUrl = base.path {
         if aurl.hasPrefix(abaseUrl) {
           return (String(aurl[aurl.index(aurl.startIndex, offsetBy: abaseUrl.count)...]), base)
         }
