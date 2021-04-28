@@ -227,17 +227,6 @@ class FileManager: ObservableObject {
     }
   }
   
-  func copy(_ url: URL, into dir: URL) -> Bool {
-    do {
-      let name = url.lastPathComponent
-      let dest = dir.appendingPathComponent(name)
-      try self.sysFileManager.copyItem(at: url, to: dest)
-      return true
-    } catch {
-      return false
-    }
-  }
-  
   func duplicate(_ url: URL) -> Bool {
     let name = url.deletingPathExtension().lastPathComponent
     let ext = url.pathExtension
@@ -264,6 +253,30 @@ class FileManager: ObservableObject {
       }
     }
     return false
+  }
+  
+  func copy(_ oldURL: URL, to newURL: URL, complete: @escaping (URL?) -> Void) {
+    DispatchQueue.global(qos: .default).async {
+      var coordinatorError: NSError?
+      let fileCoordinator = NSFileCoordinator(filePresenter: nil)
+      fileCoordinator.coordinate(readingItemAt: oldURL,
+                                 options: .withoutChanges,
+                                 writingItemAt: newURL,
+                                 options: .forReplacing,
+                                 error: &coordinatorError) { from, to in
+        let fileManager = Foundation.FileManager()
+        do {
+          try fileManager.copyItem(at: from, to: to)
+          DispatchQueue.main.async {
+            complete(coordinatorError == nil ? to : nil)
+          }
+        } catch {
+          DispatchQueue.main.async {
+            complete(nil)
+          }
+        }
+      }
+    }
   }
   
   func move(_ oldURL: URL, to newURL: URL, complete: @escaping (URL?) -> Void) {

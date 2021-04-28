@@ -77,7 +77,7 @@ struct ConsoleView: View {
           Button(action: {
             UIPasteboard.general.setValue(entry.text, forPasteboardType: kUTTypePlainText as String)
           }) {
-            Label("Copy to clipboard", systemImage: "doc.on.doc")
+            Label("Copy to clipboard", systemImage: "doc.on.clipboard")
           }
           if entry.text.count <= 500 {
             Button(action: {

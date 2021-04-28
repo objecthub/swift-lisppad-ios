@@ -94,6 +94,7 @@ struct CodeEditorView: View {
           }
         }
         .font(.body)
+        .transition(.move(edge: .top))
         Divider()
       }
       CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
@@ -122,9 +123,9 @@ struct CodeEditorView: View {
           Button(action: {
             self.presentationMode.wrappedValue.dismiss()
           }) {
-            Image(systemName: "terminal")
+            Image(systemName: "terminal.fill")
               .foregroundColor(.primary)
-              .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarSwitchFont)
           }
           Menu(content: {
             Button(action: {
@@ -176,7 +177,7 @@ struct CodeEditorView: View {
             Button(action: {
               self.showSheet = .organizeFiles
             }) {
-              Label("Organize…", systemImage: "doc.on.doc")
+              Label("Organize…", systemImage: "doc.text.magnifyingglass")
             }
           }, label: {
             Image(systemName: "doc")
@@ -252,7 +253,6 @@ struct CodeEditorView: View {
             Image(systemName: "list.bullet.indent")
               .font(InterpreterView.toolbarFont)
           }
-          .disabled(self.showSearchField)
           Button(action: {
             if let defs = self.determineDefinitions(self.fileManager.editorDocument?.text ?? "") {
               self.showSheet = .showDefinitions(defs)
@@ -261,7 +261,6 @@ struct CodeEditorView: View {
             Image(systemName: "f.cursive")
               .font(InterpreterView.toolbarFont)
           }
-          .disabled(self.showSearchField)
           Button(action: {
             withAnimation(.default) {
               self.showSearchField = true
@@ -277,7 +276,7 @@ struct CodeEditorView: View {
     .sheet(item: $showSheet, onDismiss: { }) { sheet in
       switch sheet {
         case .renameFile:
-          SaveAsView(url: self.fileManager.editorDocument?.saveAsURL,
+          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew,
                      lockFolder: true) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
@@ -289,7 +288,7 @@ struct CodeEditorView: View {
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
         case .saveFile:
-          SaveAsView(url: self.fileManager.editorDocument?.saveAsURL,
+          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
@@ -300,7 +299,7 @@ struct CodeEditorView: View {
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
         case .editFile:
-          OpenView() { url, mutable in
+          Open() { url, mutable in
             self.fileManager.loadEditorDocument(
               source: url,
               makeUntitled: !mutable,
@@ -310,7 +309,7 @@ struct CodeEditorView: View {
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
         case .organizeFiles:
-          FileOrganizer()
+          Organizer()
             .environmentObject(self.fileManager) // Why is this needed? Bug?
             .environmentObject(self.histManager)
         case .showDefinitions(let definitions):

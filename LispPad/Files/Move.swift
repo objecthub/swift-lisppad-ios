@@ -1,5 +1,5 @@
 //
-//  SaveAsView.swift
+//  SaveAs.swift
 //  LispPad
 //
 //  Created by Matthias Zenger on 18/04/2021.
@@ -20,12 +20,13 @@
 
 import SwiftUI
 
-struct SaveAsView: View {
+struct Move: View {
   
   enum AlertAction: Int, Identifiable {
     case overrideDirectory = 0
     case overrideFile = 1
-    
+    case failedMovingFile = 2
+    case failedCopyingFile = 3
     var id: Int {
       self.rawValue
     }
@@ -34,10 +35,9 @@ struct SaveAsView: View {
   @Environment(\.presentationMode) var presentationMode
   @EnvironmentObject var fileManager: FileManager
   
-  @State var showFileMover: Bool = false
-  @State var showFileImporter: Bool = false
-  @State var showFileSharer: Bool = false
-  @State var searchAndImport: Bool = false
+  @Binding var showShareSheet: Bool
+  @Binding var showFileImporter: Bool
+  @Binding var urlToMove: (URL, Bool)?
   @State var selectedUrl: URL? = nil
   @State var editUrl: URL? = nil
   @State var editName: String = ""
@@ -46,48 +46,67 @@ struct SaveAsView: View {
   
   @State var fileName: String = "Untitled.scm"
   @State var folder: URL? = nil
-  let title: String
-  let url: URL?
-  let firstSave: Bool
-  let lockFolder: Bool
-  let onSave: (URL) -> Void
   
-  init(title: String = "SAVE AS:",
-       url: URL?,
-       firstSave: Bool = false,
-       lockFolder: Bool = false,
-       onSave: @escaping (URL) -> Void) {
-    self.title = title
-    self.url = url
-    self.firstSave = firstSave
-    self.lockFolder = lockFolder && url != nil
-    self.onSave = onSave
+  var sourceDescription: Text {
+    if let portableURL = PortableURL(self.urlToMove?.0) {
+      return Text("MOVE:\n") +
+             Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
+             Text("  \(portableURL.relativePath)").bold()
+    } else {
+      return Text("MOVE:\n?")
+    }
   }
   
   var targetDescription: Text {
     if let folder = self.folder {
       if let portableURL = PortableURL(folder.appendingPathComponent(self.fileName)) {
-        return Text("\(self.title):\n") +
+        return Text("TO:\n") +
                Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
                Text("  \(portableURL.relativePath)").bold()
       }
-      return Text("\(self.title):\n?")
+      return Text("TO:\n?")
     } else {
-      return Text("Select folder below")
+      return Text("Select destination folder below")
     }
   }
   
   func tapSave() {
     if !self.fileName.isEmpty,
-       let url = self.folder?.appendingPathComponent(self.fileName) {
-      let item = self.fileManager.item(at: url)
+       let oldUrl = self.urlToMove?.0,
+       let newUrl = self.folder?.appendingPathComponent(self.fileName) {
+      let item = self.fileManager.item(at: newUrl)
       if item == .directory {
         self.alertAction = .overrideDirectory
-      } else if item == .file && (self.firstSave || url != self.url) {
+      } else if item == .file && newUrl != oldUrl {
         self.alertAction = .overrideFile
       } else {
-        self.presentationMode.wrappedValue.dismiss()
-        self.onSave(url)
+        self.moveFile(to: newUrl)
+      }
+    }
+  }
+  
+  func moveFile(to newUrl: URL) {
+    if let (oldUrl, copy) = self.urlToMove {
+      if copy {
+        self.fileManager.copy(oldUrl, to: newUrl) { canonicalNewUrl in
+          if canonicalNewUrl == nil {
+            self.alertAction = .failedCopyingFile
+          } else {
+            withAnimation(.default) {
+              self.urlToMove = nil
+            }
+          }
+        }
+      } else {
+        self.fileManager.move(oldUrl, to: newUrl) { canonicalNewUrl in
+          if canonicalNewUrl == nil {
+            self.alertAction = .failedMovingFile
+          } else {
+            withAnimation(.default) {
+              self.urlToMove = nil
+            }
+          }
+        }
       }
     }
   }
@@ -97,7 +116,9 @@ struct SaveAsView: View {
       HStack(alignment: .top, spacing: 16) {
         Spacer()
         Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
+          withAnimation(.default) {
+            self.urlToMove = nil
+          }
         }) {
           Text("Cancel")
         }
@@ -111,11 +132,14 @@ struct SaveAsView: View {
       .edgesIgnoringSafeArea(.all)
       .background(Color(.secondarySystemBackground))
       HStack(alignment: .top, spacing: 16) {
-        self.targetDescription
-          .font(.footnote)
-          .foregroundColor(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+          self.sourceDescription
+          self.targetDescription
+        }
         Spacer(minLength: 0)
       }
+      .font(.footnote)
+      .foregroundColor(.secondary)
       .padding(EdgeInsets(top: -16, leading: 20, bottom: 16, trailing: 16))
       .background(Color(.secondarySystemBackground))
       Form {
@@ -124,28 +148,26 @@ struct SaveAsView: View {
             .autocapitalization(.none)
             .disableAutocorrection(true)
         }
-        if !self.lockFolder {
-          Section(header: Text("Folder")) {
-            FileHierarchyBrowser(self.fileManager.userRootDirectories,
-                                 options: [.directories, .mutable],
-                                 showFileMover: $showFileMover,
-                                 showFileImporter: $showFileImporter,
-                                 showFileSharer: $showFileSharer,
-                                 selectedUrl: $selectedUrl,
-                                 editUrl: $editUrl,
-                                 editName: $editName,
-                                 selectedUrls: $selectedUrls,
-                                 onSelection: { url in
-                                   self.selectedUrls.removeAll()
-                                   self.selectedUrls.insert(url)
-                                 })
-              .font(.body)
-              .onChange(of: self.selectedUrls) { value in
-                if let folder = self.selectedUrls.first {
-                  self.folder = folder
-                }
+        Section(header: Text("Folder")) {
+          FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                               options: [.directories, .mutable],
+                               showShareSheet: $showShareSheet,
+                               showFileImporter: $showFileImporter,
+                               urlToMove: $urlToMove,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in
+                                 self.selectedUrls.removeAll()
+                                 self.selectedUrls.insert(url)
+                               })
+            .font(.body)
+            .onChange(of: self.selectedUrls) { value in
+              if let folder = self.selectedUrls.first {
+                self.folder = folder
               }
-          }
+            }
         }
       }
     }
@@ -162,23 +184,29 @@ struct SaveAsView: View {
                        secondaryButton: .destructive(Text("Overwrite"), action: {
                         if !self.fileName.isEmpty,
                            let url = self.folder?.appendingPathComponent(self.fileName) {
-                          self.presentationMode.wrappedValue.dismiss()
-                          self.onSave(url)
+                          self.moveFile(to: url)
                         }
+                       }))
+        case .failedMovingFile:
+          return Alert(title: Text("Could not move item"),
+                       message: Text("It was not possible to move the item. No changes were made."),
+                       dismissButton: .default(Text("OK"), action: {
+                         withAnimation(.default) {
+                           self.urlToMove = nil
+                         }
+                       }))
+        case .failedCopyingFile:
+          return Alert(title: Text("Could not copy item"),
+                       message: Text("It was not possible to copy the item successfully."),
+                       dismissButton: .default(Text("OK"), action: {
+                         withAnimation(.default) {
+                           self.urlToMove = nil
+                         }
                        }))
       }
     }
-    .sheet(isPresented: $showFileSharer) {
-      if let url = self.selectedUrl {
-        ShareSheet(activityItems: [url])
-      }
-    }
-    // .fileMover(isPresented: $showFileMover,
-    //              file: self.selectedUrl,
-    //              onCompletion: { res in self.selectedUrl = nil })
-    // }
     .onAppear {
-      if let url = self.url {
+      if let url = self.urlToMove?.0 {
         self.fileName = url.lastPathComponent
         self.folder = url.deletingLastPathComponent()
         if let folder = self.folder {
@@ -186,14 +214,5 @@ struct SaveAsView: View {
         }
       }
     }
-  }
-}
-
-struct SaveAsView_Previews: PreviewProvider {
-  @State static var fileName: String = "test.txt"
-  
-  static var previews: some View {
-    SaveAsView(url: nil, onSave: { url in })
-      .environmentObject(FileManager())
   }
 }

@@ -54,9 +54,9 @@ struct FileHierarchyBrowser: View {
   // Bindings to communicate with the context of the view
   
   /// Other modal views defined outside
-  @Binding var showFileMover: Bool
+  @Binding var showShareSheet: Bool
   @Binding var showFileImporter: Bool
-  @Binding var showFileSharer: Bool
+  @Binding var urlToMove: (URL, Bool)?
   
   /// The URL used by file mover, file importer and file sharer
   @Binding var selectedUrl: URL?
@@ -71,9 +71,9 @@ struct FileHierarchyBrowser: View {
   /// Constructor
   init(_ namedRefs: [NamedRef],
        options: Options,
-       showFileMover: Binding<Bool>,
+       showShareSheet: Binding<Bool>,
        showFileImporter: Binding<Bool>,
-       showFileSharer: Binding<Bool>,
+       urlToMove: Binding<(URL, Bool)?>,
        selectedUrl: Binding<URL?>,
        editUrl: Binding<URL?>,
        editName: Binding<String>,
@@ -81,16 +81,17 @@ struct FileHierarchyBrowser: View {
        onSelection: ((URL) -> Void)? = nil) {
     self.options = options
     self.onSelection = onSelection
-    self._showFileMover = showFileMover
+    self._showShareSheet = showShareSheet
     self._showFileImporter = showFileImporter
-    self._showFileSharer = showFileSharer
+    self._urlToMove = urlToMove
     self._selectedUrl = selectedUrl
     self._editUrl = editUrl
     self._editName = editName
     self._selectedUrls = selectedUrls
     var roots: [FileHierarchy] = []
     for namedRef in namedRefs {
-      if let root = FileHierarchy(namedRef, filter: options.contains(.files) ? .file : .directory) {
+      if let root = FileHierarchy(namedRef, filter: options.contains(.files) ||
+                                             !options.contains(.directories) ? .file : .directory) {
         roots.append(root)
       }
     }
@@ -226,7 +227,7 @@ struct FileHierarchyBrowser: View {
                   self.showFileImporter = true
                   self.selectedUrl = hierarchy.url
                 }) {
-                  Label("Import Files", systemImage: "square.and.arrow.down.on.square")
+                  Label("Import Files…", systemImage: "square.and.arrow.down.on.square")
                 }
                 Divider()
               }
@@ -252,11 +253,25 @@ struct FileHierarchyBrowser: View {
                   Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
                 }
                 Button(action: {
-                  self.showFileMover = true
-                  self.selectedUrl = hierarchy.url
+                  if let url = hierarchy.url {
+                    withAnimation(.default) {
+                      self.urlToMove = (url, false)
+                    }
+                  }
                 }) {
-                  Label("Move", systemImage: "folder")
+                  Label("Move…", systemImage: "folder")
                 }
+              }
+            }
+            if hierarchy.kind == .file || hierarchy.kind == .directory {
+              Button(action: {
+                if let url = hierarchy.url {
+                  withAnimation(.default) {
+                    self.urlToMove = (url, true)
+                  }
+                }
+              }) {
+                Label("Copy…", systemImage: "doc.on.doc")
               }
             }
             if self.options.contains([.mutable, .organizer]) &&
@@ -276,10 +291,7 @@ struct FileHierarchyBrowser: View {
                   .foregroundColor(.red)
               }
             }
-            if self.options.contains(.mutable) &&
-                (hierarchy.parent != nil ||
-                 hierarchy.kind == .file ||
-                 hierarchy.kind == .directory) {
+            if hierarchy.parent != nil || hierarchy.kind == .file || hierarchy.kind == .directory {
               Divider()
             }
             if hierarchy.parent != nil {
@@ -293,10 +305,10 @@ struct FileHierarchyBrowser: View {
                 }
               }
             }
-            if hierarchy.kind == .file /* || hierarchy.kind == .directory */ {
+            if hierarchy.kind == .file {
               Button(action: {
-                self.showFileSharer = true
                 self.selectedUrl = hierarchy.url
+                self.showShareSheet = true
               }) {
                 Label("Share", systemImage: "square.and.arrow.up")
               }

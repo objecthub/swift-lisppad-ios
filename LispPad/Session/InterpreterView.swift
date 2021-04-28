@@ -50,6 +50,8 @@ struct InterpreterView: View {
   static let toolbarItemSize: CGFloat = 20
   static let toolbarFont: SwiftUI.Font = .system(size: InterpreterView.toolbarItemSize,
                                                  weight: .light)
+  static let toolbarSwitchFont: SwiftUI.Font = .system(size: InterpreterView.toolbarItemSize,
+                                                       weight: .regular)
   
   // Environment, observed and bound objects
   @EnvironmentObject var docManager: DocumentationManager
@@ -102,9 +104,9 @@ struct InterpreterView: View {
       ToolbarItemGroup(placement: .navigationBarLeading) {
         HStack(alignment: .center, spacing: 16) {
           NavigationLink(destination: LazyView(CodeEditorView())) {
-            Image(systemName: "pencil.circle")
+            Image(systemName: "pencil.circle.fill")
               .foregroundColor(.primary)
-              .font(InterpreterView.toolbarFont)
+              .font(InterpreterView.toolbarSwitchFont)
           }
           Button(action: {
             self.showSheet = .loadFile
@@ -175,7 +177,7 @@ struct InterpreterView: View {
               Button(action: {
                 self.showSheet = .organizeFiles
               }) {
-                Label("Organize Files…", systemImage: "doc.on.doc")
+                Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
               }
               Button(action: {
                 self.showPreferences = true
@@ -216,7 +218,7 @@ struct InterpreterView: View {
     .sheet(item: $showSheet, onDismiss: { }) { sheet in
       switch sheet {
         case .loadFile:
-          OpenView() { url, mutable in
+          Open() { url, mutable in
             if self.interpreter.isReady {
               let input = InterpreterView.canonicalizeInput(
                             "(load \"\(self.fileManager.canonicalPath(for: url))\")")
@@ -229,7 +231,7 @@ struct InterpreterView: View {
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
         case .organizeFiles:
-          FileOrganizer()
+          Organizer()
             .environmentObject(self.fileManager) // Why is this needed? Bug?
             .environmentObject(self.histManager)
         case .shareConsole:
