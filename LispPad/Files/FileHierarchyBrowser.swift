@@ -231,7 +231,8 @@ struct FileHierarchyBrowser: View {
                 Divider()
               }
             }
-            if self.options.contains(.mutable) {
+            if self.options.contains(.mutable) &&
+                (hierarchy.kind == .file || hierarchy.kind == .directory) {
               Button(action: {
                 self.editName = hierarchy.name
                 self.editUrl = hierarchy.url
@@ -292,7 +293,7 @@ struct FileHierarchyBrowser: View {
                 }
               }
             }
-            if hierarchy.kind == .file || hierarchy.kind == .directory {
+            if hierarchy.kind == .file /* || hierarchy.kind == .directory */ {
               Button(action: {
                 self.showFileSharer = true
                 self.selectedUrl = hierarchy.url

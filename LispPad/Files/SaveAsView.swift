@@ -46,15 +46,18 @@ struct SaveAsView: View {
   
   @State var fileName: String = "Untitled.scm"
   @State var folder: URL? = nil
+  let title: String
   let url: URL?
   let firstSave: Bool
   let lockFolder: Bool
   let onSave: (URL) -> Void
   
-  init(url: URL?,
+  init(title: String = "SAVE AS:",
+       url: URL?,
        firstSave: Bool = false,
        lockFolder: Bool = false,
        onSave: @escaping (URL) -> Void) {
+    self.title = title
     self.url = url
     self.firstSave = firstSave
     self.lockFolder = lockFolder && url != nil
@@ -64,11 +67,11 @@ struct SaveAsView: View {
   var targetDescription: Text {
     if let folder = self.folder {
       if let portableURL = PortableURL(folder.appendingPathComponent(self.fileName)) {
-        return Text("SAVE AS:\n") +
+        return Text("\(self.title):\n") +
                Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
                Text("  \(portableURL.relativePath)").bold()
       }
-      return Text("SAVE AS:\n?")
+      return Text("\(self.title):\n?")
     } else {
       return Text("Select folder below")
     }
@@ -137,6 +140,11 @@ struct SaveAsView: View {
                                    self.selectedUrls.insert(url)
                                  })
               .font(.body)
+              .onChange(of: self.selectedUrls) { value in
+                if let folder = self.selectedUrls.first {
+                  self.folder = folder
+                }
+              }
           }
         }
       }
@@ -160,56 +168,15 @@ struct SaveAsView: View {
                        }))
       }
     }
-    .onChange(of: self.selectedUrls) { value in
-      if let folder = self.selectedUrls.first {
-        self.folder = folder
-      }
-    }
     .sheet(isPresented: $showFileSharer) {
       if let url = self.selectedUrl {
         ShareSheet(activityItems: [url])
       }
     }
-    .fileMover(isPresented: $showFileMover,
-                file: self.selectedUrl,
-                onCompletion: { res in self.selectedUrl = nil })
-    .fileImporter(isPresented: $showFileImporter,
-                  allowedContentTypes: [.plainText],
-                  allowsMultipleSelection: true) { result in
-      let sai = self.searchAndImport
-      self.searchAndImport = false
-      switch result {
-        case .success(let urls):
-          if !urls.isEmpty {
-            if !sai {
-              do {
-                guard let selectedFile: URL = try result.get().first else {
-                  return
-                }
-                if selectedFile.startAccessingSecurityScopedResource() {
-                  defer {
-                    selectedFile.stopAccessingSecurityScopedResource()
-                  }
-                  if let target = self.selectedUrl {
-                    if !self.fileManager.copy(selectedFile, into: target) {
-                      // Handle copy failed
-                    }
-                  }
-                } else {
-                  // Handle denied access
-                }
-              } catch {
-                // Handle general failure
-              }
-            } else {
-              
-              self.presentationMode.wrappedValue.dismiss()
-            }
-          }
-        case .failure(_):
-          break
-      }
-    }
+    // .fileMover(isPresented: $showFileMover,
+    //              file: self.selectedUrl,
+    //              onCompletion: { res in self.selectedUrl = nil })
+    // }
     .onAppear {
       if let url = self.url {
         self.fileName = url.lastPathComponent
