@@ -248,6 +248,13 @@ final class HistoryManager: ObservableObject {
     return false
   }
   
+  func canBeFavorite(_ url: URL?) -> Bool {
+    guard let purl = PortableURL(url) else {
+      return false
+    }
+    return purl.base != .application
+  }
+  
   func toggleFavorite(_ url: URL?) {
     guard let url = url else {
       return

@@ -220,20 +220,22 @@ struct CodeEditorView: View {
                   systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
           }
           .disabled(true)
-          Divider()
-          Button(action: {
-            self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
-          }) {
-            if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
-              Label("Unstar", systemImage: "star.fill")
-            } else {
-              Label("Star", systemImage: "star")
+          if self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL) {
+            Divider()
+            Button(action: {
+              self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
+            }) {
+              if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
+                Label("Unstar", systemImage: "star.fill")
+              } else {
+                Label("Star", systemImage: "star")
+              }
             }
-          }
-          Button(action: {
-            self.showSheet = .renameFile
-          }) {
-            Label("Rename", systemImage: "pencil")
+            Button(action: {
+              self.showSheet = .renameFile
+            }) {
+              Label("Rename", systemImage: "pencil")
+            }
           }
         } label: {
           Text(self.fileManager.editorDocumentTitle)
@@ -298,7 +300,7 @@ struct CodeEditorView: View {
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
         case .editFile:
-          OpenView(selectDirectory: false) { url, mutable in
+          OpenView() { url, mutable in
             self.fileManager.loadEditorDocument(
               source: url,
               makeUntitled: !mutable,

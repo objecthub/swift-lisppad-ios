@@ -49,45 +49,42 @@ struct FileOrganizer: View {
       .background(Color(UIColor.secondarySystemBackground))
       Form {
         Section(header: Text("Usage")) {
-          FileHierarchyView(self.fileManager.usageRootDirectories,
-                            selectDirectory: false,
-                            mutable: false,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            selectedUrls: $selectedUrls,
-                            onSelection: { url in })
+          FileHierarchyBrowser(self.fileManager.usageRootDirectories,
+                               options: [.organizer],
+                               showFileMover: $showFileMover,
+                               showFileImporter: $showFileImporter,
+                               showFileSharer: $showFileSharer,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in })
             .font(.body)
         }
         Section(header: Text("User")) {
-          FileHierarchyView(self.fileManager.userRootDirectories,
-                            selectDirectory: false,
-                            mutable: true,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            selectedUrls: $selectedUrls,
-                            onSelection: { url in })
+          FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                               options: [.mutable, .organizer],
+                               showFileMover: $showFileMover,
+                               showFileImporter: $showFileImporter,
+                               showFileSharer: $showFileSharer,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in })
             .font(.body)
         }
         Section(header: Text("System")) {
-          FileHierarchyView(self.fileManager.systemRootDirectories,
-                            selectDirectory: false,
-                            mutable: false,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            selectedUrls: $selectedUrls,
-                            onSelection: { url in })
+          FileHierarchyBrowser(self.fileManager.systemRootDirectories,
+                               options: [.organizer],
+                               showFileMover: $showFileMover,
+                               showFileImporter: $showFileImporter,
+                               showFileSharer: $showFileSharer,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in })
             .font(.body)
         }
       }

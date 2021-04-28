@@ -40,6 +40,20 @@ struct ResignKeyboardOnDragGesture: ViewModifier {
   }
 }
 
+/*
+struct ResignKeyboardOnDragGesture: ViewModifier {
+  var gesture = DragGesture(minimumDistance: 100).onEnded { endedGesture in
+                  if (endedGesture.location.y - endedGesture.startLocation.y) > 0 {
+                    UIApplication.shared.endEditing(true)
+                  }
+                }
+  
+  func body(content: Content) -> some View {
+    content.gesture(gesture)
+  }
+}
+*/
+
 extension View {
   func resignKeyboardOnDragGesture() -> some View {
     return modifier(ResignKeyboardOnDragGesture())

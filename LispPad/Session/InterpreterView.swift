@@ -216,7 +216,7 @@ struct InterpreterView: View {
     .sheet(item: $showSheet, onDismiss: { }) { sheet in
       switch sheet {
         case .loadFile:
-          OpenView(selectDirectory: false) { url, mutable in
+          OpenView() { url, mutable in
             if self.interpreter.isReady {
               let input = InterpreterView.canonicalizeInput(
                             "(load \"\(self.fileManager.canonicalPath(for: url))\")")

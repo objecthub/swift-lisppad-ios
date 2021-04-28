@@ -123,21 +123,19 @@ struct SaveAsView: View {
         }
         if !self.lockFolder {
           Section(header: Text("Folder")) {
-            FileHierarchyView(self.fileManager.userRootDirectories,
-                              selectDirectory: true,
-                              mutable: true,
-                              showFileMover: $showFileMover,
-                              showFileImporter: $showFileImporter,
-                              showFileSharer: $showFileSharer,
-                              selectedUrl: $selectedUrl,
-                              editUrl: $editUrl,
-                              editName: $editName,
-                              selectedUrls: $selectedUrls,
-                              onSelection: { url in
-                                self.selectedUrls.removeAll()
-                                self.selectedUrls.insert(url)
-                                self.folder = url
-                              })
+            FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                                 options: [.directories, .mutable],
+                                 showFileMover: $showFileMover,
+                                 showFileImporter: $showFileImporter,
+                                 showFileSharer: $showFileSharer,
+                                 selectedUrl: $selectedUrl,
+                                 editUrl: $editUrl,
+                                 editName: $editName,
+                                 selectedUrls: $selectedUrls,
+                                 onSelection: { url in
+                                   self.selectedUrls.removeAll()
+                                   self.selectedUrls.insert(url)
+                                 })
               .font(.body)
           }
         }
@@ -160,6 +158,11 @@ struct SaveAsView: View {
                           self.onSave(url)
                         }
                        }))
+      }
+    }
+    .onChange(of: self.selectedUrls) { value in
+      if let folder = self.selectedUrls.first {
+        self.folder = folder
       }
     }
     .sheet(isPresented: $showFileSharer) {

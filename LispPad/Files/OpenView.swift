@@ -33,11 +33,11 @@ struct OpenView: View {
   @State var editName: String = ""
   @State var selectedUrls: Set<URL> = []
   
-  let selectDirectory: Bool
+  let directories: Bool
   let onSelection: ((URL, Bool) -> Bool)?
   
-  init(selectDirectory: Bool, onSelection: ((URL, Bool) -> Bool)? = nil) {
-    self.selectDirectory = selectDirectory
+  init(directories: Bool = false, onSelection: ((URL, Bool) -> Bool)? = nil) {
+    self.directories = directories
     self.onSelection = onSelection
   }
   
@@ -63,57 +63,56 @@ struct OpenView: View {
       .background(Color(UIColor.secondarySystemBackground))
       Form {
         Section(header: Text("Usage")) {
-          FileHierarchyView(self.fileManager.usageRootDirectories,
-                            selectDirectory: self.selectDirectory,
-                            mutable: false,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            selectedUrls: $selectedUrls,
-                            onSelection: { url in
-                              if let action = self.onSelection, action(url, false) {
-                                self.presentationMode.wrappedValue.dismiss()
-                              }
-                            })
+          FileHierarchyBrowser(self.fileManager.usageRootDirectories,
+                               options: self.directories ? [.directories] : [.files],
+                               showFileMover: $showFileMover,
+                               showFileImporter: $showFileImporter,
+                               showFileSharer: $showFileSharer,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in
+                                 if let action = self.onSelection, action(url, false) {
+                                   self.presentationMode.wrappedValue.dismiss()
+                                 }
+                               })
             .font(.body)
         }
         Section(header: Text("User")) {
-          FileHierarchyView(self.fileManager.userRootDirectories,
-                            selectDirectory: self.selectDirectory,
-                            mutable: true,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            selectedUrls: $selectedUrls,
-                            onSelection: { url in
-                              if let action = self.onSelection, action(url, true) {
-                                self.presentationMode.wrappedValue.dismiss()
-                              }
-                            })
+          FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                               options: self.directories ? [.directories, .mutable, .organizer]
+                                                         : [.files, .mutable, .organizer],
+                               showFileMover: $showFileMover,
+                               showFileImporter: $showFileImporter,
+                               showFileSharer: $showFileSharer,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in
+                                 if let action = self.onSelection, action(url, true) {
+                                   self.presentationMode.wrappedValue.dismiss()
+                                 }
+                               })
             .font(.body)
         }
         Section(header: Text("System")) {
-          FileHierarchyView(self.fileManager.systemRootDirectories,
-                            selectDirectory: self.selectDirectory,
-                            mutable: false,
-                            showFileMover: $showFileMover,
-                            showFileImporter: $showFileImporter,
-                            showFileSharer: $showFileSharer,
-                            selectedUrl: $selectedUrl,
-                            editUrl: $editUrl,
-                            editName: $editName,
-                            selectedUrls: $selectedUrls,
-                            onSelection: { url in
-                              if let action = self.onSelection, action(url, false) {
-                                self.presentationMode.wrappedValue.dismiss()
-                              }
-                            })
+          FileHierarchyBrowser(self.fileManager.systemRootDirectories,
+                               options: self.directories ? [.directories, .organizer]
+                                                         : [.files, .organizer],
+                               showFileMover: $showFileMover,
+                               showFileImporter: $showFileImporter,
+                               showFileSharer: $showFileSharer,
+                               selectedUrl: $selectedUrl,
+                               editUrl: $editUrl,
+                               editName: $editName,
+                               selectedUrls: $selectedUrls,
+                               onSelection: { url in
+                                 if let action = self.onSelection, action(url, false) {
+                                   self.presentationMode.wrappedValue.dismiss()
+                                 }
+                               })
             .font(.body)
         }
       }
@@ -168,7 +167,7 @@ struct OpenView: View {
 
 struct OpenView_Previews: PreviewProvider {
   static var previews: some View {
-    OpenView(selectDirectory: false)
+    OpenView()
       .environmentObject(FileManager())
       .environmentObject(HistoryManager())
   }

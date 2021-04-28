@@ -59,8 +59,8 @@ struct CodeEditor: UIViewRepresentable {
   public func makeUIView(context: Context) -> UITextView {
     let textView = CodeEditorTextView(frame: CGRect(x: 0,
                                                     y: 0,
-                                                    width: CGFloat.greatestFiniteMagnitude,
-                                                    height: CGFloat.greatestFiniteMagnitude),
+                                                    width: 100000,
+                                                    height: 1000000),
                                       docManager: docManager)
     textView.isScrollEnabled = true
     textView.isEditable = true
