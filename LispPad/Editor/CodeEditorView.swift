@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import MobileCoreServices
 
 struct CodeEditorView: View {
   
@@ -148,7 +149,7 @@ struct CodeEditorView: View {
                 self.showSheet = .editFile
               }
             }) {
-              Label("Open…", systemImage: "doc.badge.plus")
+              Label("Open…", systemImage: "tray.and.arrow.up")
             }
             Button(action: {
               self.fileManager.editorDocument?.saveFile { success in
@@ -156,7 +157,7 @@ struct CodeEditorView: View {
               }
             }) {
               Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
-                    systemImage: "arrow.down.doc")
+                    systemImage: "tray.and.arrow.down")
             }
             Divider()
             if !self.histManager.recentlyEdited.isEmpty {
@@ -215,13 +216,29 @@ struct CodeEditorView: View {
       ToolbarItemGroup(placement: .principal) {
         Menu {
           Button(action: {
-            
+            if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
+              UIPasteboard.general.setValue(path, forPasteboardType: kUTTypePlainText as String)
+            }
           }) {
             Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
                   systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
           }
-          .disabled(true)
+          .disabled(self.fileManager.editorDocument?.new ?? true)
+          Divider()
+          Button(action: {
+            self.fileManager.editorDocument?.saveFile { success in
+              self.showSheet = .saveFile
+            }
+          }) {
+            Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
+                  systemImage: "tray.and.arrow.down")
+          }
           if self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL) {
+            Button(action: {
+              self.showSheet = .renameFile
+            }) {
+              Label("Rename", systemImage: "pencil")
+            }
             Divider()
             Button(action: {
               self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
@@ -231,11 +248,6 @@ struct CodeEditorView: View {
               } else {
                 Label("Star", systemImage: "star")
               }
-            }
-            Button(action: {
-              self.showSheet = .renameFile
-            }) {
-              Label("Rename", systemImage: "pencil")
             }
           }
         } label: {
@@ -247,10 +259,86 @@ struct CodeEditorView: View {
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: 16) {
-          Button(action: {
-            
+          Menu(content: {
+            Button(action: {
+              if let doc = self.fileManager.editorDocument {
+                let text = doc.text as NSString
+                if let (str, replRange, selRange)
+                                 = TextFormatter.autoIndentLines(text,
+                                                                 range: doc.selectedRange,
+                                                                 tabWidth: 2) {
+                  doc.text = text.replacingCharacters(in: replRange, with: str)
+                  doc.selectedRange = selRange
+                  self.forceEditorUpdate = true
+                  self.position = selRange
+                }
+              }
+            }) {
+              Label("Auto Indent", systemImage: "list.bullet.indent")
+            }
+            Button(action: {
+              if let doc = self.fileManager.editorDocument {
+                let text = NSMutableString(string: doc.text)
+                if let selRange = TextFormatter.indentLines(text,
+                                                            selectedRange: doc.selectedRange,
+                                                            with: " ") {
+                  doc.text = text as String
+                  doc.selectedRange = selRange
+                  self.forceEditorUpdate = true
+                  self.position = selRange
+                }
+              }
+            }) {
+              Label("Increase Indent", systemImage: "increase.indent")
+            }
+            Button(action: {
+              if let doc = self.fileManager.editorDocument {
+                let text = NSMutableString(string: doc.text)
+                if let selRange = TextFormatter.outdentLines(text,
+                                                             selectedRange: doc.selectedRange,
+                                                             with: " ") {
+                  doc.text = text as String
+                  doc.selectedRange = selRange
+                  self.forceEditorUpdate = true
+                  self.position = selRange
+                }
+              }
+            }) {
+              Label("Decrease Indent", systemImage: "decrease.indent")
+            }
+            Divider()
+            Button(action: {
+              if let doc = self.fileManager.editorDocument {
+                let text = NSMutableString(string: doc.text)
+                if let selRange = TextFormatter.indentLines(text,
+                                                            selectedRange: doc.selectedRange,
+                                                            with: ";") {
+                  doc.text = text as String
+                  doc.selectedRange = selRange
+                  self.forceEditorUpdate = true
+                  self.position = selRange
+                }
+              }
+            }) {
+              Label("Comment", systemImage: "text.bubble")
+            }
+            Button(action: {
+              if let doc = self.fileManager.editorDocument {
+                let text = NSMutableString(string: doc.text)
+                if let selRange = TextFormatter.outdentLines(text,
+                                                             selectedRange: doc.selectedRange,
+                                                             with: ";") {
+                  doc.text = text as String
+                  doc.selectedRange = selRange
+                  self.forceEditorUpdate = true
+                  self.position = selRange
+                }
+              }
+            }) {
+              Label("Uncomment", systemImage: "bubble.left")
+            }
           }) {
-            Image(systemName: "list.bullet.indent")
+            Image(systemName: "text.alignright")
               .font(InterpreterView.toolbarFont)
           }
           Button(action: {
@@ -632,14 +720,5 @@ struct DefinitionMenu: Identifiable {
            self.syntax.isEmpty &&
            self.records.isEmpty &&
            self.types.isEmpty
-  }
-}
-
-struct CodeEditorView_Previews: PreviewProvider {
-  static var previews: some View {
-    NavigationView {
-      CodeEditorView()
-        .environmentObject(DocumentationManager())
-    }
   }
 }

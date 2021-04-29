@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>nested indentation</key>
+	<array>
+		<string>syntax-rules</string>
+		<string>cond</string>
+		<string>cond-expand</string>
+		<string>case</string>
+		<string>case-lambda</string>
+	</array>
+	<key>fixed indentation</key>
+	<array>
+		<string>syntax-rules</string>
+		<string>define</string>
+		<string>define-datatype</string>
+		<string>define-enumeration</string>
+		<string>define-generic</string>
+		<string>define-library</string>
+		<string>define-pattern</string>
+		<string>define-record-type</string>
+		<string>define-stream</string>
+		<string>define-syntax</string>
+		<string>define-type</string>
+		<string>define-values</string>
+		<string>lambda</string>
+		<string>stream-lambda</string>
+		<string>let</string>
+		<string>let*</string>
+		<string>letrec</string>
+		<string>letrec*</string>
+		<string>let-keywords</string>
+		<string>let-optionals</string>
+		<string>let-syntax</string>
+		<string>let-values</string>
+		<string>let*-keywords</string>
+		<string>let*-optionals</string>
+		<string>let*-values</string>
+		<string>letrec-syntax</string>
+		<string>letrec-values</string>
+		<string>and-let*</string>
+		<string>match-let</string>
+		<string>match-let*</string>
+		<string>match-letrec</string>
+		<string>stream-let</string>
+		<string>do</string>
+		<string>when</string>
+		<string>unless</string>
+	</array>
+</dict>
+</plist>
