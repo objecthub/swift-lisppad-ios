@@ -41,19 +41,18 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   let codeColor = UIColor.gray
   let codeBackground = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.25)
   
+  var editorType: FileExtensions.EditorType
   var enableSyntaxHighlighting: Bool
   var enableIdentifierMarkup: Bool
-  var lispSyntax: Bool
-  
   let docManager: DocumentationManager
   
   init(enableSyntaxHighlighting: Bool,
        enableIdentifierMarkup: Bool,
-       lispSyntax: Bool,
+       editorType: FileExtensions.EditorType,
        docManager: DocumentationManager) {
     self.enableSyntaxHighlighting = enableSyntaxHighlighting
     self.enableIdentifierMarkup = enableIdentifierMarkup
-    self.lispSyntax = lispSyntax
+    self.editorType = editorType
     self.docManager = docManager
   }
   
@@ -61,7 +60,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     return self.docManager.documentationAvailable(for: ident)
   }
 
-  private func highlightLispSyntax(_ textStorage: NSTextStorage,
+  private func highlightSchemeSyntax(_ textStorage: NSTextStorage,
                                    _ str: NSString,
                                    _ range: NSRange) {
     var start = range.location
@@ -70,9 +69,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     var stringStart = Int.min
     var numberStart = Int.min
     var symbolStart = Int.min
-    textStorage.addAttribute(.foregroundColor,
-                             value: self.textColor,
-                             range: range)
+    textStorage.addAttribute(.foregroundColor, value: self.textColor, range: range)
     while start < end {
       let ch = str.character(at: start)
       if symbolStart < 0 {
@@ -571,10 +568,13 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     }
     let str = textStorage.string as NSString
     let range = NSRange(location: 0, length: textStorage.length)
-    if self.lispSyntax {
-      self.highlightLispSyntax(textStorage, str, range)
-    } else {
-      self.highlightMarkdownSyntax(textStorage, str, range)
+    switch self.editorType {
+      case .scheme:
+        self.highlightSchemeSyntax(textStorage, str, range)
+      case .markdown:
+        self.highlightMarkdownSyntax(textStorage, str, range)
+      case .other:
+        break
     }
   }
   
@@ -592,23 +592,23 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
                          range editRange: NSRange,
                          changeInLength delta: Int) {
     // Check that syntax highlighting is enabled
-    guard self.enableSyntaxHighlighting else {
+    guard self.enableSyntaxHighlighting, self.editorType != .other else {
       return
     }
     // Find the range for which to redo the syntax highlighting
     let str = textStorage.string as NSString
     let range: NSRange
-    if self.lispSyntax {
+    if self.editorType == .scheme {
       range = str.lineRange(for: editRange)
     } else {
-      range = self.extendedParagraphRange(in: str, editedRange: editRange)
+        range = self.extendedParagraphRange(in: str, editedRange: editRange)
     }
     // Remove attribution in edited range
     textStorage.removeAttribute(.foregroundColor, range: range)
     // textStorage.removeAttribute(.backgroundColor, range: range)
     // Add syntax highlighting
-    if self.lispSyntax {
-      self.highlightLispSyntax(textStorage, str, range)
+    if self.editorType == .scheme {
+      self.highlightSchemeSyntax(textStorage, str, range)
     } else {
       self.highlightMarkdownSyntax(textStorage, str, range)
     }

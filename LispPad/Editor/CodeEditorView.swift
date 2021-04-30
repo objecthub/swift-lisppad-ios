@@ -50,6 +50,7 @@ struct CodeEditorView: View {
     case newFile = 0
     case editFile = 1
     case notSaved = 2
+    case couldNotDuplicate = 3
     
     var id: Int {
       self.rawValue
@@ -71,6 +72,7 @@ struct CodeEditorView: View {
   @State var showFileMover = false
   @State var fileMoverAction: (() -> Void)? = nil
   @State var forceEditorUpdate = false
+  @State var editorType: FileExtensions.EditorType = .scheme
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -107,12 +109,18 @@ struct CodeEditorView: View {
                                            doc.selectedRange = $0
                                        }}),
                  position: $position,
-                 forceUpdate: $forceEditorUpdate)
+                 forceUpdate: $forceEditorUpdate,
+                 editorType: $editorType)
         .defaultFont(.monospacedSystemFont(ofSize: 12, weight: .regular))
         .autocorrectionType(.no)
         .autocapitalizationType(.none)
         .multilineTextAlignment(.leading)
-        .keyboardType(.default)
+        .onAppear {
+          self.editorType = self.fileManager.editorDocument?.editorType ?? self.editorType
+        }
+        .onChange(of: self.fileManager.editorDocument?.editorType) { value in
+          self.editorType = self.fileManager.editorDocument?.editorType ?? self.editorType
+        }
       Divider()
     }
     .navigationBarHidden(false)
@@ -169,7 +177,7 @@ struct CodeEditorView: View {
                       makeUntitled: !purl.mutable,
                       action: { success in self.forceEditorUpdate = true })
                   }) {
-                    Label(url.lastPathComponent, systemImage: "doc.text")
+                    Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
                   }
                 }
               }
@@ -233,23 +241,46 @@ struct CodeEditorView: View {
             Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
                   systemImage: "tray.and.arrow.down")
           }
-          if self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL) {
-            Button(action: {
-              self.showSheet = .renameFile
-            }) {
-              Label("Rename", systemImage: "pencil")
-            }
-            Divider()
-            Button(action: {
-              self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
-            }) {
-              if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
-                Label("Unstar", systemImage: "star.fill")
-              } else {
-                Label("Star", systemImage: "star")
+          Button(action: {
+            self.showSheet = .renameFile
+          }) {
+            Label("Rename", systemImage: "pencil")
+          }
+          .disabled(self.fileManager.editorDocument?.new ?? true)
+          Button(action: {
+            if let doc = self.fileManager.editorDocument, !doc.new {
+              doc.saveFile { success in
+                if success {
+                  self.fileManager.loadEditorDocument(
+                    source: doc.fileURL,
+                    makeUntitled: true,
+                    action: { success in
+                      if success {
+                        self.forceEditorUpdate = true
+                      } else {
+                        self.notSavedAlertAction = .couldNotDuplicate
+                      }
+                    })
+                } else {
+                  self.notSavedAlertAction = .couldNotDuplicate
+                }
               }
             }
+          }) {
+            Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
           }
+          .disabled(self.fileManager.editorDocument?.new ?? true)
+          Divider()
+          Button(action: {
+            self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
+          }) {
+            if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
+              Label("Unstar", systemImage: "star.fill")
+            } else {
+              Label("Star", systemImage: "star")
+            }
+          }
+          .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
         } label: {
           Text(self.fileManager.editorDocumentTitle)
             .font(.body)
@@ -276,6 +307,7 @@ struct CodeEditorView: View {
             }) {
               Label("Auto Indent", systemImage: "list.bullet.indent")
             }
+            .disabled(self.editorType != .scheme)
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = NSMutableString(string: doc.text)
@@ -322,6 +354,7 @@ struct CodeEditorView: View {
             }) {
               Label("Comment", systemImage: "text.bubble")
             }
+            .disabled(self.editorType != .scheme)
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = NSMutableString(string: doc.text)
@@ -337,6 +370,7 @@ struct CodeEditorView: View {
             }) {
               Label("Uncomment", systemImage: "bubble.left")
             }
+            .disabled(self.editorType != .scheme)
           }) {
             Image(systemName: "text.alignright")
               .font(InterpreterView.toolbarFont)
@@ -428,6 +462,8 @@ struct CodeEditorView: View {
                               self.showSheet = .editFile })
         case .notSaved:
           return self.couldNotSave()
+        case .couldNotDuplicate:
+          return self.couldNotDuplicate()
       }
     }
     .fileMover(isPresented: $showFileMover,
@@ -455,6 +491,12 @@ struct CodeEditorView: View {
   func couldNotSave() -> Alert {
     return Alert(title: Text("File not saved"),
                  message: Text("Could not save file. Retry saving using a different name or path."),
+                 dismissButton: .default(Text("OK")))
+  }
+  
+  func couldNotDuplicate() -> Alert {
+    return Alert(title: Text("Document not duplicated"),
+                 message: Text("Could not duplicate the current document."),
                  dismissButton: .default(Text("OK")))
   }
   

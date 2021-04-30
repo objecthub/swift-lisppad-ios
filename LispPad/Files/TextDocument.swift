@@ -42,6 +42,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   @Published var text = ""
   @Published var selectedRange = NSRange(location: 0, length: 0)
   
+  var editorType: FileExtensions.EditorType = .scheme
   var lastContentOffset = CGPoint(x: 0, y: 0)
   
   var id: URL {
@@ -50,6 +51,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   
   func recomputeTitle(_ url: URL? = nil) {
     self.title = (url ?? self.fileURL).deletingPathExtension().lastPathComponent
+    self.editorType = FileExtensions.editorType(for: url ?? self.fileURL)
   }
   
   var saveAsURL: URL? {

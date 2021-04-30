@@ -59,7 +59,7 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
     self.fileManager.editorDocument?.lastContentOffset = scrollView.contentOffset
   }
   
-  private func lispIndent(_ str: NSString, _ selectedRange: NSRange) -> String {
+  private func schemeIndent(_ str: NSString, _ selectedRange: NSRange) -> String {
     // Find the beginning of the current line
     var start = selectedRange.location
     while start > 0 && str.character(at: start - 1) != NEWLINE {
@@ -271,7 +271,15 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
                        replacementText text: String) -> Bool {
     switch text {
       case "\n":
-        let indent = lispIndent(textView.textStorage.string as NSString, range)
+        let indent: String
+        switch self.fileManager.editorDocument?.editorType ?? .scheme {
+          case .scheme:
+            indent = schemeIndent(textView.textStorage.string as NSString, range)
+          case .markdown:
+            indent = markdownIndent(textView.textStorage.string as NSString, range)
+          case .other:
+            indent = ""
+        }
         if let replaceStart = textView.position(from: textView.beginningOfDocument,
                                                 offset: range.location),
             let replaceEnd = textView.position(from: replaceStart, offset: range.length),

@@ -111,6 +111,7 @@
 		CCEA5A0D263977C400D78C62 /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A0C263977C400D78C62 /* Move.swift */; };
 		CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */; };
 		CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */; };
+		CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -368,6 +369,7 @@
 		CCEA5A0C263977C400D78C62 /* Move.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Move.swift; sourceTree = "<group>"; };
 		CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFormatter.swift; sourceTree = "<group>"; };
 		CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = IndentationRules.plist; sourceTree = "<group>"; };
+		CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileExtensions.swift; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -615,6 +617,7 @@
 				CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */,
 				CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */,
 				CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */,
+				CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */,
 				CCC8563A2616778D0080B96E /* FileManager.swift */,
 				CCC8563E2617A8960080B96E /* FileHierarchy.swift */,
 				CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */,
@@ -797,6 +800,7 @@
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
+				CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */,
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,

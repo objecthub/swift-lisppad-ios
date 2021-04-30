@@ -65,11 +65,13 @@ class CodeEditorTextView: UITextView {
     }
   }
   
-  init(frame: CGRect, docManager: DocumentationManager) {
+  init(frame: CGRect,
+       editorType: FileExtensions.EditorType,
+       docManager: DocumentationManager) {
     let ts = NSTextStorage()
     let td = CodeEditorTextStorageDelegate(enableSyntaxHighlighting: true,
                                            enableIdentifierMarkup: true,
-                                           lispSyntax: true,
+                                           editorType: editorType,
                                            docManager: docManager)
     let lm = CodeEditorLayoutManager()
     let tc = NSTextContainer(size: CGSize(width: CGFloat.greatestFiniteMagnitude,

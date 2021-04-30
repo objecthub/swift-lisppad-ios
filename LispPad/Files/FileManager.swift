@@ -364,10 +364,10 @@ class FileManager: ObservableObject {
           defer {
             sourceUrl.stopAccessingSecurityScopedResource()
           }
-          try self.sysFileManager.removeItem(at: targetUrl)
+          _ = try? self.sysFileManager.removeItem(at: targetUrl)
           try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
         } else {
-          try self.sysFileManager.removeItem(at: targetUrl)
+          _ = try? self.sysFileManager.removeItem(at: targetUrl)
           try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
         }
         self.histManager?.trackRecentFile(sourceUrl)

@@ -90,9 +90,12 @@ struct FileHierarchyBrowser: View {
     self._selectedUrls = selectedUrls
     var roots: [FileHierarchy] = []
     for namedRef in namedRefs {
-      if let root = FileHierarchy(namedRef, filter: options.contains(.files) ||
-                                             !options.contains(.directories) ? .file : .directory) {
-        roots.append(root)
+      if let r = FileHierarchy(
+                   namedRef,
+                   filter: options.contains(.files) ||
+                             !options.contains(.directories) ? .file : .directory,
+                   extensions: options.contains(.organizer) ? nil : FileExtensions.editorSupport) {
+        roots.append(r)
       }
     }
     self.roots = roots

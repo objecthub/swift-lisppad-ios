@@ -31,6 +31,7 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var selectedRange: NSRange
   @Binding var position: NSRange?
   @Binding var forceUpdate: Bool
+  @Binding var editorType: FileExtensions.EditorType
   
   var autocapitalizationType: UITextAutocapitalizationType = .sentences
   var autocorrectionType: UITextAutocorrectionType = .default
@@ -38,16 +39,17 @@ struct CodeEditor: UIViewRepresentable {
   private(set) var color: UIColor? = nil
   private(set) var font: UIFont? = nil
   private(set) var insertionPointColor: UIColor? = nil
-  var keyboardType: UIKeyboardType = .default
   
   public init(text: Binding<String>,
               selectedRange: Binding<NSRange>,
               position: Binding<NSRange?>,
-              forceUpdate: Binding<Bool>) {
+              forceUpdate: Binding<Bool>,
+              editorType: Binding<FileExtensions.EditorType>) {
     self._text = text
     self._selectedRange = selectedRange
     self._position = position
     self._forceUpdate = forceUpdate
+    self._editorType = editorType
   }
 
   public func makeCoordinator() -> Coordinator {
@@ -61,6 +63,7 @@ struct CodeEditor: UIViewRepresentable {
                                                     y: 0,
                                                     width: 100000,
                                                     height: 1000000),
+                                      editorType: self.editorType,
                                       docManager: docManager)
     textView.isScrollEnabled = true
     textView.isEditable = true
@@ -70,7 +73,7 @@ struct CodeEditor: UIViewRepresentable {
     textView.smartDashesType = .no
     textView.smartInsertDeleteType = .no
     textView.textAlignment = .left // or .natural ?
-    textView.keyboardType = keyboardType
+    textView.keyboardType = .default
     textView.autocapitalizationType = autocapitalizationType
     textView.autocorrectionType = autocorrectionType
     if let color = self.backgroundColor {
@@ -97,6 +100,11 @@ struct CodeEditor: UIViewRepresentable {
   }
 
   public func updateUIView(_ uiView: UITextView, context: Context) {
+    if let tsd = uiView.textStorage.delegate as? CodeEditorTextStorageDelegate,
+       self.editorType != tsd.editorType {
+      tsd.editorType = self.editorType
+      tsd.highlight(uiView.textStorage)
+    }
     if let pos = self.position {
       if self.forceUpdate {
         uiView.text = self.text
@@ -176,12 +184,6 @@ extension CodeEditor {
   public func defaultFont(_ font: UIFont) -> Self {
     var new = self
     new.font = font
-    return new
-  }
-  
-  public func keyboardType(_ type: UIKeyboardType) -> Self {
-    var new = self
-    new.keyboardType = type
     return new
   }
   

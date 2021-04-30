@@ -31,11 +31,13 @@ struct FileHierarchy: Hashable, Identifiable {
   final class Children {
     let kind: NamedRef.Kind
     let filter: FileHierarchy.Kind?
+    let extensions: Set<String>?
     private var cache: [FileHierarchy]? = nil
     
-    init(_ kind: NamedRef.Kind, filter: FileHierarchy.Kind?) {
+    init(_ kind: NamedRef.Kind, filter: FileHierarchy.Kind?, extensions: Set<String>?) {
       self.kind = kind
       self.filter = filter
+      self.extensions = extensions
     }
     
     var children: [FileHierarchy]? {
@@ -106,24 +108,33 @@ struct FileHierarchy: Hashable, Identifiable {
   init?(_ url: URL, parent: Children) {
     var dir: ObjCBool = false
     if Foundation.FileManager.default.fileExists(atPath: url.absoluteURL.path, isDirectory: &dir) {
-      if let filter = parent.filter, filter == .directory, !dir.boolValue {
-        return nil
+      if let filter = parent.filter {
+        if filter == .directory && !dir.boolValue {
+          return nil
+        }
+        if let extensions = parent.extensions,
+           filter == .file && !dir.boolValue,
+           !extensions.contains(url.pathExtension) {
+          return nil
+        }
       }
       self.url = url
       self.kind = dir.boolValue ? .directory : .file
-      self.container = dir.boolValue ? Children(.url(url), filter: parent.filter) : nil
+      self.container = dir.boolValue ? Children(.url(url),
+                                                filter: parent.filter,
+                                                extensions: parent.extensions) : nil
       self.parent = parent
     } else {
       return nil
     }
   }
   
-  init?(_ namedRef: NamedRef, filter: Kind) {
+  init?(_ namedRef: NamedRef, filter: Kind, extensions: Set<String>?) {
     switch namedRef.kind {
       case .collection(_):
         self.url = nil
         self.kind = .root(namedRef.name, namedRef.image)
-        self.container = Children(namedRef.kind, filter: filter)
+        self.container = Children(namedRef.kind, filter: filter, extensions: extensions)
         self.parent = nil
       case .url(let url):
         var dir: ObjCBool = false
@@ -131,7 +142,9 @@ struct FileHierarchy: Hashable, Identifiable {
                                                      isDirectory: &dir) {
           self.url = url
           self.kind = dir.boolValue ? .root(namedRef.name, namedRef.image) : .file
-          self.container = dir.boolValue ? Children(namedRef.kind, filter: filter) : nil
+          self.container = dir.boolValue ? Children(namedRef.kind,
+                                                    filter: filter,
+                                                    extensions: extensions) : nil
           self.parent = nil
         } else {
           return nil
@@ -161,22 +174,7 @@ struct FileHierarchy: Hashable, Identifiable {
     switch self.kind {
       case .file:
         if let url = self.url {
-          switch url.pathExtension {
-            case "scm", "sps", "ss", "sld", "sls", "lisp", "rkt", "md", "markdown", "txt":
-              return "doc.text"
-            case "png", "jpg", "jpeg":
-              return "photo"
-            case "pdf", "pages":
-              return "doc.richtext"
-            case "mp3", "m4a", "m4b":
-              return "hifispeaker"
-            case "mp4":
-              return "film"
-            case "zip":
-              return "doc.zipper"
-            default:
-              return "doc"
-          }
+          return FileExtensions.systemImage(for: url)
         } else {
           return "doc"
         }
@@ -191,13 +189,6 @@ struct FileHierarchy: Hashable, Identifiable {
     hasher.combine(self.url)
     hasher.combine(self.kind)
   }
-  
-  /*
-  static func <(lhs: FileHierarchy, rhs: FileHierarchy) -> Bool {
-    return lhs.url.path.localizedStandardCompare(rhs.url.path)
-             == .orderedAscending
-  }
-  */
   
   static func ==(lhs: FileHierarchy, rhs: FileHierarchy) -> Bool {
     if case .root(let lname, _) = lhs.kind {
