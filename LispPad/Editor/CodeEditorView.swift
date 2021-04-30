@@ -167,8 +167,13 @@ struct CodeEditorView: View {
               Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
                     systemImage: "tray.and.arrow.down")
             }
-            Divider()
+            Button(action: {
+              self.showSheet = .organizeFiles
+            }) {
+              Label("Organize…", systemImage: "doc.text.magnifyingglass")
+            }
             if !self.histManager.recentlyEdited.isEmpty {
+              Divider()
               ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
                 if let url = purl.url {
                   Button(action: {
@@ -181,12 +186,6 @@ struct CodeEditorView: View {
                   }
                 }
               }
-              Divider()
-            }
-            Button(action: {
-              self.showSheet = .organizeFiles
-            }) {
-              Label("Organize…", systemImage: "doc.text.magnifyingglass")
             }
           }, label: {
             Image(systemName: "doc")
@@ -383,6 +382,7 @@ struct CodeEditorView: View {
             Image(systemName: "f.cursive")
               .font(InterpreterView.toolbarFont)
           }
+          .disabled(self.editorType != .scheme)
           Button(action: {
             withAnimation(.default) {
               self.showSearchField = true
