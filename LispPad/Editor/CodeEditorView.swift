@@ -203,6 +203,7 @@ struct CodeEditorView: View {
               Image(systemName: "play")
                 .font(InterpreterView.toolbarFont)
             }
+            .disabled(self.editorType != .scheme)
           } else {
             Button(action: {
               self.showAbortAlert = true

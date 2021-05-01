@@ -28,18 +28,18 @@ Returns a newly allocated mutable hashtable using _hash_ as the hash function an
 
 _hash_ and _equiv_ must be procedures. _hash_ should accept a key as an argument and should return a non-negative exact integer object. _equiv_ should accept two keys as arguments and return a single boolean value. Neither procedure should mutate the hashtable returned by `make-hashtable`. Both _hash_ and _equiv_ should behave like pure functions on the domain of keys. For example, the `string-hash` and `string=?` procedures are permissible only if all keys are strings and the contents of those strings are never changed so long as any of them continues to serve as a key in the hashtable. Furthermore, any pair of keys for which _equiv_ returns true should be hashed to the same exact integer objects by _hash_.
 
-**(alist->eq-hashtable _alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(alist->eq-hashtable _alist k_)**  
+**(alist-\>eq-hashtable _alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(alist-\>eq-hashtable _alist k_)**  
 
 Returns a newly allocated mutable hashtable consisting of the mappings contained in the association list _alist_. Keys are compared with `eq?`. If argument _k_ is given, the capacity of the returned hashtable is set to at least _k_ elements.
 
-**(alist->eqv-hashtable _alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(alist->eqv-hashtable _alist k_)**  
+**(alist-\>eqv-hashtable _alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(alist-\>eqv-hashtable _alist k_)**  
 
 Returns a newly allocated mutable hashtable consisting of the mappings contained in the association list _alist_. Keys are compared with `eqv?`. If argument _k_ is given, the capacity of the returned hashtable is set to at least _k_ elements.
 
-**(alist->equal-hashtable _alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(alist->equal-hashtable _alist k_)**  
+**(alist-\>equal-hashtable _alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(alist-\>equal-hashtable _alist k_)**  
 
 Returns a newly allocated mutable hashtable consisting of the mappings contained in the association list _alist_. Keys are compared with `equal?`. If argument _k_ is given, the capacity of the returned hashtable is set to at least _k_ elements.
 
@@ -170,7 +170,7 @@ Changes _hashtable_ to associate _key_ with _obj_, adding a new association for 
 
 Removes the association for _key_ within _hashtable_ which was added last, and returns it as a pair consisting of the key matching _key_ and its associated value. If there is no association of _key_ in _hashtable_, `hashtable-remove!` will return `#f`.
 
-**(alist->hashtable! _hashtable alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(alist-\>hashtable! _hashtable alist_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Adds all the associations from _alist_ to _hashtable_ using `hashtable-add!`.
 
@@ -213,7 +213,7 @@ Returns a list of all keys in _hashtable_.
 
 Returns a list of all values in _hashtable_.
 
-**(hashtable->alist _hashtable_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(hashtable-\>alist _hashtable_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a list of all associations in _hashtable_ as an association list. Each association is represented as a pair consisting of the key and the corresponding value.
 

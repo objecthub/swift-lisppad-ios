@@ -433,8 +433,8 @@ The result returned by `number->string` never contains an explicit radix prefix.
 
 The error case can occur only when _z_ is not a complex number or is a complex number with a non-rational real or imaginary part. If _z_ is an inexact number and the radix is 10, then the above expression is normally satisfied by a result containing a decimal point. The unspecified case allows for infinities, NaNs, and unusual representations.
 
-**(string->number _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(string->number _str radix_)**  
+**(string-\>number _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(string-\>number _str radix_)**  
 
 Returns a number of the maximally precise representation expressed by the given string _str_. It is an error if _radix_ is not 2, 8, 10, or 16. If supplied, _radix_ is a default radix that will be overridden if an explicit radix prefix is present in string (e.g. `"#o177"`). If _radix_ is not supplied, then the default radix is 10. If string _str_ is not a syntactically valid notation for a number, or would result in a number that cannot be represented, then `string->number` returns `#f`. An error is never signaled due to the content of string.
 
@@ -558,7 +558,7 @@ LispKit supports arbitrarily large exact integers. Internally, it has two differ
 
 Fixnum operations perform integer arithmetic on their fixnum arguments. If any argument is not a fixnum, or if the mathematical result is not representable as a fixnum, it is an error. In particular, this means that fixnum operations may return a mathematically incorrect fixnum in these situations without raising an error.
 
-**(integer->fixnum _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(integer-\>fixnum _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 `integer->fixnum` coerces a given integer _n_ into a fixnum. If _n_ is a fixnum already, _n_ is returned by `integer->fixnum`. If _n_ is a bignum, then the first word of the bignum is returned as the result of `integer->fixnum`.
 
@@ -772,7 +772,7 @@ Returns the greatest possible fixnum. The current implementation of LispKit alwa
 
 ## Floating-point operations
 
-**(real->flonum _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(real-\>flonum _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns the best floating-point (flonum) representation of _x_.
 

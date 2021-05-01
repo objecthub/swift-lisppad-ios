@@ -112,6 +112,8 @@
 		CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */; };
 		CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */; };
 		CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */; };
+		CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
+		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -226,6 +228,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */,
 				CC8B95CD2608113800830B4F /* PlayMusic.scm in Copy Root/Examples */,
 			);
 			name = "Copy Root/Examples";
@@ -370,6 +373,7 @@
 		CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFormatter.swift; sourceTree = "<group>"; };
 		CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = IndentationRules.plist; sourceTree = "<group>"; };
 		CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileExtensions.swift; sourceTree = "<group>"; };
+		CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ComposePhotos.scm; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -569,6 +573,7 @@
 		CC8B95AD2607FBDC00830B4F /* Examples */ = {
 			isa = PBXGroup;
 			children = (
+				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 			);
 			path = Examples;
@@ -775,6 +780,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
+				CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,

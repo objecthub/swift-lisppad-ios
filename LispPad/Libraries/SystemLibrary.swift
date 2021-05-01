@@ -43,6 +43,7 @@ public final class SystemLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("project-directory", self.projectDirectory))
     self.define(Procedure("screen-size", self.screenSize))
     self.define(Procedure("dark-mode?", self.isDarkMode))
@@ -50,6 +51,16 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   public override func initializations() {
+  }
+  
+  private func saveBitmapInLibrary(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr,
+          let imageBox = obj as? NativeImage else {
+      throw RuntimeError.type(expr, expected: [NativeImage.type])
+    }
+    let imageManager = ImageManager()
+    try imageManager.writeImageToLibrary(imageBox.value)
+    return .true
   }
   
   private func projectDirectory() -> Expr {
@@ -77,5 +88,40 @@ public final class SystemLibrary: NativeLibrary {
       remaining = endTime - Timer.currentTimeInSec
     }
     return .void
+  }
+}
+
+class ImageManager: NSObject {
+  let condition = NSCondition()
+  var completed = false
+  var error: Error? = nil
+  
+  func writeImageToLibrary(_ image: UIImage) throws {
+    UIImageWriteToSavedPhotosAlbum(image,
+                                   self,
+                                   #selector(image(_:didFinishSavingWithError:contextInfo:)),
+                                   nil)
+    self.condition.lock()
+    defer {
+      self.condition.unlock()
+    }
+    while !self.completed {
+      self.condition.wait()
+    }
+    if let error = self.error {
+      throw error
+    }
+  }
+  
+  @objc func image(_ image: UIImage,
+                   didFinishSavingWithError error: Error?,
+                   contextInfo: UnsafeRawPointer) {
+    self.condition.lock()
+    defer {
+      self.condition.unlock()
+    }
+    self.error = error
+    self.completed = true
+    self.condition.signal()
   }
 }

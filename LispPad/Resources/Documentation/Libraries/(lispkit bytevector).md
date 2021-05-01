@@ -91,12 +91,12 @@ the concatenation of the elements in the given bytevectors.
 
 ## Advanced
 
-**(utf8->string _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(utf8->string _bytevector start_)**   
-**(utf8->string _bytevector start end_)**   
-**(string->utf8 _string_)**   
-**(string->utf8 _string start_)**   
-**(string->utf8 _string start end_)**   
+**(utf8-\>string _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(utf8-\>string _bytevector start_)**   
+**(utf8-\>string _bytevector start end_)**   
+**(string-\>utf8 _string_)**   
+**(string-\>utf8 _string start_)**   
+**(string-\>utf8 _string start end_)**   
 
 These procedures translate between strings and bytevectors that encode those strings using the UTF-8 encoding. The `utf8->string` procedure decodes the bytes of a _bytevector_ between _start_ and _end_ and returns the corresponding string. The `string->utf8` procedure encodes the characters of a _string_ between _start_ and _end_ and returns the corresponding bytevector.
 
@@ -107,15 +107,15 @@ It is an error for _bytevector_ to contain invalid UTF-8 byte sequences.
 (string->utf8 "λ")        ⇒  #u8(#xCE #xBB)
 ```
 
-**(bytevector->base64 _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(bytevector->base64 _bytevector start_)**   
-**(bytevector->base64 _bytevector start end_)**   
+**(bytevector-\>base64 _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-\>base64 _bytevector start_)**   
+**(bytevector-\>base64 _bytevector start end_)**   
 
 `bytevector->base64` encodes _bytevector_ between _start_ and _end_ as a string consisting of ASCII characters using the _Base64_ encoding scheme. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
 
-**(base64->bytevector _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(base64->bytevector _str start_)**   
-**(base64->bytevector _str start end_)**   
+**(base64-\>bytevector _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(base64-\>bytevector _str start_)**   
+**(base64-\>bytevector _str start end_)**   
 
 `base64->bytevector` assumes string _str_ is encoded using _Base64_ between _start_ and _end_ and returns a corresponding new decoded bytevector.
 

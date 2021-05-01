@@ -99,8 +99,8 @@ Procedure `digit-value` returns the numeric value (0 to 9) of its argument if it
 (digit-value #\x0EA6)  ⇒  #f
 ```
 
-**(char->integer _char_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(integer->char _n_)**  
+**(char-\>integer _char_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(integer-\>char _n_)**  
 
 Given a Unicode character, `char->integer` returns an exact integer between 0 and #xD7FF or between #xE000 and #x10FFFF which is equal to the Unicode scalar value of that character. Given a non-Unicode character, it returns an exact integer greater than #x10FFFF.
 

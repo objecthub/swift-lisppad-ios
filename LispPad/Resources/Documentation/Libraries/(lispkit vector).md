@@ -62,7 +62,7 @@ the given arguments. It is analogous to `list`.
 Returns a newly allocated immutable vector whose elements contain
 the given arguments in the given order.
 
-**(list->vector _list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>vector _list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 The `list->vector` procedure returns a newly created mutable vector initialized to the elements of the list _list_ in the order of the list.
 
@@ -70,13 +70,13 @@ The `list->vector` procedure returns a newly created mutable vector initialized 
 (list->vector ’(a b c))  ⇒  #(a b c)
 ```
 
-**(list->immutable-vector _list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>immutable-vector _list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 The `list->vector` procedure returns a newly created immutable vector initialized to the elements of the list _list_ in the order of the list.
 
-**(string->vector _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(string->vector _str start_)**  
-**(string->vector _str start end_)**  
+**(string-\>vector _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(string-\>vector _str start_)**  
+**(string-\>vector _str start end_)**  
 
 The `string->vector` procedure returns a newly created mutable vector initialized to the elements of the string _str_ between _start_ and _end_ (i.e. including all characters from index _start_ to index _end_-1).
 
@@ -291,9 +291,9 @@ a  ⇒  #((0 . 11) (1 . 22) (2 . 33) 4)
 
 ## Converting vectors
 
-**(vector->list _vector_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(vector->list _vector start_)**  
-**(vector->list _vector start end_)**  
+**(vector-\>list _vector_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(vector-\>list _vector start_)**  
+**(vector-\>list _vector start end_)**  
 
 The `vector->list` procedure returns a newly allocated list of the objects contained in the elements of _vector_ between _start_ and _end_ in the same order line in _vector_.
 
@@ -302,9 +302,9 @@ The `vector->list` procedure returns a newly allocated list of the objects conta
 (vector->list ’#(dah dah didah) 1 2)  ⇒  (dah)
 ```
 
-**(vector->string _vector_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(vector->string _vector start_)**  
-**(vector->string _vector start end_)**  
+**(vector-\>string _vector_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(vector-\>string _vector start_)**  
+**(vector-\>string _vector start end_)**  
 
 The `vector->string` procedure returns a newly allocated string of the objects contained in the elements of _vector_ between _start_ and _end_. This procedure preserves the order of the characters. It is an error if any element of vector between _start_ and _end_ is not a character.
 
