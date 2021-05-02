@@ -267,7 +267,11 @@ struct InterpreterView: View {
   }
   
   var body: some View {
-    GeometryReader { geo in
+    NavigationView {
+      self.master
+    }
+    .navigationViewStyle(StackNavigationViewStyle())
+    /* GeometryReader { geo in
       if UIDevice.current.userInterfaceIdiom == .pad {
         NavigationView {
           self.master
@@ -280,6 +284,7 @@ struct InterpreterView: View {
         .navigationViewStyle(StackNavigationViewStyle())
       }
     }
+    */
   }
   
   static func canonicalizeInput(_ input: String) -> String {

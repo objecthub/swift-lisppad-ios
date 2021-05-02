@@ -37,6 +37,7 @@ struct PreferencesView: View {
             Text("Small").tag(UserSettings.smallFontSize)
             Text("Medium").tag(UserSettings.mediumFontSize)
             Text("Large").tag(UserSettings.largeFontSize)
+            Text("X-Large").tag(UserSettings.xlargeFontSize)
           }
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
             Text("Console history:")
@@ -50,6 +51,7 @@ struct PreferencesView: View {
             Text("Small").tag(UserSettings.smallFontSize)
             Text("Medium").tag(UserSettings.mediumFontSize)
             Text("Large").tag(UserSettings.largeFontSize)
+            Text("X-Large").tag(UserSettings.xlargeFontSize)
           }
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
             Text("Command history:")
@@ -77,6 +79,7 @@ struct PreferencesView: View {
             Text("Small").tag(UserSettings.smallFontSize)
             Text("Medium").tag(UserSettings.mediumFontSize)
             Text("Large").tag(UserSettings.largeFontSize)
+            Text("X-Large").tag(UserSettings.xlargeFontSize)
           }
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
             Text("Indentation size:")

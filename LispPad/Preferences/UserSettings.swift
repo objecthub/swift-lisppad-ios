@@ -60,21 +60,24 @@ final class UserSettings: ObservableObject {
   static let smallFontSize = "Small"
   static let mediumFontSize = "Medium"
   static let largeFontSize = "Large"
+  static let xlargeFontSize = "X-Large"
   
   /// Regular font map
   private static let fontMap: [String : Font] = [
     UserSettings.tinyFontSize   : .system(.caption, design: .default),
     UserSettings.smallFontSize  : .system(.footnote, design: .default),
-    UserSettings.mediumFontSize : .system(.callout, design: .default),
-    UserSettings.largeFontSize  : .system(.body, design: .default)
+    UserSettings.mediumFontSize : .system(.subheadline, design: .default),
+    UserSettings.largeFontSize  : .system(.callout, design: .default),
+    UserSettings.xlargeFontSize : .system(.body, design: .default)
   ]
   
   /// Monospaced font map
   private static let monospacedFontMap: [String : Font] = [
     UserSettings.tinyFontSize   : .system(.caption, design: .monospaced),
     UserSettings.smallFontSize  : .system(.footnote, design: .monospaced),
-    UserSettings.mediumFontSize : .system(.callout, design: .monospaced),
-    UserSettings.largeFontSize  : .system(.body, design: .monospaced)
+    UserSettings.mediumFontSize : .system(.subheadline, design: .monospaced),
+    UserSettings.largeFontSize  : .system(.callout, design: .monospaced),
+    UserSettings.xlargeFontSize : .system(.body, design: .monospaced)
   ]
   
   /// Monospaced UIFont map
@@ -86,9 +89,13 @@ final class UserSettings: ObservableObject {
                                     ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize,
                                     weight: .regular),
     UserSettings.mediumFontSize : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize,
+                                    ofSize: UIFont.preferredFont(forTextStyle: .subheadline)
+                                      .pointSize,
                                     weight: .regular),
     UserSettings.largeFontSize  : .monospacedSystemFont(
+                                    ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize,
+                                    weight: .regular),
+    UserSettings.xlargeFontSize : .monospacedSystemFont(
                                     ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
                                     weight: .regular)
   ]
