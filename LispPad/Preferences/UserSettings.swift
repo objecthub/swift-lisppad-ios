@@ -22,7 +22,13 @@ import Foundation
 import SwiftUI
 import UIKit
 
+///
+/// Class `UserSettings` defines all defaults and default persistency logic for the settings
+/// of LispPad.
+/// 
 final class UserSettings: ObservableObject {
+  
+  // UserDefault keys
   private static let consoleFontSizeKey = "Console.fontSize"
   private static let maxConsoleHistoryKey = "Console.maxConsoleHistory"
   private static let inputFontSizeKey = "Console.inputFontSize"
@@ -49,31 +55,45 @@ final class UserSettings: ObservableObject {
   private static let blockquoteColorKey = "Editor.blockquoteColor"
   private static let codeColorKey = "Editor.codeColor"
   
+  // Font sizes
+  static let tinyFontSize = "Tiny"
+  static let smallFontSize = "Small"
+  static let mediumFontSize = "Medium"
+  static let largeFontSize = "Large"
+  
+  /// Regular font map
   private static let fontMap: [String : Font] = [
-    "Tiny"   : .system(.caption, design: .default),
-    "Small"  : .system(.footnote, design: .default),
-    "Medium" : .system(.callout, design: .default),
-    "Large"  : .system(.body, design: .default)
+    UserSettings.tinyFontSize   : .system(.caption, design: .default),
+    UserSettings.smallFontSize  : .system(.footnote, design: .default),
+    UserSettings.mediumFontSize : .system(.callout, design: .default),
+    UserSettings.largeFontSize  : .system(.body, design: .default)
   ]
   
+  /// Monospaced font map
   private static let monospacedFontMap: [String : Font] = [
-    "Tiny"   : .system(.caption, design: .monospaced),
-    "Small"  : .system(.footnote, design: .monospaced),
-    "Medium" : .system(.callout, design: .monospaced),
-    "Large"  : .system(.body, design: .monospaced)
+    UserSettings.tinyFontSize   : .system(.caption, design: .monospaced),
+    UserSettings.smallFontSize  : .system(.footnote, design: .monospaced),
+    UserSettings.mediumFontSize : .system(.callout, design: .monospaced),
+    UserSettings.largeFontSize  : .system(.body, design: .monospaced)
   ]
   
+  /// Monospaced UIFont map
   private static let monospacedUIFontMap: [String : UIFont] = [
-    "Tiny"  : .monospacedSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize,
+    UserSettings.tinyFontSize   : .monospacedSystemFont(
+                                    ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize,
                                     weight: .regular),
-    "Small" : .monospacedSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize,
+    UserSettings.smallFontSize  : .monospacedSystemFont(
+                                    ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize,
                                     weight: .regular),
-    "Medium": .monospacedSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize,
+    UserSettings.mediumFontSize : .monospacedSystemFont(
+                                    ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize,
                                     weight: .regular),
-    "Large" : .monospacedSystemFont(ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
+    UserSettings.largeFontSize  : .monospacedSystemFont(
+                                    ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
                                     weight: .regular)
   ]
   
+  /// The user settings object
   static let standard = UserSettings()
   
   @Published var consoleFontSize: String {
@@ -162,7 +182,8 @@ final class UserSettings: ObservableObject {
   
   @Published var markdownHighlightSyntax: Bool {
     didSet {
-      UserDefaults.standard.set(self.markdownHighlightSyntax, forKey: Self.markdownHighlightSyntaxKey)
+      UserDefaults.standard.set(self.markdownHighlightSyntax, forKey:
+                                  Self.markdownHighlightSyntaxKey)
     }
   }
   
@@ -239,33 +260,40 @@ final class UserSettings: ObservableObject {
   }
   
   var editorFont: UIFont {
-    return Self.monospacedUIFontMap[self.editorFontSize] ?? .monospacedSystemFont(ofSize: 12, weight: .regular)
+    return Self.monospacedUIFontMap[self.editorFontSize] ??
+             .monospacedSystemFont(ofSize: 12, weight: .regular)
   }
   
   private init() {
-    self.consoleFontSize = UserDefaults.standard.str(forKey: Self.consoleFontSizeKey, "Small")
+    self.consoleFontSize = UserDefaults.standard.str(forKey: Self.consoleFontSizeKey,
+                                                     UserSettings.smallFontSize)
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)
-    self.inputFontSize = UserDefaults.standard.str(forKey: Self.inputFontSizeKey, "Small")
-    self.balancedParenthesis = UserDefaults.standard.bool(forKey: Self.balancedParenthesisKey)
+    self.inputFontSize = UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
+                                                   UserSettings.smallFontSize)
+    self.balancedParenthesis = UserDefaults.standard.boolean(forKey: Self.balancedParenthesisKey)
     self.maxCommandHistory = UserDefaults.standard.int(forKey: Self.maxCommandHistoryKey, 30)
-    self.editorFontSize = UserDefaults.standard.str(forKey: Self.editorFontSizeKey, "Small")
+    self.editorFontSize = UserDefaults.standard.str(forKey: Self.editorFontSizeKey,
+                                                    UserSettings.smallFontSize)
     self.indentSize = UserDefaults.standard.int(forKey: Self.indentSizeKey, 2)
-    self.showLineNumbers = UserDefaults.standard.bool(forKey: Self.showLineNumbersKey)
-    self.highlightMatchingParen = UserDefaults.standard.bool(forKey: Self.highlightMatchingParenKey)
+    self.showLineNumbers = UserDefaults.standard.boolean(forKey: Self.showLineNumbersKey)
+    self.highlightMatchingParen = UserDefaults.standard.boolean(forKey:
+                                                                  Self.highlightMatchingParenKey)
     self.maxRecentFiles = UserDefaults.standard.int(forKey: Self.maxRecentFilesKey, 10)
-    self.schemeAutoIndent = UserDefaults.standard.bool(forKey: Self.schemeAutoIndentKey)
-    self.schemeHighlightSyntax = UserDefaults.standard.bool(forKey: Self.schemeHighlightSyntaxKey)
-    self.schemeMarkupIdent = UserDefaults.standard.bool(forKey: Self.schemeMarkupIdentKey)
-    self.markdownAutoIndent = UserDefaults.standard.bool(forKey: Self.markdownAutoIndentKey)
-    self.markdownHighlightSyntax = UserDefaults.standard.bool(forKey: Self.markdownHighlightSyntaxKey)
+    self.schemeAutoIndent = UserDefaults.standard.boolean(forKey: Self.schemeAutoIndentKey)
+    self.schemeHighlightSyntax = UserDefaults.standard.boolean(forKey:
+                                                                Self.schemeHighlightSyntaxKey)
+    self.schemeMarkupIdent = UserDefaults.standard.boolean(forKey: Self.schemeMarkupIdentKey)
+    self.markdownAutoIndent = UserDefaults.standard.boolean(forKey: Self.markdownAutoIndentKey)
+    self.markdownHighlightSyntax = UserDefaults.standard.boolean(forKey:
+                                                                  Self.markdownHighlightSyntaxKey)
     self.docuIdentColor = UserDefaults.standard.color(forKey: Self.docuIdentColorKey,
-                                                      red: 0.0, green: 0.0, blue: 0.7)
+                                                      red: 0.2, green: 0.2, blue: 1.0)
     self.parensColor = UserDefaults.standard.color(forKey: Self.parensColorKey,
                                                    red: 0.6, green: 0.35, blue: 0.2)
     self.literalsColor = UserDefaults.standard.color(forKey: Self.literalsColorKey,
                                                      red: 0.0, green: 0.6, blue: 0.0)
     self.commentsColor = UserDefaults.standard.color(forKey: Self.commentsColorKey,
-                                                     red: 1.0, green: 0.0, blue: 0.0)
+                                                     red: 1.0, green: 0.1, blue: 0.1)
     self.headerColor = UserDefaults.standard.color(forKey: Self.headerColorKey,
                                                    red: 0.0, green: 0.0, blue: 0.9)
     self.subheaderColor = UserDefaults.standard.color(forKey: Self.subheaderColorKey,

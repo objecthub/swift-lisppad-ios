@@ -21,22 +21,21 @@
 import Foundation
 import UIKit
 
+///
+/// Extensions for managing user defaults.
+/// 
 extension UserDefaults {
   
   func str(forKey key: String, _ value: String) -> String {
     return self.string(forKey: key) ?? value
   }
   
-  func bool(forKey key: String, _ value: Bool = true) -> Bool {
-    if let obj = self.object(forKey: key) {
-      return (obj as? Bool) ?? value
-    } else {
-      return value
-    }
+  func boolean(forKey key: String, _ value: Bool = true) -> Bool {
+    return (self.value(forKey: key) as? Bool) ?? value
   }
   
   func int(forKey key: String, _ value: Int) -> Int {
-    return (self.object(forKey: key) as? Int) ?? value
+    return (self.value(forKey: key) as? Int) ?? value
   }
   
   func set(_ color: CGColor, forKey key: String) {

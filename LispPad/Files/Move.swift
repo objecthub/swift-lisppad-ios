@@ -130,7 +130,7 @@ struct Move: View {
       .font(.body)
       .padding()
       .edgesIgnoringSafeArea(.all)
-      .background(Color(.secondarySystemBackground))
+      .background(Color(.systemGroupedBackground))
       HStack(alignment: .top, spacing: 16) {
         VStack(alignment: .leading, spacing: 8) {
           self.sourceDescription
@@ -141,7 +141,7 @@ struct Move: View {
       .font(.footnote)
       .foregroundColor(.secondary)
       .padding(EdgeInsets(top: -16, leading: 20, bottom: 16, trailing: 16))
-      .background(Color(.secondarySystemBackground))
+      .background(Color(.systemGroupedBackground))
       Form {
         Section(header: Text("File")) {
           TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)

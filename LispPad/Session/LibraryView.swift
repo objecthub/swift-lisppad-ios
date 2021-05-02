@@ -80,7 +80,7 @@ struct LibraryView: View {
                             .tertiaryLabel))
               }
               .padding(EdgeInsets(top: 13, leading: 16, bottom: 13, trailing: 0))
-              .background(Color(UIColor.systemBackground))
+              .background(Color(.systemBackground))
               .contentShape(Rectangle())
             }
             .disabled(true)

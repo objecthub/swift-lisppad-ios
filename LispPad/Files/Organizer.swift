@@ -50,7 +50,7 @@ struct Organizer: View {
         .font(.body)
         .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
         .edgesIgnoringSafeArea(.all)
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(Color(.systemGroupedBackground))
         Form {
           Section(header: Text("Usage")) {
             FileHierarchyBrowser(self.fileManager.usageRootDirectories,

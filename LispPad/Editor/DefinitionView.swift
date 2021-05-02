@@ -39,7 +39,7 @@ struct DefinitionView: View {
       .padding(.horizontal)
       .padding(.top)
       .edgesIgnoringSafeArea(.all)
-      .background(Color(UIColor.secondarySystemBackground))
+      .background(Color(.systemGroupedBackground))
       Form {
         if self.defitions.values.count > 0 {
           Section(header: Text("Values")) {

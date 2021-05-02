@@ -64,7 +64,7 @@ struct Open: View {
         .font(.body)
         .padding()
         .edgesIgnoringSafeArea(.all)
-        .background(Color(UIColor.secondarySystemBackground))
+        .background(Color(.systemGroupedBackground))
         Form {
           Section(header: Text("Usage")) {
             FileHierarchyBrowser(self.fileManager.usageRootDirectories,

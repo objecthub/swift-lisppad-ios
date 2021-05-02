@@ -20,6 +20,10 @@
 
 import SwiftUI
 
+///
+/// `PreferencesView` implements the preferences UI of LispPad consisting of three tabs:
+/// "Console", "Editor", and "Syntax".
+/// 
 struct PreferencesView: View {
   @EnvironmentObject var settings: UserSettings
   @Binding var selectedTab: Int
@@ -29,10 +33,10 @@ struct PreferencesView: View {
       Form {
         Section(header: Text("Console")) {
           Picker(selection: $settings.consoleFontSize, label: Text("Font size")) {
-            Text("Tiny").tag("Tiny")
-            Text("Small").tag("Small")
-            Text("Medium").tag("Medium")
-            Text("Large").tag("Large")
+            Text("Tiny").tag(UserSettings.tinyFontSize)
+            Text("Small").tag(UserSettings.smallFontSize)
+            Text("Medium").tag(UserSettings.mediumFontSize)
+            Text("Large").tag(UserSettings.largeFontSize)
           }
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
             Text("Console history:")
@@ -42,10 +46,10 @@ struct PreferencesView: View {
         }
         Section(header: Text("Input")) {
           Picker(selection: $settings.inputFontSize, label: Text("Font size")) {
-            Text("Tiny").tag("Tiny")
-            Text("Small").tag("Small")
-            Text("Medium").tag("Medium")
-            Text("Large").tag("Large")
+            Text("Tiny").tag(UserSettings.tinyFontSize)
+            Text("Small").tag(UserSettings.smallFontSize)
+            Text("Medium").tag(UserSettings.mediumFontSize)
+            Text("Large").tag(UserSettings.largeFontSize)
           }
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
             Text("Command history:")
@@ -69,10 +73,10 @@ struct PreferencesView: View {
         }
         Section(header: Text("Text")) {
           Picker(selection: $settings.editorFontSize, label: Text("Font size")) {
-            Text("Tiny").tag("Tiny")
-            Text("Small").tag("Small")
-            Text("Medium").tag("Medium")
-            Text("Large").tag("Large")
+            Text("Tiny").tag(UserSettings.tinyFontSize)
+            Text("Small").tag(UserSettings.smallFontSize)
+            Text("Medium").tag(UserSettings.mediumFontSize)
+            Text("Large").tag(UserSettings.largeFontSize)
           }
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
             Text("Indentation size:")

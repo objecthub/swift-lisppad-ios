@@ -196,18 +196,19 @@ struct InterpreterView: View {
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: 16) {
-          NavigationLink(destination: PreferencesView(selectedTab: $selectedPreferencesTab)) {
+          NavigationLink(destination: LazyView(
+                           PreferencesView(selectedTab: $selectedPreferencesTab))) {
             Image(systemName: "gearshape")
               .font(InterpreterView.toolbarFont)
           }
           NavigationLink(destination: LazyView(
-            LibraryView(libManager: interpreter.libManager))) {
+                           LibraryView(libManager: interpreter.libManager))) {
             Image(systemName: "building.columns")
               .font(InterpreterView.toolbarFont)
           }
           .disabled(!self.docManager.initialized)
           NavigationLink(destination: LazyView(
-            EnvironmentView(envManager: interpreter.envManager))) {
+                           EnvironmentView(envManager: interpreter.envManager))) {
             Image(systemName: "square.stack.3d.up")
               .font(InterpreterView.toolbarFont)
           }
@@ -223,16 +224,19 @@ struct InterpreterView: View {
                             "(load \"\(self.fileManager.canonicalPath(for: url))\")")
               self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
               self.histManager.addCommandEntry(input)
+              self.histManager.trackRecentFile(url)
               self.interpreter.load(url)
             }
             return true
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+          .environmentObject(self.settings)
         case .organizeFiles:
           Organizer()
             .environmentObject(self.fileManager) // Why is this needed? Bug?
             .environmentObject(self.histManager)
+            .environmentObject(self.settings)
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
         case .showAbout:
