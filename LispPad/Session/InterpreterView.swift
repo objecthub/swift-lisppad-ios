@@ -58,12 +58,14 @@ struct InterpreterView: View {
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var histManager: HistoryManager
+  @EnvironmentObject var settings: UserSettings
   
   // Internal state
   @State private var consoleInput = ""
   @State private var showAbortAlert = false
   @State private var showResetActionSheet = false
   @State private var showPreferences = false
+  @State private var selectedPreferencesTab = 0
   @State private var showSheet: SheetAction? = nil
   
   @State var fileName: String = ""
@@ -73,8 +75,9 @@ struct InterpreterView: View {
   var master: some View {
     VStack(alignment: .leading, spacing: 0) {
       ConsoleView(
-          font: .system(.footnote, design: .monospaced),
-          infoFont: .system(.footnote),
+          font: settings.consoleFont,
+          infoFont: settings.consoleInfoFont,
+          inputFont: settings.inputFont,
           action: {
             let old = self.consoleInput
             self.consoleInput = ""
@@ -82,7 +85,7 @@ struct InterpreterView: View {
             if self.interpreter.isReady {
               input = InterpreterView.canonicalizeInput(old)
               self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-              self.histManager.addConsoleEntry(input)
+              self.histManager.addCommandEntry(input)
             } else {
               input = old
             }
@@ -92,7 +95,7 @@ struct InterpreterView: View {
             })
           },
           content: $interpreter.consoleContent,
-          history: $histManager.consoleHistory,
+          history: $histManager.commandHistory,
           input: $consoleInput,
           readingStatus: $interpreter.readingStatus,
           ready: $interpreter.isReady)
@@ -108,6 +111,45 @@ struct InterpreterView: View {
               .foregroundColor(.primary)
               .font(InterpreterView.toolbarSwitchFont)
           }
+          if self.interpreter.isReady {
+            Menu {
+              Button(action: {
+                self.showSheet = .shareConsole
+              }) {
+                Label("Share Console", systemImage: "square.and.arrow.up")
+              }
+              .disabled(self.interpreter.consoleContent.isEmpty)
+              Divider()
+              Button(action: {
+                self.interpreter.consoleContent.removeAll()
+              }) {
+                Label("Clear Console", systemImage: "clear")
+              }
+              .disabled(self.interpreter.consoleContent.isEmpty)
+              Button(action: {
+                self.showResetActionSheet = true
+              }) {
+                Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
+              }
+              Divider()
+              Button(action: {
+                self.showSheet = .organizeFiles
+              }) {
+                Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
+              }
+            } label: {
+              Image(systemName: "terminal")
+                .font(InterpreterView.toolbarFont)
+            }
+          } else {
+            Button(action: {
+              self.showAbortAlert = true
+            }) {
+              Image(systemName: "stop.circle")
+                .foregroundColor(Color.red)
+                .font(InterpreterView.toolbarFont)
+            }
+          }
           Button(action: {
             self.showSheet = .loadFile
           }) {
@@ -115,13 +157,6 @@ struct InterpreterView: View {
               .font(InterpreterView.toolbarFont)
           }
           .disabled(!self.interpreter.isReady)
-          Button(action: {
-            self.showSheet = .shareConsole
-          }) {
-            Image(systemName: "square.and.arrow.up")
-              .font(InterpreterView.toolbarFont)
-          }
-          .disabled(self.interpreter.consoleContent.isEmpty)
         }
       }
       ToolbarItemGroup(placement: .principal) {
@@ -161,45 +196,9 @@ struct InterpreterView: View {
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: 16) {
-          if self.interpreter.isReady {
-            Menu {
-              Button(action: {
-                self.interpreter.consoleContent.removeAll()
-              }) {
-                  Label("Clear Console", systemImage: "clear")
-              }
-              Button(action: {
-                self.showResetActionSheet = true
-              }) {
-                  Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
-              }
-              Divider()
-              Button(action: {
-                self.showSheet = .organizeFiles
-              }) {
-                Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
-              }
-              Button(action: {
-                self.showPreferences = true
-              }) {
-                Label("Preferences…", systemImage: "switch.2")
-              }
-            } label: {
-              Image(systemName: "gearshape")
-                .font(InterpreterView.toolbarFont)
-            }
-            .background(
-              NavigationLink(destination: LazyView(PreferencesView()), isActive: $showPreferences) {
-                EmptyView()
-              })
-          } else {
-            Button(action: {
-              self.showAbortAlert = true
-            }) {
-              Image(systemName: "stop.circle")
-                .foregroundColor(Color.red)
-                .font(InterpreterView.toolbarFont)
-            }
+          NavigationLink(destination: PreferencesView(selectedTab: $selectedPreferencesTab)) {
+            Image(systemName: "gearshape")
+              .font(InterpreterView.toolbarFont)
           }
           NavigationLink(destination: LazyView(
             LibraryView(libManager: interpreter.libManager))) {
@@ -223,7 +222,7 @@ struct InterpreterView: View {
               let input = InterpreterView.canonicalizeInput(
                             "(load \"\(self.fileManager.canonicalPath(for: url))\")")
               self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-              self.histManager.addConsoleEntry(input)
+              self.histManager.addCommandEntry(input)
               self.interpreter.load(url)
             }
             return true

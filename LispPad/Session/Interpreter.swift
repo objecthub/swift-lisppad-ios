@@ -32,9 +32,6 @@ final class Interpreter: ContextDelegate, ObservableObject {
   static let lispPadAssetsPath = "Root/Assets"
   static let lispPadExamplePath = "Root/Examples"
   
-  // Limits
-  static let maxConsoleEntries = 2000
-  
   /// Reading status of console
   enum ReadingStatus: Equatable, CustomStringConvertible {
     case reject
@@ -98,7 +95,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   }
   
   func append(output: ConsoleOutput) {
-    if self.consoleContent.count >= Interpreter.maxConsoleEntries {
+    while self.consoleContent.count >= UserSettings.standard.maxConsoleHistory {
       self.consoleContent.removeFirst()
     }
     if let last = self.consoleContent.last,
@@ -372,7 +369,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     switch res {
       case .error(let err):
-        if case .syntax(let error) = err.descriptor,
+        if UserSettings.standard.balancedParenthesis,
+           case .syntax(let error) = err.descriptor,
            context.sources.consoleIsSource(sourceId: err.pos.sourceId),
            error == .closingParenthesisMissing || error == .unexpectedClosingParenthesis {
           return nil

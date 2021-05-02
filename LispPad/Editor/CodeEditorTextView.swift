@@ -21,7 +21,7 @@
 import UIKit
 
 class CodeEditorTextView: UITextView {
-  static let gutterWidth: CGFloat = 35.0
+  static let gutterWidth: CGFloat = 31.0
   
   let textStorageDelegate: CodeEditorTextStorageDelegate
   
@@ -69,17 +69,17 @@ class CodeEditorTextView: UITextView {
        editorType: FileExtensions.EditorType,
        docManager: DocumentationManager) {
     let ts = NSTextStorage()
-    let td = CodeEditorTextStorageDelegate(enableSyntaxHighlighting: true,
-                                           enableIdentifierMarkup: true,
-                                           editorType: editorType,
+    let td = CodeEditorTextStorageDelegate(editorType: editorType,
                                            docManager: docManager)
     let lm = CodeEditorLayoutManager()
     let tc = NSTextContainer(size: CGSize(width: CGFloat.greatestFiniteMagnitude,
                                           height: CGFloat.greatestFiniteMagnitude))
     tc.widthTracksTextView = true
-    tc.exclusionPaths = [UIBezierPath(rect: CGRect(x: 0.0, y: 0.0,
-                                                   width: CodeEditorTextView.gutterWidth,
-                                                   height: CGFloat.greatestFiniteMagnitude))]
+    if UserSettings.standard.showLineNumbers {
+      tc.exclusionPaths = [UIBezierPath(rect: CGRect(x: 0.0, y: 0.0,
+                                                     width: CodeEditorTextView.gutterWidth,
+                                                     height: CGFloat.greatestFiniteMagnitude))]
+    }
     lm.addTextContainer(tc)
     ts.addLayoutManager(lm)
     ts.delegate = td
@@ -103,7 +103,8 @@ class CodeEditorTextView: UITextView {
   */
   
   override func draw(_ rect: CGRect) {
-    if let context: CGContext = UIGraphicsGetCurrentContext() {
+    if UserSettings.standard.showLineNumbers,
+       let context: CGContext = UIGraphicsGetCurrentContext() {
       let bounds = self.bounds
       context.setFillColor(self.codingBackgroundColor.cgColor)
       context.fill(CGRect(x: bounds.origin.x,

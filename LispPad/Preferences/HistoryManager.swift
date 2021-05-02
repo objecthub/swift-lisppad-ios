@@ -21,14 +21,8 @@
 import SwiftUI
 
 final class HistoryManager: ObservableObject {
-  private static let consoleHistoryUserDefaultsKey = "Console.history"
-  private static let maxConsoleHistoryUserDefaultsKey = "Console.maxHistory"
-  private static let maxConsoleHistoryMax = 100
-  
+  private static let commandHistoryUserDefaultsKey = "Console.history"
   private static let filesHistoryUserDefaultsKey = "Files.history"
-  private static let maxFilesHistoryUserDefaultsKey = "Files.maxHistory"
-  private static let maxFilesHistoryMax = 15
-  
   private static let favoritesUserDefaultsKey = "Files.favorites"
   private static let maxFavoritesUserDefaultsKey = "Files.maxFavorites"
   private static let maxFavoritesMax = 50
@@ -39,8 +33,8 @@ final class HistoryManager: ObservableObject {
     return encoder
   }()
   
-  @Published var consoleHistory: [String] = {
-    return UserDefaults.standard.object(forKey: HistoryManager.consoleHistoryUserDefaultsKey)
+  @Published var commandHistory: [String] = {
+    return UserDefaults.standard.object(forKey: HistoryManager.commandHistoryUserDefaultsKey)
              as? [String] ?? ["(string-append (os-name) \" \" (os-release))"]
   }()
   
@@ -141,48 +135,33 @@ final class HistoryManager: ObservableObject {
   
   // Console History
   
-  private(set) var maxConsoleHistory: Int = {
-    let maxCount = UserDefaults.standard.integer(forKey:
-                                                  HistoryManager.maxConsoleHistoryUserDefaultsKey)
-    return maxCount == 0 ? 20 : maxCount
-  }()
-  
-  private var consoleHistoryRequiresSaving: Bool = false
-  
-  func addConsoleEntry(_ str: String) {
-    self.consoleHistory.append(str)
-    if self.maxConsoleHistory < self.consoleHistory.count {
-      self.consoleHistory.removeFirst(self.consoleHistory.count - self.maxConsoleHistory)
-    }
-    self.consoleHistoryRequiresSaving = true
+  var maxCommandHistory: Int {
+    return UserSettings.standard.maxCommandHistory
   }
   
-  func setMaxConsoleHistoryCount(to max: Int) {
-    if max > 0 && max <= HistoryManager.maxConsoleHistoryMax {
-      UserDefaults.standard.set(max, forKey: HistoryManager.maxConsoleHistoryUserDefaultsKey)
-      self.maxConsoleHistory = max
-      if max < self.consoleHistory.count {
-        self.consoleHistory.removeFirst(self.consoleHistory.count - max)
-        self.consoleHistoryRequiresSaving = true
-      }
+  private var commandHistoryRequiresSaving: Bool = false
+  
+  func addCommandEntry(_ str: String) {
+    self.commandHistory.append(str)
+    if self.maxCommandHistory < self.commandHistory.count {
+      self.commandHistory.removeFirst(self.commandHistory.count - self.maxCommandHistory)
     }
+    self.commandHistoryRequiresSaving = true
   }
   
-  func saveConsoleHistory() {
-    if self.consoleHistoryRequiresSaving {
-      UserDefaults.standard.set(self.consoleHistory, forKey:
-                                  HistoryManager.consoleHistoryUserDefaultsKey)
-      self.consoleHistoryRequiresSaving = false
+  func saveCommandHistory() {
+    if self.commandHistoryRequiresSaving {
+      UserDefaults.standard.set(self.commandHistory, forKey:
+                                  HistoryManager.commandHistoryUserDefaultsKey)
+      self.commandHistoryRequiresSaving = false
     }
   }
   
   // Files history
   
-  private(set) var maxFilesHistory: Int = {
-    let maxCount = UserDefaults.standard.integer(forKey:
-                                                  HistoryManager.maxFilesHistoryUserDefaultsKey)
-    return maxCount == 0 ? 8 : maxCount
-  }()
+  var maxFilesHistory: Int {
+    return UserSettings.standard.maxRecentFiles
+  }
   
   private var filesHistoryRequiresSaving: Bool = false
   
@@ -205,17 +184,6 @@ final class HistoryManager: ObservableObject {
       }
     }
     return nil
-  }
-  
-  func setMaxFilesHistoryCount(to max: Int) {
-    if max > 0 && max <= HistoryManager.maxFilesHistoryMax {
-      UserDefaults.standard.set(max, forKey: HistoryManager.maxFilesHistoryUserDefaultsKey)
-      self.maxFilesHistory = max
-      if max < self.recentlyEdited.count {
-        self.recentlyEdited.removeLast(self.recentlyEdited.count - max)
-        self.filesHistoryRequiresSaving = true
-      }
-    }
   }
   
   func saveFilesHistory() {

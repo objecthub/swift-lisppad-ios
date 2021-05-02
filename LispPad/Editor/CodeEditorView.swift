@@ -62,6 +62,7 @@ struct CodeEditorView: View {
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
+  @EnvironmentObject var settings: UserSettings
   
   @State var position: NSRange? = nil
   @State var searchHistory: [String] = []
@@ -111,7 +112,7 @@ struct CodeEditorView: View {
                  position: $position,
                  forceUpdate: $forceEditorUpdate,
                  editorType: $editorType)
-        .defaultFont(.monospacedSystemFont(ofSize: 12, weight: .regular))
+        .defaultFont(settings.editorFont)
         .autocorrectionType(.no)
         .autocapitalizationType(.none)
         .multilineTextAlignment(.leading)
@@ -294,10 +295,10 @@ struct CodeEditorView: View {
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = doc.text as NSString
-                if let (str, replRange, selRange)
-                                 = TextFormatter.autoIndentLines(text,
-                                                                 range: doc.selectedRange,
-                                                                 tabWidth: 2) {
+                if let (str, replRange, selRange) = TextFormatter.autoIndentLines(
+                                                      text,
+                                                      range: doc.selectedRange,
+                                                      tabWidth: UserSettings.standard.indentSize) {
                   doc.text = text.replacingCharacters(in: replRange, with: str)
                   doc.selectedRange = selRange
                   self.forceEditorUpdate = true

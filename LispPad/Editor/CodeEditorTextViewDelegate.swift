@@ -27,7 +27,8 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
   let fileManager: FileManager
   var lastSelectedRange = NSRange(location: 0, length: 0)
   
-  let parenBackground = UIColor(red: 0.87, green: 0.87, blue: 0.0, alpha: 1)
+  let parenBackground = UIColor(named: "ParenMatchingColor") ??
+                        UIColor(red: 0.87, green: 0.87, blue: 0.0, alpha: 1)
   
   init(text: Binding<String>, selectedRange: Binding<NSRange>, fileManager: FileManager) {
     self._text = text
@@ -123,7 +124,8 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
         if lastPos + 1 < selectedRange.location && str.character(at: lastPos + 1) == LPAREN {
           indent.append(String(repeating: " ", count: lastPos - oldStart + 1))
         } else {
-          indent.append(String(repeating: " ", count: lastPos - oldStart + 2))
+          indent.append(String(repeating: " ", count: lastPos - oldStart +
+                                                      UserSettings.standard.indentSize))
         }
       // Smart indentation based on closed parenthesis
       } else if parenBalance < 0 {
@@ -154,7 +156,9 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
           }
         }
         if parenBalance > 0 {
-          indent = String(repeating: " ", count: str.character(at: start + 1) == LPAREN ? 1 : 2)
+          indent = String(repeating: " ",
+                          count: str.character(at: start + 1) == LPAREN
+                                   ? 1 : UserSettings.standard.indentSize)
         } else if lastParenPos >= 0 {
           indent = ""
           start = lastParenPos
@@ -274,11 +278,17 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
         let indent: String
         switch self.fileManager.editorDocument?.editorType ?? .scheme {
           case .scheme:
+            guard UserSettings.standard.schemeAutoIndent else {
+              return true
+            }
             indent = schemeIndent(textView.textStorage.string as NSString, range)
           case .markdown:
+            guard UserSettings.standard.markdownAutoIndent else {
+              return true
+            }
             indent = markdownIndent(textView.textStorage.string as NSString, range)
           case .other:
-            indent = ""
+            return true
         }
         if let replaceStart = textView.position(from: textView.beginningOfDocument,
                                                 offset: range.location),
@@ -313,7 +323,8 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
                          in textView: UITextView,
                          at range: NSRange,
                          text: String) -> Bool {
-    if let replaceStart = textView.position(from: textView.beginningOfDocument,
+    if UserSettings.standard.highlightMatchingParen,
+        let replaceStart = textView.position(from: textView.beginningOfDocument,
                                             offset: range.location),
         let replaceEnd = textView.position(from: replaceStart, offset: range.length),
         let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {

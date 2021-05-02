@@ -24,6 +24,7 @@ import MobileCoreServices
 struct ConsoleView: View {
   let font: Font
   let infoFont: Font
+  let inputFont: Font
   let action: () -> Void
   
   @Binding var content: [ConsoleOutput]
@@ -34,6 +35,7 @@ struct ConsoleView: View {
   
   init(font: Font = .system(size: 12, design: .monospaced),
        infoFont: Font = .system(size: 13, weight: .bold, design: .default),
+       inputFont: Font = .system(size: 12, design: .monospaced),
        action: @escaping () -> Void = {},
        content: Binding<[ConsoleOutput]>,
        history: Binding<[String]>,
@@ -42,6 +44,7 @@ struct ConsoleView: View {
        ready: Binding<Bool>) {
     self.font = font
     self.infoFont = infoFont
+    self.inputFont = inputFont
     self.action = action
     self._content = content
     self._history = history
@@ -93,13 +96,13 @@ struct ConsoleView: View {
   var control: some View {
     HStack(alignment: .bottom, spacing: 0) {
       Text(self.input.isEmpty ? " " : self.input)
-        .font(self.font)
+        .font(self.inputFont)
         .foregroundColor(.clear)
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(EdgeInsets(top: 9, leading: 7, bottom: 9, trailing: 7))
         .overlay(
           TextEditor(text: $input)
-            .font(self.font)
+            .font(self.inputFont)
             .allowsTightening(false)
             .autocapitalization(.none)
             .disableAutocorrection(true)
@@ -111,25 +114,25 @@ struct ConsoleView: View {
             Image(systemName: "questionmark.circle.fill")
               .resizable()
               .scaledToFit()
-              .frame(height: 25)
+              .frame(height: 26)
               .foregroundColor(.init(.sRGB, red: 0.8, green: 0.5, blue: 0.5, opacity: 1.0))
           } else {
             Image(systemName: "arrow.forward.circle.fill")
               .resizable()
               .scaledToFit()
-              .frame(height: 25)
+              .frame(height: 26)
               .foregroundColor(.red)
           }
         } else if self.input.isEmpty {
           Image(systemName: "pencil.circle.fill")
             .resizable()
             .scaledToFit()
-            .frame(height: 25)
+            .frame(height: 26)
         } else {
           Image(systemName: "arrow.up.circle.fill")
             .resizable()
             .scaledToFit()
-            .frame(height: 25)
+            .frame(height: 26)
         }
       }
       .disabled(self.input.isEmpty || (!self.ready && self.readingStatus != .accept))

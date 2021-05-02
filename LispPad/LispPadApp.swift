@@ -26,6 +26,7 @@ import SwiftUI
   @Environment(\.scenePhase) private var scenePhase
   
   // Application-level state
+  @StateObject private var settings = UserSettings.standard
   @StateObject private var interpreter = Interpreter()
   @StateObject private var docManager = DocumentationManager()
   @StateObject private var histManager = HistoryManager()
@@ -35,6 +36,7 @@ import SwiftUI
   var body: some Scene {
     WindowGroup {
       InterpreterView()
+        .environmentObject(self.settings)
         .environmentObject(self.interpreter)
         .environmentObject(self.docManager)
         .environmentObject(self.histManager)
@@ -50,7 +52,7 @@ import SwiftUI
         case .background:
           self.histManager.suspendFilePresenters()
           self.fileManager.editorDocument?.saveFile()
-          self.histManager.saveConsoleHistory()
+          self.histManager.saveCommandHistory()
           self.histManager.saveFilesHistory()
           self.histManager.saveFavorites()
         default:

@@ -108,7 +108,8 @@ class CodeEditorLayoutManager: NSLayoutManager {
     super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
     // Draw line numbers. The background for line number gutter is drawn by the
     // CodeEditorTextView class.
-    guard let textStorage = self.textStorage else {
+    guard UserSettings.standard.showLineNumbers,
+          let textStorage = self.textStorage else {
       return
     }
     let atts: [NSAttributedString.Key : Any] = [

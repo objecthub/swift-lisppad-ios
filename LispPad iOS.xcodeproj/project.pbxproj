@@ -114,6 +114,8 @@
 		CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */; };
 		CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
+		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
+		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -374,6 +376,8 @@
 		CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = IndentationRules.plist; sourceTree = "<group>"; };
 		CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileExtensions.swift; sourceTree = "<group>"; };
 		CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ComposePhotos.scm; sourceTree = "<group>"; };
+		CCEA5A18263DF7F400D78C62 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtensions.swift; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -618,7 +622,6 @@
 		CCC85639261677560080B96E /* Files */ = {
 			isa = PBXGroup;
 			children = (
-				CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */,
 				CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */,
 				CCE8E42D2623B4FB00E3DC6A /* PortableURL.swift */,
 				CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */,
@@ -670,6 +673,9 @@
 		CCC8565E261D09190080B96E /* Preferences */ = {
 			isa = PBXGroup;
 			children = (
+				CCEA5A18263DF7F400D78C62 /* UserSettings.swift */,
+				CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */,
+				CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */,
 				CCC8565F261D09410080B96E /* PreferencesView.swift */,
 			);
 			path = Preferences;
@@ -803,6 +809,7 @@
 				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
+				CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */,
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
@@ -811,6 +818,7 @@
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,
+				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
 				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
