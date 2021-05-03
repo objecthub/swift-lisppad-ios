@@ -94,7 +94,10 @@ struct FileHierarchyBrowser: View {
                    namedRef,
                    filter: options.contains(.files) ||
                              !options.contains(.directories) ? .file : .directory,
-                   extensions: options.contains(.organizer) ? nil : FileExtensions.editorSupport) {
+                   extensions: options.contains(.organizer) &&
+                               !options.contains(.files) &&
+                               !options.contains(.directories) ? nil
+                                                               : FileExtensions.editorSupport) {
         roots.append(r)
       }
     }

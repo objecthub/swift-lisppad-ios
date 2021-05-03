@@ -167,11 +167,3 @@ struct Open: View {
     }
   }
 }
-
-struct Open_Previews: PreviewProvider {
-  static var previews: some View {
-    Open()
-      .environmentObject(FileManager())
-      .environmentObject(HistoryManager())
-  }
-}

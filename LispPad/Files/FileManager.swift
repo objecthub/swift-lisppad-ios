@@ -160,6 +160,18 @@ class FileManager: ObservableObject {
   ///       - `ColorLists`
   func createExtensionDirectories(in container: URL,
                                   using sysFileManager: Foundation.FileManager) -> Bool {
+    var dir: ObjCBool = false
+    if !(self.sysFileManager.fileExists(atPath: container.absoluteURL.path, isDirectory: &dir) &&
+           dir.boolValue) {
+      if container.startAccessingSecurityScopedResource() {
+        defer {
+          container.stopAccessingSecurityScopedResource()
+        }
+        _ = try? sysFileManager.createDirectory(at: container, withIntermediateDirectories: true)
+      } else {
+        _ = try? sysFileManager.createDirectory(at: container, withIntermediateDirectories: true)
+      }
+    }
     let libDir = self.createExtensionDirectory(in: container,
                                                name: "Libraries",
                                                using: sysFileManager)
