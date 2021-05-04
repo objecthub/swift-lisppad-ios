@@ -106,15 +106,17 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       guard let base = Context.bundle?.bundleURL.absoluteURL else {
         return nil
       }
-      return URL(fileURLWithPath: Context.rootDirectory, relativeTo: base)
+      return URL(fileURLWithPath: Context.rootDirectory, relativeTo: base).resolvingSymlinksInPath()
     }()
     private static let lisppadUrl = URL(fileURLWithPath: "Root",
                                         relativeTo: Bundle.main.bundleURL.absoluteURL)
+                                    .resolvingSymlinksInPath()
     
     /// Returns the "iCloud Drive" URL if available.
     static func icloudDirectory() -> URL? {
       return Foundation.FileManager.default.url(forUbiquityContainerIdentifier: nil)?
-                                                 .appendingPathComponent("Documents")
+                                           .appendingPathComponent("Documents")
+                                           .resolvingSymlinksInPath()
     }
     
     /// Returns the "On my iPhone" URL if available (creating it if it does not exist already).
@@ -122,7 +124,7 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       return try? Foundation.FileManager.default.url(for: .documentDirectory,
                                                      in: .userDomainMask,
                                                      appropriateFor: nil,
-                                                     create: true)
+                                                     create: true).resolvingSymlinksInPath()
     }
 
     /// Returns the internal application support URL if available (creating it if it does not
@@ -131,7 +133,7 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
       return try? Foundation.FileManager.default.url(for: .applicationSupportDirectory,
                                                      in: .userDomainMask,
                                                      appropriateFor: nil,
-                                                     create: true)
+                                                     create: true).resolvingSymlinksInPath()
     }
     
     /// Returns a cache URL if available.
@@ -302,7 +304,7 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
   }
   
   private static func normalizeURL(_ url: URL) -> (String, Base)? {
-    let aurl = url.absoluteURL.path
+    let aurl = url.absoluteURL.resolvingSymlinksInPath().path
     for base in Base.allCases {
       if let abaseUrl = base.path {
         if aurl.hasPrefix(abaseUrl) {

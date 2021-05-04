@@ -105,9 +105,10 @@ struct FileHierarchy: Hashable, Identifiable {
     self.container?.children
   }
   
-  init?(_ url: URL, parent: Children) {
+  init?(_ iurl: URL, parent: Children) {
+    let url = iurl.absoluteURL.resolvingSymlinksInPath()
     var dir: ObjCBool = false
-    if Foundation.FileManager.default.fileExists(atPath: url.absoluteURL.path, isDirectory: &dir) {
+    if Foundation.FileManager.default.fileExists(atPath: url.path, isDirectory: &dir) {
       if let filter = parent.filter {
         if filter == .directory && !dir.boolValue {
           return nil

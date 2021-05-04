@@ -118,13 +118,6 @@ class FileManager: ObservableObject {
     }
   }
   
-  func isApplicationSupportURL(_ url: URL) -> Bool {
-    if let appDirectory = self.applicationSupportURL {
-      return url.isContained(in: appDirectory)
-    }
-    return false
-  }
-  
   func canonicalPath(for url: URL) -> String {
     var roots: [String] = []
     for namedRef in self.systemRootDirectories {
@@ -137,7 +130,7 @@ class FileManager: ObservableObject {
         roots.append(url.absoluteURL.path)
       }
     }
-    let path = url.absoluteURL.path
+    let path = url.absoluteURL.resolvingSymlinksInPath().path
     for root in roots {
       if path.hasPrefix(root) {
         return String(path[path.index(path.startIndex, offsetBy: root.count + 1)...])
@@ -352,7 +345,7 @@ class FileManager: ObservableObject {
     if url == nil, let appDir = self.applicationSupportURL {
       return appDir.appendingPathComponent("Untitled.scm")
     }
-    return url
+    return url?.resolvingSymlinksInPath()
   }
   
   func loadEditorDocument(source: URL? = nil,

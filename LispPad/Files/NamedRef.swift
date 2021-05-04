@@ -35,7 +35,7 @@ struct NamedRef: Identifiable {
   init(name: String, image: String, url: URL) {
     self.name = name
     self.image = image
-    self.kind = .url(url)
+    self.kind = .url(url.resolvingSymlinksInPath())
   }
   
   init(name: String, image: String, gen: @escaping () -> [PortableURL]) {
