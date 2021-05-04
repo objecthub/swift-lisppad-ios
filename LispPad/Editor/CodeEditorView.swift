@@ -28,6 +28,8 @@ struct CodeEditorView: View {
     case saveFile
     case editFile
     case organizeFiles
+    case saveBeforeNew
+    case saveBeforeEdit
     case showDefinitions(DefinitionMenu)
     
     var id: Int {
@@ -40,8 +42,12 @@ struct CodeEditorView: View {
           return 2
         case .organizeFiles:
           return 3
-        case .showDefinitions(_):
+        case .saveBeforeNew:
           return 4
+        case .saveBeforeEdit:
+          return 5
+        case .showDefinitions(_):
+          return 6
       }
     }
   }
@@ -70,8 +76,8 @@ struct CodeEditorView: View {
   @State var showSheet: SheetAction? = nil
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
-  @State var showFileMover = false
-  @State var fileMoverAction: (() -> Void)? = nil
+  // @State var showFileMover = false
+  // @State var fileMoverAction: (() -> Void)? = nil
   @State var forceEditorUpdate = false
   @State var editorType: FileExtensions.EditorType = .scheme
   
@@ -436,6 +442,34 @@ struct CodeEditorView: View {
           Organizer()
             .environmentObject(self.fileManager) // Why is this needed? Bug?
             .environmentObject(self.histManager)
+        case .saveBeforeNew:
+          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+                     firstSave: self.fileManager.editorDocumentNew) { url in
+            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+              if newURL == nil {
+                self.notSavedAlertAction = .notSaved
+              } else {
+                self.fileManager.newEditorDocument(action: { success in
+                  self.forceEditorUpdate = true
+                })
+              }
+            }
+          }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
+        case .saveBeforeEdit:
+          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+                     firstSave: self.fileManager.editorDocumentNew) { url in
+            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+              if newURL == nil {
+                self.notSavedAlertAction = .notSaved
+              } else {
+                self.showSheet = .editFile
+              }
+            }
+          }
+          .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.histManager)
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $position)
       }
@@ -444,22 +478,14 @@ struct CodeEditorView: View {
       switch alertAction {
         case .newFile:
           return self.notSavedAlert(
-                   save: { self.fileMoverAction = {
-                             self.fileManager.newEditorDocument(action: { success in
-                               self.forceEditorUpdate = true
-                             })
-                           }
-                           self.showFileMover = true },
+                   save: { self.showSheet = .saveBeforeNew },
                    discard: { self.fileManager.editorDocument?.text = ""
                               self.fileManager.editorDocument?.saveFile { succ in
                                 self.forceEditorUpdate = true
                             }})
         case .editFile:
           return self.notSavedAlert(
-                   save: { self.fileMoverAction = {
-                             self.showSheet = .editFile
-                           }
-                           self.showFileMover = true },
+                   save: { self.showSheet = .saveBeforeEdit },
                    discard: { self.fileManager.editorDocument?.text = ""
                               self.showSheet = .editFile })
         case .notSaved:
@@ -468,7 +494,7 @@ struct CodeEditorView: View {
           return self.couldNotDuplicate()
       }
     }
-    .fileMover(isPresented: $showFileMover,
+    /* .fileMover(isPresented: $showFileMover,
                file: self.fileManager.editorDocument?.fileURL,
                onCompletion: { result in
                 switch result {
@@ -482,7 +508,7 @@ struct CodeEditorView: View {
                   case .failure(let error):
                     print("error = \(error)")
                 }
-               })
+               }) */
     .onDisappear {
       self.fileManager.editorDocument?.saveFile()
       self.histManager.saveFilesHistory()

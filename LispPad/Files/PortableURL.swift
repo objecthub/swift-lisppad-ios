@@ -174,7 +174,12 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
     let containerKeys = Set(container.allKeys)
     switch containerKeys {
       case CodingKeys.absolute:
-        self = .absolute(try container.decode(URL.self, forKey: .url))
+        let url = try container.decode(URL.self, forKey: .url)
+        if let (rel, base) = PortableURL.normalizeURL(url) {
+          self = .relative(rel, base)
+        } else {
+          self = .absolute(url)
+        }
       case CodingKeys.relative:
         self = .relative(try container.decode(String.self, forKey: .rel),
                          try container.decode(Base.self, forKey: .base))
