@@ -31,6 +31,17 @@ struct PreferencesView: View {
   var body: some View {
     TabView(selection: $selectedTab) {
       Form {
+        Section(header: Text("Install Folders")) {
+          Toggle("iCloud Drive", isOn: $settings.foldersOnICloud)
+          switch UIDevice.current.userInterfaceIdiom {
+            case .phone:
+              Toggle("On My iPhone", isOn: $settings.foldersOnDevice)
+            case .pad:
+              Toggle("On My iPad", isOn: $settings.foldersOnDevice)
+            default:
+              Toggle("On My Device", isOn: $settings.foldersOnDevice)
+          }
+        }
         Section(header: Text("Console")) {
           Picker(selection: $settings.consoleFontSize, label: Text("Font size")) {
             Text("Tiny").tag(UserSettings.tinyFontSize)
@@ -110,7 +121,7 @@ struct PreferencesView: View {
           ColorPicker("Parenthesis", selection: $settings.parensColor, supportsOpacity: false)
           ColorPicker("Literals", selection: $settings.literalsColor, supportsOpacity: false)
           ColorPicker("Comments", selection: $settings.commentsColor, supportsOpacity: false)
-          ColorPicker("Identifiers with documentation", selection: $settings.docuIdentColor,
+          ColorPicker("Documented identifiers", selection: $settings.docuIdentColor,
                       supportsOpacity: false)
         }
         Section(header: Text("Markdown")) {

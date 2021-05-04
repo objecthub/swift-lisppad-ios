@@ -126,7 +126,7 @@ struct FileHierarchyBrowser: View {
   
   func rowContent(_ hierarchy: FileHierarchy) -> some View {
     HStack {
-      if self.editUrl != nil && self.editUrl! == hierarchy.url {
+      if self.editUrl != nil && self.editUrl == hierarchy.url {
         ZStack {
           RoundedRectangle(cornerRadius: 8)
             .fill(Color(UIColor.secondarySystemFill))

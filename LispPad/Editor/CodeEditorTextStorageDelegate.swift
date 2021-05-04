@@ -226,6 +226,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   private func highlightMarkdownSyntax(_ textStorage: NSTextStorage,
                                        _ str: NSString,
                                        _ range: NSRange) {
+    textStorage.addAttribute(.foregroundColor, value: self.textColor, range: range)
     var start = range.location
     let end = range.location + range.length
     var escaped = false
@@ -550,14 +551,15 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   func highlight(_ textStorage: NSTextStorage) {
     let str = textStorage.string as NSString
     let range = NSRange(location: 0, length: textStorage.length)
-    textStorage.removeAttribute(.foregroundColor, range: range)
     switch self.editorType {
       case .scheme:
         if UserSettings.standard.schemeHighlightSyntax {
+          textStorage.removeAttribute(.foregroundColor, range: range)
           self.highlightSchemeSyntax(textStorage, str, range)
         }
       case .markdown:
         if UserSettings.standard.markdownHighlightSyntax {
+          textStorage.removeAttribute(.foregroundColor, range: range)
           self.highlightMarkdownSyntax(textStorage, str, range)
         }
       case .other:
@@ -589,7 +591,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     if self.editorType == .scheme {
       range = str.lineRange(for: editRange)
     } else {
-        range = self.extendedParagraphRange(in: str, editedRange: editRange)
+      range = self.extendedParagraphRange(in: str, editedRange: editRange)
     }
     // Remove attribution in edited range
     textStorage.removeAttribute(.foregroundColor, range: range)

@@ -29,17 +29,17 @@ struct FileExtensions {
   }
   
   static let editorSupport: Set<String> = ["sld", "scm", "sps", "sls", "ss", "sc", "sch",
-                                           "lisp", "rkt", "txt", "md", "markdown"]
+                                           "lisp", "rkt", "txt", "md", "markdown", "data",
+                                           "xml", "json", "csv", "html"]
   
   static func editorType(for url: URL?) -> EditorType {
     guard let url = url else {
       return .scheme
     }
     switch url.pathExtension {
-      case "scm", "sps", "ss", "sld", "sls", "sc", "sch",
-           "lisp", "rkt":
+      case "scm", "sps", "ss", "sld", "sls", "sc", "sch", "lisp", "rkt":
         return .scheme
-      case "md", "markdown", "txt":
+      case "md", "markdown":
         return .markdown
       default:
         return .other
@@ -48,19 +48,24 @@ struct FileExtensions {
   
   static func systemImage(for url: URL) -> String {
     switch url.pathExtension {
-      case "scm", "sps", "ss", "sld", "sls", "sc", "sch",
-           "lisp", "rkt", "md", "markdown", "txt":
+      case "scm", "sps", "ss", "sld", "sls", "sc", "sch", "lisp", "rkt":
         return "doc.text"
-      case "png", "jpg", "jpeg":
-        return "photo"
-      case "pdf", "pages":
+      case "md", "markdown":
+        return "doc.plaintext"
+      case "rtf", "pdf", "pages":
         return "doc.richtext"
+      case "png", "jpg", "jpeg", "bmp", "gif", "tiff":
+        return "photo"
       case "mp3", "m4a", "m4b":
         return "hifispeaker"
       case "mp4":
         return "film"
       case "zip":
         return "doc.zipper"
+      case "csv", "xml", "json", "data":
+        return "chart.bar.doc.horizontal"
+      case "html":
+        return "globe"
       default:
         return "doc"
     }

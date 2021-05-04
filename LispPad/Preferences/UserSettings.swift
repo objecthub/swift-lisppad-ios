@@ -29,6 +29,8 @@ import UIKit
 final class UserSettings: ObservableObject {
   
   // UserDefault keys
+  private static let foldersOnICloudKey = "Folders.iCloud"
+  private static let foldersOnDeviceKey = "Folders.device"
   private static let consoleFontSizeKey = "Console.fontSize"
   private static let maxConsoleHistoryKey = "Console.maxConsoleHistory"
   private static let inputFontSizeKey = "Console.inputFontSize"
@@ -102,6 +104,18 @@ final class UserSettings: ObservableObject {
   
   /// The user settings object
   static let standard = UserSettings()
+  
+  @Published var foldersOnICloud: Bool {
+    didSet {
+      UserDefaults.standard.set(self.foldersOnICloud, forKey: Self.foldersOnICloudKey)
+    }
+  }
+  
+  @Published var foldersOnDevice: Bool {
+    didSet {
+      UserDefaults.standard.set(self.foldersOnDevice, forKey: Self.foldersOnDeviceKey)
+    }
+  }
   
   @Published var consoleFontSize: String {
     didSet {
@@ -272,6 +286,8 @@ final class UserSettings: ObservableObject {
   }
   
   private init() {
+    self.foldersOnICloud = UserDefaults.standard.boolean(forKey: Self.foldersOnICloudKey)
+    self.foldersOnDevice = UserDefaults.standard.boolean(forKey: Self.foldersOnDeviceKey)
     self.consoleFontSize = UserDefaults.standard.str(forKey: Self.consoleFontSizeKey,
                                                      UserSettings.smallFontSize)
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)

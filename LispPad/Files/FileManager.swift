@@ -73,7 +73,9 @@ class FileManager: ObservableObject {
         self.userRootDirectories.append(NamedRef(name: "iCloud Drive",
                                                  image: "icloud",
                                                  url: url))
-        _ = self.createExtensionDirectories(in: url, using: sysFileManager)
+        if UserSettings.standard.foldersOnICloud {
+          _ = self.createExtensionDirectories(in: url, using: sysFileManager)
+        }
       }
       if let url = PortableURL.Base.documents.url {
         let name: String
@@ -90,7 +92,9 @@ class FileManager: ObservableObject {
             image = "desktopcomputer"
         }
         self.userRootDirectories.append(NamedRef(name: name, image: image, url: url))
-        _ = self.createExtensionDirectories(in: url, using: sysFileManager)
+        if UserSettings.standard.foldersOnDevice {
+          _ = self.createExtensionDirectories(in: url, using: sysFileManager)
+        }
       }
     }
     self.usageRootDirectories.append(NamedRef(name: "Recent", image: "clock") { [weak self] in
@@ -212,7 +216,7 @@ class FileManager: ObservableObject {
   
   func makeDirectory(at url: URL, name base: String = "New Folder") -> URL? {
     do {
-      var folderUrl = url.appendingPathComponent(base)
+      var folderUrl = url.appendingPathComponent(base, isDirectory: true)
       if self.sysFileManager.fileExists(atPath: folderUrl.absoluteURL.path) {
         var i = 0
         repeat {
@@ -220,7 +224,7 @@ class FileManager: ObservableObject {
           if i > 100 {
             return nil
           }
-          folderUrl = url.appendingPathComponent(base + " \(i)")
+          folderUrl = url.appendingPathComponent(base + " \(i)", isDirectory: true)
         } while self.sysFileManager.fileExists(atPath: folderUrl.absoluteURL.path)
       }
       try self.sysFileManager.createDirectory(at: folderUrl,

@@ -1,4 +1,4 @@
-;;; Default Prelude for LispPad on iOS
+;;; Default Prelude for LispPad Go
 ;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2021 Matthias Zenger. All
@@ -25,7 +25,8 @@
 ;; Import (lispkit base) from the LispKit
 ;; release for the initial environment.
 
-(import (lispkit base))
+(import (lispkit base)
+        (lisppad system))
 
 (define random
   (let ((a 69069)

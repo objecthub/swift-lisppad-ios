@@ -297,10 +297,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
        context.fileHandler.isDirectory(atPath: internalUrl.path) {
       _ = context.fileHandler.prependLibrarySearchPath(internalUrl.path)
     }
-    if let librariesPath = PortableURL.Base.documents.url?.appendingPathComponent("Libraries/").path {
+    if UserSettings.standard.foldersOnICloud,
+       let librariesPath = PortableURL.Base.icloud.url?.appendingPathComponent("Libraries/").path {
       _ = context.fileHandler.prependLibrarySearchPath(librariesPath)
     }
-    if let librariesPath = PortableURL.Base.icloud.url?.appendingPathComponent("Libraries/").path {
+    if UserSettings.standard.foldersOnDevice,
+       let librariesPath = PortableURL.Base.documents.url?.appendingPathComponent("Libraries/").path {
       _ = context.fileHandler.prependLibrarySearchPath(librariesPath)
     }
     if let internalUrl = Bundle.main.resourceURL?
@@ -309,10 +311,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
        context.fileHandler.isDirectory(atPath: internalUrl.path) {
       _ = context.fileHandler.prependAssetSearchPath(internalUrl.path)
     }
-    if let assetsPath = PortableURL.Base.documents.url?.appendingPathComponent("Assets/").path {
+    if UserSettings.standard.foldersOnICloud,
+       let assetsPath = PortableURL.Base.icloud.url?.appendingPathComponent("Assets/").path {
       _ = context.fileHandler.prependAssetSearchPath(assetsPath)
     }
-    if let assetsPath = PortableURL.Base.icloud.url?.appendingPathComponent("Assets/").path {
+    if UserSettings.standard.foldersOnDevice,
+       let assetsPath = PortableURL.Base.documents.url?.appendingPathComponent("Assets/").path {
       _ = context.fileHandler.prependAssetSearchPath(assetsPath)
     }
     if let internalUrl = Bundle.main.resourceURL?
@@ -321,10 +325,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
        context.fileHandler.isDirectory(atPath: internalUrl.path) {
       _ = context.fileHandler.addSearchPath(internalUrl.path)
     }
-    if let homePath = PortableURL.Base.documents.url?.path {
+    if UserSettings.standard.foldersOnICloud,
+       let homePath = PortableURL.Base.icloud.url?.path {
       _ = context.fileHandler.addSearchPath(homePath)
     }
-    if let homePath = PortableURL.Base.icloud.url?.path {
+    if UserSettings.standard.foldersOnDevice,
+       let homePath = PortableURL.Base.documents.url?.path {
       _ = context.fileHandler.addSearchPath(homePath)
     }
     // Bootstrap context

@@ -417,6 +417,7 @@ struct CodeEditorView: View {
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+          .environmentObject(self.settings)
         case .saveFile:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew) { url in
@@ -428,6 +429,7 @@ struct CodeEditorView: View {
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+          .environmentObject(self.settings)
         case .editFile:
           Open() { url, mutable in
             self.fileManager.loadEditorDocument(
@@ -438,10 +440,12 @@ struct CodeEditorView: View {
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+          .environmentObject(self.settings)
         case .organizeFiles:
           Organizer()
             .environmentObject(self.fileManager) // Why is this needed? Bug?
             .environmentObject(self.histManager)
+            .environmentObject(self.settings)
         case .saveBeforeNew:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew) { url in
@@ -457,6 +461,7 @@ struct CodeEditorView: View {
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+          .environmentObject(self.settings)
         case .saveBeforeEdit:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew) { url in
@@ -470,6 +475,7 @@ struct CodeEditorView: View {
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?
           .environmentObject(self.histManager)
+          .environmentObject(self.settings)
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $position)
       }
