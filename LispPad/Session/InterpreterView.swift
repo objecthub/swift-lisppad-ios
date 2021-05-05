@@ -29,6 +29,7 @@ struct InterpreterView: View {
     case shareConsole
     case showAbout
     case showPDF(String, URL)
+    case saveBeforeOpen(URL)
     
     var id: Int {
       switch self {
@@ -42,6 +43,25 @@ struct InterpreterView: View {
           return 3
         case .showPDF(_, _):
           return 4
+        case .saveBeforeOpen(_):
+          return 5
+      }
+    }
+  }
+  
+  enum AlertAction: Identifiable {
+    case abortEvaluation
+    case notSaved
+    case openURL(URL)
+    
+    var id: Int {
+      switch self {
+        case .abortEvaluation:
+          return 0
+        case .notSaved:
+          return 1
+        case .openURL(_):
+          return 2
       }
     }
   }
@@ -62,14 +82,13 @@ struct InterpreterView: View {
   
   // Internal state
   @State private var consoleInput = ""
-  @State private var showAbortAlert = false
   @State private var showResetActionSheet = false
-  @State private var showPreferences = false
   @State private var selectedPreferencesTab = 0
   @State private var showSheet: SheetAction? = nil
-  
-  @State var fileName: String = ""
-  
+  @State private var alertAction: AlertAction? = nil
+  @State private var navigateToEditor: Bool = false
+  @State private var editorPosition: NSRange? = nil
+  @State private var forceEditorUpdate: Bool = false
   
   // The main view
   var master: some View {
@@ -100,17 +119,29 @@ struct InterpreterView: View {
           readingStatus: $interpreter.readingStatus,
           ready: $interpreter.isReady)
       Spacer()
+      NavigationLink(destination: CodeEditorView(forceEditorUpdate: $forceEditorUpdate,
+                                                 position: $editorPosition),
+                     isActive: $navigateToEditor) {
+        EmptyView()
+      }
     }
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("LispPad")
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarLeading) {
         HStack(alignment: .center, spacing: 16) {
-          NavigationLink(destination: LazyView(CodeEditorView())) {
+          Button(action: {
+            self.navigateToEditor = true
+          }) {
             Image(systemName: "pencil.circle.fill")
               .foregroundColor(.primary)
               .font(InterpreterView.toolbarSwitchFont)
           }
+          /* NavigationLink(destination: LazyView(CodeEditorView(urlToOpen: $urlToOpen))) {
+            Image(systemName: "pencil.circle.fill")
+              .foregroundColor(.primary)
+              .font(InterpreterView.toolbarSwitchFont)
+          } */
           if self.interpreter.isReady {
             Menu {
               Button(action: {
@@ -143,7 +174,7 @@ struct InterpreterView: View {
             }
           } else {
             Button(action: {
-              self.showAbortAlert = true
+              self.alertAction = .abortEvaluation
             }) {
               Image(systemName: "stop.circle")
                 .foregroundColor(Color.red)
@@ -235,12 +266,12 @@ struct InterpreterView: View {
             }
             return true
           }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
+          .environmentObject(self.fileManager)
           .environmentObject(self.histManager)
           .environmentObject(self.settings)
         case .organizeFiles:
           Organizer()
-            .environmentObject(self.fileManager) // Why is this needed? Bug?
+            .environmentObject(self.fileManager)
             .environmentObject(self.histManager)
             .environmentObject(self.settings)
         case .shareConsole:
@@ -249,6 +280,28 @@ struct InterpreterView: View {
           AboutView()
         case .showPDF(let name, let url):
           DocumentView(title: name, url: url)
+        case .saveBeforeOpen(let ourl):
+          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+                 firstSave: self.fileManager.editorDocumentNew) { url in
+            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+              if newURL == nil {
+                self.alertAction = .notSaved
+              } else {
+                self.fileManager.loadEditorDocument(
+                  source: ourl,
+                  makeUntitled: false,
+                  action: { success in
+                    if success {
+                      self.editorPosition = NSRange(location: 0, length: 0)
+                      self.forceEditorUpdate = true
+                      self.navigateToEditor = true
+                    }})
+              }
+            }
+          }
+          .environmentObject(self.fileManager)
+          .environmentObject(self.histManager)
+          .environmentObject(self.settings)
       }
     }
     .actionSheet(isPresented: $showResetActionSheet) {
@@ -263,12 +316,50 @@ struct InterpreterView: View {
                             }),
                             .cancel()])
     }
-    .alert(isPresented: $showAbortAlert) {
-      Alert(title: Text("Abort evaluation?"),
-            primaryButton: .cancel(),
-            secondaryButton: .destructive(Text("Abort"), action: {
-              self.interpreter.context?.machine.abort()
-            }))
+    .alert(item: $alertAction) { alertAction in
+      switch alertAction {
+        case .abortEvaluation:
+          return Alert(title: Text("Abort evaluation?"),
+                       primaryButton: .cancel(),
+                       secondaryButton: .destructive(Text("Abort"), action: {
+                         self.interpreter.context?.machine.abort()
+                       }))
+        case .notSaved:
+          return Alert(title: Text("Document not saved"),
+                       message: Text("Could not save the currently open document. " +
+                                      "Retry saving using a different name or path."),
+                       dismissButton: .default(Text("OK")))
+        case .openURL(let url):
+          return self.notSavedAlert(
+                   save: { self.showSheet = .saveBeforeOpen(url) },
+                   discard: {
+                    self.fileManager.loadEditorDocument(
+                      source: url,
+                      makeUntitled: false,
+                      action: { success in
+                        if success {
+                          self.editorPosition = NSRange(location: 0, length: 0)
+                          self.forceEditorUpdate = true
+                          self.navigateToEditor = true
+                        }})
+                   })
+      }
+    }
+    .onOpenURL { url in
+      if (self.fileManager.editorDocumentNew) &&
+         !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+        self.alertAction = .openURL(url)
+      } else {
+        self.fileManager.loadEditorDocument(
+          source: url,
+          makeUntitled: false,
+          action: { success in
+            if success {
+              self.editorPosition = NSRange(location: 0, length: 0)
+              self.forceEditorUpdate = true
+              self.navigateToEditor = true
+            }})
+      }
     }
   }
   
@@ -291,6 +382,14 @@ struct InterpreterView: View {
       }
     }
     */
+  }
+  
+  func notSavedAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {
+    return Alert(title: Text("Discard or save document?"),
+                 message: Text("LispPad was asked to open a new file, but the current document " +
+                               "is not saved yet. Discard or save the current document?"),
+                 primaryButton: .default(Text("Save"), action: save),
+                 secondaryButton: .destructive(Text("Discard"), action: discard))
   }
   
   private func execute(_ url: URL?) {

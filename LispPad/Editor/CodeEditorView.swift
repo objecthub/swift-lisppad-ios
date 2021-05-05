@@ -70,15 +70,13 @@ struct CodeEditorView: View {
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
   
-  @State var position: NSRange? = nil
+  @Binding var forceEditorUpdate: Bool
+  @Binding var position: NSRange?
   @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
   @State var showSheet: SheetAction? = nil
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
-  // @State var showFileMover = false
-  // @State var fileMoverAction: (() -> Void)? = nil
-  @State var forceEditorUpdate = false
   @State var editorType: FileExtensions.EditorType = .scheme
   
   var body: some View {
@@ -457,7 +455,7 @@ struct CodeEditorView: View {
             .environmentObject(self.settings)
         case .saveBeforeNew:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                     firstSave: self.fileManager.editorDocumentNew) { url in
+                 firstSave: self.fileManager.editorDocumentNew) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.notSavedAlertAction = .notSaved
@@ -473,7 +471,7 @@ struct CodeEditorView: View {
           .environmentObject(self.settings)
         case .saveBeforeEdit:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                     firstSave: self.fileManager.editorDocumentNew) { url in
+                 firstSave: self.fileManager.editorDocumentNew) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.notSavedAlertAction = .notSaved
@@ -509,21 +507,6 @@ struct CodeEditorView: View {
           return self.couldNotDuplicate()
       }
     }
-    /* .fileMover(isPresented: $showFileMover,
-               file: self.fileManager.editorDocument?.fileURL,
-               onCompletion: { result in
-                switch result {
-                  case .success(let newURL):
-                    self.fileManager.editorDocument?.recomputeTitle(newURL)
-                    self.fileManager.editorDocument?.new = false
-                    if let action = self.fileMoverAction {
-                      self.fileMoverAction = nil
-                      action()
-                    }
-                  case .failure(let error):
-                    print("error = \(error)")
-                }
-               }) */
     .onDisappear {
       self.fileManager.editorDocument?.saveFile()
       self.histManager.saveFilesHistory()

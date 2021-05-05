@@ -83,10 +83,16 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   }
   
   func saveFileAs(_ url: URL, complete: @escaping (URL?) -> Void) {
-    if self.new {
-      self.moveFile(to: url, complete: complete)
-    } else {
-      self.copyFile(to: url, complete: complete)
+    self.saveFile { success in 
+      if success {
+        if self.new {
+          self.moveFile(to: url, complete: complete)
+        } else {
+          self.copyFile(to: url, complete: complete)
+        }
+      } else {
+        complete(nil)
+      }
     }
   }
   
