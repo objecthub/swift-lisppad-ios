@@ -187,7 +187,11 @@ struct CodeEditorView: View {
                     self.fileManager.loadEditorDocument(
                       source: url,
                       makeUntitled: !purl.mutable,
-                      action: { success in self.forceEditorUpdate = true })
+                      action: { success in
+                        if success {
+                          self.position = NSRange(location: 0, length: 0)
+                          self.forceEditorUpdate = true
+                        }})
                   }) {
                     Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
                   }
@@ -263,6 +267,7 @@ struct CodeEditorView: View {
                     makeUntitled: true,
                     action: { success in
                       if success {
+                        self.position = NSRange(location: 0, length: 0)
                         self.forceEditorUpdate = true
                       } else {
                         self.notSavedAlertAction = .couldNotDuplicate
@@ -435,7 +440,11 @@ struct CodeEditorView: View {
             self.fileManager.loadEditorDocument(
               source: url,
               makeUntitled: !mutable,
-              action: { success in self.forceEditorUpdate = true })
+              action: { success in
+                if success {
+                  self.position = NSRange(location: 0, length: 0)
+                  self.forceEditorUpdate = true
+                }})
             return true
           }
           .environmentObject(self.fileManager) // Why is this needed? Bug?

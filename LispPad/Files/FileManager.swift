@@ -395,6 +395,9 @@ class FileManager: ObservableObject {
           self.editorDocument?.new = makeUntitled
           self.editorDocument?.recomputeTitle(targetUrl)
           self.editorDocument?.loadFile(action: action)
+          if source == nil && makeUntitled {
+            self.editorDocument?.text = ""
+          }
         })
       }
     } else {
@@ -403,6 +406,9 @@ class FileManager: ObservableObject {
       self.editorDocument?.new = makeUntitled
       self.editorDocument?.recomputeTitle(targetUrl)
       self.editorDocument?.loadFile(action: action)
+      if source == nil && makeUntitled {
+        self.editorDocument?.text = ""
+      }
     }
   }
 }

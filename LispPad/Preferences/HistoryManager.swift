@@ -142,9 +142,9 @@ final class HistoryManager: ObservableObject {
   private var commandHistoryRequiresSaving: Bool = false
   
   func addCommandEntry(_ str: String) {
-    self.commandHistory.append(str)
+    self.commandHistory.insert(str, at: 0)
     if self.maxCommandHistory < self.commandHistory.count {
-      self.commandHistory.removeFirst(self.commandHistory.count - self.maxCommandHistory)
+      self.commandHistory.removeLast(self.commandHistory.count - self.maxCommandHistory)
     }
     self.commandHistoryRequiresSaving = true
   }

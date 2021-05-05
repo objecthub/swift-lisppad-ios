@@ -50,6 +50,9 @@ import SwiftUI
         case .inactive:
           break
         case .background:
+          if let doc = self.fileManager.editorDocument, !doc.new {
+            self.histManager.trackRecentFile(doc.fileURL)
+          }
           self.histManager.suspendFilePresenters()
           self.fileManager.editorDocument?.saveFile()
           self.histManager.saveCommandHistory()

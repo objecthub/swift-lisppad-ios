@@ -156,6 +156,17 @@ struct InterpreterView: View {
             Image(systemName: "arrow.down.doc")
               .font(InterpreterView.toolbarFont)
           }
+          .contextMenu {
+            if self.interpreter.isReady {
+              ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                if let url = purl.url {
+                  Button(action: { self.execute(url) }) {
+                    Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+                  }
+                }
+              }
+            }
+          }
           .disabled(!self.interpreter.isReady)
         }
       }
@@ -220,12 +231,7 @@ struct InterpreterView: View {
         case .loadFile:
           Open() { url, mutable in
             if self.interpreter.isReady {
-              let input = InterpreterView.canonicalizeInput(
-                            "(load \"\(self.fileManager.canonicalPath(for: url))\")")
-              self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-              self.histManager.addCommandEntry(input)
-              self.histManager.trackRecentFile(url)
-              self.interpreter.load(url)
+              self.execute(url)
             }
             return true
           }
@@ -285,6 +291,17 @@ struct InterpreterView: View {
       }
     }
     */
+  }
+  
+  private func execute(_ url: URL?) {
+    if let url = url {
+      let input = InterpreterView.canonicalizeInput(
+                    "(load \"\(self.fileManager.canonicalPath(for: url))\")")
+      self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
+      self.histManager.addCommandEntry(input)
+      self.histManager.trackRecentFile(url)
+      self.interpreter.load(url)
+    }
   }
   
   static func canonicalizeInput(_ input: String) -> String {
