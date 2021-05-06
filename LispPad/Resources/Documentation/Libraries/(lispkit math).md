@@ -1,3 +1,5 @@
+# LispKit Math
+
 Library `(lispkit math)` defines functions on numbers. Numbers are arranged into a tower of subtypes in which each level is a subset of the level above it:
 
    - number

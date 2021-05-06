@@ -1,3 +1,5 @@
+# LispKit Type
+
 Library `(lispkit type)` provides a simple, lightweight type abstraction mechanism. It allows for creating new types at runtime that are disjoint from all existing types. The library provides two different types of APIs: a purely procedural API for type creation and management, as well as a declarative API. The procedural API does not have an explicit representation of types. The declarative API introduces extensible types which do have a runtime representation.
 
 

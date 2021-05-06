@@ -1,3 +1,5 @@
+# LispKit Stream
+
 Streams are a sequential data structure containing elements computed only on demand. They are sometimes also called _lazy lists_.
 
 Streams get constructed with list-like constructors. A stream is either _null_ or is a _pair_ with a stream in its cdr. Since elements of a stream are computed only when accessed, streams can be infinite. Once computed, the value of a stream element is cached in case it is needed again.

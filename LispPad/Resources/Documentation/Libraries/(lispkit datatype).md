@@ -1,3 +1,5 @@
+# LispKit Datatype
+
 Library `(lispkit datatype)` implements algebraic datatypes for LispKit. It provides the following functionality:
 
    - `define-datatype` creates a new algebraic datatype consisting of a type test predicate and a number of variants. Each variant implicitly defines a constructor and a pattern.

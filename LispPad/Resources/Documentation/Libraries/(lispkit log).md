@@ -1,3 +1,5 @@
+# LispKit Log
+
 Library `(lispkit log)` defines a simple logging API for LispKit. Log entries are sent to a _logger_. A logger processes each log entry, e.g. by adding or filtering information, and eventually persists it if the severity of the log entry is at or above the level of the severity of the logger. Supported are logging to a port and into a file. The macOS IDE _LispPad_ implements a special version of `(lispkit log)` which makes log messages available in a session logging user interface supporting filtering, sorting, and exporting of log entries.
 
 A log entry consists of the following four components: a timestamp, a severity, a sequence of tags, and a log message. Timestamps are generated via `current-second`. There are five severities, represented as symbols, supported by this library: `debug`, `info`, `warn`, `err`, and `fatal`. Also tags are represented as symbols. The sequence of tags is represented as a list of symbols. A log message is a string.

@@ -1,3 +1,5 @@
+# LispKit String
+
 Strings are sequences of characters. In LispKit, characters are UTF-16 code units. Strings are written as sequences of characters enclosed within quotation marks (`"`). Within a string literal, various escape sequences represent characters other than themselves. Escape sequences always start with a backslash `\`:
 
 - `\a`: alarm (U+0007)

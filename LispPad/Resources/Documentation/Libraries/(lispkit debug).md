@@ -1,3 +1,5 @@
+# LispKit Debug
+
 Library `(lispkit debug)` provides utilities for debugging code. Available are procedures for measuring execution latencies, for tracing procedure calls, for expanding macros, for disassembling code, as well as for inspecting the execution environment.
 
 ## Timing execution

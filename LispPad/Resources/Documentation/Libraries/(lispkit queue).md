@@ -1,3 +1,5 @@
+# LispKit Queue
+
 Library `(lispkit queue)` provides an implementation for mutable queues, i.e. mutable FIFO buffers.
 
 ***

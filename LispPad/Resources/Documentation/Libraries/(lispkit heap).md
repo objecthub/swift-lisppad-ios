@@ -1,3 +1,5 @@
+# LispKit Heap
+
 Library `(lispkit heap)` provides an implementation of a _priority queue_ in form of a _binary max heap_. A _max heap_ is a tree-based data structure in which for any given node _C_, if _P_ is a parent node of _C_, then the value of _P_ is greater than or equal to the value of _C_. Heaps as implemented by `(lispkit heap)` are mutable objects.
 
 ***

@@ -1,3 +1,5 @@
+# LispKit Comparator
+
 Comparators bundle a type test predicate, an equality predicate, an optional ordering predicate, and an optional hash function into a single object. By packaging these procedures together, they can be treated as a single item for use in the implementation of data structures that typically rely on a consistent combination of such functions.
 
 Library `(lispkit comparator)` implements a large part of the API of SRFI 128 and thus, can be used as a drop-in replacement for the core functionality of library `(srfi 128)`. A few procedures and objects from SRFI 162 were adopted as well.

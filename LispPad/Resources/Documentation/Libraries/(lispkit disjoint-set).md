@@ -1,3 +1,5 @@
+# LispKit Disjoint-Set
+
 Library `(lispkit disjoint-set)` implements disjoint sets, a mutable union-find data structure that tracks a set of elements partitioned into disjoint subsets. Disjoint sets are based on hashtables and require the definition of an equality and a hash function.
 
 ***

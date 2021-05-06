@@ -1,3 +1,5 @@
+# LispKit Draw
+
 Library `(lispkit draw)` provides an API for creating *drawings*. A drawing is defined in terms of a sequence of instructions for drawing *shapes* and *images*. Drawings can be composed and saved as a PDF. It is also possible to draw a drawing into a *bitmap* and save it in formats like PNG, JPG, or TIFF. A *bitmap* is a special *image* that is not based on vector graphics.
 
 Both drawings and shapes are based on a coordinate system whose zero point is in the upper left corner of a plane. The x and y axis extend to the right and down. Coordinates and dimensions are always expressed in terms of floating-point numbers.

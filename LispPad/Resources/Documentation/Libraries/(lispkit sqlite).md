@@ -1,3 +1,5 @@
+# LispKit Sqlite
+
 SQLite is a lightweight, embedded, relational open-source database management system. It is simple to use, requires zero configuration, is not based on a server, and manages databases directly in files.
 
 Library `(lispkit sqlite)` provides functionality for creating, managing, and querying SQLite databases in LispKit. `(lispkit sqlite)` is a low-level library that wraps the classial C API for SQLite3. Just like in the C API, the actual SQL statements are represented as strings and compiled into statement objects that are used for executing the statements.

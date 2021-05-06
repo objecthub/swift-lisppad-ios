@@ -1,3 +1,5 @@
+# LispKit Hashtable
+
 Library `(lispkit hashtable)` provides a native implementation of hashtables based on the API defined by R6RS.
 
 A hashtable is a data structure that associates keys with values. Any object can be used as a key, provided a hash function and a suitable equivalence function is available. A hash function is a procedure that maps keys to exact integer objects. It is the programmer’s responsibility to ensure that the hash function is compatible with the equivalence function, which is a procedure that accepts two keys and returns true if they are equivalent and `#f` otherwise. Standard hashtables for arbitrary objects based on the `eq?`, `eqv?`, and `equal?` predicates are provided. Also, hash functions for arbitrary objects, strings, and symbols are included.

@@ -1,3 +1,5 @@
+# LispKit Match
+
 `(lispkit match)` ports Alex Shinn's portable hygienic pattern matcher library to LispKit and adapts it to match LispKit's features. For instance, `(lispkit match)` assumes all pairs are immutable. At this point, the library does not support matching against algebraic datatypes. Procedure `match` of library `(lispkit datatype)` needs to be used for this purpose.
 
 ## Simple patterns

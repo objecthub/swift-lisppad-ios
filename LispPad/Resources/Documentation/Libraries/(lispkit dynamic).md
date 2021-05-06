@@ -1,3 +1,5 @@
+# LispKit Dynamic
+
 ## Dynamic bindings
 
 **(make-parameter _init_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  

@@ -1,3 +1,5 @@
+# LispKit Regexp
+
 Library `(lispkit regexp)` provides an API for defining regular expressions and applying them to strings. Supported are both matching as well as search/replace.
 
 ## Regular expressions

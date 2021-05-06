@@ -1,3 +1,5 @@
+# LispKit Enum
+
 Library `(lispkit enum)` provides an implementation of enumerated values and sets of enumerated values based on the API defined by R6RS.
 
 Enumerated values are represented by ordinary symbols, while finite sets of enumerated values form a separate type, known as _enumeration set_. The enumeration sets are further partitioned into sets that share the same universe and enumeration type. These universes and enumeration types are created by the `make-enumeration` procedure. Each call to that procedure creates a new enumeration type.

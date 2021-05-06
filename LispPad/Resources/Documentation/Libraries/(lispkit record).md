@@ -1,3 +1,5 @@
+# LispKit Record
+
 Library `(lispkit record)` implements record types for LispKit. A record provides a simple and flexible mechanism for building structures with named components wrapped in distinct types.
 
 ## Declarative API

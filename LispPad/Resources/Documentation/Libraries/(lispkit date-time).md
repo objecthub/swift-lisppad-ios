@@ -1,3 +1,5 @@
+# LispKit Date-Time
+
 Library `(lispkit date-time)` provides functionality for handling time zones, dates, and times. Time zones are represented by string identifiers referring to the region and corresponding city, e.g. `"America/Los_Angeles"`. Dates and times are represented via `date-time` data structures. These encapsulate the following components:
 
    - _time zone_: the time zone of the date

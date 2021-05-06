@@ -1,3 +1,5 @@
+# LispKit Stack
+
 Library `(lispkit stack)` provides an implementation for mutable stacks, i.e. mutable LIFO buffers.
 
 ***

@@ -1,3 +1,5 @@
+# LispKit Combinator
+
 Library `(lispkit combinator)` defines abstractions for _combinator-style programming_. It provides means to create and compose functions.
 
 ***
