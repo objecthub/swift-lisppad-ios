@@ -62,6 +62,7 @@ final class UserSettings: ObservableObject {
   static let smallFontSize = "Small"
   static let mediumFontSize = "Medium"
   static let largeFontSize = "Large"
+  static let hugeFontSize = "Huge"
   static let xlargeFontSize = "X-Large"
   
   /// Regular font map
@@ -70,7 +71,8 @@ final class UserSettings: ObservableObject {
     UserSettings.smallFontSize  : .system(.footnote, design: .default),
     UserSettings.mediumFontSize : .system(.subheadline, design: .default),
     UserSettings.largeFontSize  : .system(.callout, design: .default),
-    UserSettings.xlargeFontSize : .system(.body, design: .default)
+    UserSettings.xlargeFontSize : .system(.body, design: .default),
+    UserSettings.hugeFontSize   : .system(.body, design: .default)
   ]
   
   /// Monospaced font map
@@ -79,7 +81,8 @@ final class UserSettings: ObservableObject {
     UserSettings.smallFontSize  : .system(.footnote, design: .monospaced),
     UserSettings.mediumFontSize : .system(.subheadline, design: .monospaced),
     UserSettings.largeFontSize  : .system(.callout, design: .monospaced),
-    UserSettings.xlargeFontSize : .system(.body, design: .monospaced)
+    UserSettings.xlargeFontSize : .system(.body, design: .monospaced),
+    UserSettings.hugeFontSize   : .system(.body, design: .monospaced)
   ]
   
   /// Monospaced UIFont map
@@ -98,6 +101,9 @@ final class UserSettings: ObservableObject {
                                     ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize,
                                     weight: .regular),
     UserSettings.xlargeFontSize : .monospacedSystemFont(
+                                    ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
+                                    weight: .regular),
+    UserSettings.hugeFontSize   : .monospacedSystemFont(
                                     ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
                                     weight: .regular)
   ]

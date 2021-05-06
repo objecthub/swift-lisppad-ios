@@ -563,6 +563,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
           self.highlightMarkdownSyntax(textStorage, str, range)
         }
       case .other:
+        textStorage.removeAttribute(.foregroundColor, range: range)
         break
     }
   }
@@ -595,7 +596,6 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     }
     // Remove attribution in edited range
     textStorage.removeAttribute(.foregroundColor, range: range)
-    // textStorage.removeAttribute(.backgroundColor, range: range)
     // Add syntax highlighting
     if self.editorType == .scheme {
       self.highlightSchemeSyntax(textStorage, str, range)

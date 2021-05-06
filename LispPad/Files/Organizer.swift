@@ -48,7 +48,7 @@ struct Organizer: View {
           }
         }
         .font(.body)
-        .padding(EdgeInsets(top: 16, leading: 16, bottom: 0, trailing: 16))
+        .padding(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
         .edgesIgnoringSafeArea(.all)
         .background(Color(.systemGroupedBackground))
         Form {
