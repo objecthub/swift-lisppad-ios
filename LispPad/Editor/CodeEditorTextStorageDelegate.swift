@@ -551,21 +551,22 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   func highlight(_ textStorage: NSTextStorage) {
     let str = textStorage.string as NSString
     let range = NSRange(location: 0, length: textStorage.length)
+    textStorage.removeAttribute(.foregroundColor, range: range)
     switch self.editorType {
       case .scheme:
         if UserSettings.standard.schemeHighlightSyntax {
-          textStorage.removeAttribute(.foregroundColor, range: range)
           self.highlightSchemeSyntax(textStorage, str, range)
+          return
         }
       case .markdown:
         if UserSettings.standard.markdownHighlightSyntax {
-          textStorage.removeAttribute(.foregroundColor, range: range)
           self.highlightMarkdownSyntax(textStorage, str, range)
+          return
         }
       case .other:
-        textStorage.removeAttribute(.foregroundColor, range: range)
         break
     }
+    textStorage.addAttribute(.foregroundColor, value: self.textColor, range: range)
   }
   
   private func extendedParagraphRange(in str: NSString, editedRange: NSRange) -> NSRange {

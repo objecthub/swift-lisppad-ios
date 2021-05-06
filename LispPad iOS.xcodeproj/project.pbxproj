@@ -116,6 +116,15 @@
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
+		CCEA5A1F2643D40500D78C62 /* ScreenShot_console.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A1E2643D40500D78C62 /* ScreenShot_console.png */; };
+		CCEA5A212643D40E00D78C62 /* ScreenShot_editor.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A202643D40E00D78C62 /* ScreenShot_editor.png */; };
+		CCEA5A292643D42300D78C62 /* ScreenShot_env.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A222643D42300D78C62 /* ScreenShot_env.png */; };
+		CCEA5A2A2643D42300D78C62 /* ScreenShot_libs.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A232643D42300D78C62 /* ScreenShot_libs.png */; };
+		CCEA5A2B2643D42300D78C62 /* ScreenShot_defs.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A242643D42300D78C62 /* ScreenShot_defs.png */; };
+		CCEA5A2C2643D42300D78C62 /* ScreenShot_files.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A252643D42300D78C62 /* ScreenShot_files.png */; };
+		CCEA5A2D2643D42300D78C62 /* ScreenShot_help.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A262643D42300D78C62 /* ScreenShot_help.png */; };
+		CCEA5A2E2643D42300D78C62 /* ScreenShot_menu.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */; };
+		CCEA5A2F2643D42300D78C62 /* ScreenShot_prefs.png in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -378,6 +387,16 @@
 		CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ComposePhotos.scm; sourceTree = "<group>"; };
 		CCEA5A18263DF7F400D78C62 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsExtensions.swift; sourceTree = "<group>"; };
+		CCEA5A1E2643D40500D78C62 /* ScreenShot_console.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_console.png; sourceTree = "<group>"; };
+		CCEA5A202643D40E00D78C62 /* ScreenShot_editor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_editor.png; sourceTree = "<group>"; };
+		CCEA5A222643D42300D78C62 /* ScreenShot_env.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_env.png; sourceTree = "<group>"; };
+		CCEA5A232643D42300D78C62 /* ScreenShot_libs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_libs.png; sourceTree = "<group>"; };
+		CCEA5A242643D42300D78C62 /* ScreenShot_defs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_defs.png; sourceTree = "<group>"; };
+		CCEA5A252643D42300D78C62 /* ScreenShot_files.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_files.png; sourceTree = "<group>"; };
+		CCEA5A262643D42300D78C62 /* ScreenShot_help.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_help.png; sourceTree = "<group>"; };
+		CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_menu.png; sourceTree = "<group>"; };
+		CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_prefs.png; sourceTree = "<group>"; };
+		CCEA5A302643D62C00D78C62 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -401,6 +420,7 @@
 			isa = PBXGroup;
 			children = (
 				CCC8564C261995A70080B96E /* README.md */,
+				CCEA5A302643D62C00D78C62 /* CHANGELOG.md */,
 				CCC8564D261995B30080B96E /* LICENSE */,
 				CC84C26B25FE783600758581 /* Cartfile */,
 				CC84C26C25FE784800758581 /* Makefile */,
@@ -666,6 +686,15 @@
 			isa = PBXGroup;
 			children = (
 				CCC856542619F93B0080B96E /* LispPad_small.png */,
+				CCEA5A1E2643D40500D78C62 /* ScreenShot_console.png */,
+				CCEA5A232643D42300D78C62 /* ScreenShot_libs.png */,
+				CCEA5A222643D42300D78C62 /* ScreenShot_env.png */,
+				CCEA5A262643D42300D78C62 /* ScreenShot_help.png */,
+				CCEA5A202643D40E00D78C62 /* ScreenShot_editor.png */,
+				CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */,
+				CCEA5A242643D42300D78C62 /* ScreenShot_defs.png */,
+				CCEA5A252643D42300D78C62 /* ScreenShot_files.png */,
+				CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -785,9 +814,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCEA5A1F2643D40500D78C62 /* ScreenShot_console.png in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */,
+				CCEA5A2F2643D42300D78C62 /* ScreenShot_prefs.png in Resources */,
+				CCEA5A292643D42300D78C62 /* ScreenShot_env.png in Resources */,
+				CCEA5A2E2643D42300D78C62 /* ScreenShot_menu.png in Resources */,
+				CCEA5A2D2643D42300D78C62 /* ScreenShot_help.png in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
+				CCEA5A2A2643D42300D78C62 /* ScreenShot_libs.png in Resources */,
+				CCEA5A212643D40E00D78C62 /* ScreenShot_editor.png in Resources */,
+				CCEA5A2C2643D42300D78C62 /* ScreenShot_files.png in Resources */,
+				CCEA5A2B2643D42300D78C62 /* ScreenShot_defs.png in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
@@ -982,7 +1020,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1007,7 +1045,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
