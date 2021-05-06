@@ -15,24 +15,24 @@ _LispPad Go_ is a simplified version of the [macOS application _LispPad_](http:/
 
 ### Console
 
-<img src="Assets/ScreenShot_console.png" alt="Console" width="414" height="736" />
-<img src="Assets/ScreenShot_libs.png" alt="Library browser" width="414" height="736" />
-<img src="Assets/ScreenShot_env.png" alt="Environment browser" width="414" height="736" />
-<img src="Assets/ScreenShot_help.png" alt="Help content" width="414" height="736" />
+<img src="Assets/ScreenShot_console.png" alt="Console" width="311" height="552" align="left" />
+<img src="Assets/ScreenShot_libs.png" alt="Library browser" width="311" height="552" />
+<img src="Assets/ScreenShot_env.png" alt="Environment browser" width="311" height="552" align="left" />
+<img src="Assets/ScreenShot_help.png" alt="Help content" width="311" height="552" />
 
 ### Editor
 
-<img src="Assets/ScreenShot_editor.png" alt="Editor" width="414" height="736" />
-<img src="Assets/ScreenShot_menu.png" alt="Editing tools" width="414" height="736" />
-<img src="Assets/ScreenShot_defs.png" alt="Definition overview" width="414" height="736" />
+<img src="Assets/ScreenShot_editor.png" alt="Editor" width="311" height="552" align="left" />
+<img src="Assets/ScreenShot_menu.png" alt="Editing tools" width="311" height="552" />
+<img src="Assets/ScreenShot_defs.png" alt="Definition overview" width="311" height="552" />
 
 ### File organizer
 
-<img src="Assets/ScreenShot_files.png" alt="File organizer" width="414" height="736" />
+<img src="Assets/ScreenShot_files.png" alt="File organizer" width="311" height="552" />
 
 ### Preferences
 
-<img src="Assets/ScreenShot_prefs.png" alt="Preferences" width="414" height="736" />
+<img src="Assets/ScreenShot_prefs.png" alt="Preferences" width="311" height="552" />
 
 ## Requirements
 
