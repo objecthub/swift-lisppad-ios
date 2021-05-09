@@ -64,7 +64,8 @@ struct CodeEditorView: View {
   }
   
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-  
+
+  @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
@@ -425,9 +426,7 @@ struct CodeEditorView: View {
               }
             }
           }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
         case .saveFile:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                      firstSave: self.fileManager.editorDocumentNew) { url in
@@ -437,9 +436,7 @@ struct CodeEditorView: View {
               }
             }
           }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
         case .editFile:
           Open() { url, mutable in
             self.fileManager.loadEditorDocument(
@@ -452,14 +449,9 @@ struct CodeEditorView: View {
                 }})
             return true
           }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
         case .organizeFiles:
-          Organizer()
-            .environmentObject(self.fileManager) // Why is this needed? Bug?
-            .environmentObject(self.histManager)
-            .environmentObject(self.settings)
+          Organizer().modifier(self.globals.services)
         case .saveBeforeNew:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                  firstSave: self.fileManager.editorDocumentNew) { url in
@@ -473,9 +465,7 @@ struct CodeEditorView: View {
               }
             }
           }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
         case .saveBeforeEdit:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                  firstSave: self.fileManager.editorDocumentNew) { url in
@@ -487,11 +477,10 @@ struct CodeEditorView: View {
               }
             }
           }
-          .environmentObject(self.fileManager) // Why is this needed? Bug?
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $editorPosition)
+            .modifier(self.globals.services)
       }
     }
     .alert(item: $notSavedAlertAction) { alertAction in

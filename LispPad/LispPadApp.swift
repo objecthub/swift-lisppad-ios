@@ -20,47 +20,43 @@
 
 import SwiftUI
 
+///
+/// Entry point for LispPad app. Global services are defined and initialized in
+/// `LispPadGlobals` and injected via a view modifier into the main view. This allows
+/// services to depend on each other and be initialized in an environment independent
+/// of SwiftUI.
+///
 @main struct LispPadApp: App {
-  
+
   // Environment references
   @Environment(\.scenePhase) private var scenePhase
   
   // Application-level state
-  @StateObject private var settings = UserSettings.standard
-  @StateObject private var interpreter = Interpreter()
-  @StateObject private var docManager = DocumentationManager()
-  @StateObject private var histManager = HistoryManager()
-  @StateObject private var fileManager = FileManager()
+  @StateObject private var globals = LispPadGlobals()
   
   // The scene powering the app
   var body: some Scene {
     WindowGroup {
-      MainView()
-        .environmentObject(self.settings)
-        .environmentObject(self.interpreter)
-        .environmentObject(self.docManager)
-        .environmentObject(self.histManager)
-        .environmentObject(self.fileManager)
+      MainView().modifier(self.globals.services)
     }
-    .onChange(of: scenePhase, perform: { phase in
+    .onChange(of: scenePhase) { phase in
       switch phase {
         case .active:
-          self.fileManager.histManager = self.histManager
-          self.histManager.setupFilePresenters()
+          self.globals.histManager.setupFilePresenters()
         case .inactive:
           break
         case .background:
-          if let doc = self.fileManager.editorDocument, !doc.new {
-            self.histManager.trackRecentFile(doc.fileURL)
+          if let doc = self.globals.fileManager.editorDocument, !doc.new {
+            self.globals.histManager.trackRecentFile(doc.fileURL)
           }
-          self.histManager.suspendFilePresenters()
-          self.fileManager.editorDocument?.saveFile()
-          self.histManager.saveCommandHistory()
-          self.histManager.saveFilesHistory()
-          self.histManager.saveFavorites()
+          self.globals.histManager.suspendFilePresenters()
+          self.globals.fileManager.editorDocument?.saveFile()
+          self.globals.histManager.saveCommandHistory()
+          self.globals.histManager.saveFilesHistory()
+          self.globals.histManager.saveFavorites()
         default:
           break
       }
-    })
+    }
   }
 }

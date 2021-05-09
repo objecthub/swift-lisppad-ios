@@ -74,6 +74,7 @@ struct InterpreterView: View {
                                                        weight: .regular)
   
   // Environment objects
+  @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var interpreter: Interpreter
@@ -275,14 +276,9 @@ struct InterpreterView: View {
             }
             return true
           }
-          .environmentObject(self.fileManager)
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
         case .organizeFiles:
-          Organizer()
-            .environmentObject(self.fileManager)
-            .environmentObject(self.histManager)
-            .environmentObject(self.settings)
+          Organizer().modifier(self.globals.services)
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
         case .showAbout:
@@ -308,9 +304,7 @@ struct InterpreterView: View {
               }
             }
           }
-          .environmentObject(self.fileManager)
-          .environmentObject(self.histManager)
-          .environmentObject(self.settings)
+          .modifier(self.globals.services)
       }
     }
     .actionSheet(isPresented: $showResetActionSheet) {

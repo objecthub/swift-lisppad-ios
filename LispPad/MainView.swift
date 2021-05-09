@@ -20,69 +20,65 @@
 
 import SwiftUI
 
+///
+/// This struct defines the root view of LispPad.
+///
 struct MainView: View {
 
-  // There's a bug somewhere in SwiftUI which leads to some environment objects not being
-  // passed through. Make this explicit for now where needed.
-  @EnvironmentObject var docManager: DocumentationManager
-  @EnvironmentObject var fileManager: FileManager
-  @EnvironmentObject var interpreter: Interpreter
-  @EnvironmentObject var histManager: HistoryManager
-  @EnvironmentObject var settings: UserSettings
+  /// The registry of all global services
+  @EnvironmentObject var globals: LispPadGlobals
 
   // UserDefault keys
   static let splitViewModeKey = "SplitView.mode"
   static let splitViewWidthFractionKey = "SplitView.widthFraction"
 
-  // Navigational state
+  /// The current split view mode of the application. This state is persisted between
+  /// application runs.
   @State private var splitViewMode: SplitViewMode =
     SplitViewMode(rawValue: UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ??
     .normal
+
+  /// The current master width fraction (i.e. the width of the left-most view in a split
+  /// view environment). This state is persisted between application runs.
   @State private var masterWidthFraction: Double = {
     let fraction = UserDefaults.standard.double(forKey: MainView.splitViewWidthFractionKey)
     return fraction > 0.0 && fraction < 1.0 ? fraction : 0.5
   }()
-
-  // Editor state
+  
+  /// Used to position the cursor of the editor at the given location. This state variable
+  /// will be reset once the cursor was positioned.
   @State private var editorPosition: NSRange? = nil
+
+  /// Setting this to `true` will force an editor update. The variable is automatically reset.
   @State private var forceEditorUpdate: Bool = false
 
+  /// The definition of the view.
   var body: some View {
     if UIDevice.current.userInterfaceIdiom == .pad {
-      GeometryReader { geo in
-        SplitView {
-            NavigationView {
-              InterpreterView(splitView: true,
-                              splitViewMode: $splitViewMode,
-                              masterWidthFraction: $masterWidthFraction,
-                              editorPosition: $editorPosition,
-                              forceEditorUpdate: $forceEditorUpdate)
-                .environmentObject(self.settings)
-                .environmentObject(self.interpreter)
-                .environmentObject(self.docManager)
-                .environmentObject(self.histManager)
-                .environmentObject(self.fileManager)
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
-        } detail: {
+      SplitView {
           NavigationView {
-            CodeEditorView(splitView: true,
-                           splitViewMode: $splitViewMode,
-                           masterWidthFraction: $masterWidthFraction,
-                           editorPosition: $editorPosition,
-                           forceEditorUpdate: $forceEditorUpdate)
-              .environmentObject(self.settings)
-              .environmentObject(self.interpreter)
-              .environmentObject(self.docManager)
-              .environmentObject(self.histManager)
-              .environmentObject(self.fileManager)
+            InterpreterView(splitView: true,
+                            splitViewMode: $splitViewMode,
+                            masterWidthFraction: $masterWidthFraction,
+                            editorPosition: $editorPosition,
+                            forceEditorUpdate: $forceEditorUpdate)
+              .modifier(self.globals.services)
           }
           .navigationViewStyle(StackNavigationViewStyle())
+      } detail: {
+        NavigationView {
+          CodeEditorView(splitView: true,
+                         splitViewMode: $splitViewMode,
+                         masterWidthFraction: $masterWidthFraction,
+                         editorPosition: $editorPosition,
+                         forceEditorUpdate: $forceEditorUpdate)
+            .modifier(self.globals.services)
         }
-        .splitViewPreferredDisplayMode(.oneBesideSecondary)
-        .splitViewMasterWidthFraction(self.masterWidthFraction)
-        .splitViewMode(self.splitViewMode)
+        .navigationViewStyle(StackNavigationViewStyle())
       }
+      .splitViewPreferredDisplayMode(.oneBesideSecondary)
+      .splitViewMasterWidthFraction(self.masterWidthFraction)
+      .splitViewMode(self.splitViewMode)
       .onChange(of: self.splitViewMode) { mode in
         UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
       }
@@ -96,11 +92,7 @@ struct MainView: View {
                         masterWidthFraction: $masterWidthFraction,
                         editorPosition: $editorPosition,
                         forceEditorUpdate: $forceEditorUpdate)
-          .environmentObject(self.settings)
-          .environmentObject(self.interpreter)
-          .environmentObject(self.docManager)
-          .environmentObject(self.histManager)
-          .environmentObject(self.fileManager)
+          .modifier(self.globals.services)
       }
       .navigationViewStyle(StackNavigationViewStyle())
     }

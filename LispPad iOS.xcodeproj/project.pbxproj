@@ -23,6 +23,7 @@
 		CC55DD7A26469A8F001AAD10 /* SplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7926469A8F001AAD10 /* SplitView.swift */; };
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
 		CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7D26481279001AAD10 /* NavigationControl.swift */; };
+		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
@@ -291,6 +292,7 @@
 		CC55DD7926469A8F001AAD10 /* SplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitView.swift; sourceTree = "<group>"; };
 		CC55DD7B2646B4C4001AAD10 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		CC55DD7D26481279001AAD10 /* NavigationControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControl.swift; sourceTree = "<group>"; };
+		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -450,6 +452,7 @@
 			children = (
 				CC8B95D32609462800830B4F /* LispPad.entitlements */,
 				CC84C24925FE59EE00758581 /* LispPadApp.swift */,
+				CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */,
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
 				CC84C27525FE7B1100758581 /* Session */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
@@ -864,6 +867,7 @@
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
+				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,
 				CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */,
 				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
