@@ -73,13 +73,22 @@ struct InterpreterView: View {
   static let toolbarSwitchFont: SwiftUI.Font = .system(size: InterpreterView.toolbarItemSize,
                                                        weight: .regular)
   
-  // Environment, observed and bound objects
+  // Environment objects
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var settings: UserSettings
-  
+
+  // Parameters
+  let splitView: Bool
+
+  // External state
+  @Binding var splitViewMode: SplitViewMode
+  @Binding var masterWidthFraction: Double
+  @Binding var editorPosition: NSRange?
+  @Binding var forceEditorUpdate: Bool
+
   // Internal state
   @State private var consoleInput = ""
   @State private var showResetActionSheet = false
@@ -87,42 +96,45 @@ struct InterpreterView: View {
   @State private var showSheet: SheetAction? = nil
   @State private var alertAction: AlertAction? = nil
   @State private var navigateToEditor: Bool = false
-  @State private var editorPosition: NSRange? = nil
-  @State private var forceEditorUpdate: Bool = false
   
   // The main view
-  var master: some View {
+  var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       ConsoleView(
-          font: settings.consoleFont,
-          infoFont: settings.consoleInfoFont,
-          inputFont: settings.inputFont,
-          action: {
-            let old = self.consoleInput
-            self.consoleInput = ""
-            let input: String
-            if self.interpreter.isReady {
-              input = InterpreterView.canonicalizeInput(old)
-              self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-              self.histManager.addCommandEntry(input)
-            } else {
-              input = old
-            }
-            self.interpreter.evaluate(input, reset: {
-              self.consoleInput = old
-              self.interpreter.consoleContent.removeLast()
-            })
-          },
-          content: $interpreter.consoleContent,
-          history: $histManager.commandHistory,
-          input: $consoleInput,
-          readingStatus: $interpreter.readingStatus,
-          ready: $interpreter.isReady)
+        font: settings.consoleFont,
+        infoFont: settings.consoleInfoFont,
+        inputFont: settings.inputFont,
+        action: {
+          let old = self.consoleInput
+          self.consoleInput = ""
+          let input: String
+          if self.interpreter.isReady {
+            input = InterpreterView.canonicalizeInput(old)
+            self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
+            self.histManager.addCommandEntry(input)
+          } else {
+            input = old
+          }
+          self.interpreter.evaluate(input, reset: {
+            self.consoleInput = old
+            self.interpreter.consoleContent.removeLast()
+          })
+        },
+        content: $interpreter.consoleContent,
+        history: $histManager.commandHistory,
+        input: $consoleInput,
+        readingStatus: $interpreter.readingStatus,
+        ready: $interpreter.isReady)
       Spacer()
-      NavigationLink(destination: CodeEditorView(forceEditorUpdate: $forceEditorUpdate,
-                                                 position: $editorPosition),
-                     isActive: $navigateToEditor) {
-        EmptyView()
+      if !self.splitView {
+        NavigationLink(destination: CodeEditorView(splitView: self.splitView,
+                                                   splitViewMode: $splitViewMode,
+                                                   masterWidthFraction: $masterWidthFraction,
+                                                   editorPosition: $editorPosition,
+                                                   forceEditorUpdate: $forceEditorUpdate),
+                       isActive: $navigateToEditor) {
+          EmptyView()
+        }
       }
     }
     .navigationBarTitleDisplayMode(.inline)
@@ -130,18 +142,14 @@ struct InterpreterView: View {
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarLeading) {
         HStack(alignment: .center, spacing: 16) {
-          Button(action: {
+          NavigationControl(splitView: self.splitView,
+                            masterView: true,
+                            splitViewMode: $splitViewMode,
+                            masterWidthFraction: $masterWidthFraction) {
             self.navigateToEditor = true
-          }) {
-            Image(systemName: "pencil.circle.fill")
-              .foregroundColor(.primary)
-              .font(InterpreterView.toolbarSwitchFont)
+          } splitViewAction: {
+            self.histManager.saveCommandHistory()
           }
-          /* NavigationLink(destination: LazyView(CodeEditorView(urlToOpen: $urlToOpen))) {
-            Image(systemName: "pencil.circle.fill")
-              .foregroundColor(.primary)
-              .font(InterpreterView.toolbarSwitchFont)
-          } */
           if self.interpreter.isReady {
             Menu {
               Button(action: {
@@ -239,7 +247,7 @@ struct InterpreterView: View {
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: 16) {
           NavigationLink(destination: LazyView(
-                           PreferencesView(selectedTab: $selectedPreferencesTab))) {
+                          PreferencesView(selectedTab: $selectedPreferencesTab))) {
             Image(systemName: "gearshape")
               .font(InterpreterView.toolbarFont)
           }
@@ -254,6 +262,7 @@ struct InterpreterView: View {
             Image(systemName: "square.stack.3d.up")
               .font(InterpreterView.toolbarFont)
           }
+          .disabled(!self.docManager.initialized)
         }
       }
     }
@@ -361,27 +370,6 @@ struct InterpreterView: View {
             }})
       }
     }
-  }
-  
-  var body: some View {
-    NavigationView {
-      self.master
-    }
-    .navigationViewStyle(StackNavigationViewStyle())
-    /* GeometryReader { geo in
-      if UIDevice.current.userInterfaceIdiom == .pad {
-        NavigationView {
-          self.master
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
-      } else {
-        NavigationView {
-          self.master
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
-      }
-    }
-    */
   }
   
   func notSavedAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {

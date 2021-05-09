@@ -69,9 +69,13 @@ struct CodeEditorView: View {
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
-  
+
+  let splitView: Bool
+
+  @Binding var splitViewMode: SplitViewMode
+  @Binding var masterWidthFraction: Double
+  @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
-  @Binding var position: NSRange?
   @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
   @State var showSheet: SheetAction? = nil
@@ -95,7 +99,7 @@ struct CodeEditorView: View {
                                   range: NSRange(location: pos, length: text.length - pos),
                                   locale: nil)
           if result.location != NSNotFound {
-            self.position = result
+            self.editorPosition = result
             return true
           } else {
             return false
@@ -113,7 +117,7 @@ struct CodeEditorView: View {
                                   set: { if let doc = self.fileManager.editorDocument {
                                            doc.selectedRange = $0
                                        }}),
-                 position: $position,
+                 position: $editorPosition,
                  forceUpdate: $forceEditorUpdate,
                  editorType: $editorType)
         .defaultFont(settings.editorFont)
@@ -134,12 +138,15 @@ struct CodeEditorView: View {
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarLeading) {
         HStack(alignment: .center, spacing: 16)  {
-          Button(action: {
+          NavigationControl(splitView: self.splitView,
+                            masterView: false,
+                            splitViewMode: $splitViewMode,
+                            masterWidthFraction: $masterWidthFraction) {
             self.presentationMode.wrappedValue.dismiss()
-          }) {
-            Image(systemName: "terminal.fill")
-              .foregroundColor(.primary)
-              .font(InterpreterView.toolbarSwitchFont)
+          } splitViewAction: {
+            self.fileManager.editorDocument?.saveFile()
+            self.histManager.saveFilesHistory()
+            self.histManager.saveFavorites()
           }
           Menu(content: {
             Button(action: {
@@ -187,8 +194,8 @@ struct CodeEditorView: View {
                       makeUntitled: !purl.mutable,
                       action: { success in
                         if success {
-                          self.position = NSRange(location: 0, length: 0)
                           self.forceEditorUpdate = true
+                          self.editorPosition = NSRange(location: 0, length: 0)
                         }})
                   }) {
                     Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
@@ -265,8 +272,8 @@ struct CodeEditorView: View {
                     makeUntitled: true,
                     action: { success in
                       if success {
-                        self.position = NSRange(location: 0, length: 0)
                         self.forceEditorUpdate = true
+                        self.editorPosition = NSRange(location: 0, length: 0)
                       } else {
                         self.notSavedAlertAction = .couldNotDuplicate
                       }
@@ -311,7 +318,7 @@ struct CodeEditorView: View {
                   doc.text = text.replacingCharacters(in: replRange, with: str)
                   doc.selectedRange = selRange
                   self.forceEditorUpdate = true
-                  self.position = selRange
+                  self.editorPosition = selRange
                 }
               }
             }) {
@@ -327,7 +334,7 @@ struct CodeEditorView: View {
                   doc.text = text as String
                   doc.selectedRange = selRange
                   self.forceEditorUpdate = true
-                  self.position = selRange
+                  self.editorPosition = selRange
                 }
               }
             }) {
@@ -342,7 +349,7 @@ struct CodeEditorView: View {
                   doc.text = text as String
                   doc.selectedRange = selRange
                   self.forceEditorUpdate = true
-                  self.position = selRange
+                  self.editorPosition = selRange
                 }
               }
             }) {
@@ -358,7 +365,7 @@ struct CodeEditorView: View {
                   doc.text = text as String
                   doc.selectedRange = selRange
                   self.forceEditorUpdate = true
-                  self.position = selRange
+                  self.editorPosition = selRange
                 }
               }
             }) {
@@ -374,7 +381,7 @@ struct CodeEditorView: View {
                   doc.text = text as String
                   doc.selectedRange = selRange
                   self.forceEditorUpdate = true
-                  self.position = selRange
+                  self.editorPosition = selRange
                 }
               }
             }) {
@@ -440,8 +447,8 @@ struct CodeEditorView: View {
               makeUntitled: !mutable,
               action: { success in
                 if success {
-                  self.position = NSRange(location: 0, length: 0)
                   self.forceEditorUpdate = true
+                  self.editorPosition = NSRange(location: 0, length: 0)
                 }})
             return true
           }
@@ -484,7 +491,7 @@ struct CodeEditorView: View {
           .environmentObject(self.histManager)
           .environmentObject(self.settings)
         case .showDefinitions(let definitions):
-          DefinitionView(defitions: definitions, position: $position)
+          DefinitionView(defitions: definitions, position: $editorPosition)
       }
     }
     .alert(item: $notSavedAlertAction) { alertAction in

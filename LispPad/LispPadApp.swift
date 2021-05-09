@@ -35,7 +35,7 @@ import SwiftUI
   // The scene powering the app
   var body: some Scene {
     WindowGroup {
-      InterpreterView()
+      MainView()
         .environmentObject(self.settings)
         .environmentObject(self.interpreter)
         .environmentObject(self.docManager)
@@ -62,11 +62,5 @@ import SwiftUI
           break
       }
     })
-    
-    /* Do not use a second scene yet
-    DocumentGroup(newDocument: LispPadDocument()) { file in
-      ContentView(document: file.$document)
-    }
-    */
   }
 }
