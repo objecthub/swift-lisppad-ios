@@ -26,19 +26,13 @@ struct CodeEditor: UIViewRepresentable {
   
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var settings: UserSettings
 
   @Binding var text: String
   @Binding var selectedRange: NSRange
   @Binding var position: NSRange?
   @Binding var forceUpdate: Bool
   @Binding var editorType: FileExtensions.EditorType
-  
-  var autocapitalizationType: UITextAutocapitalizationType = .sentences
-  var autocorrectionType: UITextAutocorrectionType = .default
-  private(set) var backgroundColor: UIColor? = nil
-  private(set) var color: UIColor? = nil
-  private(set) var font: UIFont? = nil
-  private(set) var insertionPointColor: UIColor? = nil
   
   public init(text: Binding<String>,
               selectedRange: Binding<NSRange>,
@@ -58,7 +52,7 @@ struct CodeEditor: UIViewRepresentable {
                                       fileManager: self.fileManager)
   }
   
-  public func makeUIView(context: Context) -> UITextView {
+  public func makeUIView(context: Context) -> CodeEditorTextView {
     let textView = CodeEditorTextView(frame: CGRect(x: 0,
                                                     y: 0,
                                                     width: 100000,
@@ -72,18 +66,12 @@ struct CodeEditor: UIViewRepresentable {
     textView.smartQuotesType = .no
     textView.smartDashesType = .no
     textView.smartInsertDeleteType = .no
-    textView.textAlignment = .left // or .natural ?
+    textView.textAlignment = .left
     textView.keyboardType = .default
-    textView.autocapitalizationType = autocapitalizationType
-    textView.autocorrectionType = autocorrectionType
-    if let color = self.backgroundColor {
-      textView.backgroundColor = color
-    }
-    if let font = self.font {
-      textView.font = font
-    }
+    textView.autocapitalizationType = .none
+    textView.autocorrectionType = .no
+    textView.font = self.settings.editorFont
     textView.textColor = UIColor(named: "CodeEditorTextColor")
-    textView.tintColor = insertionPointColor ?? textView.tintColor
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject
     textInputTraits?.setValue(textView.tintColor, forKey: "insertionPointColor")
     textView.becomeFirstResponder()
@@ -99,39 +87,34 @@ struct CodeEditor: UIViewRepresentable {
     return textView
   }
 
-  public func updateUIView(_ uiView: UITextView, context: Context) {
-    if let tsd = uiView.textStorage.delegate as? CodeEditorTextStorageDelegate,
-       self.editorType != tsd.editorType {
-      tsd.editorType = self.editorType
-      tsd.highlight(uiView.textStorage)
+  public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
+    if textView.font != self.settings.editorFont {
+      textView.font = self.settings.editorFont
+    }
+    if textView.showLineNumbers != self.settings.showLineNumbers {
+      textView.showLineNumbers = self.settings.showLineNumbers
+    }
+    if self.editorType != textView.textStorageDelegate.editorType {
+      textView.textStorageDelegate.editorType = self.editorType
+      textView.textStorageDelegate.highlight(textView.textStorage)
+    } else if textView.syntaxHighlightingUpdate != self.settings.syntaxHighlightingUpdate {
+      textView.textStorageDelegate.highlight(textView.textStorage)
     }
     if let pos = self.position {
       if self.forceUpdate {
-        uiView.text = self.text
+        textView.text = self.text
       }
-      uiView.selectedRange = pos
+      textView.selectedRange = pos
       DispatchQueue.main.async {
-        uiView.becomeFirstResponder()
-        uiView.selectedRange = pos
-        uiView.scrollRangeToVisible(pos)
+        textView.becomeFirstResponder()
+        textView.selectedRange = pos
+        textView.scrollRangeToVisible(pos)
         self.position = nil
         self.forceUpdate = false
       }
     } else if self.forceUpdate {
-      uiView.text = self.text
-      /* uiView.selectedRange = self.selectedRange
-      var offset: CGPoint? = nil
-      if let doc = self.fileManager.editorDocument {
-        offset = doc.lastContentOffset
-        print("content offset = \(offset!)")
-        uiView.setContentOffset(offset!, animated: false)
-      } */
+      textView.text = self.text
       DispatchQueue.main.async {
-        // uiView.becomeFirstResponder()
-        /* if offset != nil {
-          print("  -> setContentOffset(\(offset!))")
-          uiView.setContentOffset(offset!, animated: false)
-        } */
         self.forceUpdate = false
       }
     }
@@ -152,44 +135,5 @@ struct CodeEditor: UIViewRepresentable {
     let startIndex = textView.offset(from: textView.beginningOfDocument, to: startPosition)
     let endIndex = textView.offset(from: startPosition, to: endPosition)
     return NSRange(location: startIndex, length: endIndex)
-  }
-}
-
-/// CodeEditor-specific modifiers
-extension CodeEditor {
-  public func autocapitalizationType(_ type: UITextAutocapitalizationType) -> Self {
-    var new = self
-    new.autocapitalizationType = type
-    return new
-  }
-  
-  public func autocorrectionType(_ type: UITextAutocorrectionType) -> Self {
-    var new = self
-    new.autocorrectionType = type
-    return new
-  }
-  
-  public func backgroundColor(_ color: UIColor) -> Self {
-    var new = self
-    new.backgroundColor = color
-    return new
-  }
-  
-  public func defaultColor(_ color: UIColor) -> Self {
-    var new = self
-    new.color = color
-    return new
-  }
-  
-  public func defaultFont(_ font: UIFont) -> Self {
-    var new = self
-    new.font = font
-    return new
-  }
-  
-  public func insertionPointColor(_ color: UIColor) -> Self {
-    var new = self
-    new.insertionPointColor = color
-    return new
   }
 }

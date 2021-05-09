@@ -67,8 +67,6 @@ struct SplitViewController: UIViewControllerRepresentable {
   func updateUIViewController(_ splitController: UISplitViewController, context: Context) {
     splitController.preferredDisplayMode = preferredDisplayMode
     splitController.preferredPrimaryColumnWidthFraction = CGFloat(self.masterWidthFraction)
-    Swift.print("SOURCE = \(self.masterWidthFraction)")
-    Swift.print("FRACTION = \(splitController.preferredPrimaryColumnWidthFraction)")
     switch self.mode {
       case .normal:
         splitController.viewControllers = self.viewControllers

@@ -121,9 +121,6 @@ struct CodeEditorView: View {
                  position: $editorPosition,
                  forceUpdate: $forceEditorUpdate,
                  editorType: $editorType)
-        .defaultFont(settings.editorFont)
-        .autocorrectionType(.no)
-        .autocapitalizationType(.none)
         .multilineTextAlignment(.leading)
         .onAppear {
           self.editorType = self.fileManager.editorDocument?.editorType ?? self.editorType

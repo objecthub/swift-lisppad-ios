@@ -21,10 +21,44 @@
 import UIKit
 
 class CodeEditorTextView: UITextView {
+
+  /// The width of the gutter
   static let gutterWidth: CGFloat = 31.0
-  
+
+  /// The gutter bezier path
+  static let gutterPath: UIBezierPath = UIBezierPath(rect:
+                                          CGRect(x: 0.0, y: 0.0,
+                                                 width: CodeEditorTextView.gutterWidth,
+                                                 height: CGFloat.greatestFiniteMagnitude))
+
+  /// Direct access to the text storage delegate
   let textStorageDelegate: CodeEditorTextStorageDelegate
-  
+
+  /// Show line numbers?
+  private var internalShowLineNumbers: Bool
+
+  /// When was the last syntax highlighting settings change?
+  var syntaxHighlightingUpdate: Date
+
+  var showLineNumbers: Bool {
+    get {
+      return self.internalShowLineNumbers
+    }
+    set(newVal) {
+      if self.internalShowLineNumbers != newVal {
+        let lm = self.layoutManager as! CodeEditorLayoutManager
+        lm.showLineNumbers = newVal
+        self.internalShowLineNumbers = newVal
+        if newVal {
+          self.textContainer.exclusionPaths = [Self.gutterPath]
+        } else {
+          self.textContainer.exclusionPaths.removeAll()
+        }
+        self.setNeedsDisplay()
+      }
+    }
+  }
+
   var codingFont: UIFont {
     get {
       let lm = self.layoutManager as! CodeEditorLayoutManager
@@ -75,15 +109,15 @@ class CodeEditorTextView: UITextView {
     let tc = NSTextContainer(size: CGSize(width: CGFloat.greatestFiniteMagnitude,
                                           height: CGFloat.greatestFiniteMagnitude))
     tc.widthTracksTextView = true
-    if UserSettings.standard.showLineNumbers {
-      tc.exclusionPaths = [UIBezierPath(rect: CGRect(x: 0.0, y: 0.0,
-                                                     width: CodeEditorTextView.gutterWidth,
-                                                     height: CGFloat.greatestFiniteMagnitude))]
+    if lm.showLineNumbers {
+      tc.exclusionPaths = [Self.gutterPath]
     }
     lm.addTextContainer(tc)
     ts.addLayoutManager(lm)
     ts.delegate = td
     self.textStorageDelegate = td
+    self.internalShowLineNumbers = lm.showLineNumbers
+    self.syntaxHighlightingUpdate = UserSettings.standard.syntaxHighlightingUpdate
     super.init(frame: frame, textContainer: tc)
     self.backgroundColor = .clear
     self.contentMode = .redraw
@@ -103,7 +137,7 @@ class CodeEditorTextView: UITextView {
   */
   
   override func draw(_ rect: CGRect) {
-    if UserSettings.standard.showLineNumbers,
+    if self.showLineNumbers,
        let context: CGContext = UIGraphicsGetCurrentContext() {
       let bounds = self.bounds
       context.setFillColor(self.codingBackgroundColor.cgColor)

@@ -24,7 +24,8 @@
 import UIKit
 
 class CodeEditorLayoutManager: NSLayoutManager {
-  
+
+  var showLineNumbers = UserSettings.standard.showLineNumbers
   var codingFont = UIFont.systemFont(ofSize: 10.0)
   var codingTextColor = UIColor.secondaryLabel
   var lastLineLoc = 0
@@ -108,7 +109,7 @@ class CodeEditorLayoutManager: NSLayoutManager {
     super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
     // Draw line numbers. The background for line number gutter is drawn by the
     // CodeEditorTextView class.
-    guard UserSettings.standard.showLineNumbers,
+    guard self.showLineNumbers,
           let textStorage = self.textStorage else {
       return
     }

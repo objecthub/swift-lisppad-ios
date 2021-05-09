@@ -191,6 +191,7 @@ final class UserSettings: ObservableObject {
   
   @Published var schemeHighlightSyntax: Bool {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.schemeHighlightSyntax, forKey: Self.schemeHighlightSyntaxKey)
     }
   }
@@ -209,6 +210,7 @@ final class UserSettings: ObservableObject {
   
   @Published var markdownHighlightSyntax: Bool {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.markdownHighlightSyntax, forKey:
                                   Self.markdownHighlightSyntaxKey)
     }
@@ -216,60 +218,70 @@ final class UserSettings: ObservableObject {
   
   @Published var docuIdentColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.docuIdentColor, forKey: Self.docuIdentColorKey)
     }
   }
   
   @Published var parensColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.parensColor, forKey: Self.parensColorKey)
     }
   }
   
   @Published var literalsColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.literalsColor, forKey: Self.literalsColorKey)
     }
   }
   
   @Published var commentsColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.commentsColor, forKey: Self.commentsColorKey)
     }
   }
   
   @Published var headerColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.headerColor, forKey: Self.headerColorKey)
     }
   }
   
   @Published var subheaderColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.subheaderColor, forKey: Self.subheaderColorKey)
     }
   }
   
   @Published var emphasisColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.emphasisColor, forKey: Self.emphasisColorKey)
     }
   }
   
   @Published var bulletsColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.bulletsColor, forKey: Self.bulletsColorKey)
     }
   }
   
   @Published var blockquoteColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.blockquoteColor, forKey: Self.blockquoteColorKey)
     }
   }
   
   @Published var codeColor: CGColor {
     didSet {
+      self.syntaxHighlightingUpdate = Date()
       UserDefaults.standard.set(self.codeColor, forKey: Self.codeColorKey)
     }
   }
@@ -290,6 +302,8 @@ final class UserSettings: ObservableObject {
     return Self.monospacedUIFontMap[self.editorFontSize] ??
              .monospacedSystemFont(ofSize: 12, weight: .regular)
   }
+
+  var syntaxHighlightingUpdate = Date()
   
   private init() {
     self.foldersOnICloud = UserDefaults.standard.boolean(forKey: Self.foldersOnICloudKey)
