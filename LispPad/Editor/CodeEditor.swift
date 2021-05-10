@@ -88,6 +88,14 @@ struct CodeEditor: UIViewRepresentable {
   }
 
   public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
+    if self.fileManager.requireEditorUpdate() {
+      textView.text = self.text
+      textView.selectedRange = NSRange(location: 0, length: 0)
+      DispatchQueue.main.async {
+        textView.becomeFirstResponder()
+        textView.scrollRangeToVisible(textView.selectedRange)
+      }
+    }
     if textView.font != self.settings.editorFont {
       textView.font = self.settings.editorFont
     }

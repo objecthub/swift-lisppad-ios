@@ -22,40 +22,48 @@ import UIKit
 import SwiftUI
 
 final class TextDocument: UIDocument, ObservableObject, Identifiable {
-  
-  weak var fileManager: FileManager? = nil
-  
-  // Manage appearance of text document
-  @Published var title = "Untitled" {
+
+  struct Info {
+    let title: String
+    let new: Bool
+    let editorType: FileExtensions.EditorType
+  }
+
+  /// Reference to the file manager
+  weak var fileManager: FileManager? = nil {
     didSet {
-      self.fileManager?.editorDocumentTitle = self.title
+      self.fileManager?.editorDocumentInfo = self.info
     }
   }
-  
-  @Published var new: Bool = true {
+
+  /// Manage appearance of document
+  @Published var info = Info(title: "Untitled", new: true, editorType: .scheme) {
     didSet {
-      self.fileManager?.editorDocumentNew = self.new
+      self.fileManager?.editorDocumentInfo = self.info
     }
   }
-  
-  // State of text document
+
+  /// Textual content
   @Published var text = ""
+
+  /// Currently selected range
   @Published var selectedRange = NSRange(location: 0, length: 0)
-  
-  var editorType: FileExtensions.EditorType = .scheme
+
+  /// Buffer used by editor
   var lastContentOffset = CGPoint(x: 0, y: 0)
-  
+
   var id: URL {
     return self.fileURL
   }
   
-  func recomputeTitle(_ url: URL? = nil) {
-    self.title = (url ?? self.fileURL).deletingPathExtension().lastPathComponent
-    self.editorType = FileExtensions.editorType(for: url ?? self.fileURL)
+  func recomputeInfo(for url: URL? = nil, new: Bool) {
+    self.info = Info(title: (url ?? self.fileURL).deletingPathExtension().lastPathComponent,
+                     new: new,
+                     editorType: FileExtensions.editorType(for: url ?? self.fileURL))
   }
   
   var saveAsURL: URL? {
-    if self.new {
+    if self.info.new {
       return PortableURL.Base.documents.url?.appendingPathComponent("Untitled.scm")
     } else {
       return self.fileURL
@@ -85,7 +93,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   func saveFileAs(_ url: URL, complete: @escaping (URL?) -> Void) {
     self.saveFile { success in 
       if success {
-        if self.new {
+        if self.info.new {
           self.moveFile(to: url, complete: complete)
         } else {
           self.copyFile(to: url, complete: complete)
@@ -123,8 +131,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
           try fileManager.moveItem(at: newURL1, to: newURL2)
           self.presentedItemDidMove(to: newURL2)
           DispatchQueue.main.async {
-            self.recomputeTitle(newURL2)
-            self.new = false
+            self.recomputeInfo(for: newURL2, new: false)
             complete(newURL2)
           }
         } catch {
@@ -158,8 +165,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
           try fileManager.copyItem(at: newURL1, to: newURL2)
           self.presentedItemDidMove(to: newURL2)
           DispatchQueue.main.async {
-            self.recomputeTitle(newURL2)
-            self.new = false
+            self.recomputeInfo(for: newURL2, new: false)
             complete(newURL2)
           }
         } catch {

@@ -126,10 +126,10 @@ struct CodeEditorView: View {
                  editorType: $editorType)
         .multilineTextAlignment(.leading)
         .onAppear {
-          self.editorType = self.fileManager.editorDocument?.editorType ?? self.editorType
+          self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
-        .onChange(of: self.fileManager.editorDocument?.editorType) { value in
-          self.editorType = self.fileManager.editorDocument?.editorType ?? self.editorType
+        .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
+          self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
       Divider()
     }
@@ -151,19 +151,17 @@ struct CodeEditorView: View {
           }
           Menu(content: {
             Button(action: {
-              if (self.fileManager.editorDocumentNew) &&
+              if (self.fileManager.editorDocumentInfo.new) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .newFile
               } else {
-                self.fileManager.newEditorDocument(action: { success in
-                  self.forceEditorUpdate = true
-                })
+                self.fileManager.newEditorDocument()
               }
             }) {
               Label("New", systemImage: "square.and.pencil")
             }
             Button(action: {
-              if (self.fileManager.editorDocumentNew) &&
+              if (self.fileManager.editorDocumentInfo.new) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .editFile
               } else {
@@ -177,7 +175,7 @@ struct CodeEditorView: View {
                 self.showSheet = .saveFile
               }
             }) {
-              Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
+              Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
                     systemImage: "tray.and.arrow.down")
             }
             Button(action: {
@@ -190,14 +188,7 @@ struct CodeEditorView: View {
               ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
                 if let url = purl.url {
                   Button(action: {
-                    self.fileManager.loadEditorDocument(
-                      source: url,
-                      makeUntitled: !purl.mutable,
-                      action: { success in
-                        if success {
-                          self.forceEditorUpdate = true
-                          self.editorPosition = NSRange(location: 0, length: 0)
-                        }})
+                    self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
                   }) {
                     Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
                   }
@@ -248,14 +239,14 @@ struct CodeEditorView: View {
             Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
                   systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
           }
-          .disabled(self.fileManager.editorDocument?.new ?? true)
+          .disabled(self.fileManager.editorDocumentInfo.new)
           Divider()
           Button(action: {
             self.fileManager.editorDocument?.saveFile { success in
               self.showSheet = .saveFile
             }
           }) {
-            Label(self.fileManager.editorDocumentNew ? "Save…" : "Save As…",
+            Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
                   systemImage: "tray.and.arrow.down")
           }
           Button(action: {
@@ -263,19 +254,16 @@ struct CodeEditorView: View {
           }) {
             Label("Rename", systemImage: "pencil")
           }
-          .disabled(self.fileManager.editorDocument?.new ?? true)
+          .disabled(self.fileManager.editorDocumentInfo.new)
           Button(action: {
-            if let doc = self.fileManager.editorDocument, !doc.new {
+            if let doc = self.fileManager.editorDocument, !doc.info.new {
               doc.saveFile { success in
                 if success {
                   self.fileManager.loadEditorDocument(
                     source: doc.fileURL,
                     makeUntitled: true,
                     action: { success in
-                      if success {
-                        self.forceEditorUpdate = true
-                        self.editorPosition = NSRange(location: 0, length: 0)
-                      } else {
+                      if !success {
                         self.notSavedAlertAction = .couldNotDuplicate
                       }
                     })
@@ -287,7 +275,7 @@ struct CodeEditorView: View {
           }) {
             Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
           }
-          .disabled(self.fileManager.editorDocument?.new ?? true)
+          .disabled(self.fileManager.editorDocumentInfo.new)
           Divider()
           Button(action: {
             self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
@@ -300,7 +288,7 @@ struct CodeEditorView: View {
           }
           .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
         } label: {
-          Text(self.fileManager.editorDocumentTitle)
+          Text(self.fileManager.editorDocumentInfo.title)
             .font(.body)
             .bold()
             .foregroundColor(.primary)
@@ -397,11 +385,11 @@ struct CodeEditorView: View {
             guard let doc = self.fileManager.editorDocument else {
               return
             }
-            if doc.editorType == .scheme {
+            if doc.info.editorType == .scheme {
               if let defs = DefinitionView.parseDefinitions(doc.text) {
                 self.showSheet = .showDefinitions(defs)
               }
-            } else if doc.editorType == .markdown {
+            } else if doc.info.editorType == .markdown {
               if let structure = DocStructureView.parseDocStructure(doc.text) {
                 self.showSheet = .showDocStructure(structure)
               }
@@ -427,8 +415,8 @@ struct CodeEditorView: View {
       switch sheet {
         case .renameFile:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                     firstSave: self.fileManager.editorDocumentNew,
-                     lockFolder: true) { url in
+                 firstSave: self.fileManager.editorDocumentInfo.new,
+                 lockFolder: true) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.notSavedAlertAction = .notSaved
@@ -438,7 +426,7 @@ struct CodeEditorView: View {
           .modifier(self.globals.services)
         case .saveFile:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                     firstSave: self.fileManager.editorDocumentNew) { url in
+                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.notSavedAlertAction = .notSaved
@@ -448,14 +436,7 @@ struct CodeEditorView: View {
           .modifier(self.globals.services)
         case .editFile:
           Open() { url, mutable in
-            self.fileManager.loadEditorDocument(
-              source: url,
-              makeUntitled: !mutable,
-              action: { success in
-                if success {
-                  self.forceEditorUpdate = true
-                  self.editorPosition = NSRange(location: 0, length: 0)
-                }})
+            self.fileManager.loadEditorDocument(source: url, makeUntitled: !mutable)
             return true
           }
           .modifier(self.globals.services)
@@ -463,21 +444,19 @@ struct CodeEditorView: View {
           Organizer().modifier(self.globals.services)
         case .saveBeforeNew:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentNew) { url in
+                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.notSavedAlertAction = .notSaved
               } else {
-                self.fileManager.newEditorDocument(action: { success in
-                  self.forceEditorUpdate = true
-                })
+                self.fileManager.newEditorDocument()
               }
             }
           }
           .modifier(self.globals.services)
         case .saveBeforeEdit:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentNew) { url in
+                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.notSavedAlertAction = .notSaved

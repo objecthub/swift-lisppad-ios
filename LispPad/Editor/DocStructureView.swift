@@ -60,7 +60,7 @@ struct DocStructureView: View {
                              self.presentationMode.wrappedValue.dismiss() }) {
               HStack {
                 Image(systemName: self.image(for: header.level))
-                Spacer().frame(minWidth: 0, maxWidth: CGFloat(header.level) * 16.0)
+                Spacer().frame(minWidth: 16.0, maxWidth: CGFloat(header.level) * 16.0)
                 Text(header.title)
               }
             }

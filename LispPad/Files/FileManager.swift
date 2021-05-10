@@ -59,9 +59,35 @@ class FileManager: ObservableObject {
   
   /// The document currently loaded into the editor
   @Published var editorDocument: TextDocument? = nil
-  @Published var editorDocumentTitle: String = "Untitled"
-  @Published var editorDocumentNew: Bool = true
-  
+
+  @Published var editorDocumentInfo: TextDocument.Info = TextDocument.Info(title: "Untitled",
+                                                                           new: true,
+                                                                           editorType: .scheme)
+
+  @Published var editorDocumentLoadDate: Date = Date()
+
+  /// Used to determine when to update `editorDocumentLoadDate`.
+  private var editorDocumentFileURL: URL? = nil
+
+  /// Used to track the last editor view update
+  private var editorDocumentUpdateDate: Date? = nil
+
+  func requireEditorUpdate() -> Bool {
+    if self.editorDocumentUpdateDate != self.editorDocumentLoadDate {
+      self.editorDocumentUpdateDate = self.editorDocumentLoadDate
+      return true
+    } else {
+      return false
+    }
+  }
+
+  private func updateEditorDocumentLoadDate(_ url: URL) {
+    if url != self.editorDocumentFileURL {
+      self.editorDocumentFileURL = url
+      self.editorDocumentLoadDate = Date()
+    }
+  }
+
   var baseURLs: [(URL, Int)] = []
 
   /// Constructor, responsible for defining the named resources as well as for setting them up
@@ -105,7 +131,7 @@ class FileManager: ObservableObject {
     })
     if let appDir = PortableURL.Base.application.url {
       self.applicationSupportURL = appDir
-      self.newEditorDocument(action: { success in })
+      self.newEditorDocument()
     }
     self.baseURLs.append((URL(fileURLWithPath: Context.rootDirectory,
                               relativeTo: Context.bundle!.bundleURL.absoluteURL), 0))
@@ -340,8 +366,8 @@ class FileManager: ObservableObject {
       }
     }
   }
-  
-  func newEditorDocument(action: @escaping (Bool) -> Void) {
+
+  func newEditorDocument(action: ((Bool) -> Void)? = nil) {
     self.loadEditorDocument(action: action)
   }
   
@@ -354,7 +380,7 @@ class FileManager: ObservableObject {
   
   func loadEditorDocument(source: URL? = nil,
                           makeUntitled: Bool = true,
-                          action: @escaping (Bool) -> Void) {
+                          action: ((Bool) -> Void)? = nil) {
     let sourceUrl: URL
     if let url = self.completeURL(source) {
       sourceUrl = url
@@ -385,30 +411,42 @@ class FileManager: ObservableObject {
       }
     }
     if let document = self.editorDocument, document.fileURL != targetUrl {
-      if !document.new {
+      if !document.info.new {
         self.histManager?.trackRecentFile(document.fileURL)
       }
       document.saveFile { success in
         document.close(completionHandler: { success in
           self.editorDocument = TextDocument(fileURL: targetUrl)
           self.editorDocument?.fileManager = self
-          self.editorDocument?.new = makeUntitled
-          self.editorDocument?.recomputeTitle(targetUrl)
-          self.editorDocument?.loadFile(action: action)
-          if source == nil && makeUntitled {
-            self.editorDocument?.text = ""
-          }
+          self.editorDocument?.recomputeInfo(for: targetUrl, new: makeUntitled)
+          self.editorDocument?.loadFile(action: { success in
+            if success {
+              self.updateEditorDocumentLoadDate(sourceUrl)
+            }
+            if source == nil && makeUntitled {
+              self.editorDocument?.text = ""
+            }
+            if let action = action {
+              action(success)
+            }
+          })
         })
       }
     } else {
       self.editorDocument = TextDocument(fileURL: targetUrl)
       self.editorDocument?.fileManager = self
-      self.editorDocument?.new = makeUntitled
-      self.editorDocument?.recomputeTitle(targetUrl)
-      self.editorDocument?.loadFile(action: action)
-      if source == nil && makeUntitled {
-        self.editorDocument?.text = ""
-      }
+      self.editorDocument?.recomputeInfo(for: targetUrl, new: makeUntitled)
+      self.editorDocument?.loadFile(action: { success in
+        if success {
+          self.updateEditorDocumentLoadDate(sourceUrl)
+        }
+        if source == nil && makeUntitled {
+          self.editorDocument?.text = ""
+        }
+        if let action = action {
+          action(success)
+        }
+      })
     }
   }
 }

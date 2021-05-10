@@ -46,7 +46,7 @@ import SwiftUI
         case .inactive:
           break
         case .background:
-          if let doc = self.globals.fileManager.editorDocument, !doc.new {
+          if let doc = self.globals.fileManager.editorDocument, !doc.info.new {
             self.globals.histManager.trackRecentFile(doc.fileURL)
           }
           self.globals.histManager.suspendFilePresenters()

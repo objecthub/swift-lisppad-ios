@@ -287,7 +287,7 @@ struct InterpreterView: View {
           DocumentView(title: name, url: url)
         case .saveBeforeOpen(let ourl):
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentNew) { url in
+                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
             self.fileManager.editorDocument?.saveFileAs(url) { newURL in
               if newURL == nil {
                 self.alertAction = .notSaved
@@ -297,8 +297,6 @@ struct InterpreterView: View {
                   makeUntitled: false,
                   action: { success in
                     if success {
-                      self.editorPosition = NSRange(location: 0, length: 0)
-                      self.forceEditorUpdate = true
                       self.navigateToEditor = true
                     }})
               }
@@ -341,15 +339,13 @@ struct InterpreterView: View {
                       makeUntitled: false,
                       action: { success in
                         if success {
-                          self.editorPosition = NSRange(location: 0, length: 0)
-                          self.forceEditorUpdate = true
                           self.navigateToEditor = true
                         }})
                    })
       }
     }
     .onOpenURL { url in
-      if (self.fileManager.editorDocumentNew) &&
+      if (self.fileManager.editorDocumentInfo.new) &&
          !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
         self.alertAction = .openURL(url)
       } else {
@@ -358,8 +354,6 @@ struct InterpreterView: View {
           makeUntitled: false,
           action: { success in
             if success {
-              self.editorPosition = NSRange(location: 0, length: 0)
-              self.forceEditorUpdate = true
               self.navigateToEditor = true
             }})
       }

@@ -276,7 +276,7 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
     switch text {
       case "\n":
         let indent: String
-        switch self.fileManager.editorDocument?.editorType ?? .scheme {
+        switch self.fileManager.editorDocumentInfo.editorType {
           case .scheme:
             guard UserSettings.standard.schemeAutoIndent else {
               return true
