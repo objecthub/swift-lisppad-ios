@@ -24,6 +24,7 @@
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
 		CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7D26481279001AAD10 /* NavigationControl.swift */; };
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
+		CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD8126492307001AAD10 /* DocStructureView.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
@@ -293,6 +294,7 @@
 		CC55DD7B2646B4C4001AAD10 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		CC55DD7D26481279001AAD10 /* NavigationControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControl.swift; sourceTree = "<group>"; };
 		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
+		CC55DD8126492307001AAD10 /* DocStructureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocStructureView.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -450,7 +452,6 @@
 		CC84C24825FE59EE00758581 /* LispPad */ = {
 			isa = PBXGroup;
 			children = (
-				CC8B95D32609462800830B4F /* LispPad.entitlements */,
 				CC84C24925FE59EE00758581 /* LispPadApp.swift */,
 				CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */,
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
@@ -464,10 +465,11 @@
 				CC8B95B82607FFBC00830B4F /* Libraries */,
 				CC8B951F26079EC700830B4F /* Resources */,
 				CC84C24F25FE59F000758581 /* Assets.xcassets */,
+				CC8B95D32609462800830B4F /* LispPad.entitlements */,
+				CC84C25425FE59F000758581 /* Info.plist */,
 				CCE8E435262A415500E3DC6A /* Credits.rtf */,
 				CC8B95CE260813EC00830B4F /* Documentation.plist */,
 				CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */,
-				CC84C25425FE59F000758581 /* Info.plist */,
 				CC84C25125FE59F000758581 /* Preview Content */,
 			);
 			path = LispPad;
@@ -745,6 +747,7 @@
 				CCE8E431262975E900E3DC6A /* CodeEditorTextTokenizer.swift */,
 				CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */,
 				CCC8565A261BADAD0080B96E /* DefinitionView.swift */,
+				CC55DD8126492307001AAD10 /* DocStructureView.swift */,
 			);
 			path = Editor;
 			sourceTree = "<group>";
@@ -893,6 +896,7 @@
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
+				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
@@ -1036,7 +1040,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1046,7 +1050,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1061,7 +1065,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1071,7 +1075,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
