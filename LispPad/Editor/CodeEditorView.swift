@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import MarkdownKit
 import MobileCoreServices
 
 struct CodeEditorView: View {
@@ -32,6 +33,7 @@ struct CodeEditorView: View {
     case saveBeforeEdit
     case showDefinitions(DefinitionView.Definitions)
     case showDocStructure(DocStructureView.DocStructure)
+    case markdownPreview(Block)
     
     var id: Int {
       switch self {
@@ -51,6 +53,8 @@ struct CodeEditorView: View {
           return 6
         case .showDocStructure(_):
           return 7
+        case .markdownPreview(_):
+          return 8
       }
     }
   }
@@ -201,17 +205,23 @@ struct CodeEditorView: View {
           })
           if self.interpreter.isReady {
             Button(action: {
-              if !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-                self.interpreter.append(output: ConsoleOutput(kind: .command, text: "<execute code from editor>"))
+              if self.editorType == .scheme {
+                self.interpreter.append(output: ConsoleOutput(kind: .command,
+                                                              text: "<execute code from editor>"))
                 self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
                                           url: self.fileManager.editorDocument?.fileURL)
                 self.presentationMode.wrappedValue.dismiss()
+              } else {
+                let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
+                self.showSheet = .markdownPreview(block)
               }
             }) {
               Image(systemName: "play")
                 .font(InterpreterView.toolbarFont)
             }
-            .disabled(self.editorType != .scheme)
+            .disabled((self.editorType != .scheme) &&
+                      (self.editorType != .markdown) ||
+                      (self.fileManager.editorDocument?.text.isEmpty ?? true))
           } else {
             Button(action: {
               self.showAbortAlert = true
@@ -471,6 +481,9 @@ struct CodeEditorView: View {
             .modifier(self.globals.services)
         case .showDocStructure(let structure):
           DocStructureView(structure: structure, position: $editorPosition)
+            .modifier(self.globals.services)
+        case .markdownPreview(let block):
+          MarkdownViewer(markdown: block)
             .modifier(self.globals.services)
       }
     }

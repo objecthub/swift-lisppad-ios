@@ -59,8 +59,7 @@ struct DefinitionView: View {
         }
       }
       .font(.body)
-      .padding(.horizontal)
-      .padding(.top)
+      .padding()
       .edgesIgnoringSafeArea(.all)
       .background(Color(.systemGroupedBackground))
       Form {

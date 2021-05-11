@@ -22,9 +22,8 @@ import SwiftUI
 import MarkdownKit
 
 struct MarkdownText: View {
-  @State var intrinsicContentSize: CGSize? = nil
-
-  let markdownText: Block?
+  @StateObject private var intrinsicContentSize = MutableSize()
+  private let markdownText: Block?
   
   init(_ markdownText: Block?) {
     self.markdownText = markdownText
@@ -32,16 +31,14 @@ struct MarkdownText: View {
   
   var body: some View {
     GeometryReader { geometry in
-      MarkdownTextView(
-        markdownText: self.markdownText,
-        maxLayoutWidth: geometry.size.width -
-                        geometry.safeAreaInsets.leading -
-                        geometry.safeAreaInsets.trailing,
-        intrinsicContentSize: $intrinsicContentSize
-      )
+      MarkdownTextView(markdownText: self.markdownText,
+                       maxLayoutWidth: geometry.size.width -
+                                       geometry.safeAreaInsets.leading -
+                                       geometry.safeAreaInsets.trailing,
+                       intrinsicContentSize: self.intrinsicContentSize)
     }
-    .frame(idealWidth: self.intrinsicContentSize?.width,
-           idealHeight: self.intrinsicContentSize?.height)
+    .frame(idealWidth: self.intrinsicContentSize.size?.width,
+           idealHeight: self.intrinsicContentSize.size?.height)
     .fixedSize(horizontal: false, vertical: true)
   }
 }
@@ -111,7 +108,7 @@ struct MarkdownTextView: UIViewRepresentable {
     }
   }
   
-  private static let textFont = "\"Helvetica Neue\",Helvetica,sans-serif"
+  private static let textFont = "\"-apple-system\",\"Helvetica Neue\",Helvetica,sans-serif"
   private static let codeFont = "\"Menlo\",\"Consolas\",\"Courier New\",Courier,monospace"
   private static let textFontSize: Float = 13.0
   private static let codeFontSize: Float = 11.0
@@ -152,7 +149,7 @@ struct MarkdownTextView: UIViewRepresentable {
   
   let markdownText: Block?
   let maxLayoutWidth: CGFloat
-  @Binding var intrinsicContentSize: CGSize?
+  let intrinsicContentSize: MutableSize
   
   func makeCoordinator() -> Coordinator {
     return Coordinator()
@@ -160,7 +157,6 @@ struct MarkdownTextView: UIViewRepresentable {
   
   func makeUIView(context: Context) -> TextView {
     let view = TextView()
-    view.delegate = context.coordinator
     view.textColor = .label
     view.backgroundColor = .clear
     view.textContainerInset = .zero
@@ -169,6 +165,7 @@ struct MarkdownTextView: UIViewRepresentable {
     view.isSelectable = true
     view.textContainer.lineFragmentPadding = 0
     view.textContainerInset = .zero
+    view.delegate = context.coordinator
     return view
   }
 
@@ -187,10 +184,9 @@ struct MarkdownTextView: UIViewRepresentable {
       }
     }
     uiView.maxLayoutWidth = self.maxLayoutWidth
+    uiView.textContainer.maximumNumberOfLines = context.environment.lineLimit ?? 0
     uiView.textContainer.lineBreakMode = .byWordWrapping
     context.coordinator.openURLProc = context.environment.openURL
-    DispatchQueue.main.async {
-      self.intrinsicContentSize = uiView.intrinsicContentSize
-    }
+    self.intrinsicContentSize.size = uiView.intrinsicContentSize
   }
 }

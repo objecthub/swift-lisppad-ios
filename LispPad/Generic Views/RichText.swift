@@ -21,8 +21,7 @@
 import SwiftUI
 
 struct RichText: View {
-  @State var intrinsicContentSize: CGSize? = nil
-
+  @StateObject var intrinsicContentSize = MutableSize()
   private let text: NSAttributedString
   private let interpretAttributes: Bool
   
@@ -50,11 +49,11 @@ struct RichText: View {
         maxLayoutWidth: geometry.size.width -
                         geometry.safeAreaInsets.leading -
                         geometry.safeAreaInsets.trailing,
-        intrinsicContentSize: $intrinsicContentSize
+        intrinsicContentSize: self.intrinsicContentSize
       )
     }
-    .frame(idealWidth: self.intrinsicContentSize?.width,
-           idealHeight: self.intrinsicContentSize?.height)
+    .frame(idealWidth: self.intrinsicContentSize.size?.width,
+           idealHeight: self.intrinsicContentSize.size?.height)
     .fixedSize(horizontal: false, vertical: true)
   }
 }
@@ -94,7 +93,7 @@ struct AttributedText: UIViewRepresentable {
   let text: NSAttributedString
   let interpretAttributes: Bool
   let maxLayoutWidth: CGFloat
-  @Binding var intrinsicContentSize: CGSize?
+  let intrinsicContentSize: MutableSize
 
   func makeCoordinator() -> Coordinator {
     return Coordinator()
@@ -102,7 +101,6 @@ struct AttributedText: UIViewRepresentable {
   
   func makeUIView(context: Context) -> TextView {
     let view = TextView()
-    view.delegate = context.coordinator
     view.textColor = .label
     view.backgroundColor = .clear
     view.textContainerInset = .zero
@@ -111,7 +109,7 @@ struct AttributedText: UIViewRepresentable {
     view.isSelectable = true
     view.textContainer.lineFragmentPadding = 0
     view.textContainerInset = .zero
-    // view.textContainer.maximumNumberOfLines = context.environment.lineLimit ?? 0
+    view.delegate = context.coordinator
     return view
   }
 
@@ -122,17 +120,14 @@ struct AttributedText: UIViewRepresentable {
       uiView.font = self.preferredFont(from: font)
     }
     if self.interpretAttributes {
+      uiView.textContainer.maximumNumberOfLines = context.environment.lineLimit ?? 0
       uiView.textContainer.lineBreakMode =
         self.preferredTruncationMode(from: context.environment.truncationMode)
     } else {
       uiView.textContainer.lineBreakMode = .byWordWrapping
     }
-    // uiView.contentScaleFactor = context.environment.displayScale
-    // uiView.textContainer.maximumNumberOfLines = context.environment.lineLimit ?? 0
     context.coordinator.openURLProc = context.environment.openURL
-    DispatchQueue.main.async {
-      self.intrinsicContentSize = uiView.intrinsicContentSize
-    }
+    self.intrinsicContentSize.size = uiView.intrinsicContentSize
   }
   
   func preferredTruncationMode(from mode: Text.TruncationMode) -> NSLineBreakMode {

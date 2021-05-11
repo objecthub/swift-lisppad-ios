@@ -25,6 +25,8 @@
 		CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7D26481279001AAD10 /* NavigationControl.swift */; };
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
 		CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD8126492307001AAD10 /* DocStructureView.swift */; };
+		CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */; };
+		CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD85264ADB59001AAD10 /* MutableSize.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
@@ -295,6 +297,8 @@
 		CC55DD7D26481279001AAD10 /* NavigationControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControl.swift; sourceTree = "<group>"; };
 		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
 		CC55DD8126492307001AAD10 /* DocStructureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocStructureView.swift; sourceTree = "<group>"; };
+		CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
+		CC55DD85264ADB59001AAD10 /* MutableSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableSize.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -686,12 +690,12 @@
 				CC55DD7926469A8F001AAD10 /* SplitView.swift */,
 				CC55DD7D26481279001AAD10 /* NavigationControl.swift */,
 				CCC85658261B18C70080B96E /* SearchField.swift */,
+				CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */,
 				CCFBC5CA2605F50B00E29F99 /* RichText.swift */,
 				CC327C4A260E818500BD7E32 /* MarkdownText.swift */,
 				CCE8E4232621A31A00E3DC6A /* DocumentView.swift */,
 				CCE8E42126219C0000E3DC6A /* PDFViewer.swift */,
 				CC327C46260E1D5100BD7E32 /* ShareSheet.swift */,
-				CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -755,6 +759,8 @@
 		CCFBC5C92605F4D700E29F99 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */,
+				CC55DD85264ADB59001AAD10 /* MutableSize.swift */,
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
 			);
 			path = Util;
@@ -854,6 +860,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */,
 				CC327C582610CF4D00BD7E32 /* CodeEditor.swift in Sources */,
 				CCE8E444262C258400E3DC6A /* SaveAs.swift in Sources */,
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
@@ -878,6 +885,7 @@
 				CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
+				CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */,
 				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
 				CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */,
 				CC327C4D260FBD0800BD7E32 /* HistoryManager.swift in Sources */,

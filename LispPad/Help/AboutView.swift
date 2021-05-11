@@ -41,16 +41,17 @@ struct AboutView: View {
   
   var body: some View {
     VStack(alignment: .center, spacing: 0) {
-      HStack(alignment: .top, spacing: 0) {
+      HStack {
         Spacer()
         Button(action: {
           self.presentationMode.wrappedValue.dismiss()
         }) {
           Text("Cancel")
-            .padding(.trailing, 16)
         }
       }
-      .offset(x: 0.0, y: -32.0)
+      .font(.body)
+      .padding()
+      .edgesIgnoringSafeArea(.all)
       HStack(alignment: .center, spacing: 16) {
         Image("SmallLogo")
           .resizable()
@@ -73,7 +74,9 @@ struct AboutView: View {
         .padding(.leading, 8)
         .padding(.bottom, 16)
       }
-      RichText(self.aboutText).padding(24)
+      ScrollView {
+        RichText(self.aboutText).padding(24)
+      }
     }
   }
 }
