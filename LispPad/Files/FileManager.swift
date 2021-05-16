@@ -216,12 +216,15 @@ class FileManager: ObservableObject {
   func createExtensionDirectory(in container: URL,
                                 name: String,
                                 using sysFileManager: Foundation.FileManager) -> URL? {
-    let root = container.appendingPathComponent(name, isDirectory: true)
+    let root = container.appendingPathComponent(name, isDirectory: true).absoluteURL
     var dir: ObjCBool = false
     guard sysFileManager.fileExists(atPath: container.absoluteURL.path, isDirectory: &dir),
-          dir.boolValue,
-          !sysFileManager.fileExists(atPath: root.absoluteURL.path) else {
+          dir.boolValue else {
       return nil
+    }
+    dir = false
+    guard !sysFileManager.fileExists(atPath: root.path, isDirectory: &dir) else {
+      return dir.boolValue ? root : nil
     }
     do {
       try sysFileManager.createDirectory(at: root, withIntermediateDirectories: false)
