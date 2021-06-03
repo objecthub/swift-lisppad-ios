@@ -32,6 +32,8 @@ struct ConsoleView: View {
   @Binding var input: String
   @Binding var readingStatus: Interpreter.ReadingStatus
   @Binding var ready: Bool
+  @Binding var showSheet: InterpreterView.SheetAction?
+  @Binding var showProgressView: String?
   
   init(font: Font = .system(size: 12, design: .monospaced),
        infoFont: Font = .system(size: 13, weight: .bold, design: .default),
@@ -41,7 +43,9 @@ struct ConsoleView: View {
        history: Binding<[String]>,
        input: Binding<String>,
        readingStatus: Binding<Interpreter.ReadingStatus>,
-       ready: Binding<Bool>) {
+       ready: Binding<Bool>,
+       showSheet: Binding<InterpreterView.SheetAction?>,
+       showProgressView: Binding<String?>) {
     self.font = font
     self.infoFont = infoFont
     self.inputFont = inputFont
@@ -51,9 +55,11 @@ struct ConsoleView: View {
     self._input = input
     self._readingStatus = readingStatus
     self._ready = ready
+    self._showSheet = showSheet
+    self._showProgressView = showProgressView
   }
   
-  func consoleRow(_ entry: ConsoleOutput) -> some View {
+  func consoleRow(_ entry: ConsoleOutput, width: CGFloat) -> some View {
     HStack(alignment: .top, spacing: 0) {
       if entry.kind == .command {
         Text("▶︎")
@@ -66,30 +72,117 @@ struct ConsoleView: View {
           .frame(alignment: .topLeading)
           .padding(.leading, 2)
       }
-      Text(entry.text) // append location for errors
-        .font(entry.kind == .info ? self.infoFont : self.font)
-        .fontWeight(entry.kind == .info ? .bold : .regular)
-        .foregroundColor(entry.isError ? .red : 
-                          (entry.kind == .result ? .blue :
-                            (entry.kind == .output ? .secondary : .primary)))
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(.horizontal, 4)
-        .padding(.vertical, entry.kind == .command ? 4 : (entry.kind == .output ? 1 : 0))
-        .contextMenu {
-          Button(action: {
-            UIPasteboard.general.setValue(entry.text, forPasteboardType: kUTTypePlainText as String)
-          }) {
-            Label("Copy to clipboard", systemImage: "doc.on.clipboard")
-          }
-          if entry.text.count <= 500 {
+      if case .drawingResult(let drawing, let image) = entry.kind {
+        Image(uiImage: image)
+          .resizable()
+          .frame(maxWidth: min(image.size.width, width * 0.95),
+                 maxHeight: min(image.size.width, width * 0.95) / image.size.width * image.size.height)
+          .padding(.horizontal, 4)
+          .padding(.vertical, 8)
+          .contextMenu {
             Button(action: {
-              self.input = entry.text
+              UIPasteboard.general.image = image
             }) {
-              Label("Copy to input field", systemImage: "dock.arrow.down.rectangle")
+              Label("Copy Image", systemImage: "doc.on.clipboard")
+            }
+            Divider()
+            Button(action: {
+              self.showProgressView = "Saving image…"
+              DispatchQueue.global(qos: .userInitiated).async {
+                var res = image
+                if let betterImage = iconImage(for: drawing,
+                                               width: 1500,
+                                               height: 1500,
+                                               scale: 4.0,
+                                               renderingWidth: 1500,
+                                               renderingHeight: 1500) {
+                  res = betterImage
+                }
+                let imageManager = ImageManager()
+                _ = try? imageManager.writeImageToLibrary(res, async: true)
+                self.showProgressView = nil
+              }
+            }) {
+              Label("Save Image", systemImage: "photo.on.rectangle.angled")
+            }
+            Button(action: {
+              self.showProgressView = "Printing image…"
+              DispatchQueue.global(qos: .userInitiated).async {
+                var res = image
+                if let betterImage = iconImage(for: drawing,
+                                               width: 1500,
+                                               height: 1500,
+                                               scale: 2.0,
+                                               renderingWidth: 1500,
+                                               renderingHeight: 1500) {
+                  res = betterImage
+                }
+                let printInfo = UIPrintInfo(dictionary: nil)
+                printInfo.jobName = "Printing LispPad image…"
+                printInfo.outputType = .general
+                DispatchQueue.main.async {
+                  self.showProgressView = nil
+                  let printController = UIPrintInteractionController.shared
+                  printController.printInfo = printInfo
+                  printController.printingItem = res
+                  printController.present(animated: true) { _, isPrinted, error in }
+                }
+              }
+            }) {
+              Label("Print Image", systemImage: "printer")
+            }
+            Button(action: {
+              self.showProgressView = "Sharing image…"
+              DispatchQueue.global(qos: .userInitiated).async {
+                if let betterImage = iconImage(for: drawing,
+                                               width: 1500,
+                                               height: 1500,
+                                               scale: 4.0,
+                                               renderingWidth: 1500,
+                                               renderingHeight: 1500) {
+                  self.showSheet = .shareImage(betterImage)
+                } else {
+                  self.showSheet = .shareImage(image)
+                }
+                self.showProgressView = nil
+              }
+            }) {
+              Label("Share Image", systemImage: "square.and.arrow.up")
             }
           }
-        }
+      } else {
+        Text(entry.text) // append location for errors
+          .font(entry.kind == .info ? self.infoFont : self.font)
+          .fontWeight(entry.kind == .info ? .bold : .regular)
+          .foregroundColor(entry.isError ? .red : 
+                            (entry.kind == .result ? .blue :
+                              (entry.kind == .output ? .secondary : .primary)))
+          .frame(maxWidth: .infinity, alignment: .topLeading)
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.horizontal, 4)
+          .padding(.vertical, entry.kind == .command ? 4 : (entry.kind == .output ? 1 : 0))
+          .contextMenu {
+            Button(action: {
+              UIPasteboard.general.setValue(entry.text,
+                                            forPasteboardType: kUTTypePlainText as String)
+            }) {
+              Label("Copy Text", systemImage: "doc.on.clipboard")
+            }
+            if entry.text.count <= 800 {
+              Button(action: {
+                self.input = entry.text
+              }) {
+                Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
+              }
+            }
+            Divider()
+            Button(action: {
+              self.showSheet = .shareText(entry.text)
+            }) {
+              Label("Share Text", systemImage: "square.and.arrow.up")
+            }
+          }
+      }
     }
   }
   
@@ -163,32 +256,34 @@ struct ConsoleView: View {
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      ScrollViewReader { scrollViewProxy in
-        ConsoleScrollView(.vertical, offsetChanged: { coord in 
-          // Swift.print("coord = \(coord)")
-        }) {
-          LazyVStack(alignment: .leading, spacing: 0) {
-            ForEach(self.content, id: \.id) { entry in
-              self.consoleRow(entry)
+      GeometryReader { geo in
+        ScrollViewReader { scrollViewProxy in
+          ConsoleScrollView(.vertical, offsetChanged: { coord in 
+            // Swift.print("coord = \(coord)")
+          }) {
+            LazyVStack(alignment: .leading, spacing: 0) {
+              ForEach(self.content, id: \.id) { entry in
+                self.consoleRow(entry, width: geo.size.width)
+              }
+            }.frame(minWidth: 0,
+                    maxWidth: .infinity,
+                    minHeight: 0,
+                    maxHeight: .infinity,
+                    alignment: .topLeading
+            )
+            .onChange(of: self.content.count) { _ in
+              if self.content.count > 0 {
+                withAnimation {
+                  scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
+                                           anchor: .bottomLeading)
+                }
+              }
             }
-          }.frame(minWidth: 0,
-                  maxWidth: .infinity,
-                  minHeight: 0,
-                  maxHeight: .infinity,
-                  alignment: .topLeading
-          )
-          .onChange(of: self.content.count) { _ in
-            if self.content.count > 0 {
-              withAnimation {
+            .onChange(of: self.input.count) { _ in
+              if self.content.count > 0 {
                 scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
                                          anchor: .bottomLeading)
               }
-            }
-          }
-          .onChange(of: self.input.count) { _ in
-            if self.content.count > 0 {
-              scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
-                                       anchor: .bottomLeading)
             }
           }
         }

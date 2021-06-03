@@ -206,8 +206,7 @@ struct CodeEditorView: View {
           if self.interpreter.isReady {
             Button(action: {
               if self.editorType == .scheme {
-                self.interpreter.append(output: ConsoleOutput(kind: .command,
-                                                              text: "<execute code from editor>"))
+                self.interpreter.append(output: .command("<execute code from editor>"))
                 self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
                                           url: self.fileManager.editorDocument?.fileURL)
                 self.presentationMode.wrappedValue.dismiss()

@@ -90,38 +90,3 @@ public final class SystemLibrary: NativeLibrary {
     return .void
   }
 }
-
-class ImageManager: NSObject {
-  let condition = NSCondition()
-  var completed = false
-  var error: Error? = nil
-  
-  func writeImageToLibrary(_ image: UIImage) throws {
-    UIImageWriteToSavedPhotosAlbum(image,
-                                   self,
-                                   #selector(image(_:didFinishSavingWithError:contextInfo:)),
-                                   nil)
-    self.condition.lock()
-    defer {
-      self.condition.unlock()
-    }
-    while !self.completed {
-      self.condition.wait()
-    }
-    if let error = self.error {
-      throw error
-    }
-  }
-  
-  @objc func image(_ image: UIImage,
-                   didFinishSavingWithError error: Error?,
-                   contextInfo: UnsafeRawPointer) {
-    self.condition.lock()
-    defer {
-      self.condition.unlock()
-    }
-    self.error = error
-    self.completed = true
-    self.condition.signal()
-  }
-}

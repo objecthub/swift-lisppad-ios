@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
@@ -278,6 +279,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
 		CC327C37260D399400BD7E32 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
@@ -759,6 +761,7 @@
 		CCFBC5C92605F4D700E29F99 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				CC233D5826696C970038016C /* ImageUtil.swift */,
 				CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */,
 				CC55DD85264ADB59001AAD10 /* MutableSize.swift */,
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
@@ -911,6 +914,7 @@
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
 				CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */,
 				CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */,
+				CC233D5926696C970038016C /* ImageUtil.swift in Sources */,
 				CC55DD7A26469A8F001AAD10 /* SplitView.swift in Sources */,
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,

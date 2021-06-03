@@ -19,20 +19,56 @@
 //
 
 import Foundation
+import UIKit
+import LispKit
 
 struct ConsoleOutput: Identifiable, Equatable {
   
   enum Kind: Equatable {
+    case info
     case command
     case output
-    case result
     case error(String?)
-    case info
+    case result
+    case drawingResult(Drawing, UIImage)
   }
   
   let id = UUID()
   let kind: Kind
   var text: String
+  
+  private init(_ kind: Kind, _ text: String) {
+    self.kind = kind
+    self.text = text
+  }
+  
+  static func info(_ text: String) -> ConsoleOutput {
+    return ConsoleOutput(.info, text)
+  }
+  
+  static func command(_ text: String) -> ConsoleOutput {
+    return ConsoleOutput(.command, text)
+  }
+  
+  static func output(_ text: String) -> ConsoleOutput {
+    return ConsoleOutput(.output, text)
+  }
+  
+  static func error(_ text: String, at loc: String? = nil) -> ConsoleOutput {
+    return ConsoleOutput(.error(loc), text)
+  }
+  
+  static func result(_ text: String = "") -> ConsoleOutput {
+    return ConsoleOutput(.result, text)
+  }
+  
+  static func drawingResult(_ drawing: Drawing) -> ConsoleOutput {
+    if let image = iconImage(for: drawing) {
+      return ConsoleOutput(.drawingResult(drawing, image), Expr.object(drawing).description)
+    } else {
+      return ConsoleOutput(.result, Expr.object(drawing).description)
+    }
+  }
   
   var isError: Bool {
     guard case .error(_) = self.kind else {

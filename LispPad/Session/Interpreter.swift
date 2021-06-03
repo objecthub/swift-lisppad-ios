@@ -110,15 +110,13 @@ final class Interpreter: ContextDelegate, ObservableObject {
     var res = ""
     for output in self.consoleContent {
       switch output.kind {
-        case .command:
-          res += "▶︎ "
-          res += output.text
         case .info:
           res += "ℹ️ "
           res += output.text
-        case .output:
+        case .command:
+          res += "▶︎ "
           res += output.text
-        case .result:
+        case .output:
           res += output.text
         case .error(let loc):
           res += "⚠️ "
@@ -126,6 +124,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
           if let context = loc {
             res += "\n  " + context
           }
+        case .result:
+          res += output.text
+        case .drawingResult(_, _):
+          res += output.text
       }
       res += "\n"
     }
@@ -349,7 +351,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
       _ = try context.machine.eval(file: preludePath, in: context.global, as: "<prelude>")
     } catch let error {
       DispatchQueue.main.sync {
-        self.append(output: ConsoleOutput(kind: .error("init"), text: error.localizedDescription))
+        self.append(output: .error(error.localizedDescription, at: "init"))
         self.isReady = true
         self.readingStatus = .accept
       }
@@ -381,11 +383,11 @@ final class Interpreter: ContextDelegate, ObservableObject {
            error == .closingParenthesisMissing || error == .unexpectedClosingParenthesis {
           return nil
         } else {
-          return ConsoleOutput(kind: .error(self.errorLocation(err, in: context)),
-                               text: self.errorMessage(err, in: context))
+          return .error(self.errorMessage(err, in: context),
+                        at: self.errorLocation(err, in: context))
         }
       case .void:
-        return ConsoleOutput(kind: .result, text: "")
+        return .result()
       case .values(let expr):
         var message = ""
         var next = expr
@@ -399,10 +401,13 @@ final class Interpreter: ContextDelegate, ObservableObject {
           next = rest
         }
         context.update(withReplResult: res)
-        return ConsoleOutput(kind: .result, text: message)
+        return .result(message)
+      case .object(let obj) where obj is Drawing:
+        context.update(withReplResult: res)
+        return .drawingResult(obj as! Drawing)
       default:
         context.update(withReplResult: res)
-        return ConsoleOutput(kind: .result, text: res.description)
+        return .result(res.description)
     }
   }
   
@@ -468,22 +473,22 @@ final class Interpreter: ContextDelegate, ObservableObject {
   
   private func printInternal(_ str: String) {
     if self.consoleContent.isEmpty {
-      self.append(output: ConsoleOutput(kind: .output, text: str))
+      self.append(output: .output(str))
     } else if let last = self.consoleContent.last,
               last.kind == .output {
       if last.text.count < 1000 {
         self.consoleContent[self.consoleContent.count - 1].text += str
       } else if str.first == "\n" {
-        self.append(output: ConsoleOutput(kind: .output, text: String(str.dropFirst())))
+        self.append(output: .output(String(str.dropFirst())))
       } else if last.text.last == "\n" {
         let str = String(self.consoleContent[self.consoleContent.count - 1].text.dropLast())
         self.consoleContent[self.consoleContent.count - 1].text = str
-        self.append(output: ConsoleOutput(kind: .output, text: str))
+        self.append(output: .output(str))
       } else {
-        self.append(output: ConsoleOutput(kind: .output, text: str))
+        self.append(output: .output(str))
       }
     } else {
-      self.append(output: ConsoleOutput(kind: .output, text: str))
+      self.append(output: .output(str))
     }
   }
   

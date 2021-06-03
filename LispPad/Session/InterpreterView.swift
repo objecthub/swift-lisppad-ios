@@ -27,6 +27,8 @@ struct InterpreterView: View {
     case loadFile
     case organizeFiles
     case shareConsole
+    case shareImage(UIImage)
+    case shareText(String)
     case showAbout
     case showPDF(String, URL)
     case saveBeforeOpen(URL)
@@ -39,12 +41,16 @@ struct InterpreterView: View {
           return 1
         case .shareConsole:
           return 2
-        case .showAbout:
+        case .shareImage(_):
           return 3
-        case .showPDF(_, _):
+        case .shareText(_):
           return 4
-        case .saveBeforeOpen(_):
+        case .showAbout:
           return 5
+        case .showPDF(_, _):
+          return 6
+        case .saveBeforeOpen(_):
+          return 7
       }
     }
   }
@@ -96,36 +102,48 @@ struct InterpreterView: View {
   @State private var selectedPreferencesTab = 0
   @State private var showSheet: SheetAction? = nil
   @State private var alertAction: AlertAction? = nil
+  @State private var showProgressView: String? = nil
   @State private var navigateToEditor: Bool = false
   
   // The main view
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      ConsoleView(
-        font: settings.consoleFont,
-        infoFont: settings.consoleInfoFont,
-        inputFont: settings.inputFont,
-        action: {
-          let old = self.consoleInput
-          self.consoleInput = ""
-          let input: String
-          if self.interpreter.isReady {
-            input = InterpreterView.canonicalizeInput(old)
-            self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
-            self.histManager.addCommandEntry(input)
-          } else {
-            input = old
-          }
-          self.interpreter.evaluate(input, reset: {
-            self.consoleInput = old
-            self.interpreter.consoleContent.removeLast()
-          })
-        },
-        content: $interpreter.consoleContent,
-        history: $histManager.commandHistory,
-        input: $consoleInput,
-        readingStatus: $interpreter.readingStatus,
-        ready: $interpreter.isReady)
+      ZStack {
+        ConsoleView(
+          font: settings.consoleFont,
+          infoFont: settings.consoleInfoFont,
+          inputFont: settings.inputFont,
+          action: {
+            let old = self.consoleInput
+            self.consoleInput = ""
+            let input: String
+            if self.interpreter.isReady {
+              input = InterpreterView.canonicalizeInput(old)
+              self.interpreter.append(output: .command(input))
+              self.histManager.addCommandEntry(input)
+            } else {
+              input = old
+            }
+            self.interpreter.evaluate(input, reset: {
+              self.consoleInput = old
+              self.interpreter.consoleContent.removeLast()
+            })
+          },
+          content: $interpreter.consoleContent,
+          history: $histManager.commandHistory,
+          input: $consoleInput,
+          readingStatus: $interpreter.readingStatus,
+          ready: $interpreter.isReady,
+          showSheet: $showSheet,
+          showProgressView: $showProgressView)
+        if let header = self.showProgressView {
+         ProgressView(header)
+          .frame(width: 200, height: 120)
+          .background(Color.secondary.colorInvert())
+          .foregroundColor(Color.primary)
+          .cornerRadius(20)
+        }
+      }
       Spacer()
       if !self.splitView {
         NavigationLink(destination: CodeEditorView(splitView: self.splitView,
@@ -281,6 +299,10 @@ struct InterpreterView: View {
           Organizer().modifier(self.globals.services)
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+        case .shareImage(let image):
+          ShareSheet(activityItems: [image])
+        case .shareText(let text):
+          ShareSheet(activityItems: [text as NSString])
         case .showAbout:
           AboutView()
         case .showPDF(let name, let url):
@@ -372,7 +394,7 @@ struct InterpreterView: View {
     if let url = url {
       let input = InterpreterView.canonicalizeInput(
                     "(load \"\(self.fileManager.canonicalPath(for: url))\")")
-      self.interpreter.append(output: ConsoleOutput(kind: .command, text: input))
+      self.interpreter.append(output: .command(input))
       self.histManager.addCommandEntry(input)
       self.histManager.trackRecentFile(url)
       self.interpreter.load(url)
