@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
+		CC233D5B266AC6940038016C /* PlotGraphs.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
+		CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
@@ -247,6 +249,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */,
 				CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */,
 				CC8B95CD2608113800830B4F /* PlayMusic.scm in Copy Root/Examples */,
 			);
@@ -280,6 +283,7 @@
 
 /* Begin PBXFileReference section */
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
+		CC233D5A266AC6940038016C /* PlotGraphs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlotGraphs.scm; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
 		CC327C37260D399400BD7E32 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
@@ -617,6 +621,7 @@
 			children = (
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
+				CC233D5A266AC6940038016C /* PlotGraphs.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -841,6 +846,7 @@
 				CCEA5A1F2643D40500D78C62 /* ScreenShot_console.png in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */,
+				CC233D5B266AC6940038016C /* PlotGraphs.scm in Resources */,
 				CCEA5A2F2643D42300D78C62 /* ScreenShot_prefs.png in Resources */,
 				CCEA5A292643D42300D78C62 /* ScreenShot_env.png in Resources */,
 				CCEA5A2E2643D42300D78C62 /* ScreenShot_menu.png in Resources */,

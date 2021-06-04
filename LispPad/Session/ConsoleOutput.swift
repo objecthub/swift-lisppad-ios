@@ -64,7 +64,8 @@ struct ConsoleOutput: Identifiable, Equatable {
   
   static func drawingResult(_ drawing: Drawing) -> ConsoleOutput {
     if let image = iconImage(for: drawing) {
-      return ConsoleOutput(.drawingResult(drawing, image), Expr.object(drawing).description)
+      return ConsoleOutput(.drawingResult(Drawing(copy: drawing), image),
+                           Expr.object(drawing).description)
     } else {
       return ConsoleOutput(.result, Expr.object(drawing).description)
     }

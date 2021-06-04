@@ -1,16 +1,21 @@
-;;; Load, compose, and save photos
+;;; Load, compose, display and save photos
 ;;;
-;;; This is a demo showing how to load photos, create photos, and save them in the iOS
-;;; photo library. When executed, this demo will load a photo of a landscape and a logo
-;;; image. It will create a new photo in which the logo is used as a watermark. In addition,
-;;; a copyright message is added. All involved images are being displayed and the new photo
-;;; is saved to disk.
+;;; This is a demo showing how to load photos, create photos, display them in the console
+;;; and save them in the iOS photo library. When executed, this demo will load a photo
+;;; of a landscape and a logo image. It will create a new photo in which the logo is used
+;;; as a watermark. In addition, a copyright message is added.
 ;;;
+;;; The following statement saves the composed image on disk in JPEG format:
+;;;   (save-bitmap "composed-image.jpeg" new-photo 'jpg)
+;;; 
+;;; This statement saves the composed image in the iOS photo library
+;;;   (save-bitmap-in-library new-photo)
+;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2020-2021 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+;;; file except in compliance with the License. You may obtain a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
@@ -32,6 +37,20 @@
           (scale-to-fit
             (size (* (size-width s) (/ (size-height max) (size-height s))) (size-height max)) max))
         (else s)))
+
+;; Scale an image `image` to fit the given boundaries `max` and place it in the middle of
+;; rectangle `frame`, drawn in color `col`.
+(define (scale-image image max frame col)
+  (let* ((bounds (scale-to-fit (image-size image) max))
+         (center (move-point (opt rect-point frame zero-point)
+                             (/ (opt rect-width frame (size-width bounds)) 2)
+                             (/ (opt rect-height frame (size-height bounds)) 2)))
+         (image-point (move-point center
+                                  (- (/ (size-width bounds) 2))
+                                  (- (/ (size-height bounds) 2)))))
+    (drawing (if col (set-color col))
+             (if frame (draw-rect frame))
+             (draw-image image (rect image-point bounds)))))
 
 ;; Load the photo and the logo from image files provided by LispPad
 (define photo (load-image (asset-file-path "Regensberg" "jpeg" "Images")))
@@ -55,8 +74,7 @@
 ;; Define a new image based on the composed drawing
 (define new-photo (make-bitmap composed-drawing (image-size photo)))
 
-;; Save the new image on disk
-(save-bitmap "composed-image.jpeg" new-photo 'jpg)
-
-;; Save the new image into the iOS photo library
-(save-bitmap-in-library new-photo)
+;; Scale down the image and logo and return both drawings from the program
+(define scaled-photo (scale-image new-photo (size 1000 1000) #f #f))
+(define scaled-logo (scale-image logo (size 280 260) (rect 0 0 900 280) white))
+(values scaled-logo scaled-photo)

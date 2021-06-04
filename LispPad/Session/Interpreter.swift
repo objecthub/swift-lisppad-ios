@@ -172,10 +172,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
         self?.isReady = true
         self?.readingStatus = .accept
         if let res = res {
-          if res.kind == .result, res.text.isEmpty {
-            // do nothing
-          } else {
-            self?.append(output: res)
+          for op in res {
+            self?.append(output: op)
           }
         } else {
           reset()
@@ -210,10 +208,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
         self?.isReady = true
         self?.readingStatus = .accept
         if let res = res {
-          if res.kind == .result, res.text.isEmpty {
-            // do nothing
-          } else {
-            self?.append(output: res)
+          for op in res {
+            self?.append(output: op)
           }
         }
       }
@@ -239,10 +235,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
         self?.isReady = true
         self?.readingStatus = .accept
         if let res = res {
-          if res.kind == .result, res.text.isEmpty {
-            // do nothing
-          } else {
-            self?.append(output: res)
+          for op in res {
+            self?.append(output: op)
           }
         }
       }
@@ -269,10 +263,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
         self?.isReady = true
         self?.readingStatus = .accept
         if let res = res {
-          if res.kind == .result, res.text.isEmpty {
-            // do nothing
-          } else {
-            self?.append(output: res)
+          for op in res {
+            self?.append(output: op)
           }
         }
       }
@@ -364,7 +356,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
-  private func execute(action: (Context) throws -> Expr) -> ConsoleOutput? {
+  private func execute(action: (Context) throws -> Expr) -> [ConsoleOutput]? {
     guard let context = self.context else {
       return nil
     }
@@ -373,7 +365,6 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     if context.machine.exitTriggered {
       // Check if we should close this interpreter
-      
     }
     switch res {
       case .error(let err):
@@ -383,13 +374,15 @@ final class Interpreter: ContextDelegate, ObservableObject {
            error == .closingParenthesisMissing || error == .unexpectedClosingParenthesis {
           return nil
         } else {
-          return .error(self.errorMessage(err, in: context),
-                        at: self.errorLocation(err, in: context))
+          return [.error(self.errorMessage(err, in: context),
+                         at: self.errorLocation(err, in: context))]
         }
       case .void:
-        return .result()
+        return []
       case .values(let expr):
         var message = ""
+        var drawings: [Drawing] = []
+        var allDrawings = true
         var next = expr
         while case .pair(let x, let rest) = next {
           if message.isEmpty {
@@ -398,16 +391,35 @@ final class Interpreter: ContextDelegate, ObservableObject {
             message += "\n"
             message += x.description
           }
+          if case .object(let obj) = x, let drawing = obj as? Drawing {
+            drawings.append(drawing)
+          } else {
+            allDrawings = false
+          }
           next = rest
         }
         context.update(withReplResult: res)
-        return .result(message)
+        if allDrawings {
+          if drawings.isEmpty {
+            return []
+          } else if drawings.count > 4 {
+            return [.result(message)]
+          } else {
+            var res: [ConsoleOutput] = []
+            for drawing in drawings {
+              res.append(.drawingResult(drawing))
+            }
+            return res
+          }
+        } else {
+          return [.result(message)]
+        }
       case .object(let obj) where obj is Drawing:
         context.update(withReplResult: res)
-        return .drawingResult(obj as! Drawing)
+        return [.drawingResult(obj as! Drawing)]
       default:
         context.update(withReplResult: res)
-        return .result(res.description)
+        return [.result(res.description)]
     }
   }
   
