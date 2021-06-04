@@ -32,8 +32,10 @@ final class UserSettings: ObservableObject {
   private static let foldersOnICloudKey = "Folders.iCloud"
   private static let foldersOnDeviceKey = "Folders.device"
   private static let consoleFontSizeKey = "Console.fontSize"
+  private static let consoleBackgroundColorKey = "Console.graphicsBackgroundColor"
   private static let maxConsoleHistoryKey = "Console.maxConsoleHistory"
   private static let inputFontSizeKey = "Console.inputFontSize"
+  private static let documentationFontSizeKey = "Documentation.fontSize"
   private static let balancedParenthesisKey = "Console.balancedParenthesis"
   private static let maxCommandHistoryKey = "Console.maxCommandHistory"
   private static let editorFontSizeKey = "Editor.fontSize"
@@ -108,6 +110,17 @@ final class UserSettings: ObservableObject {
                                     weight: .regular)
   ]
   
+  /// Graphics background
+  static let whiteBackground = "white"
+  static let blackBackground = "black"
+  static let systemBackground = "system"
+  
+  private static let backgroundColorMap: [String : Color] = [
+    UserSettings.whiteBackground : Color.white,
+    UserSettings.blackBackground : Color.black,
+    UserSettings.systemBackground : Color.clear
+  ]
+  
   /// The user settings object
   static let standard = UserSettings()
   
@@ -126,6 +139,12 @@ final class UserSettings: ObservableObject {
   @Published var consoleFontSize: String {
     didSet {
       UserDefaults.standard.set(self.consoleFontSize, forKey: Self.consoleFontSizeKey)
+    }
+  }
+  
+  @Published var consoleBackgroundColor: String {
+    didSet {
+      UserDefaults.standard.set(self.consoleBackgroundColor, forKey: Self.consoleBackgroundColorKey)
     }
   }
   
@@ -150,6 +169,12 @@ final class UserSettings: ObservableObject {
   @Published var maxCommandHistory: Int {
     didSet {
       UserDefaults.standard.set(self.maxCommandHistory, forKey: Self.maxCommandHistoryKey)
+    }
+  }
+  
+  @Published var documentationFontSize: String {
+    didSet {
+      UserDefaults.standard.set(self.documentationFontSize, forKey: Self.documentationFontSizeKey)
     }
   }
   
@@ -286,6 +311,10 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  var consoleGraphicsBackgroundColor: Color {
+    return Self.backgroundColorMap[self.consoleBackgroundColor] ?? .clear
+  }
+  
   var consoleFont: Font {
     return Self.monospacedFontMap[self.consoleFontSize] ?? .system(.footnote, design: .monospaced)
   }
@@ -302,7 +331,40 @@ final class UserSettings: ObservableObject {
     return Self.monospacedUIFontMap[self.editorFontSize] ??
              .monospacedSystemFont(ofSize: 12, weight: .regular)
   }
-
+  
+  var documentationTextFontSize: Float {
+    switch self.documentationFontSize {
+      case UserSettings.smallFontSize:
+        return 13.0
+      case UserSettings.largeFontSize:
+        return 17.0
+      default:
+        return 15.0
+    }
+  }
+  
+  var documentationCodeFontSize: Float {
+    switch self.documentationFontSize {
+      case UserSettings.smallFontSize:
+        return 11.0
+      case UserSettings.largeFontSize:
+        return 15.0
+      default:
+        return 13.0
+    }
+  }
+  
+  var documentationLibraryFontSize: Float {
+    switch self.documentationFontSize {
+      case UserSettings.smallFontSize:
+        return 12.0
+      case UserSettings.largeFontSize:
+        return 16.0
+      default:
+        return 14.0
+    }
+  }
+  
   var syntaxHighlightingUpdate = Date()
   
   private init() {
@@ -310,11 +372,17 @@ final class UserSettings: ObservableObject {
     self.foldersOnDevice = UserDefaults.standard.boolean(forKey: Self.foldersOnDeviceKey)
     self.consoleFontSize = UserDefaults.standard.str(forKey: Self.consoleFontSizeKey,
                                                      UserSettings.smallFontSize)
+    self.consoleBackgroundColor = UserDefaults.standard.str(
+      forKey: Self.consoleBackgroundColorKey, UserSettings.whiteBackground)
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)
     self.inputFontSize = UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
                                                    UserSettings.smallFontSize)
     self.balancedParenthesis = UserDefaults.standard.boolean(forKey: Self.balancedParenthesisKey)
     self.maxCommandHistory = UserDefaults.standard.int(forKey: Self.maxCommandHistoryKey, 30)
+    self.documentationFontSize = UserDefaults.standard.str(
+      forKey: Self.documentationFontSizeKey, UIDevice.current.userInterfaceIdiom == .pad ?
+                                               UserSettings.mediumFontSize :
+                                               UserSettings.smallFontSize) 
     self.editorFontSize = UserDefaults.standard.str(forKey: Self.editorFontSizeKey,
                                                     UserSettings.smallFontSize)
     self.indentSize = UserDefaults.standard.int(forKey: Self.indentSizeKey, 2)

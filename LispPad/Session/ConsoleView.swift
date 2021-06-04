@@ -22,6 +22,8 @@ import SwiftUI
 import MobileCoreServices
 
 struct ConsoleView: View {
+  @EnvironmentObject var settings: UserSettings
+  
   let font: Font
   let infoFont: Font
   let inputFont: Font
@@ -75,10 +77,12 @@ struct ConsoleView: View {
       if case .drawingResult(let drawing, let image) = entry.kind {
         Image(uiImage: image)
           .resizable()
-          .frame(maxWidth: min(image.size.width, width * 0.95),
-                 maxHeight: min(image.size.width, width * 0.95) / image.size.width * image.size.height)
-          .padding(.horizontal, 4)
+          .frame(maxWidth: min(image.size.width, width * 0.97),
+                 maxHeight: min(image.size.width, width * 0.97) /
+                            image.size.width * image.size.height)
+          .padding(.leading, 4)
           .padding(.vertical, 8)
+          .background(self.settings.consoleGraphicsBackgroundColor)
           .contextMenu {
             Button(action: {
               UIPasteboard.general.image = image

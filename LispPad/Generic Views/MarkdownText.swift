@@ -44,7 +44,10 @@ struct MarkdownText: View {
 }
 
 struct MarkdownTextView: UIViewRepresentable {
-  
+  private static let textFont = "system-ui, -apple-system, 'Helvetica Neue', Helvetica, sans-serif"
+  private static let codeFont = "'SF Mono', SFMono-Regular, ui-monospace, Menlo, Consolas, monospace"
+  private static let libraryFont = "system-ui, -apple-system, 'Helvetica Neue', Helvetica, sans-serif"
+
   final class TextView: UITextView {
     var maxLayoutWidth: CGFloat = 0 {
       didSet {
@@ -85,11 +88,12 @@ struct MarkdownTextView: UIViewRepresentable {
                   case .text(let type) = text[1] else {
               return super.generate(block: block, tight: tight)
             }
-            return "<table style=\"border-bottom: 0.5px solid #bbb; margin-bottom: 3px;\"><tbody>" +
-                   "<tr style=\"height: 15px; font-size: 11px;" +
-                   "           font-style: italic;\"><td style=\"width: 70%; text-align: left;\">" +
-                   lib + "</td><td style=\"width: 150px; text-align: right;\">" + type +
-                   "</td></tr></tbody></table><br/>\n"
+            return "<table style=\"border-bottom: 0.5px solid #ccc; margin-bottom: 3px;\" " +
+                   "width=\"100%\"><tbody>" +
+                   "<tr style=\"height: 15px; font-family: " + MarkdownTextView.libraryFont +
+                   "; font-size: \(UserSettings.standard.documentationLibraryFontSize); font-style: italic;\">" +
+                   "<td style=\"text-align: left;\">" + lib + "</td>" +
+                   "<td style=\"text-align: right;\">" + type + "</td></tr></tbody></table><br/>\n"
           default:
             return super.generate(block: block, tight: tight)
         }
@@ -107,45 +111,6 @@ struct MarkdownTextView: UIViewRepresentable {
              "padding: 0.3em;"
     }
   }
-  
-  private static let textFont = "\"-apple-system\",\"Helvetica Neue\",Helvetica,sans-serif"
-  private static let codeFont = "\"Menlo\",\"Consolas\",\"Courier New\",Courier,monospace"
-  private static let textFontSize: Float = 13.0
-  private static let codeFontSize: Float = 11.0
-  
-  private static let lightGen = DocumentationStringGenerator(
-                                  fontSize: MarkdownTextView.textFontSize,
-                                  fontFamily: MarkdownTextView.textFont,
-                                  fontColor: "#000",
-                                  codeFontSize: MarkdownTextView.codeFontSize,
-                                  codeFontFamily: MarkdownTextView.codeFont,
-                                  codeFontColor: "#0000aa",
-                                  codeBlockFontSize: MarkdownTextView.codeFontSize,
-                                  codeBlockFontColor: "#000099",
-                                  codeBlockBackground: "#eee",
-                                  borderColor: "#eee",
-                                  blockquoteColor: "#000",
-                                  h1Color: "#007aff",
-                                  h2Color: "#007aff",
-                                  h3Color: "#007aff",
-                                  h4Color: "#007aff")
-  
-  private static let darkGen = DocumentationStringGenerator(
-                                  fontSize: MarkdownTextView.textFontSize,
-                                  fontFamily: MarkdownTextView.textFont,
-                                  fontColor: "#fff",
-                                  codeFontSize: MarkdownTextView.codeFontSize,
-                                  codeFontFamily: MarkdownTextView.codeFont,
-                                  codeFontColor: "#ccddff",
-                                  codeBlockFontSize: MarkdownTextView.codeFontSize,
-                                  codeBlockFontColor: "#aaddff",
-                                  codeBlockBackground: "#333",
-                                  borderColor: "#333",
-                                  blockquoteColor: "#fff",
-                                  h1Color: "#007aff",
-                                  h2Color: "#007aff",
-                                  h3Color: "#007aff",
-                                  h4Color: "#007aff")
   
   let markdownText: Block?
   let maxLayoutWidth: CGFloat
@@ -176,8 +141,39 @@ struct MarkdownTextView: UIViewRepresentable {
         context.coordinator.colorScheme = context.environment.colorScheme
         if let md = self.markdownText {
           uiView.attributedText =
-            (context.coordinator.colorScheme == .dark ? MarkdownTextView.darkGen :
-                                                        MarkdownTextView.lightGen).generate(doc: md)
+            (context.coordinator.colorScheme == .dark ?
+              DocumentationStringGenerator(
+                fontSize: UserSettings.standard.documentationTextFontSize,
+                fontFamily: MarkdownTextView.textFont,
+                fontColor: "#fff",
+                codeFontSize: UserSettings.standard.documentationCodeFontSize,
+                codeFontFamily: MarkdownTextView.codeFont,
+                codeFontColor: "#ccddff",
+                codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
+                codeBlockFontColor: "#aaddff",
+                codeBlockBackground: "#333",
+                borderColor: "#333",
+                blockquoteColor: "#fff",
+                h1Color: "#007aff",
+                h2Color: "#007aff",
+                h3Color: "#007aff",
+                h4Color: "#007aff") :
+              DocumentationStringGenerator(
+                fontSize: UserSettings.standard.documentationTextFontSize,
+                fontFamily: MarkdownTextView.textFont,
+                fontColor: "#000",
+                codeFontSize: UserSettings.standard.documentationCodeFontSize,
+                codeFontFamily: MarkdownTextView.codeFont,
+                codeFontColor: "#0000aa",
+                codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
+                codeBlockFontColor: "#000099",
+                codeBlockBackground: "#eee",
+                borderColor: "#eee",
+                blockquoteColor: "#000",
+                h1Color: "#007aff",
+                h2Color: "#007aff",
+                h3Color: "#007aff",
+                h4Color: "#007aff")).generate(doc: md)
         } else {
           uiView.attributedText = NSAttributedString(string: "Content not available")
         }

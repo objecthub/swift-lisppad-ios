@@ -50,6 +50,11 @@ struct PreferencesView: View {
             Text("Large").tag(UserSettings.largeFontSize)
             Text("Huge").tag(UserSettings.xlargeFontSize)
           }
+          Picker(selection: $settings.consoleBackgroundColor, label: Text("Graphics background")) {
+            Text("White").tag(UserSettings.whiteBackground)
+            Text("Black").tag(UserSettings.blackBackground)
+            Text("System").tag(UserSettings.systemBackground)
+          }
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
             Text("Console history:")
             Spacer(minLength: 16)
@@ -70,6 +75,13 @@ struct PreferencesView: View {
             Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
           }
           Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
+        }
+        Section(header: Text("Documentation")) {
+          Picker(selection: $settings.documentationFontSize, label: Text("Font size")) {
+            Text("Small").tag(UserSettings.smallFontSize)
+            Text("Medium").tag(UserSettings.mediumFontSize)
+            Text("Large").tag(UserSettings.largeFontSize)
+          }
         }
       }
       .tabItem {
