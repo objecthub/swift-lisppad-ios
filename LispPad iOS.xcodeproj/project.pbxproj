@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
-		CC233D5B266AC6940038016C /* PlotGraphs.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
 		CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
@@ -122,7 +122,6 @@
 		CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */; };
 		CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */; };
 		CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */; };
-		CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
@@ -249,6 +248,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */,
 				CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */,
 				CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */,
 				CC8B95CD2608113800830B4F /* PlayMusic.scm in Copy Root/Examples */,
@@ -282,6 +282,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		CC233D5A266AC6940038016C /* PlotGraphs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlotGraphs.scm; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
@@ -620,8 +621,9 @@
 			isa = PBXGroup;
 			children = (
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
-				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
+				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
 				CC233D5A266AC6940038016C /* PlotGraphs.scm */,
+				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -845,8 +847,6 @@
 			files = (
 				CCEA5A1F2643D40500D78C62 /* ScreenShot_console.png in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
-				CCEA5A15263CA6FC00D78C62 /* ComposePhotos.scm in Resources */,
-				CC233D5B266AC6940038016C /* PlotGraphs.scm in Resources */,
 				CCEA5A2F2643D42300D78C62 /* ScreenShot_prefs.png in Resources */,
 				CCEA5A292643D42300D78C62 /* ScreenShot_env.png in Resources */,
 				CCEA5A2E2643D42300D78C62 /* ScreenShot_menu.png in Resources */,

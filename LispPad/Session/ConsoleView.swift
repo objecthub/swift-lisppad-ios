@@ -99,7 +99,7 @@ struct ConsoleView: View {
         Text("▶︎")
           .font(self.font)
           .frame(alignment: .topLeading)
-          .padding(.init(top: 3, leading: 4, bottom: 5, trailing: 3))
+          .padding(EdgeInsets(top: 3, leading: 4, bottom: 5, trailing: 3))
       } else if entry.isError {
         Text("⚠️")
           .font(self.font)
@@ -108,85 +108,93 @@ struct ConsoleView: View {
       }
       switch entry.kind {
         case .drawingResult(let drawing, let image):
-          Image(uiImage: image)
-            .resizable()
-            .frame(maxWidth: min(image.size.width, width * 0.98),
-                   maxHeight: min(image.size.width, width * 0.98) /
-                              image.size.width * image.size.height)
-            .background(self.settings.consoleGraphicsBackgroundColor)
-            .padding(.horizontal, 4)
-            .padding(.vertical, 8)
-            .contextMenu {
-              Button(action: {
-                UIPasteboard.general.image = image
-              }) {
-                Label("Copy Image", systemImage: "doc.on.clipboard")
-              }
-              Divider()
-              Button(action: {
-                self.showProgressView = "Saving image…"
-                DispatchQueue.global(qos: .userInitiated).async {
-                  var res = image
-                  if let betterImage = iconImage(for: drawing,
-                                                 width: 1500,
-                                                 height: 1500,
-                                                 scale: 4.0,
-                                                 renderingWidth: 1500,
-                                                 renderingHeight: 1500) {
-                    res = betterImage
-                  }
-                  let imageManager = ImageManager()
-                  _ = try? imageManager.writeImageToLibrary(res, async: true)
-                  self.showProgressView = nil
+          VStack(alignment: .leading, spacing: 2) {
+            Text(entry.text)
+              .font(self.font)
+              .fontWeight(.regular)
+              .foregroundColor(.blue)
+              .frame(maxWidth: .infinity, alignment: .topLeading)
+              .fixedSize(horizontal: false, vertical: true)
+            Image(uiImage: image)
+              .resizable()
+              .frame(maxWidth: min(image.size.width, width * 0.98),
+                     maxHeight: min(image.size.width, width * 0.98) /
+                                image.size.width * image.size.height)
+              .background(self.settings.consoleGraphicsBackgroundColor)
+              .padding(.vertical, 4)
+              .contextMenu {
+                Button(action: {
+                  UIPasteboard.general.image = image
+                }) {
+                  Label("Copy Image", systemImage: "doc.on.clipboard")
                 }
-              }) {
-                Label("Save Image", systemImage: "photo.on.rectangle.angled")
-              }
-              Button(action: {
-                self.showProgressView = "Printing image…"
-                DispatchQueue.global(qos: .userInitiated).async {
-                  var res = image
-                  if let betterImage = iconImage(for: drawing,
-                                                 width: 1500,
-                                                 height: 1500,
-                                                 scale: 2.0,
-                                                 renderingWidth: 1500,
-                                                 renderingHeight: 1500) {
-                    res = betterImage
-                  }
-                  let printInfo = UIPrintInfo(dictionary: nil)
-                  printInfo.jobName = "Printing LispPad image…"
-                  printInfo.outputType = .general
-                  DispatchQueue.main.async {
+                Divider()
+                Button(action: {
+                  self.showProgressView = "Saving image…"
+                  DispatchQueue.global(qos: .userInitiated).async {
+                    var res = image
+                    if let betterImage = iconImage(for: drawing,
+                                                   width: 1500,
+                                                   height: 1500,
+                                                   scale: 4.0,
+                                                   renderingWidth: 1500,
+                                                   renderingHeight: 1500) {
+                      res = betterImage
+                    }
+                    let imageManager = ImageManager()
+                    _ = try? imageManager.writeImageToLibrary(res, async: true)
                     self.showProgressView = nil
-                    let printController = UIPrintInteractionController.shared
-                    printController.printInfo = printInfo
-                    printController.printingItem = res
-                    printController.present(animated: true) { _, isPrinted, error in }
                   }
+                }) {
+                  Label("Save Image", systemImage: "photo.on.rectangle.angled")
                 }
-              }) {
-                Label("Print Image", systemImage: "printer")
-              }
-              Button(action: {
-                self.showProgressView = "Sharing image…"
-                DispatchQueue.global(qos: .userInitiated).async {
-                  if let betterImage = iconImage(for: drawing,
-                                                 width: 1500,
-                                                 height: 1500,
-                                                 scale: 4.0,
-                                                 renderingWidth: 1500,
-                                                 renderingHeight: 1500) {
-                    self.showSheet = .shareImage(betterImage)
-                  } else {
-                    self.showSheet = .shareImage(image)
+                Button(action: {
+                  self.showProgressView = "Printing image…"
+                  DispatchQueue.global(qos: .userInitiated).async {
+                    var res = image
+                    if let betterImage = iconImage(for: drawing,
+                                                   width: 1500,
+                                                   height: 1500,
+                                                   scale: 2.0,
+                                                   renderingWidth: 1500,
+                                                   renderingHeight: 1500) {
+                      res = betterImage
+                    }
+                    let printInfo = UIPrintInfo(dictionary: nil)
+                    printInfo.jobName = "Printing LispPad image…"
+                    printInfo.outputType = .general
+                    DispatchQueue.main.async {
+                      self.showProgressView = nil
+                      let printController = UIPrintInteractionController.shared
+                      printController.printInfo = printInfo
+                      printController.printingItem = res
+                      printController.present(animated: true) { _, isPrinted, error in }
+                    }
                   }
-                  self.showProgressView = nil
+                }) {
+                  Label("Print Image", systemImage: "printer")
                 }
-              }) {
-                Label("Share Image", systemImage: "square.and.arrow.up")
+                Button(action: {
+                  self.showProgressView = "Sharing image…"
+                  DispatchQueue.global(qos: .userInitiated).async {
+                    if let betterImage = iconImage(for: drawing,
+                                                   width: 1500,
+                                                   height: 1500,
+                                                   scale: 4.0,
+                                                   renderingWidth: 1500,
+                                                   renderingHeight: 1500) {
+                      self.showSheet = .shareImage(betterImage)
+                    } else {
+                      self.showSheet = .shareImage(image)
+                    }
+                    self.showProgressView = nil
+                  }
+                }) {
+                  Label("Share Image", systemImage: "square.and.arrow.up")
+                }
               }
-            }
+          }
+          .padding(.horizontal, 4)
         case .error(let context):
           self.errorRow(entry.text, context)
         default:

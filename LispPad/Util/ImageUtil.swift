@@ -63,7 +63,9 @@ func iconImage(for drawing: Drawing,
                height: CGFloat = 720.0,
                scale: CGFloat = 2.0,
                renderingWidth: CGFloat = 1000.0,
-               renderingHeight: CGFloat = 1000.0) -> UIImage? {
+               renderingHeight: CGFloat = 1000.0,
+               minContentWidth: CGFloat = 200.0,
+               minContentHeight: CGFloat = 200.0) -> UIImage? {
   guard let context = CGContext(data: nil,
                                 width: Int(renderingWidth * scale),
                                 height: Int(renderingHeight * scale),
@@ -86,10 +88,13 @@ func iconImage(for drawing: Drawing,
     return nil
   }
   let image = UIImage(cgImage: cgImage, scale: CGFloat(scale), orientation: .up)
-  guard let box = contentBox(image: image),
-        let res = crop(image: image,
-                       rect: box,
-                       size: fit(size: box.size, maxWidth: width, maxHeight: height)) else {
+  guard let box = contentBox(image: image) else {
+    return nil
+  }
+  let scaledBox = scaleUp(box: box, minWidth: minContentWidth, minHeight: minContentHeight)
+  guard let res = crop(image: image,
+                       rect: scaledBox,
+                       size: fit(size: scaledBox.size, maxWidth: width, maxHeight: height)) else {
     return nil
   }
   return res
@@ -101,6 +106,21 @@ private func fit(size: CGSize, maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize 
     scale = maxHeight / size.height
   }
   return CGSize(width: size.width * scale, height: size.height * scale)
+}
+
+private func scaleUp(box: CGRect, minWidth: CGFloat, minHeight: CGFloat) -> CGRect {
+  let scale = max(minWidth / box.width, minHeight / box.height)
+  guard scale > 1.0 else {
+    return box
+  }
+  return CGRect(x: notNeg(box.origin.x - ((box.width * scale) - box.width) / 2.0),
+                y: notNeg(box.origin.y - ((box.height * scale) - box.height) / 2.0),
+                width: box.width * scale,
+                height: box.height * scale)
+}
+
+private func notNeg(_ x: CGFloat) -> CGFloat {
+  return x < 0.0 ? 0.0 : x
 }
 
 private func contentBox(image: UIImage) -> CGRect? {
@@ -116,7 +136,7 @@ private func contentBox(image: UIImage) -> CGRect? {
   loop: for x in 0..<width {
     for y in 0..<height {
       if pixels[(x + y * width) * 4 + 3] != 0 {
-        left = CGPoint(x: x, y: y)
+        left = CGPoint(x: x > 0 ? x - 1 : x, y: y)
         break loop
       }
     }
@@ -125,7 +145,7 @@ private func contentBox(image: UIImage) -> CGRect? {
   loop: for y in 0..<height {
     for x in 0..<width {
       if pixels[(x + y * width) * 4 + 3] != 0 {
-        top = CGPoint(x: x, y: y)
+        top = CGPoint(x: x, y: y > 0 ? y - 1 : y)
         break loop
       }
     }
@@ -134,7 +154,7 @@ private func contentBox(image: UIImage) -> CGRect? {
   loop: for y in stride(from: height - 1, through: 0, by: -1) {
     for x in stride(from: width - 1, through: 0, by: -1) {
       if pixels[(x + y * width) * 4 + 3] != 0 {
-        bottom = CGPoint(x: x, y: y)
+        bottom = CGPoint(x: x, y: y < height - 1 ? y + 1 : y)
         break loop
       }
     }
@@ -143,7 +163,7 @@ private func contentBox(image: UIImage) -> CGRect? {
   loop: for x in stride(from: width - 1, through: 0, by: -1) {
     for y in stride(from: height - 1, through: 0, by: -1) {
       if pixels[(x + y * width) * 4 + 3] != 0 {
-        right = CGPoint(x: x, y: y)
+        right = CGPoint(x: x < width - 1 ? x + 1 : x, y: y)
         break loop
       }
     }
