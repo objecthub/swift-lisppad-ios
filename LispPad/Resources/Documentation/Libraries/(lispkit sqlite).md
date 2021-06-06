@@ -1,4 +1,4 @@
-# LispKit Sqlite
+# LispKit SQLite
 
 SQLite is a lightweight, embedded, relational open-source database management system. It is simple to use, requires zero configuration, is not based on a server, and manages databases directly in files.
 
@@ -150,6 +150,10 @@ Opens a database at file path _path_ whose characteristics are described by _opt
 
 Closes database _db_ and deallocates all memory related to the database. If a transaction is open at this point, the transaction is automatically rolled back.
 
+**(sqlite-database? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns `#t` if _obj_ is a database object. Otherwise, predicate `sqlite-database?` returns `#f`.
+
 **(database-path _db_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns the file path as a string at which the database _db_ is being persisted. For in-memory databases, this procedure returns `#f`.
@@ -169,6 +173,10 @@ Procedure `database-total-changes` returns the total number of rows inserted, mo
 ### SQL statements
 
 SQL statements are created with procedure `prepare-statement`. This procedure returns a statement object which encapsulates a compiled SQL query. The compiled SQL query can be executed by repeatedly calling procedure `process-statement`. As long as `process-statement` returns `#f`, a new result row can be extracted from the statement object with procedures such as `column-count`, `column-name`, `column-type`, `column-value`, `row-names`, `row-types`, `row-values`, and `row-alist`. As soon as `process-statement` returns `#t`, processing is complete. With procedure `reset-statement`, a statement object can be reset such that it can be executed again.
+
+**(sqlite-statement? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns `#t` if _obj_ is a statement object. Otherwise, predicate `sqlite-statement?` returns `#f`.
 
 **(prepare-statement _db str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
