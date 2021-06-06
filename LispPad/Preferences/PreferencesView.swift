@@ -50,6 +50,7 @@ struct PreferencesView: View {
             Text("Large").tag(UserSettings.largeFontSize)
             Text("Huge").tag(UserSettings.xlargeFontSize)
           }
+          Toggle("Tight spacing", isOn: $settings.consoleTightSpacing)
           Picker(selection: $settings.consoleBackgroundColor, label: Text("Graphics background")) {
             Text("White").tag(UserSettings.whiteBackground)
             Text("Black").tag(UserSettings.blackBackground)
@@ -69,6 +70,7 @@ struct PreferencesView: View {
             Text("Large").tag(UserSettings.largeFontSize)
             Text("Huge").tag(UserSettings.xlargeFontSize)
           }
+          Toggle("Tight spacing", isOn: $settings.inputTightSpacing)
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
             Text("Command history:")
             Spacer(minLength: 16)

@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import LispKit
 
 ///
 /// Registry of all global services. A singleton object of this class is created as a
@@ -33,6 +34,7 @@ final class LispPadGlobals: ObservableObject {
   let interpreter = Interpreter()
 
   init() {
+    Context.simplifiedDescriptions = true
     self.fileManager.histManager = self.histManager
   }
 

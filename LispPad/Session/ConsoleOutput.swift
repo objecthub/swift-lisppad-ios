@@ -22,13 +22,13 @@ import Foundation
 import UIKit
 import LispKit
 
-struct ConsoleOutput: Identifiable, Equatable {
+struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
   
   enum Kind: Equatable {
     case info
     case command
     case output
-    case error(String?)
+    case error(ErrorContext?)
     case result
     case drawingResult(Drawing, UIImage)
   }
@@ -54,8 +54,8 @@ struct ConsoleOutput: Identifiable, Equatable {
     return ConsoleOutput(.output, text)
   }
   
-  static func error(_ text: String, at loc: String? = nil) -> ConsoleOutput {
-    return ConsoleOutput(.error(loc), text)
+  static func error(_ text: String, context: ErrorContext? = nil) -> ConsoleOutput {
+    return ConsoleOutput(.error(context), text)
   }
   
   static func result(_ text: String = "") -> ConsoleOutput {
@@ -71,10 +71,64 @@ struct ConsoleOutput: Identifiable, Equatable {
     }
   }
   
+  var description: String {
+    switch self.kind {
+      case .info:
+        return "ℹ️ " + self.text
+      case .command:
+        return "▶︎ " + self.text
+      case .output:
+        return self.text
+      case .error(let ctxt):
+        var res = "⚠️ "
+        res += self.text
+        if let context = ctxt, !context.description.isEmpty {
+          res += "\n" + context.description
+        }
+        return res
+      case .result:
+        return self.text
+      case .drawingResult(_, _):
+        return self.text
+    }
+  }
+  
   var isError: Bool {
     guard case .error(_) = self.kind else {
       return false
     }
     return true
+  }
+}
+
+struct ErrorContext: CustomStringConvertible, Equatable {
+  let position: String?
+  let library: String?
+  let stackTrace: String?
+  
+  init(position: String? = nil, library: String? = nil, stackTrace: String? = nil) {
+    self.position = position
+    self.library = library
+    self.stackTrace = stackTrace
+  }
+  
+  var description: String {
+    var res = ""
+    if let pos = self.position {
+      res += "position: \(pos)"
+    }
+    if let lib = self.library {
+      if !res.isEmpty {
+        res += "\n"
+      }
+      res += "library: \(lib)"
+    }
+    if let stack = self.stackTrace {
+      if !res.isEmpty {
+        res += "\n"
+      }
+      res += "stack trace: \(stack)"
+    }
+    return res
   }
 }

@@ -32,9 +32,11 @@ final class UserSettings: ObservableObject {
   private static let foldersOnICloudKey = "Folders.iCloud"
   private static let foldersOnDeviceKey = "Folders.device"
   private static let consoleFontSizeKey = "Console.fontSize"
+  private static let consoleTightSpacingKey = "Console.tightSpacing"
   private static let consoleBackgroundColorKey = "Console.graphicsBackgroundColor"
   private static let maxConsoleHistoryKey = "Console.maxConsoleHistory"
   private static let inputFontSizeKey = "Console.inputFontSize"
+  private static let inputTightSpacingKey = "Console.inputTightSpacing"
   private static let documentationFontSizeKey = "Documentation.fontSize"
   private static let balancedParenthesisKey = "Console.balancedParenthesis"
   private static let maxCommandHistoryKey = "Console.maxCommandHistory"
@@ -142,6 +144,12 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var consoleTightSpacing: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleTightSpacing, forKey: Self.consoleTightSpacingKey)
+    }
+  }
+  
   @Published var consoleBackgroundColor: String {
     didSet {
       UserDefaults.standard.set(self.consoleBackgroundColor, forKey: Self.consoleBackgroundColorKey)
@@ -157,6 +165,12 @@ final class UserSettings: ObservableObject {
   @Published var inputFontSize: String {
     didSet {
       UserDefaults.standard.set(self.inputFontSize, forKey: Self.inputFontSizeKey)
+    }
+  }
+  
+  @Published var inputTightSpacing: Bool {
+    didSet {
+      UserDefaults.standard.set(self.inputTightSpacing, forKey: Self.inputTightSpacingKey)
     }
   }
   
@@ -316,15 +330,21 @@ final class UserSettings: ObservableObject {
   }
   
   var consoleFont: Font {
-    return Self.monospacedFontMap[self.consoleFontSize] ?? .system(.footnote, design: .monospaced)
+    return (Self.monospacedFontMap[self.consoleFontSize] ??
+              .system(.footnote, design: .monospaced))
+           .leading(self.consoleTightSpacing ? .tight : .standard)
   }
   
   var consoleInfoFont: Font {
-    return Self.fontMap[self.consoleFontSize] ?? .system(.footnote, design: .monospaced)
+    return (Self.fontMap[self.consoleFontSize] ??
+              .system(.footnote, design: .monospaced))
+           .leading(self.consoleTightSpacing ? .tight : .standard)
   }
   
   var inputFont: Font {
-    return Self.monospacedFontMap[self.inputFontSize] ?? .system(.footnote, design: .monospaced)
+    return (Self.monospacedFontMap[self.inputFontSize] ??
+              .system(.footnote, design: .monospaced))
+           .leading(self.inputTightSpacing ? .tight : .standard)
   }
   
   var editorFont: UIFont {
@@ -372,11 +392,15 @@ final class UserSettings: ObservableObject {
     self.foldersOnDevice = UserDefaults.standard.boolean(forKey: Self.foldersOnDeviceKey)
     self.consoleFontSize = UserDefaults.standard.str(forKey: Self.consoleFontSizeKey,
                                                      UserSettings.smallFontSize)
+    self.consoleTightSpacing = UserDefaults.standard.boolean(forKey: Self.consoleTightSpacingKey,
+                                                             false)
     self.consoleBackgroundColor = UserDefaults.standard.str(
       forKey: Self.consoleBackgroundColorKey, UserSettings.whiteBackground)
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)
     self.inputFontSize = UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
                                                    UserSettings.smallFontSize)
+    self.inputTightSpacing = UserDefaults.standard.boolean(forKey: Self.inputTightSpacingKey,
+                                                           false)
     self.balancedParenthesis = UserDefaults.standard.boolean(forKey: Self.balancedParenthesisKey)
     self.maxCommandHistory = UserDefaults.standard.int(forKey: Self.maxCommandHistoryKey, 30)
     self.documentationFontSize = UserDefaults.standard.str(

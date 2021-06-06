@@ -109,26 +109,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   func consoleAsText() -> String {
     var res = ""
     for output in self.consoleContent {
-      switch output.kind {
-        case .info:
-          res += "ℹ️ "
-          res += output.text
-        case .command:
-          res += "▶︎ "
-          res += output.text
-        case .output:
-          res += output.text
-        case .error(let loc):
-          res += "⚠️ "
-          res += output.text
-          if let context = loc {
-            res += "\n  " + context
-          }
-        case .result:
-          res += output.text
-        case .drawingResult(_, _):
-          res += output.text
-      }
+      res += output.description
       res += "\n"
     }
     return res
@@ -343,7 +324,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
       _ = try context.machine.eval(file: preludePath, in: context.global, as: "<prelude>")
     } catch let error {
       DispatchQueue.main.sync {
-        self.append(output: .error(error.localizedDescription, at: "init"))
+        self.append(output: .error(error.localizedDescription,
+                                   context: ErrorContext(stackTrace: "init")))
         self.isReady = true
         self.readingStatus = .accept
       }
@@ -375,7 +357,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
           return nil
         } else {
           return [.error(self.errorMessage(err, in: context),
-                         at: self.errorLocation(err, in: context))]
+                         context: self.errorLocation(err, in: context))]
         }
       case .void:
         return []
@@ -434,46 +416,30 @@ final class Interpreter: ContextDelegate, ObservableObject {
                                     stackTraceHeader: nil)
   }
   
-  private func errorLocation(_ err: RuntimeError, in context: Context) -> String? {
-    guard let stackTrace = err.stackTrace, stackTrace.count > 0 else {
-      guard let libraryName = err.library?.description else {
-        if !err.pos.isUnknown {
-          if let filename = context.sources.sourcePath(for: err.pos.sourceId) {
-            return " └─ at: \(err.pos.description):\(filename)"
-          } else {
-            return " └─ at: \(err.pos.description)"
-          }
-        }
-        return nil
-      }
-      if !err.pos.isUnknown {
-        if let filename = context.sources.sourcePath(for: err.pos.sourceId) {
-          return " │  at: \(err.pos.description):\(filename)\n"
-        } else {
-          return " │  at: \(err.pos.description)\n"
-        }
-      }
-      return " └─ library: \(libraryName)"
-    }
-    var res = ""
+  private func errorLocation(_ err: RuntimeError, in context: Context) -> ErrorContext? {
+    var position: String? = nil
     if !err.pos.isUnknown {
       if let filename = context.sources.sourcePath(for: err.pos.sourceId) {
-        res += " │  at: \(err.pos.description):\(filename)\n"
+        position = "\(err.pos.description):\(filename)"
       } else {
-        res += " │  at: \(err.pos.description)\n"
+        position = err.pos.description
       }
     }
+    var library: String? = nil
     if let libraryName = err.library?.description {
-      res += " │  library: \(libraryName)\n"
+      library = libraryName
     }
-    res += " └── "
+    guard let stackTrace = err.stackTrace, stackTrace.count > 0 else {
+      return ErrorContext(position: position, library: library)
+    }
+    var res = ""
     var sep = ""
     for proc in stackTrace {
       res += sep
       res += proc.name
-      sep = " « "
+      sep = " ← "
     }
-    return res
+    return ErrorContext(position: position, library: library, stackTrace: res)
   }
   
   /// Prints the given string into the console window.
