@@ -89,6 +89,62 @@ the concatenation of the elements in the given bytevectors.
   ⇒  #u8(0 1 2 3 4 5)
 ```
 
+## Input/Output
+
+**(read-binary-file _path_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Reads the file at _path_ and stores its content in a new bytevector which gets returned by `read-binary-file`.
+
+**(write-binary-file _path bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(write-binary-file _path bytevector start_)**   
+**(write-binary-file _path bytevector start end_)**   
+
+Writes the bytes of _bytevector_ between _start_ and _end_ into a new binary file at _path_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+## Compression
+
+**(bytevector-deflate _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-deflate _bytevector start_)**   
+**(bytevector-deflate _bytevector start end_)**   
+
+`bytevector-deflate` encodes _bytevector_ between _start_ and _end_ using the _Deflate_ data compression alogrithm returning a new compressed bytevector. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-inflate _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-inflate _bytevector start_)**   
+**(bytevector-inflate _bytevector start end_)**   
+
+`bytevector-inflate` assumes _bytevector_ is encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns a corresponding new decoded bytevector.
+
+If is an error if _bytevector_, between _start_ and _end_, is not encoded using _Deflate_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-zip _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-zip _bytevector start_)**   
+**(bytevector-zip _bytevector start end_)**   
+
+`bytevector-zip` encodes _bytevector_ between _start_ and _end_ using the _Deflate_ data compression alogrithm returning a new compressed bytevector which is using a _zlib_ wrapper. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-unzip _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-unzip _bytevector start_)**   
+**(bytevector-unzip _bytevector start end_)**   
+
+`bytevector-unzip` assumes _bytevector_ is using a _zlib_ wrapper for data encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns a corresponding new decoded bytevector.
+
+If is an error if _bytevector_, between _start_ and _end_, is not encoded using _Deflate_ or is not using the _zlib_ wrapper format. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-gzip _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-gzip _bytevector start_)**   
+**(bytevector-gzip _bytevector start end_)**   
+
+`bytevector-gzip` encodes _bytevector_ between _start_ and _end_ using the _Deflate_ data compression alogrithm returning a new compressed bytevector which is using a _gzip_ wrapper. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-gunzip _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-gunzip _bytevector start_)**   
+**(bytevector-gunzip _bytevector start end_)**   
+
+`bytevector-gunzip` assumes _bytevector_ is using a _gzip_ wrapper for data encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns a corresponding new decoded bytevector.
+
+If is an error if _bytevector_, between _start_ and _end_, is not encoded using _Deflate_ or is not using the _gzip_ wrapper format. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
 ## Advanced
 
 **(utf8-\>string _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
@@ -121,28 +177,14 @@ It is an error for _bytevector_ to contain invalid UTF-8 byte sequences.
 
 If is an error if _str_ between _start_ and _end_ is not a valid _Base64_-encoded string. If _end_ is not provided, it is assumed to be the length of _str_. If _start_ is not provided, it is assumed to be 0.
 
-**(bytevector-deflate _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(bytevector-deflate _bytevector start_)**   
-**(bytevector-deflate _bytevector start end_)**   
+**(bytevector-adler32 _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-adler32 _bytevector start_)**   
+**(bytevector-adler32 _bytevector start end_)**   
 
-`bytevector-deflate` encodes _bytevector_ between _start_ and _end_ using the _Deflate_ data compression alogrithm returning a new compressed bytevector. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+`bytevector-adler32` computes the Adler32 checksum for _bytevector_ between _start_ and _end_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
 
-**(bytevector-inflate _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(bytevector-inflate _bytevector start_)**   
-**(bytevector-inflate _bytevector start end_)**   
+**(bytevector-crc32 _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-crc32 _bytevector start_)**   
+**(bytevector-crc32 _bytevector start end_)**   
 
-`bytevector-inflate` assumes _bytevector_ is encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns a corresponding new decoded bytevector.
-
-If is an error if _bytevector_, between _start_ and _end_, is not encoded using _Deflate_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
-
-## Input/Output
-
-**(read-binary-file _path_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-
-Reads the file at _path_ and stores its content in a new bytevector which gets returned by `read-binary-file`.
-
-**(write-binary-file _path bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(write-binary-file _path bytevector start_)**   
-**(write-binary-file _path bytevector start end_)**   
-
-Writes the bytes of _bytevector_ between _start_ and _end_ into a new binary file at _path_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+`bytevector-crc32` computes the CRC32 checksum for _bytevector_ between _start_ and _end_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.

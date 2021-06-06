@@ -122,8 +122,9 @@ Procedure `macroexpand-1` applies macro-expansion to the expression _expr_ in th
 ## Disassembling code
 
 **(compile _expr_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(compile _expr env_)**  
 
-Compiles expression _expr_ and displays the disassembled code. This is what is being printed when executing `(compile '(do ((i 0 (fx1+ i)))((fx> i 10))(display i)(newline)))`:
+Compiles expression _expr_ in environment _env_ and displays the disassembled code. If _env_ is not given, the current interaction environment is used. This is what is being printed when executing `(compile '(do ((i 0 (fx1+ i)))((fx> i 10))(display i)(newline)))`:
 
 ```
 CONSTANTS:

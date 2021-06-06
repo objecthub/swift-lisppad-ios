@@ -1,14 +1,15 @@
 # LispKit Core
 
-## Basic primitives
+## Primitives
 
 **(procedure? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>
 
 Returns `#t` if _obj_ is a procedure. Otherwise, it returns `#f`.
 
-**(eval _expr env_)** <span style="float:right;text-align:rigth;">[procedure]</span>
+**(eval _expr_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(eval _expr env_)**  
 
-If _expr_ is an expression, it is evaluated in the specified environment and its values are returned. If it is a definition, the specified identifiers are defined in the specified environment, provided the environment is not immutable.
+If _expr_ is an expression, it is evaluated in the specified environment _env_ and its values are returned. If it is a definition, the specified identifiers are defined in the specified environment, provided the environment is not immutable. Should _env_ not be provided, the global interaction environment is used.
 
 **(apply _proc arg1 ... args_)** <span style="float:right;text-align:rigth;">[procedure]</span>
 
@@ -94,16 +95,28 @@ Returns a procedure accepting no arguments and evaluating _expr_ ..., returning 
 Returns a procedure accepting an arbitrary amount of arguments and evaluating _expr_ ..., returning the result of the last expression being evaluated as the result of a procedure call. `(thunk* expr ...)` is equivalent to `(lambda args expr ...)`.
 
 
-## Definition primitives
+## Definitions
 
 **(define _var expr_)** <span style="float:right;text-align:rigth;">[syntax]</span>  
-**(define (_f arg ..._) _expr_)**  
+**(define _var expr doc_)**  
+**(define (_f arg ..._) _expr ..._)**  
+**(define (_f arg ..._) _doc expr ..._)**  
 
-At the outermost level of a program, a definition `(define` _var expr_`)` has essentially the same effect as the assignment expression `(set!` _var expr_`)` if variable _var_ is bound to a non-syntax value. However, if _var_ is not bound, or is a syntactic keyword, then the definition will bind _var_ to a new location before performing the assignment, whereas it would be an error to perform a `set!` on an unbound variable.
+`define` is used to define variables. At the outermost level of a program, a definition `(define` _var expr_`)` has essentially the same effect as the assignment expression `(set!` _var expr_`)` if variable _var_ is bound to a non-syntax value. However, if _var_ is not bound, or is a syntactic keyword, then the definition will bind _var_ to a new location before performing the assignment, whereas it would be an error to perform a `set!` on an unbound variable.
 
 The form `(define (`_f arg ..._`)` _expr_`)` defines a function _f_ with arguments _arg ..._ and body _expr_. It is equivalent to `(define` _f_ `(lambda (`_arg ..._`)` _expr_`))`.
 
-**(define-values (_var ..._) _expr_)** <span style="float:right;text-align:rigth;">[syntax]</span>
+The parameter _doc_ is a string literal defining documentation for variable _var_. It can be accessed, for instance, by using the procedure `environment-documentation` on the environment in which the variable was bound.
+
+```scheme
+(define pi 3.141 "documentation for `pi`")
+(environment-documentation (interaction-environment) 'pi)
+⇒ "documentation for `pi`"
+```
+
+**(define-values _var expr_)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(define-values (_var ..._) _expr_)**  
+**(define-values (_var doc ..._) _expr_)**  
 
 `define-values` creates multiple definitions _var ..._ from a single expression _expr_ returning multiple values. It is allowed wherever `define` is allowed.
 
@@ -113,10 +126,15 @@ It is an error if a variable _var_ appears more than once in _var ..._.
 
 ```scheme
 (define-values (x y) (integer-sqrt 17))
-(list x y)                               ⇒ (4 1)
+(list x y)                              ⇒ (4 1)
+(define-values vs (values 'a 'b 'c))
+vs                                      ⇒ (a b c)
 ```
 
-**(define-syntax _keyword transformer_)** <span style="float:right;text-align:rigth;">[syntax]</span>
+The parameter _doc_ is an optional string literal defining documentation for variable _var_. It directly follows the identifier name.
+
+**(define-syntax _keyword transformer_)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(define-syntax _keyword doc transformer_)**  
 
 Syntax definitions have the form `(define-syntax` _keyword transformer_`)`. _keyword_ is an identifier, and _transformer_ is an instance of `syntax-rules`. Like variable definitions, syntax definitions can appear at the outermost level or nested within a body.
 
@@ -131,6 +149,14 @@ Here is an example defining syntax for `while` loops. `while` evaluates the body
   (syntax-rules ()
     ((_ pred body ...)
       (let loop () (when pred body ... (loop))))))
+```
+
+The parameter _doc_ is an optional string literal defining documentation for the keyword _var_:
+
+```scheme
+(define-syntax kwote "alternative to quote"
+  (syntax-rules ()
+    ((kwote exp) (quote exp))))
 ```
 
 **(syntax-rules (_literal ..._) _rule ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
@@ -481,9 +507,42 @@ Calls its _producer_ argument with no arguments and a continuation that, when pa
 
 ## Environments
 
+Environments are first-class objects which associate identifiers (symbols) with values. Environments are used implicitly by the LispKit compiler and runtime system, but library `(lispkit core)` also provides an API allowing systems to manipulate and use environments programmatically.
+
+For instance, when a top-level variable gets created with `define`, the name/value association for that variable is added to the "top-level" environment. The LispKit compiler implicitly creates environments other than the top-level environment, for example, when compiling and executing libraries. 
+
+There are several types of bindings that can occur within an environment. A _variable binding_ associates a value with an identifier. This is the most common type of binding. In addition to variable bindings, environments can have _keyword bindings_. A keyword binding associates an identifier with a macro transformer (usually via `syntax-rules`). There are also _unassigned_ bindings referring to bindings without a known value.
+
 **(environment? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns #t if _obj_ is an environment. Otherwise, it returns #f.
+Returns `#t` if _obj_ is an environment. Otherwise, it returns `#f`.
+
+**(interaction-environment? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is an interaction environment, i.e. a mutable environment in which expressions entered by the user into a read-eval-print loop are being evaluated. Otherwise, procedure `interaction-environment?` returns `#f`.
+
+**(custom-environment? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a custom environment, i.e. an environment that was programmatically constructed. Otherwise, predicate `custom-environment?` returns `#f`.
+
+**(the-environment)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+
+Special form `the-environment` returns the current top-level environment. If there is none, `the-environment` returns `#f`.
+
+Here is an example how one can print the names bound at compile-time:
+
+```scheme
+(define-library (foo)
+  (import (only (lispkit core) the-environment environment-bound-names)
+          (only (lispkit port) display newline))
+  (begin
+    (display "bound = ")
+    (display (environment-bound-names (the-environment)))
+    (newline)))
+(import (foo))
+⇒
+bound = (display the-environment newline environment-bound-names)
+```
 
 **(environment _list1 ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -512,6 +571,30 @@ Symbol _ident_ must be bound in environment _env_. Procedure `environment-assign
 **(environment-assign! _env ident obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Symbol _ident_ must be bound in environment _env_ and must be assignable. Procedure `environment-assign!` modifies the binding to have _obj_ as its value.
+
+**(environment-definable? _env ident_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Predicate `environment-definable?` returns `#t` if symbol _ident_ is definable in environment _env_, and `#f` otherwise. Currently, interaction environments and custom environments allow for identifiers to be defined. For all other types of environments, this predicate returns `#f` independent of _ident_.
+
+**(environment-define _env ident obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Defines _ident_ to be bound to _obj_ in environment _env_. This procedure signals an error if _ident_ is not definable in _env_.
+
+**(environment-define-syntax _env ident transf_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Defines _ident_ to be a keyword bound to macro transformer _transf_ (typically expressed in terms of `syntax-rules`) in environment _env_. This procedure signals an error if _ident_ is not definable in environment _env_.
+
+**(environment-import _env ident importset_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Imports the identifiers exported by a library and specified via an import set _importset_ into the environment _env_. The procedure fails if the type of environment does not allow identifiers to be defined programmatically.
+
+**(environment-documentation _env ident_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the documentation associated with the identifier _ident_ in environment _env_ as a string. This procedure returns `#f` if _ident_ is not associated with any documentation.
+
+**(environment-assign-documentation! _env ident str_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Assigns the documentation string _str_ to identifier _ident_ in environment _env_.
 
 **(scheme-report-environment _version_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 

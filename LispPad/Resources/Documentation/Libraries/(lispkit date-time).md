@@ -6,19 +6,34 @@ Library `(lispkit date-time)` provides functionality for handling time zones, da
    - _date_: the date consisting of its year, month, and day
    - _time_: the time on _date_ consisting of the hour (>= 0, < 24), the minute (>= 0, < 60), the second (>= 60, <60), and the nano second.
 
-The library uses a floating-point representation of seconds since 00:00 UTC on January 1, 1970, as a means to refer to specific points in time independent of timezones. This means that, for instance, for comparing date-times with each other, a user would have to convert them to seconds and then compare the seconds instead.
+The library uses a floating-point representation of seconds since 00:00 UTC on January 1, 1970, as a means to refer to specific points in time independent of timezones. This means that, for instance, for comparing date-times with each other, a user would have to convert them to seconds and then compare the seconds instead. Here is an example:
+
+```scheme
+(define initial-time (date-time "Europe/Zurich"))
+(define later-time (date-time "GMT"))
+(date-time< initial-time later-time)
+  ⇒  #t
+; the following line is equivalent:
+(< (date-time->seconds initial-time) (date-time->seconds later-time))
+  ⇒  #t
+```
 
 For now, `(lispkit date-time)` assumes all dates are based on the Gregorian calendar, independent of the settings at the operating system-level. 
 
 
 ## Time zones
 
-Time zones are represented by string identifiers referring to the region and corresponding city, e.g. `"America/Los_Angeles"`. Procedure `timezones` returns a list of all supported time zone identifiers. Each time zone has a locale-specific name and an offset in seconds from Greenwhich Mean Time. Some time zones also have an abbreviation which can be used as an alternative way to identify a timezone.
+Time zones are represented by string identifiers referring to the region and corresponding city, e.g. `"America/Los_Angeles"`. Procedure `timezones` returns a list of all supported time zone identifiers. Each time zone has a locale-specific name and an offset in seconds from Greenwhich Mean Time. Some time zones also have an abbreviation which can be used as an alternative way to identify a time zone.
 
 **(timezones)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(timezones _filter_)**  
 
 Returns a list of string identifiers for all supported time zones. If _filter_ is provided, it can either be set to `#f`, in which case a list of abbreviations is returned instead, or it is a string, and only time zone identifiers which contain _filter_ are returned.
+
+```scheme
+(timezones #f)
+⇒  ("CEST" "GST" "NZDT" "BRST" "WEST" "AST" "MSD" "CDT" "WIT" "MSK" "COT" "IST" "EST" "BST" "CLST" "NDT" "TRT" "EET" "IRST" "EDT" "BRT" "ICT" "CST" "AKST" "BDT" "PHT" "SGT" "WET" "ART" "CLT" "CAT" "UTC" "EEST" "ADT" "JST" "HST" "PET" "MST" "NST" "NZST" "GMT" "MDT" "PKT" "WAT" "HKT" "AKDT" "KST" "PST" "CET" "PDT" "EAT")
+```
 
 **(timezone? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

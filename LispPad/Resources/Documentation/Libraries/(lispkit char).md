@@ -105,3 +105,16 @@ Procedure `digit-value` returns the numeric value (0 to 9) of its argument if it
 Given a Unicode character, `char->integer` returns an exact integer between 0 and #xD7FF or between #xE000 and #x10FFFF which is equal to the Unicode scalar value of that character. Given a non-Unicode character, it returns an exact integer greater than #x10FFFF.
 
 Given an exact integer that is the value returned by a character when `char->integer` is applied to it, `integer->char` returns that character.
+
+**(char-name _char_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(char-name _char encoded?_)**  
+
+If character _char_ has a corresponding named XML entity, then procedure `char-name` returns the name of this entity. Otherwise, `char-name` returns `#f`. If parameter _encoded_ is set to `#t`, then the name is returned including the full entity encoding.
+
+```scheme
+(char-name #\<)     ⇒  "LT"
+(char-name #\&)     ⇒  "AMP"
+(char-name #\")     ⇒  "quot"
+(char-name #\a)     ⇒  #f
+(char-name #\> #t)  ⇒  "&gt;"
+```

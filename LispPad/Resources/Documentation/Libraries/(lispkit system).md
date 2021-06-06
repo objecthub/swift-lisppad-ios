@@ -26,11 +26,12 @@ Returns the directory in which the source file is located which is currently bei
 
 **(home-directory)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(home-directory _username_)**  
+**(home-directory _username non-sandboxed?_)**  
 
-Returns the path of the home directory of the user identified via string _username_. If _username_ is not given, the name of the current user is used as a default. The name of the current user can be retrieved via procedure `current-user-name`.
+Returns the path of the home directory of the user identified via string _username_. If _username_ is not given or is set to `#f`, the name of the current user is used as a default. The name of the current user can be retrieved via procedure `current-user-name`. If boolean argument _non-sandboxed?_ is set to `#t`, `home-directory` will return the Unix home directory path, even if LispKit is used in a sandboxed application such as LispPad.
 
 ```scheme
-(home-directory "objecthub")  ⇒  "/Users/objecthub"
+(home-directory "objecthub")  ⇒  "/Users/objecthub")
 ```
 
 **(system-directory _type_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -43,12 +44,16 @@ Returns a list of paths to system directories specified via symbol _type_ for th
   - `music`: Ths "Music folder.
   - `pictures`: The "Pictures" folder.
   - `documents`: The "Documents" folder.
+  - `icloud`: The "Documents" folder on iCloud.
   - `shared-public`: The "Public" folder.
-  - `application-scripts`: The folder where AppleScript source code is stored.
+  - `application-support`: The application support directory on iOS (only accessible to the application hosting LispKit)
+  - `application-scripts`: The folder where AppleScript source code is stored (only available on macOS).
+  - `cache`: The cache directory on iOS.
   - `temporary`: A shared temporary folder.
 
 ```scheme
 (system-directory 'documents)  ⇒  ("/Users/objecthub/Documents")
+(system-directory 'desktop)  ⇒  ("/Users/objecthub/Desktop")
 ```
 
 **(path _path comp ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -78,11 +83,17 @@ Returns the individual components of a (relative or absolute) _path_ as a list o
 
 **(file-path _path_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(file-path _path base_)**   
+**(file-path _path base resolve?_)**   
 
-Constructs a new absolute file or directory path consisting of a base path _base_ and a relative file path _path_.
+Constructs a new absolute file or directory path consisting of a base path _base_ and a relative file path _path_. Procedure `file-path` will also resolve symbolic links if boolean argument _resolve?_ is `#t`. The default for _resolve?_ is `#f`. Tilde is always resolved, if provided either in _path_ or _base_.
 
 ```scheme
-(file-path "Photos/img01.jpg" "/Users/objecthub")  ⇒  "/Users/objecthub/Photos/img01.jpg"
+(file-path "Photos/img.jpg" "/Users/mz/Desktop")
+⇒  "/Users/mz/Desktop/Photos/img.jpg"
+(file-path "~/Images/test.jpg")
+⇒  "/Users/objecthub/Images/test.jpg"
+(file-path "~/Images/test.jpg" "/random")
+⇒  "/Users/objecthub/Images/test.jpg"
 ```
 
 **(asset-file-path _name type_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  

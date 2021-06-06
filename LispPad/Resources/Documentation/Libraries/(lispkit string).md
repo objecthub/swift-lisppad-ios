@@ -149,6 +149,27 @@ Procedure `string-normalize-diacritics` transforms the given string _str_ by nor
 
 Procedure `string-normalize-separators` normalizes string _str_ by replacing sequences of separation characters from character set _cset_ with string or character _sep_. If _sep_ is not provided, `" "` is used as a default. If _cset_ is not provided, all unicode newline and whitespace characters are used as a default for _cset_. _cset_ is either a string of separation characters or a character set as defined by library `(lispkit char-set)`.
 
+**(string-encode-named-chars _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(string-encode-named-chars _str required-only?_)**  
+
+Procedure `string-encode-named-chars` returns a new string, replacing characters with their corresponding named XML entity in string _str_. If parameter `required-only?` is set to `#f`, all characters with corresponding named XML entities are being replaced, otherwise only the required characters are replaced.
+
+```scheme
+(string-encode-named-chars "<one> & two = 3")
+⇒  "&LT;one&gt; &AMP; two &equals; 3"
+(string-encode-named-chars "<one> & two = 3" #t)
+⇒  "&lt;one&gt; &amp; two = 3"
+```
+
+**(string-decode-named-chars _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Procedure `string-decode-named-chars` returns a new string, replacing named XML entities with their corresponding character.
+
+```scheme
+(string-decode-named-chars "2&Hat;&lcub;3&rcub; &equals; 8")
+⇒  "2^{3} = 8"
+```
+
 **(string-copy _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(string-copy _str start_)**  
 **(string-copy _str start end_)**  
