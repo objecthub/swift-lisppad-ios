@@ -22,10 +22,21 @@ import Foundation
 
 struct FileExtensions {
   
-  enum EditorType: Int, Equatable {
+  enum EditorType: Int, Equatable, CustomStringConvertible {
     case scheme
     case markdown
     case other
+    
+    var description: String {
+      switch self {
+        case .scheme:
+          return "scheme"
+        case .markdown:
+          return "markdown"
+        case .other:
+          return "other"
+      }
+    }
   }
   
   static let editorSupport: Set<String> = ["sld", "scm", "sps", "sls", "ss", "sc", "sch",

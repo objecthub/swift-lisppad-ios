@@ -215,7 +215,7 @@ struct CodeEditorView: View {
                 self.showSheet = .markdownPreview(block)
               }
             }) {
-              Image(systemName: "play")
+              Image(systemName: self.editorType == .scheme ? "play" : "display")
                 .font(InterpreterView.toolbarFont)
             }
             .disabled((self.editorType != .scheme) &&
