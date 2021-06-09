@@ -65,22 +65,22 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
           switch textView.text(in: range) {
             case "(":
               self.highlight(RPAREN, LPAREN, back: false, in: textView,
-                                 at: self.lastSelectedRange.location)
+                             at: self.lastSelectedRange.location)
             case "[":
               self.highlight(RBRACKET, LBRACKET, back: false, in: textView,
-                                 at: self.lastSelectedRange.location)
+                             at: self.lastSelectedRange.location)
             case "{":
               self.highlight(RBRACE, LBRACE, back: false, in: textView,
-                                 at: self.lastSelectedRange.location)
+                             at: self.lastSelectedRange.location)
             case ")":
               self.highlight(LPAREN, RPAREN, back: true, in: textView,
-                                 at: self.lastSelectedRange.location - 1)
+                             at: self.lastSelectedRange.location - 1)
             case "]":
               self.highlight(LBRACKET, RBRACKET, back: true, in: textView,
-                                 at: self.lastSelectedRange.location - 1)
+                             at: self.lastSelectedRange.location - 1)
             case "}":
               self.highlight(LBRACE, RBRACE, back: true, in: textView,
-                                 at: self.lastSelectedRange.location - 1)
+                             at: self.lastSelectedRange.location - 1)
             default:
               break
           }

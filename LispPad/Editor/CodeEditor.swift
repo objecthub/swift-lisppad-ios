@@ -116,7 +116,8 @@ struct CodeEditor: UIViewRepresentable {
         textView.becomeFirstResponder()
         let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,
                                                     from: textView.window)
-        let bottomInset = keyboardViewEndFrame.height - textView.safeAreaInsets.bottom - 25
+        let bottomInset = keyboardViewEndFrame.height > 25.0 ?
+          (keyboardViewEndFrame.height - (textView.window?.safeAreaInsets.bottom ?? 25.0)) : 0.0
         textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
         textView.scrollIndicatorInsets = textView.contentInset
         textView.selectedRange = pos
@@ -143,11 +144,9 @@ struct CodeEditor: UIViewRepresentable {
     } else if UIDevice.current.userInterfaceIdiom != .pad {
       let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,
                                                   from: textView.window)
-      textView.contentInset = UIEdgeInsets(top: 0,
-                                           left: 0,
-                                           bottom: keyboardViewEndFrame.height -
-                                                   textView.safeAreaInsets.bottom - 25,
-                                           right: 0)
+      let bottomInset = keyboardViewEndFrame.height > 25.0 ?
+        (keyboardViewEndFrame.height - (textView.window?.safeAreaInsets.bottom ?? 25.0)) : 0.0
+      textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
       textView.scrollIndicatorInsets = textView.contentInset
       textView.scrollRangeToVisible(textView.selectedRange)
     }
