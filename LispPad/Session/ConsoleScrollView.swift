@@ -46,7 +46,7 @@ struct ConsoleScrollView<Content: View>: View {
     }
     .coordinateSpace(name: "consoleScrollView")
     .onPreferenceChange(ScrollOffsetPreferenceKey.self, perform: offsetChanged)
-    .resignKeyboardOnDragGesture()
+    .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
   }
 }
 

@@ -91,7 +91,7 @@ struct SearchField: View {
       .cornerRadius(12)
       if showNext && showSearchField && self.searchText == self.lastSearchText {
         Button("Next") {
-          UIApplication.shared.endEditing(true)
+          // UIApplication.shared.endEditing(true)
           if !self.searchText.isEmpty {
             let more = self.search(self.searchText, false)
             withAnimation(.default) {
@@ -108,7 +108,7 @@ struct SearchField: View {
             self.searchText = ""
             self.showSearchField = false
             self.showNext = false
-            self.forceEditorUpdate = true
+            // self.forceEditorUpdate = true
           }
         }
         .foregroundColor(Color(.systemBlue))

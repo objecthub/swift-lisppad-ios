@@ -55,35 +55,38 @@ struct MainView: View {
   /// The definition of the view.
   var body: some View {
     if UIDevice.current.userInterfaceIdiom == .pad {
-      SplitView {
+      ZStack {
+        Color("NavigationBarColor").ignoresSafeArea()
+        SplitView {
+            NavigationView {
+              InterpreterView(splitView: true,
+                              splitViewMode: $splitViewMode,
+                              masterWidthFraction: $masterWidthFraction,
+                              editorPosition: $editorPosition,
+                              forceEditorUpdate: $forceEditorUpdate)
+                .modifier(self.globals.services)
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+        } detail: {
           NavigationView {
-            InterpreterView(splitView: true,
-                            splitViewMode: $splitViewMode,
-                            masterWidthFraction: $masterWidthFraction,
-                            editorPosition: $editorPosition,
-                            forceEditorUpdate: $forceEditorUpdate)
+            CodeEditorView(splitView: true,
+                           splitViewMode: $splitViewMode,
+                           masterWidthFraction: $masterWidthFraction,
+                           editorPosition: $editorPosition,
+                           forceEditorUpdate: $forceEditorUpdate)
               .modifier(self.globals.services)
           }
           .navigationViewStyle(StackNavigationViewStyle())
-      } detail: {
-        NavigationView {
-          CodeEditorView(splitView: true,
-                         splitViewMode: $splitViewMode,
-                         masterWidthFraction: $masterWidthFraction,
-                         editorPosition: $editorPosition,
-                         forceEditorUpdate: $forceEditorUpdate)
-            .modifier(self.globals.services)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
-      }
-      .splitViewPreferredDisplayMode(.oneBesideSecondary)
-      .splitViewMasterWidthFraction(self.masterWidthFraction)
-      .splitViewMode(self.splitViewMode)
-      .onChange(of: self.splitViewMode) { mode in
-        UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
-      }
-      .onChange(of: self.masterWidthFraction) { fraction in
-        UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
+        .splitViewPreferredDisplayMode(.oneBesideSecondary)
+        .splitViewMasterWidthFraction(self.masterWidthFraction)
+        .splitViewMode(self.splitViewMode)
+        .onChange(of: self.splitViewMode) { mode in
+          UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+        }
+        .onChange(of: self.masterWidthFraction) { fraction in
+          UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
+        }
       }
     } else {
       NavigationView {
@@ -96,11 +99,5 @@ struct MainView: View {
       }
       .navigationViewStyle(StackNavigationViewStyle())
     }
-  }
-}
-
-struct MainView_Previews: PreviewProvider {
-  static var previews: some View {
-    MainView()
   }
 }

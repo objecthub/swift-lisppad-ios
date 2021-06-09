@@ -53,6 +53,24 @@ class CodeEditorTextViewDelegate: NSObject, UITextViewDelegate {
       DispatchQueue.main.async {
         self.selectedRange = textView.selectedRange
       }
+      /*
+      if textView.selectedRange.length == 0,
+         textView.text(in: <#T##UITextRange#>
+         
+      case ")":
+        return self.highlight(LPAREN, RPAREN, back: true, in: textView, at: range, text: text)
+      case "(":
+        return self.highlight(RPAREN, LPAREN, back: false, in: textView, at: range, text: text)
+      case "]":
+        return self.highlight(LBRACKET, RBRACKET, back: true, in: textView, at: range, text: text)
+      case "[":
+        return self.highlight(RBRACKET, LBRACKET, back: false, in: textView, at: range, text: text)
+      case "}":
+        return self.highlight(LBRACE, RBRACE, back: true, in: textView, at: range, text: text)
+      case "{":
+        return self.highlight(RBRACE, LBRACE, back: false, in: textView, at: range, text: text)
+      
+      */
     }
   }
   

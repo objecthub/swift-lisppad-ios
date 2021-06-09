@@ -84,6 +84,8 @@ struct CodeEditorView: View {
   @Binding var masterWidthFraction: Double
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
+  
+  @StateObject var keyboardObserver = KeyboardObserver()
   @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
   @State var showSheet: SheetAction? = nil
@@ -127,15 +129,16 @@ struct CodeEditorView: View {
                                        }}),
                  position: $editorPosition,
                  forceUpdate: $forceEditorUpdate,
-                 editorType: $editorType)
+                 editorType: $editorType,
+                 keyboardObserver: self.keyboardObserver)
         .multilineTextAlignment(.leading)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
         .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
           self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
-      Divider()
     }
     .navigationBarHidden(false)
     .navigationBarTitleDisplayMode(.inline)

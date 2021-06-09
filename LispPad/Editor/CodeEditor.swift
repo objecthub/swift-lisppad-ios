@@ -33,19 +33,8 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var position: NSRange?
   @Binding var forceUpdate: Bool
   @Binding var editorType: FileExtensions.EditorType
+  @ObservedObject var keyboardObserver: KeyboardObserver
   
-  public init(text: Binding<String>,
-              selectedRange: Binding<NSRange>,
-              position: Binding<NSRange?>,
-              forceUpdate: Binding<Bool>,
-              editorType: Binding<FileExtensions.EditorType>) {
-    self._text = text
-    self._selectedRange = selectedRange
-    self._position = position
-    self._forceUpdate = forceUpdate
-    self._editorType = editorType
-  }
-
   public func makeCoordinator() -> Coordinator {
     return CodeEditorTextViewDelegate(text: _text,
                                       selectedRange: _selectedRange,
@@ -63,6 +52,9 @@ struct CodeEditor: UIViewRepresentable {
     textView.isEditable = true
     textView.isSelectable = true
     textView.isUserInteractionEnabled = true
+    textView.contentInsetAdjustmentBehavior = .automatic
+    textView.keyboardDismissMode = UIDevice.current.userInterfaceIdiom == .pad ? .none
+                                                                               : .interactive
     textView.smartQuotesType = .no
     textView.smartDashesType = .no
     textView.smartInsertDeleteType = .no
@@ -112,20 +104,69 @@ struct CodeEditor: UIViewRepresentable {
       if self.forceUpdate {
         textView.text = self.text
       }
-      textView.selectedRange = pos
-      DispatchQueue.main.async {
+      if UIDevice.current.userInterfaceIdiom == .pad {
         textView.becomeFirstResponder()
         textView.selectedRange = pos
         textView.scrollRangeToVisible(pos)
-        self.position = nil
-        self.forceUpdate = false
+        DispatchQueue.main.async {
+          self.position = nil
+          self.forceUpdate = false
+        }
+      } else {
+        textView.becomeFirstResponder()
+        let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,
+                                                    from: textView.window)
+        let bottomInset = keyboardViewEndFrame.height - textView.safeAreaInsets.bottom - 25
+        textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+        textView.scrollIndicatorInsets = textView.contentInset
+        textView.selectedRange = pos
+        textView.scrollRangeToVisible(pos)
+        DispatchQueue.main.async {
+          if let rect = self.textRangeRect(for: pos, in: textView),
+             (rect.minY - textView.bounds.minY) > (textView.bounds.height - bottomInset) {
+            let bounds = CGRect(x: textView.bounds.minX,
+                                y: textView.bounds.minY + bottomInset,
+                                width: textView.bounds.width,
+                                height: textView.bounds.height - 4)
+            textView.layoutIfNeeded()
+            textView.scrollRectToVisible(bounds, animated: false)
+          }
+          self.position = nil
+          self.forceUpdate = false
+        }
       }
     } else if self.forceUpdate {
       textView.text = self.text
       DispatchQueue.main.async {
         self.forceUpdate = false
       }
+    } else if UIDevice.current.userInterfaceIdiom != .pad {
+      let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,
+                                                  from: textView.window)
+      textView.contentInset = UIEdgeInsets(top: 0,
+                                           left: 0,
+                                           bottom: keyboardViewEndFrame.height -
+                                                   textView.safeAreaInsets.bottom - 25,
+                                           right: 0)
+      textView.scrollIndicatorInsets = textView.contentInset
+      textView.scrollRangeToVisible(textView.selectedRange)
     }
+  }
+  
+  private func textRangeRect(for range: NSRange, in textView: UITextView) -> CGRect? {
+    guard let trange = self.textRange(from: range, in: textView) else {
+      return nil
+    }
+    return textView.firstRect(for: trange)
+  }
+  
+  private func textRange(from range: NSRange, in textView: UITextView) -> UITextRange? {
+    let beginning = textView.beginningOfDocument
+    guard let start = textView.position(from: beginning, offset: range.location),
+          let end = textView.position(from: start, offset: range.length) else {
+      return nil
+    }
+    return textView.textRange(from: start, to: end)
   }
   
   private func visibleRange(of textView: UITextView) -> NSRange {
