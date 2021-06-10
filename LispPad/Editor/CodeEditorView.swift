@@ -212,7 +212,13 @@ struct CodeEditorView: View {
                 self.interpreter.append(output: .command("<execute code from editor>"))
                 self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
                                           url: self.fileManager.editorDocument?.fileURL)
-                self.presentationMode.wrappedValue.dismiss()
+                if self.splitView && self.splitViewMode == .secondaryOnly {
+                  withAnimation(.linear) {
+                    self.splitViewMode = .primaryOnly
+                  }
+                } else if !self.splitView {
+                  self.presentationMode.wrappedValue.dismiss()
+                }
               } else {
                 let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
                 self.showSheet = .markdownPreview(block)
