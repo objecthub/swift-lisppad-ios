@@ -156,4 +156,39 @@ class CodeEditorTextView: UITextView {
     }
     super.draw(rect)
   }
+  
+  @objc func keyboardButtonPressed(_ sender: UIButton) {
+    switch sender.tag {
+      case KeyTag.dash.rawValue:
+        self.insertText("-")
+      case KeyTag.times.rawValue:
+        self.insertText("*")
+      case KeyTag.quote.rawValue:
+        self.insertText("'")
+      case KeyTag.doubleQuote.rawValue:
+        self.insertText("\"")
+      case KeyTag.parenLeft.rawValue:
+        self.insertText("(")
+      case KeyTag.parenRight.rawValue:
+        self.insertText(")")
+      case KeyTag.equals.rawValue:
+        self.insertText("=")
+      case KeyTag.question.rawValue:
+        self.insertText("?")
+      default:
+        self.resignFirstResponder()
+    }
+  }
+}
+
+enum KeyTag: Int {
+  case dismissKeyboard
+  case dash
+  case times
+  case quote
+  case doubleQuote
+  case parenLeft
+  case parenRight
+  case equals
+  case question
 }

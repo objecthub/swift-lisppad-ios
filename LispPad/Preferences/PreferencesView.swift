@@ -115,6 +115,7 @@ struct PreferencesView: View {
         Section(header: Text("Interface")) {
           Toggle("Show line numbers", isOn: $settings.showLineNumbers)
           Toggle("Highlight matching parenthesis", isOn: $settings.highlightMatchingParen)
+          Toggle("Extended keyboard", isOn: $settings.extendedKeyboard)
         }
         Section(header: Text("Scheme")) {
           Toggle("Indent automatically", isOn: $settings.schemeAutoIndent)

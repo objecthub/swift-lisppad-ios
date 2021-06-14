@@ -41,6 +41,136 @@ struct CodeEditor: UIViewRepresentable {
                                       fileManager: self.fileManager)
   }
   
+  private func textButton(_ title: String,
+                          tag: KeyTag,
+                          to textView: CodeEditorTextView) -> UIBarButtonItem {
+    let button = UIButton(type: .roundedRect)
+    button.tag = tag.rawValue
+    button.frame.size.width = 32
+    button.frame.size.height = 34
+    button.setTitle(title, for: .normal)
+    button.setTitleColor(.label, for: .normal)
+    button.setTitleColor(UIColor(named: "KeyHighlightColor"), for: .highlighted)
+    button.backgroundColor = UIColor(named: "KeyColor")
+    return self.buttonItem(button, tag: tag, to: textView)
+  }
+  
+  private func imageButton(_ image: UIImage?,
+                           tag: KeyTag,
+                           pressed pimage: UIImage? = nil,
+                           to textView: CodeEditorTextView) -> UIBarButtonItem {
+    let button = UIButton(type: .custom)
+    button.tag = tag.rawValue
+    button.frame.size.width = 34
+    button.frame.size.height = 34
+    button.setImage(image, for: .normal)
+    button.setImage(pimage, for: .highlighted)
+    button.tintColor = .label
+    button.backgroundColor = UIColor(named: "DarkKeyColor")
+    return self.buttonItem(button, tag: tag, to: textView)
+  }
+  
+  private func buttonItem(_ button: UIButton,
+                          tag: KeyTag,
+                          to textView: CodeEditorTextView) -> UIBarButtonItem {
+    button.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
+                             // .union(UIView.AutoresizingMask.flexibleHeight)
+                             .union(UIView.AutoresizingMask.flexibleLeftMargin)
+                             // .union(UIView.AutoresizingMask.flexibleRightMargin)
+                             // .union(UIView.AutoresizingMask.flexibleTopMargin)
+                             // .union(UIView.AutoresizingMask.flexibleBottomMargin)
+    button.layer.borderWidth = 0
+    button.layer.cornerRadius = 5
+    button.layer.borderColor = UIColor.systemGray2.cgColor
+    button.layer.shadowRadius = 0
+    button.layer.shadowColor = UIColor.black.cgColor
+    button.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
+    button.layer.shadowOpacity = 0.4
+    button.addTarget(textView, action: #selector(textView.keyboardButtonPressed(_:)), for: .touchUpInside)
+    let item = UIBarButtonItem(customView: button)
+    item.tag = tag.rawValue
+    return item
+  }
+  
+  private func setupKeyboard(for textView: CodeEditorTextView) {
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      if self.settings.extendedKeyboard {
+        guard textView.inputAssistantItem.trailingBarButtonGroups.isEmpty ||
+              textView.inputAssistantItem.trailingBarButtonGroups.last!
+                      .barButtonItems.count != 8 else {
+          return
+        }
+        let dash = self.textButton("-", tag: .dash, to: textView)
+        let times = self.textButton("*", tag: .times, to: textView)
+        let quote = self.textButton("'", tag: .quote, to: textView)
+        let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
+        let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
+        let parenRight = self.textButton(")", tag: .parenRight, to: textView)
+        let equals = self.textButton("=", tag: .equals, to: textView)
+        let question = self.textButton("?", tag: .question, to: textView)
+        let items = UIBarButtonItemGroup(barButtonItems: [dash, times, quote, doubleQuote,
+                                                          parenLeft, parenRight, equals, question],
+                                         representativeItem: nil)
+        textView.inputAssistantItem.trailingBarButtonGroups.append(items)
+      } else if let last = textView.inputAssistantItem.trailingBarButtonGroups.last,
+                last.barButtonItems.count == 8 {
+        textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
+      }
+    } else {
+      if self.settings.extendedKeyboard {
+        if let accessoryView = textView.inputAccessoryView {
+          if accessoryView.isHidden {
+            accessoryView.isHidden = false
+            textView.isUserInteractionEnabled = true
+          }
+          return
+        }
+        let dash = self.textButton("-", tag: .dash, to: textView)
+        let times = self.textButton("*", tag: .times, to: textView)
+        let quote = self.textButton("'", tag: .quote, to: textView)
+        let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
+        let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
+        let parenRight = self.textButton(")", tag: .parenRight, to: textView)
+        let equals = self.textButton("=", tag: .equals, to: textView)
+        let question = self.textButton("?", tag: .question, to: textView)
+        let ibutton = self.imageButton(UIImage(systemName: "keyboard.chevron.compact.down"),
+                                       tag: .dismissKeyboard,
+                                       pressed: UIImage(systemName: "keyboard"),
+                                       to: textView)
+        let bar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 35))
+        bar.barStyle = .default
+        bar.isTranslucent = false
+        bar.barTintColor = UIColor(named: "KeyboardColor")
+        bar.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
+        bar.setItems([dash, UIBarButtonItem.fixedSpace(6), times, UIBarButtonItem.fixedSpace(6),
+                      quote, UIBarButtonItem.fixedSpace(6), doubleQuote,
+                      UIBarButtonItem.fixedSpace(6), parenLeft, UIBarButtonItem.fixedSpace(6),
+                      parenRight, UIBarButtonItem.fixedSpace(6), equals,
+                      UIBarButtonItem.fixedSpace(6), question, UIBarButtonItem.flexibleSpace(),
+                      ibutton], animated: false)
+        bar.isUserInteractionEnabled = true
+        bar.sizeToFit()
+        textView.inputAccessoryView = bar
+        // bar.frame = CGRect(x: 0, y: 0, width: 13 * (32 + 6) + 8, height: bar.frame.size.height)
+        /* let scrollView = UIScrollView()
+        scrollView.frame = bar.frame
+        scrollView.bounds = bar.bounds
+        scrollView.autoresizingMask = UIView.AutoresizingMask.flexibleWidth.union(UIView.AutoresizingMask.flexibleRightMargin)
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.bounces = false
+        scrollView.contentSize = bar.frame.size
+        scrollView.addSubview(bar) */
+        // textView.inputAccessoryView = scrollView
+      } else if let accessoryView = textView.inputAccessoryView {
+        if !accessoryView.isHidden {
+          accessoryView.isHidden = true
+          textView.isUserInteractionEnabled = false
+        }
+      }
+    }
+  }
+  
   public func makeUIView(context: Context) -> CodeEditorTextView {
     let textView = CodeEditorTextView(frame: CGRect(x: 0,
                                                     y: 0,
@@ -66,6 +196,7 @@ struct CodeEditor: UIViewRepresentable {
     textView.textColor = UIColor(named: "CodeEditorTextColor")
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject
     textInputTraits?.setValue(textView.tintColor, forKey: "insertionPointColor")
+    // self.setupKeyboard(for: textView)
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
@@ -80,6 +211,7 @@ struct CodeEditor: UIViewRepresentable {
   }
 
   public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
+    self.setupKeyboard(for: textView)
     if self.fileManager.requireEditorUpdate() {
       textView.text = self.text
       textView.selectedRange = NSRange(location: 0, length: 0)

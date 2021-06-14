@@ -249,6 +249,9 @@ struct DefinitionView: View {
               continue
             }
             skipSpaces()
+            guard index < len else {
+              continue
+            }
             location = index
             if deftype == .type {
               if str.character(at: index) == LPAREN {
