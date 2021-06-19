@@ -44,6 +44,7 @@
 		CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26F25FE78E100758581 /* ConsoleOutput.swift */; };
 		CC84C27225FE791000758581 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27125FE791000758581 /* ConsoleView.swift */; };
 		CC84C27425FE79F600758581 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27325FE79F500758581 /* Interpreter.swift */; };
+		CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */; };
 		CC8B95802607B48400830B4F /* (lispkit box).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952526079FBA00830B4F /* (lispkit box).md */; };
 		CC8B95812607B48400830B4F /* (lispkit bytevector).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952926079FBA00830B4F /* (lispkit bytevector).md */; };
 		CC8B95822607B48400830B4F /* (lispkit char-set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953126079FBA00830B4F /* (lispkit char-set).md */; };
@@ -319,6 +320,7 @@
 		CC84C26F25FE78E100758581 /* ConsoleOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleOutput.swift; sourceTree = "<group>"; };
 		CC84C27125FE791000758581 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
 		CC84C27325FE79F500758581 /* Interpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
+		CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorKeyboard.swift; sourceTree = "<group>"; };
 		CC8B952226079FBA00830B4F /* (lispkit test).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit test).md"; sourceTree = "<group>"; };
 		CC8B952326079FBA00830B4F /* (lispkit type).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit type).md"; sourceTree = "<group>"; };
 		CC8B952426079FBA00830B4F /* (lispkit log).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit log).md"; sourceTree = "<group>"; };
@@ -751,6 +753,7 @@
 				CC327C502610A3C800BD7E32 /* CodeEditorView.swift */,
 				CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */,
 				CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */,
+				CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */,
 				CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */,
 				CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */,
 				CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */,
@@ -883,6 +886,7 @@
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
 				CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */,
+				CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */,
 				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
 				CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */,
 				CC327C4D260FBD0800BD7E32 /* HistoryManager.swift in Sources */,

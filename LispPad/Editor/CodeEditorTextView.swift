@@ -159,36 +159,26 @@ class CodeEditorTextView: UITextView {
   
   @objc func keyboardButtonPressed(_ sender: UIButton) {
     switch sender.tag {
-      case KeyTag.dash.rawValue:
+      case CodeEditorKeyboard.KeyTag.dash.rawValue:
         self.insertText("-")
-      case KeyTag.times.rawValue:
+      case CodeEditorKeyboard.KeyTag.times.rawValue:
         self.insertText("*")
-      case KeyTag.quote.rawValue:
+      case CodeEditorKeyboard.KeyTag.quote.rawValue:
         self.insertText("'")
-      case KeyTag.doubleQuote.rawValue:
+      case CodeEditorKeyboard.KeyTag.doubleQuote.rawValue:
         self.insertText("\"")
-      case KeyTag.parenLeft.rawValue:
+      case CodeEditorKeyboard.KeyTag.parenLeft.rawValue:
         self.insertText("(")
-      case KeyTag.parenRight.rawValue:
+      case CodeEditorKeyboard.KeyTag.parenRight.rawValue:
         self.insertText(")")
-      case KeyTag.equals.rawValue:
+      case CodeEditorKeyboard.KeyTag.equals.rawValue:
         self.insertText("=")
-      case KeyTag.question.rawValue:
+      case CodeEditorKeyboard.KeyTag.question.rawValue:
         self.insertText("?")
+      case CodeEditorKeyboard.KeyTag.hash.rawValue:
+        self.insertText("#")
       default:
         self.resignFirstResponder()
     }
   }
-}
-
-enum KeyTag: Int {
-  case dismissKeyboard
-  case dash
-  case times
-  case quote
-  case doubleQuote
-  case parenLeft
-  case parenRight
-  case equals
-  case question
 }
