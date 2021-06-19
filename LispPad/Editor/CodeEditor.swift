@@ -41,6 +41,17 @@ struct CodeEditor: UIViewRepresentable {
                                       fileManager: self.fileManager)
   }
   
+  private func keyboardButton(_ name: String,
+                              tag: KeyTag,
+                              to textView: CodeEditorTextView) -> UIBarButtonItem {
+    let item = UIBarButtonItem(image: UIImage(named: name)?.withRenderingMode(.alwaysTemplate),
+                               style: .plain,
+                               target: textView,
+                               action: #selector(textView.keyboardButtonPressed(_:)))
+    item.tag = tag.rawValue
+    return item
+  }
+  
   private func textButton(_ title: String,
                           tag: KeyTag,
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
@@ -100,14 +111,14 @@ struct CodeEditor: UIViewRepresentable {
                       .barButtonItems.count != 8 else {
           return
         }
-        let dash = self.textButton("-", tag: .dash, to: textView)
-        let times = self.textButton("*", tag: .times, to: textView)
-        let quote = self.textButton("'", tag: .quote, to: textView)
-        let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
-        let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
-        let parenRight = self.textButton(")", tag: .parenRight, to: textView)
-        let equals = self.textButton("=", tag: .equals, to: textView)
-        let question = self.textButton("?", tag: .question, to: textView)
+        let dash = self.keyboardButton("Key.dash", tag: .dash, to: textView)
+        let times = self.keyboardButton("Key.star", tag: .times, to: textView)
+        let quote = self.keyboardButton("Key.quote", tag: .quote, to: textView)
+        let doubleQuote = self.keyboardButton("Key.doublequote", tag: .doubleQuote, to: textView)
+        let parenLeft = self.keyboardButton("Key.lparen", tag: .parenLeft, to: textView)
+        let parenRight = self.keyboardButton("Key.rparen", tag: .parenRight, to: textView)
+        let equals = self.keyboardButton("Key.equals", tag: .equals, to: textView)
+        let question = self.keyboardButton("Key.questionmark", tag: .question, to: textView)
         let items = UIBarButtonItemGroup(barButtonItems: [dash, times, quote, doubleQuote,
                                                           parenLeft, parenRight, equals, question],
                                          representativeItem: nil)
