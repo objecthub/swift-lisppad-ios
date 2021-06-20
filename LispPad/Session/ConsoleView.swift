@@ -24,10 +24,13 @@ import MobileCoreServices
 struct ConsoleView: View {
   @EnvironmentObject var settings: UserSettings
   
+  @State var dynamicHeight: CGFloat = 100
+  
   let font: Font
   let infoFont: Font
-  let inputFont: Font
   let action: () -> Void
+  
+  @ObservedObject var keyboardObserver: KeyboardObserver = KeyboardObserver()
   
   @Binding var content: [ConsoleOutput]
   @Binding var history: [String]
@@ -39,7 +42,6 @@ struct ConsoleView: View {
   
   init(font: Font = .system(size: 12, design: .monospaced),
        infoFont: Font = .system(size: 13, weight: .bold, design: .default),
-       inputFont: Font = .system(size: 12, design: .monospaced),
        action: @escaping () -> Void = {},
        content: Binding<[ConsoleOutput]>,
        history: Binding<[String]>,
@@ -50,7 +52,6 @@ struct ConsoleView: View {
        showProgressView: Binding<String?>) {
     self.font = font
     self.infoFont = infoFont
-    self.inputFont = inputFont
     self.action = action
     self._content = content
     self._history = history
@@ -234,18 +235,9 @@ struct ConsoleView: View {
   
   var control: some View {
     HStack(alignment: .bottom, spacing: 0) {
-      Text(self.input.isEmpty ? " " : self.input)
-        .font(self.inputFont)
-        .foregroundColor(.clear)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .padding(EdgeInsets(top: 9, leading: 7, bottom: 9, trailing: 7))
-        .overlay(
-          TextEditor(text: $input)
-            .font(self.inputFont)
-            .allowsTightening(false)
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-            .offset(y: 1))
+      ConsoleEditor(text: $input, calculatedHeight: $dynamicHeight, keyboardObserver: self.keyboardObserver)
+        .multilineTextAlignment(.leading)
+        .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)
       Button(action: action) {
         if !self.ready && self.readingStatus == .accept {
@@ -288,7 +280,7 @@ struct ConsoleView: View {
         }
       }
       .padding(.trailing, 3)
-      .offset(y: -4)
+      .offset(y: -3)
       .gesture(DragGesture().onEnded { _ in
         UIApplication.shared.sendAction(
           #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

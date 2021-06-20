@@ -112,7 +112,6 @@ struct InterpreterView: View {
         ConsoleView(
           font: settings.consoleFont,
           infoFont: settings.consoleInfoFont,
-          inputFont: settings.inputFont,
           action: {
             let old = self.consoleInput
             self.consoleInput = ""

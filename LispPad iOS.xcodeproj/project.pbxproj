@@ -45,6 +45,9 @@
 		CC84C27225FE791000758581 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27125FE791000758581 /* ConsoleView.swift */; };
 		CC84C27425FE79F600758581 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27325FE79F500758581 /* Interpreter.swift */; };
 		CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */; };
+		CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A55267E829100FA8BAA /* ConsoleEditor.swift */; };
+		CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */; };
+		CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */; };
 		CC8B95802607B48400830B4F /* (lispkit box).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952526079FBA00830B4F /* (lispkit box).md */; };
 		CC8B95812607B48400830B4F /* (lispkit bytevector).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952926079FBA00830B4F /* (lispkit bytevector).md */; };
 		CC8B95822607B48400830B4F /* (lispkit char-set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953126079FBA00830B4F /* (lispkit char-set).md */; };
@@ -321,6 +324,9 @@
 		CC84C27125FE791000758581 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
 		CC84C27325FE79F500758581 /* Interpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
 		CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorKeyboard.swift; sourceTree = "<group>"; };
+		CC890A55267E829100FA8BAA /* ConsoleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleEditor.swift; sourceTree = "<group>"; };
+		CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextViewDelegate.swift; sourceTree = "<group>"; };
+		CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleEditorTextViewDelegate.swift; sourceTree = "<group>"; };
 		CC8B952226079FBA00830B4F /* (lispkit test).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit test).md"; sourceTree = "<group>"; };
 		CC8B952326079FBA00830B4F /* (lispkit type).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit type).md"; sourceTree = "<group>"; };
 		CC8B952426079FBA00830B4F /* (lispkit log).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit log).md"; sourceTree = "<group>"; };
@@ -508,6 +514,8 @@
 				CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */,
 				CC84C26125FE6BFF00758581 /* InterpreterView.swift */,
 				CC84C27125FE791000758581 /* ConsoleView.swift */,
+				CC890A55267E829100FA8BAA /* ConsoleEditor.swift */,
+				CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */,
 				CC84C26D25FE78A600758581 /* ConsoleScrollView.swift */,
 				CC84C26F25FE78E100758581 /* ConsoleOutput.swift */,
 				CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */,
@@ -754,6 +762,7 @@
 				CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */,
 				CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */,
 				CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */,
+				CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */,
 				CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */,
 				CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */,
 				CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */,
@@ -870,6 +879,7 @@
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
 				CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */,
+				CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */,
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
@@ -902,6 +912,7 @@
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,
 				CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */,
 				CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */,
+				CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
@@ -918,6 +929,7 @@
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,
 				CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */,
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,
+				CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */,
 				CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */,
 				CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */,
 				CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */,

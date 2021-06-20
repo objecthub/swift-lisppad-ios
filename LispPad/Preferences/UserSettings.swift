@@ -348,10 +348,9 @@ final class UserSettings: ObservableObject {
            .leading(self.consoleTightSpacing ? .tight : .standard)
   }
   
-  var inputFont: Font {
-    return (Self.monospacedFontMap[self.inputFontSize] ??
-              .system(.footnote, design: .monospaced))
-           .leading(self.inputTightSpacing ? .tight : .standard)
+  var inputFont: UIFont {
+    return Self.monospacedUIFontMap[self.inputFontSize] ??
+             .monospacedSystemFont(ofSize: 12, weight: .regular)
   }
   
   var editorFont: UIFont {
