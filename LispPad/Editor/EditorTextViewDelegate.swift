@@ -35,6 +35,10 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
     self._selectedRange = selectedRange
   }
   
+  open var highlightMatchingParen: Bool {
+    return UserSettings.standard.highlightMatchingParen
+  }
+  
   open func textViewDidChange(_ textView: UITextView) {
     guard textView.markedTextRange == nil else {
       return
@@ -302,22 +306,6 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
                      shouldChangeTextIn range: NSRange,
                      replacementText text: String) -> Bool {
     switch text {
-      case "\n":
-        let indent: String
-        guard UserSettings.standard.schemeAutoIndent else {
-          return true
-        }
-        indent = schemeIndent(textView.textStorage.string as NSString, range)
-        if let replaceStart = textView.position(from: textView.beginningOfDocument,
-                                                offset: range.location),
-            let replaceEnd = textView.position(from: replaceStart, offset: range.length),
-            let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
-          // textView.undoManager?.beginUndoGrouping()
-          textView.replace(textRange, withText: "\n" + indent)
-          // textView.undoManager?.endUndoGrouping()
-          return false
-        }
-        return true
       case ")":
         return self.highlight(LPAREN, RPAREN, back: true, in: textView, at: range, text: text)
       case "(":
@@ -341,11 +329,11 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
                  in textView: UITextView,
                  at range: NSRange,
                  text: String?) -> Bool {
-    if UserSettings.standard.highlightMatchingParen,
-        let replaceStart = textView.position(from: textView.beginningOfDocument,
-                                            offset: range.location),
-        let replaceEnd = textView.position(from: replaceStart, offset: range.length),
-        let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
+    if self.highlightMatchingParen,
+       let replaceStart = textView.position(from: textView.beginningOfDocument,
+                                           offset: range.location),
+       let replaceEnd = textView.position(from: replaceStart, offset: range.length),
+       let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
       if let str = text {
         textView.replace(textRange, withText: str)
       }
@@ -360,7 +348,7 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
                  back: Bool,
                  in textView: UITextView,
                  at loc: Int) {
-    if UserSettings.standard.highlightMatchingParen {
+    if self.highlightMatchingParen {
       let str = textView.text as NSString
       let loc = back ? self.find(ch, matching: this, from: loc, to: 0, in: str)
                          : self.find(ch, matching: this, from: loc, to: str.length, in: str)

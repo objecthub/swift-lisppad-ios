@@ -30,7 +30,7 @@ struct ConsoleView: View {
   let infoFont: Font
   let action: () -> Void
   
-  @ObservedObject var keyboardObserver: KeyboardObserver = KeyboardObserver()
+  @StateObject var keyboardObserver = KeyboardObserver()
   
   @Binding var content: [ConsoleOutput]
   @Binding var history: [String]
@@ -235,7 +235,9 @@ struct ConsoleView: View {
   
   var control: some View {
     HStack(alignment: .bottom, spacing: 0) {
-      ConsoleEditor(text: $input, calculatedHeight: $dynamicHeight, keyboardObserver: self.keyboardObserver)
+      ConsoleEditor(text: $input,
+                    calculatedHeight: $dynamicHeight,
+                    keyboardObserver: self.keyboardObserver)
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)

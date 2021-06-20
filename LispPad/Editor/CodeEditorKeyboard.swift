@@ -36,9 +36,20 @@ struct CodeEditorKeyboard {
     case hash
   }
   
+  let console: Bool
+  
+  init(console: Bool) {
+    self.console = console
+  }
+  
+  private var shouldUseExtendedKeyboard: Bool {
+    return self.console ? UserSettings.standard.consoleExtendedKeyboard
+                        : UserSettings.standard.extendedKeyboard
+  }
+  
   func setup(for textView: CodeEditorTextView) {
     if UIDevice.current.userInterfaceIdiom == .pad {
-      if UserSettings.standard.extendedKeyboard {
+      if self.shouldUseExtendedKeyboard {
         guard textView.inputAssistantItem.trailingBarButtonGroups.isEmpty ||
               textView.inputAssistantItem.trailingBarButtonGroups.last!
                       .barButtonItems.count != 9 else {
@@ -63,12 +74,8 @@ struct CodeEditorKeyboard {
         textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
       }
     } else {
-      if UserSettings.standard.extendedKeyboard {
-        if let accessoryView = textView.inputAccessoryView {
-          if accessoryView.isHidden {
-            accessoryView.isHidden = false
-            textView.isUserInteractionEnabled = true
-          }
+      if self.shouldUseExtendedKeyboard {
+        guard textView.inputAccessoryView == nil else {
           return
         }
         let dash = self.textButton("-", tag: .dash, to: textView)
@@ -98,6 +105,12 @@ struct CodeEditorKeyboard {
         bar.isUserInteractionEnabled = true
         bar.sizeToFit()
         textView.inputAccessoryView = bar
+        // The following hack makes sure the other views adjust correctly
+        if textView.isFirstResponder {
+          textView.resignFirstResponder()
+        } else {
+          textView.becomeFirstResponder()
+        }
         // bar.frame = CGRect(x: 0, y: 0, width: 13 * (32 + 6) + 8, height: bar.frame.size.height)
         /* let scrollView = UIScrollView()
         scrollView.frame = bar.frame
@@ -108,13 +121,11 @@ struct CodeEditorKeyboard {
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.bounces = false
         scrollView.contentSize = bar.frame.size
-        scrollView.addSubview(bar) */
-        // textView.inputAccessoryView = scrollView
-      } else if let accessoryView = textView.inputAccessoryView {
-        if !accessoryView.isHidden {
-          accessoryView.isHidden = true
-          textView.isUserInteractionEnabled = false
-        }
+        scrollView.addSubview(bar)
+        textView.inputAccessoryView = scrollView */
+      } else if textView.inputAccessoryView != nil {
+        textView.inputAccessoryView = nil
+        textView.reloadInputViews()
       }
     }
   }

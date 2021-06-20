@@ -38,6 +38,11 @@ final class UserSettings: ObservableObject {
   private static let inputFontSizeKey = "Console.inputFontSize"
   private static let inputTightSpacingKey = "Console.inputTightSpacing"
   private static let documentationFontSizeKey = "Documentation.fontSize"
+  private static let consoleHighlightMatchingParenKey = "Console.highlightMatchingParen"
+  private static let consoleExtendedKeyboardKey = "Console.extendedKeyboard"
+  private static let consoleAutoIndentKey = "Console.schemeAutoIndent"
+  private static let consoleHighlightSyntaxKey = "Console.schemeHighlightSyntax"
+  private static let consoleMarkupIdentKey = "Console.schemeMarkupIdent"
   private static let balancedParenthesisKey = "Console.balancedParenthesis"
   private static let maxCommandHistoryKey = "Console.maxCommandHistory"
   private static let editorFontSizeKey = "Editor.fontSize"
@@ -190,6 +195,39 @@ final class UserSettings: ObservableObject {
   @Published var documentationFontSize: String {
     didSet {
       UserDefaults.standard.set(self.documentationFontSize, forKey: Self.documentationFontSizeKey)
+    }
+  }
+  
+  @Published var consoleHighlightMatchingParen: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleHighlightMatchingParen,
+                                forKey: Self.consoleHighlightMatchingParenKey)
+    }
+  }
+  
+  @Published var consoleExtendedKeyboard: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleExtendedKeyboard,
+                                forKey: Self.consoleExtendedKeyboardKey)
+    }
+  }
+  
+  @Published var consoleAutoIndent: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleAutoIndent, forKey: Self.consoleAutoIndentKey)
+    }
+  }
+  
+  @Published var consoleHighlightSyntax: Bool {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.consoleHighlightSyntax, forKey: Self.consoleHighlightSyntaxKey)
+    }
+  }
+  
+  @Published var consoleMarkupIdent: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleMarkupIdent, forKey: Self.consoleMarkupIdentKey)
     }
   }
   
@@ -412,7 +450,15 @@ final class UserSettings: ObservableObject {
     self.documentationFontSize = UserDefaults.standard.str(
       forKey: Self.documentationFontSizeKey, UIDevice.current.userInterfaceIdiom == .pad ?
                                                UserSettings.mediumFontSize :
-                                               UserSettings.smallFontSize) 
+                                               UserSettings.smallFontSize)
+    self.consoleHighlightMatchingParen = UserDefaults.standard.boolean(forKey:
+                                                              Self.consoleHighlightMatchingParenKey)
+    self.consoleExtendedKeyboard = UserDefaults.standard.boolean(forKey:
+                                                                  Self.consoleExtendedKeyboardKey)
+    self.consoleAutoIndent = UserDefaults.standard.boolean(forKey: Self.consoleAutoIndentKey)
+    self.consoleHighlightSyntax = UserDefaults.standard.boolean(forKey:
+                                                                Self.consoleHighlightSyntaxKey)
+    self.consoleMarkupIdent = UserDefaults.standard.boolean(forKey: Self.consoleMarkupIdentKey)
     self.editorFontSize = UserDefaults.standard.str(forKey: Self.editorFontSizeKey,
                                                     UserSettings.smallFontSize)
     self.indentSize = UserDefaults.standard.int(forKey: Self.indentSizeKey, 2)

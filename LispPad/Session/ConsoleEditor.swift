@@ -24,7 +24,7 @@ import UIKit
 struct ConsoleEditor: UIViewRepresentable {
   typealias Coordinator = ConsoleEditorTextViewDelegate
   
-  let keyboard = CodeEditorKeyboard()
+  let keyboard = CodeEditorKeyboard(console: true)
   
   @State var editorType: FileExtensions.EditorType = .scheme
   @State var selectedRange: NSRange = NSRange(location: 0, length: 0)
@@ -47,6 +47,7 @@ struct ConsoleEditor: UIViewRepresentable {
                                                     y: 0,
                                                     width: 100000,
                                                     height: 1000000),
+                                      console: true,
                                       editorType: self.editorType,
                                       docManager: docManager)
     textView.delegate = context.coordinator
@@ -84,6 +85,9 @@ struct ConsoleEditor: UIViewRepresentable {
     }
     if textView.text != self.text {
       textView.text = self.text
+    }
+    if textView.syntaxHighlightingUpdate != self.settings.syntaxHighlightingUpdate {
+      textView.textStorageDelegate.highlight(textView.textStorage)
     }
     ConsoleEditor.recalculateHeight(textView: textView, result: self._calculatedHeight)
   }

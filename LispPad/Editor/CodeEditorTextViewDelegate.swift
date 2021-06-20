@@ -36,47 +36,34 @@ class CodeEditorTextViewDelegate: EditorTextViewDelegate {
   public override func textView(_ textView: UITextView,
                                 shouldChangeTextIn range: NSRange,
                                 replacementText text: String) -> Bool {
-    switch text {
-      case "\n":
-        let indent: String
-        switch self.fileManager.editorDocumentInfo.editorType {
-          case .scheme:
-            guard UserSettings.standard.schemeAutoIndent else {
-              return true
-            }
-            indent = self.schemeIndent(textView.textStorage.string as NSString, range)
-          case .markdown:
-            guard UserSettings.standard.markdownAutoIndent else {
-              return true
-            }
-            indent = self.markdownIndent(textView.textStorage.string as NSString, range)
-          case .other:
+    if text == "\n" {
+      let indent: String
+      switch self.fileManager.editorDocumentInfo.editorType {
+        case .scheme:
+          guard UserSettings.standard.schemeAutoIndent else {
             return true
-        }
-        if let replaceStart = textView.position(from: textView.beginningOfDocument,
-                                                offset: range.location),
-            let replaceEnd = textView.position(from: replaceStart, offset: range.length),
-            let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
-          // textView.undoManager?.beginUndoGrouping()
-          textView.replace(textRange, withText: "\n" + indent)
-          // textView.undoManager?.endUndoGrouping()
-          return false
-        }
-        return true
-      case ")":
-        return self.highlight(LPAREN, RPAREN, back: true, in: textView, at: range, text: text)
-      case "(":
-        return self.highlight(RPAREN, LPAREN, back: false, in: textView, at: range, text: text)
-      case "]":
-        return self.highlight(LBRACKET, RBRACKET, back: true, in: textView, at: range, text: text)
-      case "[":
-        return self.highlight(RBRACKET, LBRACKET, back: false, in: textView, at: range, text: text)
-      case "}":
-        return self.highlight(LBRACE, RBRACE, back: true, in: textView, at: range, text: text)
-      case "{":
-        return self.highlight(RBRACE, LBRACE, back: false, in: textView, at: range, text: text)
-      default:
-        return true
+          }
+          indent = self.schemeIndent(textView.textStorage.string as NSString, range)
+        case .markdown:
+          guard UserSettings.standard.markdownAutoIndent else {
+            return true
+          }
+          indent = self.markdownIndent(textView.textStorage.string as NSString, range)
+        case .other:
+          return true
+      }
+      if let replaceStart = textView.position(from: textView.beginningOfDocument,
+                                              offset: range.location),
+          let replaceEnd = textView.position(from: replaceStart, offset: range.length),
+          let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
+        // textView.undoManager?.beginUndoGrouping()
+        textView.replace(textRange, withText: "\n" + indent)
+        // textView.undoManager?.endUndoGrouping()
+        return false
+      }
+      return true
+    } else {
+      return super.textView(textView, shouldChangeTextIn: range, replacementText: text)
     }
   }
 }

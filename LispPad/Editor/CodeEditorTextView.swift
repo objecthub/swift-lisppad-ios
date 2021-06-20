@@ -100,10 +100,12 @@ class CodeEditorTextView: UITextView {
   }
   
   init(frame: CGRect,
+       console: Bool,
        editorType: FileExtensions.EditorType,
        docManager: DocumentationManager) {
     let ts = NSTextStorage()
-    let td = CodeEditorTextStorageDelegate(editorType: editorType,
+    let td = CodeEditorTextStorageDelegate(console: console,
+                                           editorType: editorType,
                                            docManager: docManager)
     let lm = CodeEditorLayoutManager()
     let tc = NSTextContainer(size: CGSize(width: CGFloat.greatestFiniteMagnitude,

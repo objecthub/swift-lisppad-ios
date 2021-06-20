@@ -31,15 +31,29 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
                   UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1)
   let codeBackground = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.25)
   
+  /// Is this powering the console input?
+  let console: Bool
+  
   /// The type of the editor (Scheme, Markdown, or Other)
   var editorType: FileExtensions.EditorType
   
   /// A reference to the documentation manager
   let docManager: DocumentationManager
   
-  init(editorType: FileExtensions.EditorType, docManager: DocumentationManager) {
+  init(console: Bool, editorType: FileExtensions.EditorType, docManager: DocumentationManager) {
+    self.console = console
     self.editorType = editorType
     self.docManager = docManager
+  }
+  
+  private var markupIdent: Bool {
+    return self.console ? UserSettings.standard.consoleMarkupIdent
+                        : UserSettings.standard.schemeMarkupIdent
+  }
+  
+  private var schemeHighlightSyntax: Bool {
+    return self.console ? UserSettings.standard.consoleHighlightSyntax
+                        : UserSettings.standard.schemeHighlightSyntax
   }
   
   private func markupIdentifier(_ ident: String) -> Bool {
@@ -90,7 +104,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
           } else if symbolStart >= 0 {
             let range = NSRange(location: symbolStart, length: start - symbolStart)
             if self.markupIdentifier(str.substring(with: range)) {
-              textStorage.addAttribute(.foregroundColor, value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
+              textStorage.addAttribute(
+                .foregroundColor,
+                value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
             }
             symbolStart = .min
             stringStart = start
@@ -124,7 +140,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
             if symbolStart >= 0 {
               let range = NSRange(location: symbolStart, length: start - symbolStart)
               if self.markupIdentifier(str.substring(with: range)) {
-                textStorage.addAttribute(.foregroundColor, value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
+                textStorage.addAttribute(
+                  .foregroundColor,
+                  value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
               }
               symbolStart = .min
             }
@@ -136,7 +154,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
             if symbolStart >= 0 {
               let range = NSRange(location: symbolStart, length: start - symbolStart)
               if self.markupIdentifier(str.substring(with: range)) {
-                textStorage.addAttribute(.foregroundColor, value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
+                textStorage.addAttribute(
+                  .foregroundColor,
+                  value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
               }
               symbolStart = .min
             }
@@ -154,11 +174,13 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
                !Self.digitCharacters.contains(sc) {
               let range = NSRange(location: symbolStart, length: start - symbolStart)
               if self.markupIdentifier(str.substring(with: range)) {
-                textStorage.addAttribute(.foregroundColor, value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
+                textStorage.addAttribute(
+                  .foregroundColor,
+                  value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
               }
               symbolStart = .min
             }
-          } else if UserSettings.standard.schemeMarkupIdent,
+          } else if self.markupIdent,
                     commentStart < 0,
                     stringStart < 0,
                     let sc = UnicodeScalar(ch),
@@ -187,7 +209,9 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     } else if symbolStart >= 0 {
       let range = NSRange(location: symbolStart, length: start - symbolStart)
       if self.markupIdentifier(str.substring(with: range)) {
-        textStorage.addAttribute(.foregroundColor, value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
+        textStorage.addAttribute(
+          .foregroundColor,
+          value: UIColor(cgColor: UserSettings.standard.docuIdentColor), range: range)
       }
     }
   }
@@ -554,7 +578,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     textStorage.removeAttribute(.foregroundColor, range: range)
     switch self.editorType {
       case .scheme:
-        if UserSettings.standard.schemeHighlightSyntax {
+        if self.schemeHighlightSyntax {
           self.highlightSchemeSyntax(textStorage, str, range)
           return
         }
@@ -583,7 +607,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
                          range editRange: NSRange,
                          changeInLength delta: Int) {
     // Check that syntax highlighting is enabled
-    guard (self.editorType == .scheme && UserSettings.standard.schemeHighlightSyntax) ||
+    guard (self.editorType == .scheme && self.schemeHighlightSyntax) ||
           (self.editorType == .markdown && UserSettings.standard.markdownHighlightSyntax) else {
       return
     }

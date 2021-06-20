@@ -31,17 +31,6 @@ struct PreferencesView: View {
   var body: some View {
     TabView(selection: $selectedTab) {
       Form {
-        Section(header: Text("Install Folders")) {
-          Toggle("iCloud Drive", isOn: $settings.foldersOnICloud)
-          switch UIDevice.current.userInterfaceIdiom {
-            case .phone:
-              Toggle("On My iPhone", isOn: $settings.foldersOnDevice)
-            case .pad:
-              Toggle("On My iPad", isOn: $settings.foldersOnDevice)
-            default:
-              Toggle("On My Device", isOn: $settings.foldersOnDevice)
-          }
-        }
         Section(header: Text("Console")) {
           Picker(selection: $settings.consoleFontSize, label: Text("Font size")) {
             Text("Tiny").tag(UserSettings.tinyFontSize)
@@ -70,20 +59,19 @@ struct PreferencesView: View {
             Text("Large").tag(UserSettings.largeFontSize)
             Text("Huge").tag(UserSettings.xlargeFontSize)
           }
-          Toggle("Tight spacing", isOn: $settings.inputTightSpacing)
+          Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
+          Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
+          Toggle("Extended keyboard", isOn: $settings.consoleExtendedKeyboard)
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
             Text("Command history:")
             Spacer(minLength: 16)
             Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
           }
-          Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
         }
-        Section(header: Text("Documentation")) {
-          Picker(selection: $settings.documentationFontSize, label: Text("Font size")) {
-            Text("Small").tag(UserSettings.smallFontSize)
-            Text("Medium").tag(UserSettings.mediumFontSize)
-            Text("Large").tag(UserSettings.largeFontSize)
-          }
+        Section(header: Text("Scheme Mode")) {
+          Toggle("Indent automatically", isOn: $settings.consoleAutoIndent)
+          Toggle("Highlight syntax", isOn: $settings.consoleHighlightSyntax)
+          Toggle("Markup known identifiers", isOn: $settings.consoleMarkupIdent)
         }
       }
       .tabItem {
@@ -117,12 +105,12 @@ struct PreferencesView: View {
           Toggle("Highlight matching parenthesis", isOn: $settings.highlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.extendedKeyboard)
         }
-        Section(header: Text("Scheme")) {
+        Section(header: Text("Scheme Mode")) {
           Toggle("Indent automatically", isOn: $settings.schemeAutoIndent)
           Toggle("Highlight syntax", isOn: $settings.schemeHighlightSyntax)
           Toggle("Markup known identifiers", isOn: $settings.schemeMarkupIdent)
         }
-        Section(header: Text("Markdown")) {
+        Section(header: Text("Markdown Mode")) {
           Toggle("Indent automatically", isOn: $settings.markdownAutoIndent)
           Toggle("Highlight syntax", isOn: $settings.markdownHighlightSyntax)
         }
@@ -152,6 +140,30 @@ struct PreferencesView: View {
         Label("Syntax", systemImage: "scroll")
       }
       .tag(2)
+      Form {
+        Section(header: Text("Install Folders")) {
+          Toggle("iCloud Drive", isOn: $settings.foldersOnICloud)
+          switch UIDevice.current.userInterfaceIdiom {
+            case .phone:
+              Toggle("On My iPhone", isOn: $settings.foldersOnDevice)
+            case .pad:
+              Toggle("On My iPad", isOn: $settings.foldersOnDevice)
+            default:
+              Toggle("On My Device", isOn: $settings.foldersOnDevice)
+          }
+        }
+        Section(header: Text("Documentation")) {
+          Picker(selection: $settings.documentationFontSize, label: Text("Font size")) {
+            Text("Small").tag(UserSettings.smallFontSize)
+            Text("Medium").tag(UserSettings.mediumFontSize)
+            Text("Large").tag(UserSettings.largeFontSize)
+          }
+        }
+      }
+      .tabItem {
+        Label("Misc", systemImage: "switch.2")
+      }
+      .tag(3)
     }
     .navigationTitle("Preferences")
   }

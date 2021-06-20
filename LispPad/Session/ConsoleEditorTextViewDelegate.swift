@@ -21,12 +21,16 @@
 import UIKit
 import SwiftUI
 
-class ConsoleEditorTextViewDelegate: EditorTextViewDelegate {
+final class ConsoleEditorTextViewDelegate: EditorTextViewDelegate {
   var calculatedHeight: Binding<CGFloat>
   
   init(text: Binding<String>, selectedRange: Binding<NSRange>, calculatedHeight: Binding<CGFloat>) {
     self.calculatedHeight = calculatedHeight
     super.init(text: text, selectedRange: selectedRange)
+  }
+  
+  override public var highlightMatchingParen: Bool {
+    return UserSettings.standard.consoleHighlightMatchingParen
   }
   
   override public func textViewDidChange(_ textView: UITextView) {
@@ -37,5 +41,29 @@ class ConsoleEditorTextViewDelegate: EditorTextViewDelegate {
       return
     }
     self.lastSelectedRange = textView.selectedRange
+  }
+  
+  override public func textView(_ textView: UITextView,
+                                shouldChangeTextIn range: NSRange,
+                                replacementText text: String) -> Bool {
+    if text == "\n" {
+      let indent: String
+      guard UserSettings.standard.consoleAutoIndent else {
+        return true
+      }
+      indent = schemeIndent(textView.textStorage.string as NSString, range)
+      if let replaceStart = textView.position(from: textView.beginningOfDocument,
+                                              offset: range.location),
+          let replaceEnd = textView.position(from: replaceStart, offset: range.length),
+          let textRange = textView.textRange(from: replaceStart, to: replaceEnd) {
+        // textView.undoManager?.beginUndoGrouping()
+        textView.replace(textRange, withText: "\n" + indent)
+        // textView.undoManager?.endUndoGrouping()
+        return false
+      }
+      return true
+    } else {
+      return super.textView(textView, shouldChangeTextIn: range, replacementText: text)
+    }
   }
 }

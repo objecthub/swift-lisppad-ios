@@ -24,7 +24,7 @@ import UIKit
 struct CodeEditor: UIViewRepresentable {
   typealias Coordinator = CodeEditorTextViewDelegate
   
-  let keyboard = CodeEditorKeyboard()
+  let keyboard = CodeEditorKeyboard(console: false)
   
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
@@ -48,6 +48,7 @@ struct CodeEditor: UIViewRepresentable {
                                                     y: 0,
                                                     width: 100000,
                                                     height: 1000000),
+                                      console: false,
                                       editorType: self.editorType,
                                       docManager: docManager)
     textView.isScrollEnabled = true
@@ -68,7 +69,6 @@ struct CodeEditor: UIViewRepresentable {
     textView.textColor = UIColor(named: "CodeEditorTextColor")
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject
     textInputTraits?.setValue(textView.tintColor, forKey: "insertionPointColor")
-    // self.setupKeyboard(for: textView)
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
