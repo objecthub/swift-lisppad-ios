@@ -20,6 +20,7 @@
 
 import SwiftUI
 import LispKit
+import MarkdownKit
 
 struct InterpreterView: View {
   
@@ -32,6 +33,7 @@ struct InterpreterView: View {
     case showAbout
     case showPDF(String, URL)
     case saveBeforeOpen(URL)
+    case showDocumentation(Block)
     
     var id: Int {
       switch self {
@@ -51,6 +53,8 @@ struct InterpreterView: View {
           return 6
         case .saveBeforeOpen(_):
           return 7
+        case .showDocumentation(_):
+          return 8
       }
     }
   }
@@ -295,7 +299,8 @@ struct InterpreterView: View {
           }
           .modifier(self.globals.services)
         case .organizeFiles:
-          Organizer().modifier(self.globals.services)
+          Organizer()
+            .modifier(self.globals.services)
         case .shareConsole:
           ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
         case .shareImage(let image):
@@ -304,8 +309,10 @@ struct InterpreterView: View {
           ShareSheet(activityItems: [text as NSString])
         case .showAbout:
           AboutView()
+            .modifier(self.globals.services)
         case .showPDF(let name, let url):
           DocumentView(title: name, url: url)
+            .modifier(self.globals.services)
         case .saveBeforeOpen(let ourl):
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                  firstSave: self.fileManager.editorDocumentInfo.new) { url in
@@ -324,6 +331,9 @@ struct InterpreterView: View {
             }
           }
           .modifier(self.globals.services)
+        case .showDocumentation(let doc):
+          DefineView(documentation: doc)
+            .modifier(self.globals.services)
       }
     }
     .actionSheet(isPresented: $showResetActionSheet) {

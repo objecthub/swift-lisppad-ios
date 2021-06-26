@@ -19,6 +19,7 @@
 //
 
 import UIKit
+import MarkdownKit
 
 class CodeEditorTextView: UITextView {
 
@@ -34,6 +35,10 @@ class CodeEditorTextView: UITextView {
   /// Direct access to the text storage delegate
   let textStorageDelegate: CodeEditorTextStorageDelegate
 
+  /// Action executed when "define" is selected from the input menu and the selected
+  /// identifier has documentation.
+  let defineAction: ((Block) -> Void)?
+  
   /// Show line numbers?
   private var internalShowLineNumbers: Bool
 
@@ -102,7 +107,8 @@ class CodeEditorTextView: UITextView {
   init(frame: CGRect,
        console: Bool,
        editorType: FileExtensions.EditorType,
-       docManager: DocumentationManager) {
+       docManager: DocumentationManager,
+       defineAction: ((Block) -> Void)? = nil) {
     let ts = NSTextStorage()
     let td = CodeEditorTextStorageDelegate(console: console,
                                            editorType: editorType,
@@ -120,6 +126,7 @@ class CodeEditorTextView: UITextView {
     self.textStorageDelegate = td
     self.internalShowLineNumbers = lm.showLineNumbers
     self.syntaxHighlightingUpdate = UserSettings.standard.syntaxHighlightingUpdate
+    self.defineAction = defineAction
     super.init(frame: frame, textContainer: tc)
     self.backgroundColor = .clear
     self.contentMode = .redraw
@@ -159,6 +166,58 @@ class CodeEditorTextView: UITextView {
     super.draw(rect)
   }
   
+  func selectedName(for range: NSRange? = nil) -> String? {
+    let range = self.nameRange(for: range)
+    guard case 1...50 = range.length else {
+      return nil
+    }
+    let name = self.textStorage.attributedSubstring(from: range)
+                               .string
+                               .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    return name.isEmpty ? nil : name
+  }
+  
+  func nameRange(for range: NSRange? = nil) -> NSRange {
+    if let range = range {
+      return range
+    } else {
+      let range = self.selectedRange
+      if range.length == 0 {
+        return self.nameRange(at: range.location) ?? range
+      }
+      return range
+    }
+  }
+  
+  func nameRange(at: Int, moveRight: Bool = true) -> NSRange? {
+    let str = self.text as NSString
+    var i = at - 1
+    while i >= 0 && i < str.length {
+      let ch = str.character(at: i)
+      if isSpace(ch) || ch == LPAREN || ch == RPAREN || ch == LBRACKET || ch == RBRACKET ||
+         ch == SEMI || ch == QUOTE || ch == DQUOTE {
+        break
+      }
+      i -= 1
+    }
+    let start = i + 1
+    i = at
+    if moveRight {
+      while i >= 0 && i < str.length {
+        let ch = str.character(at: i)
+        if isSpace(ch) || ch == LPAREN || ch == RPAREN || ch == LBRACKET || ch == RBRACKET ||
+          ch == SEMI || ch == QUOTE || ch == DQUOTE {
+          break
+        }
+        i += 1
+      }
+    }
+    if i > start {
+      return NSRange(location: start, length: i - start)
+    }
+    return nil
+  }
+  
   @objc func keyboardButtonPressed(_ sender: UIButton) {
     switch sender.tag {
       case CodeEditorKeyboard.KeyTag.dash.rawValue:
@@ -181,6 +240,105 @@ class CodeEditorTextView: UITextView {
         self.insertText("#")
       default:
         self.resignFirstResponder()
+    }
+  }
+  
+  func setupEditMenu() {
+    let menuController: UIMenuController = UIMenuController.shared
+    menuController.menuItems = [
+      UIMenuItem(title: "Define", action: #selector(CodeEditorTextView.define)),
+      UIMenuItem(title: "Indent", action: #selector(CodeEditorTextView.indent)),
+      UIMenuItem(title: "Outdent", action: #selector(CodeEditorTextView.outdent)),
+      UIMenuItem(title: "Comment", action: #selector(CodeEditorTextView.comment)),
+      UIMenuItem(title: "Uncomment", action: #selector(CodeEditorTextView.uncomment))
+    ]
+    menuController.update()
+  }
+  
+  override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+    switch action {
+      case #selector(UIResponderStandardEditActions.cut(_:)),
+           #selector(UIResponderStandardEditActions.copy(_:)),
+           #selector(UIResponderStandardEditActions.delete(_:)),
+           #selector(UIResponderStandardEditActions.paste(_:)),
+           #selector(UIResponderStandardEditActions.select(_:)),
+           #selector(UIResponderStandardEditActions.selectAll(_:)):
+        return super.canPerformAction(action, withSender: sender)
+      case #selector(define(_:)):
+        guard self.defineAction != nil,
+              let name = self.selectedName(),
+              let tsdelegate = self.textStorage.delegate as? CodeEditorTextStorageDelegate,
+              tsdelegate.docManager.hasDocumentation(for: name) else {
+          return false
+        }
+        return true
+      case #selector(indent(_:)),
+           #selector(comment(_:)):
+        return true
+      case #selector(outdent(_:)),
+           #selector(uncomment(_:)):
+        return self.text.count > 0
+      default:
+        return false
+    }
+  }
+  
+  @objc func define(_ sender: UIMenuItem) {
+    guard let action = self.defineAction,
+          let name = self.selectedName(),
+          let tsdelegate = self.textStorage.delegate as? CodeEditorTextStorageDelegate,
+          let documentation = tsdelegate.docManager.documentation(for: name) else {
+      return
+    }
+    action(documentation)
+  }
+  
+  @objc func indent(_ sender: UIMenuItem) {
+    if let selRange = TextFormatter.indentLines(self.textStorage.mutableString,
+                                                selectedRange: self.selectedRange,
+                                                with: " ") {
+      self.selectedRange = selRange
+      if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
+        delegate.text = self.textStorage.string
+        delegate.selectedRange = selRange
+      }
+    }
+  }
+  
+  @objc func outdent(_ sender: UIMenuItem) {
+    if let selRange = TextFormatter.outdentLines(self.textStorage.mutableString,
+                                                 selectedRange: self.selectedRange,
+                                                 with: " ") {
+      self.selectedRange = selRange
+      if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
+        self.selectedRange = selRange
+        delegate.text = self.textStorage.string
+        delegate.selectedRange = selRange
+      }
+    }
+  }
+  
+  @objc func comment(_ sender: UIMenuItem) {
+    if let selRange = TextFormatter.indentLines(self.textStorage.mutableString,
+                                                selectedRange: self.selectedRange,
+                                                with: ";") {
+      self.selectedRange = selRange
+      if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
+        delegate.text = self.textStorage.string
+        delegate.selectedRange = selRange
+      }
+    }
+  }
+  
+  @objc func uncomment(_ sender: UIMenuItem) {
+    if let selRange = TextFormatter.outdentLines(self.textStorage.mutableString,
+                                                 selectedRange: self.selectedRange,
+                                                 with: ";") {
+      self.selectedRange = selRange
+      if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
+        delegate.text = self.textStorage.string
+        delegate.selectedRange = selRange
+      }
     }
   }
 }

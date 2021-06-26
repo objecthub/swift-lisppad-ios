@@ -20,6 +20,7 @@
 
 import SwiftUI
 import UIKit
+import MarkdownKit
 
 struct ConsoleEditor: UIViewRepresentable {
   typealias Coordinator = ConsoleEditorTextViewDelegate
@@ -36,6 +37,8 @@ struct ConsoleEditor: UIViewRepresentable {
   @Binding var calculatedHeight: CGFloat
   @ObservedObject var keyboardObserver: KeyboardObserver
   
+  let defineAction: ((Block) -> Void)?
+  
   public func makeCoordinator() -> Coordinator {
     return ConsoleEditorTextViewDelegate(text: _text,
                                          selectedRange: $selectedRange,
@@ -49,7 +52,8 @@ struct ConsoleEditor: UIViewRepresentable {
                                                     height: 1000000),
                                       console: true,
                                       editorType: self.editorType,
-                                      docManager: docManager)
+                                      docManager: self.docManager,
+                                      defineAction: self.defineAction)
     textView.delegate = context.coordinator
     textView.showLineNumbers = false
     textView.isScrollEnabled = false
@@ -75,6 +79,7 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
+    textView.setupEditMenu()
     return textView
   }
 

@@ -34,6 +34,7 @@ struct CodeEditorView: View {
     case showDefinitions(DefinitionView.Definitions)
     case showDocStructure(DocStructureView.DocStructure)
     case markdownPreview(Block)
+    case showDocumentation(Block)
     
     var id: Int {
       switch self {
@@ -55,6 +56,8 @@ struct CodeEditorView: View {
           return 7
         case .markdownPreview(_):
           return 8
+        case .showDocumentation(_):
+          return 9
       }
     }
   }
@@ -130,7 +133,10 @@ struct CodeEditorView: View {
                  position: $editorPosition,
                  forceUpdate: $forceEditorUpdate,
                  editorType: $editorType,
-                 keyboardObserver: self.keyboardObserver)
+                 keyboardObserver: self.keyboardObserver,
+                 defineAction: { block in
+                  self.showSheet = .showDocumentation(block)
+                 })
         .multilineTextAlignment(.leading)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
@@ -492,6 +498,9 @@ struct CodeEditorView: View {
             .modifier(self.globals.services)
         case .markdownPreview(let block):
           MarkdownViewer(markdown: block)
+            .modifier(self.globals.services)
+        case .showDocumentation(let doc):
+          DefineView(documentation: doc)
             .modifier(self.globals.services)
       }
     }

@@ -20,6 +20,7 @@
 
 import SwiftUI
 import UIKit
+import MarkdownKit
 
 struct CodeEditor: UIViewRepresentable {
   typealias Coordinator = CodeEditorTextViewDelegate
@@ -37,6 +38,8 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var editorType: FileExtensions.EditorType
   @ObservedObject var keyboardObserver: KeyboardObserver
   
+  let defineAction: ((Block) -> Void)?
+  
   public func makeCoordinator() -> Coordinator {
     return CodeEditorTextViewDelegate(text: _text,
                                       selectedRange: _selectedRange,
@@ -50,7 +53,8 @@ struct CodeEditor: UIViewRepresentable {
                                                     height: 1000000),
                                       console: false,
                                       editorType: self.editorType,
-                                      docManager: docManager)
+                                      docManager: self.docManager,
+                                      defineAction: self.defineAction)
     textView.isScrollEnabled = true
     textView.isEditable = true
     textView.isSelectable = true
@@ -72,6 +76,7 @@ struct CodeEditor: UIViewRepresentable {
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
+    textView.setupEditMenu()
     DispatchQueue.main.async {
       if let doc = self.fileManager.editorDocument {
         textView.becomeFirstResponder()

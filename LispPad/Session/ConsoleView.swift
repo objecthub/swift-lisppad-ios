@@ -237,7 +237,10 @@ struct ConsoleView: View {
     HStack(alignment: .bottom, spacing: 0) {
       ConsoleEditor(text: $input,
                     calculatedHeight: $dynamicHeight,
-                    keyboardObserver: self.keyboardObserver)
+                    keyboardObserver: self.keyboardObserver,
+                    defineAction: { block in
+                      self.showSheet = .showDocumentation(block)
+                    })
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)

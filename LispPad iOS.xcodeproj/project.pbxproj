@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC0E57B52687CD2800693DD2 /* DefineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0E57B42687CD2800693DD2 /* DefineView.swift */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
 		CC1896DE266D5AC500D384F6 /* (lispkit archive zip).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */; };
 		CC1896DF266D5FE700D384F6 /* (lisppad system).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC327C35260BF98100BD7E32 /* (lisppad system).md */; };
@@ -281,6 +282,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC0E57B42687CD2800693DD2 /* DefineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefineView.swift; sourceTree = "<group>"; };
 		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
 		CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit archive zip).md"; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
@@ -694,6 +696,7 @@
 			isa = PBXGroup;
 			children = (
 				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
+				CC0E57B42687CD2800693DD2 /* DefineView.swift */,
 				CC33237E260A8E6900AD3307 /* DocumentationManager.swift */,
 			);
 			path = Help;
@@ -875,6 +878,7 @@
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
+				CC0E57B52687CD2800693DD2 /* DefineView.swift in Sources */,
 				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
