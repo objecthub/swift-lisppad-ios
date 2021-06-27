@@ -147,7 +147,7 @@ struct InterpreterView: View {
           .cornerRadius(20)
         }
       }
-      Spacer()
+      // Spacer()
       if !self.splitView {
         NavigationLink(destination: CodeEditorView(splitView: self.splitView,
                                                    splitViewMode: $splitViewMode,

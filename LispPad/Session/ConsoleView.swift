@@ -290,12 +290,14 @@ struct ConsoleView: View {
         UIApplication.shared.sendAction(
           #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
       })
-    }.overlay(
-      RoundedRectangle(cornerRadius: 14)
-        .stroke(Color.gray, lineWidth: 1)
-    )
+    }
+    .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                  .stroke(Color.gray, lineWidth: 0.7)
+                  .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color(.systemBackground))))
     .padding(.horizontal, 6)
-    .padding(.bottom, -4)
+    .padding(.bottom, 6)
+    .background(Color("NavigationBarColor").padding(.top, -6).ignoresSafeArea())
   }
   
   var body: some View {
@@ -331,7 +333,6 @@ struct ConsoleView: View {
         }
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
-      // Divider()
       Spacer(minLength: 6)
       self.control
     }
