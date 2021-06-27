@@ -34,8 +34,12 @@ extension UIApplication {
 struct ResignKeyboardOnDragGesture: ViewModifier {
   let enable: Bool
   
-  var gesture = DragGesture().onChanged {_ in
-    UIApplication.shared.endEditing(true)
+  let gesture = DragGesture(minimumDistance: 10.0, coordinateSpace: .local).onChanged { value in
+    if value.translation.height > 10.0 &&
+        value.translation.width < 5.0 &&
+       value.translation.width > -5.0 {
+      UIApplication.shared.endEditing(true)
+    }
   }
   
   func body(content: Content) -> some View {
@@ -46,20 +50,6 @@ struct ResignKeyboardOnDragGesture: ViewModifier {
     }
   }
 }
-
-/*
-struct ResignKeyboardOnDragGesture: ViewModifier {
-  var gesture = DragGesture(minimumDistance: 100).onEnded { endedGesture in
-                  if (endedGesture.location.y - endedGesture.startLocation.y) > 0 {
-                    UIApplication.shared.endEditing(true)
-                  }
-                }
-  
-  func body(content: Content) -> some View {
-    content.gesture(gesture)
-  }
-}
-*/
 
 extension View {
   func resignKeyboardOnDragGesture(enable: Bool = true) -> some View {
