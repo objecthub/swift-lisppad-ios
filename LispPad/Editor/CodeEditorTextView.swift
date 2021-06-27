@@ -294,21 +294,16 @@ class CodeEditorTextView: UITextView {
   }
   
   @objc func indent(_ sender: UIMenuItem) {
-    if let selRange = TextFormatter.indentLines(self.textStorage.mutableString,
-                                                selectedRange: self.selectedRange,
-                                                with: " ") {
-      self.selectedRange = selRange
-      if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
-        delegate.text = self.textStorage.string
-        delegate.selectedRange = selRange
-      }
+    let selRange = TextFormatter.indent(textView: self, with: " ")
+    self.selectedRange = selRange
+    if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
+      delegate.text = self.textStorage.string
+      delegate.selectedRange = selRange
     }
   }
   
   @objc func outdent(_ sender: UIMenuItem) {
-    if let selRange = TextFormatter.outdentLines(self.textStorage.mutableString,
-                                                 selectedRange: self.selectedRange,
-                                                 with: " ") {
+    if let selRange = TextFormatter.outdent(textView: self, with: " ") {
       self.selectedRange = selRange
       if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
         self.selectedRange = selRange
@@ -319,21 +314,16 @@ class CodeEditorTextView: UITextView {
   }
   
   @objc func comment(_ sender: UIMenuItem) {
-    if let selRange = TextFormatter.indentLines(self.textStorage.mutableString,
-                                                selectedRange: self.selectedRange,
-                                                with: ";") {
-      self.selectedRange = selRange
-      if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
-        delegate.text = self.textStorage.string
-        delegate.selectedRange = selRange
-      }
+    let selRange = TextFormatter.indent(textView: self, with: ";")
+    self.selectedRange = selRange
+    if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
+      delegate.text = self.textStorage.string
+      delegate.selectedRange = selRange
     }
   }
   
   @objc func uncomment(_ sender: UIMenuItem) {
-    if let selRange = TextFormatter.outdentLines(self.textStorage.mutableString,
-                                                 selectedRange: self.selectedRange,
-                                                 with: ";") {
+    if let selRange = TextFormatter.outdent(textView: self, with: ";") {
       self.selectedRange = selRange
       if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
         delegate.text = self.textStorage.string

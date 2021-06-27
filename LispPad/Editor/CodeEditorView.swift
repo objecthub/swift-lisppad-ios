@@ -95,6 +95,7 @@ struct CodeEditorView: View {
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
+  @State var undoEditor: Bool? = nil
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -132,6 +133,7 @@ struct CodeEditorView: View {
                                        }}),
                  position: $editorPosition,
                  forceUpdate: $forceEditorUpdate,
+                 undo: $undoEditor,
                  editorType: $editorType,
                  keyboardObserver: self.keyboardObserver,
                  defineAction: { block in
@@ -322,6 +324,17 @@ struct CodeEditorView: View {
         HStack(alignment: .center, spacing: 16) {
           Menu(content: {
             Button(action: {
+              self.undoEditor = true
+            }) {
+              Label("Undo", systemImage: "arrow.uturn.backward")
+            }
+            Button(action: {
+              self.undoEditor = false
+            }) {
+              Label("Redo", systemImage: "arrow.uturn.forward")
+            }
+            Divider()
+            Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = doc.text as NSString
                 if let (str, replRange, selRange) = TextFormatter.autoIndentLines(
@@ -341,14 +354,13 @@ struct CodeEditorView: View {
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = NSMutableString(string: doc.text)
-                if let selRange = TextFormatter.indentLines(text,
-                                                            selectedRange: doc.selectedRange,
-                                                            with: " ") {
-                  doc.text = text as String
-                  doc.selectedRange = selRange
-                  self.forceEditorUpdate = true
-                  self.editorPosition = selRange
-                }
+                let selRange = TextFormatter.indent(string: text,
+                                                    selectedRange: doc.selectedRange,
+                                                    with: " ")
+                doc.text = text as String
+                doc.selectedRange = selRange
+                self.forceEditorUpdate = true
+                self.editorPosition = selRange
               }
             }) {
               Label("Increase Indent", systemImage: "increase.indent")
@@ -356,7 +368,7 @@ struct CodeEditorView: View {
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = NSMutableString(string: doc.text)
-                if let selRange = TextFormatter.outdentLines(text,
+                if let selRange = TextFormatter.outdent(string: text,
                                                              selectedRange: doc.selectedRange,
                                                              with: " ") {
                   doc.text = text as String
@@ -372,14 +384,13 @@ struct CodeEditorView: View {
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = NSMutableString(string: doc.text)
-                if let selRange = TextFormatter.indentLines(text,
-                                                            selectedRange: doc.selectedRange,
-                                                            with: ";") {
-                  doc.text = text as String
-                  doc.selectedRange = selRange
-                  self.forceEditorUpdate = true
-                  self.editorPosition = selRange
-                }
+                let selRange = TextFormatter.indent(string: text,
+                                                    selectedRange: doc.selectedRange,
+                                                    with: ";")
+                doc.text = text as String
+                doc.selectedRange = selRange
+                self.forceEditorUpdate = true
+                self.editorPosition = selRange
               }
             }) {
               Label("Comment", systemImage: "text.bubble")
@@ -388,7 +399,7 @@ struct CodeEditorView: View {
             Button(action: {
               if let doc = self.fileManager.editorDocument {
                 let text = NSMutableString(string: doc.text)
-                if let selRange = TextFormatter.outdentLines(text,
+                if let selRange = TextFormatter.outdent(string: text,
                                                              selectedRange: doc.selectedRange,
                                                              with: ";") {
                   doc.text = text as String

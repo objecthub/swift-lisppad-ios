@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct TextFormatter {
   
@@ -230,10 +231,10 @@ struct TextFormatter {
       return nil
     }
   }
-  
-  static func indentLines(_ str: NSMutableString,
-                          selectedRange: NSRange,
-                          with character: String) -> NSRange? {
+    
+  static func indent(string str: NSMutableString,
+                     selectedRange: NSRange,
+                     with character: String) -> NSRange {
     // Find the beginning of the current line
     var start = selectedRange.location
     var end = start + selectedRange.length
@@ -251,6 +252,9 @@ struct TextFormatter {
         break
       }
       start += 1
+      guard start < end else {
+        break
+      }
       str.replaceCharacters(in: NSRange(location: start, length: 0), with: character)
       end += 1
     }
@@ -259,9 +263,51 @@ struct TextFormatter {
                    length: end - selectedRange.location - 1)
   }
   
-  static func outdentLines(_ str: NSMutableString,
-                           selectedRange: NSRange,
-                           with character: String) -> NSRange? {
+  static func indent(textView: UITextView, with character: String) -> NSRange {
+    let str = NSMutableString(string: textView.text)
+    let selectedRange = textView.selectedRange
+    var start = selectedRange.location
+    var end = start + selectedRange.length
+    // Find the beginning of the current line
+    while start > 0 && str.character(at: start - 1) != NEWLINE {
+      start -= 1
+    }
+    textView.undoManager?.beginUndoGrouping()
+    defer {
+      textView.undoManager?.endUndoGrouping()
+    }
+    if let pos = textView.position(from: textView.beginningOfDocument, offset: start),
+       let rng = textView.textRange(from: pos, to: pos) {
+      str.replaceCharacters(in: NSRange(location: start, length: 0), with: character)
+      textView.replace(rng, withText: character)
+      end += 1
+    }
+    // Indent remaining lines
+    while start < end {
+      while start < end  && str.character(at: start) != NEWLINE {
+        start += 1
+      }
+      guard start < end else {
+        break
+      }
+      start += 1
+      guard start < end else {
+        break
+      }
+      if let pos = textView.position(from: textView.beginningOfDocument, offset: start),
+         let rng = textView.textRange(from: pos, to: pos) {
+        str.replaceCharacters(in: NSRange(location: start, length: 0), with: character)
+        textView.replace(rng, withText: character)
+        end += 1
+      }
+    }
+    // Determine new selection
+    return NSRange(location: selectedRange.location + 1, length: end - selectedRange.location - 1)
+  }
+  
+  static func outdent(string str: NSMutableString,
+                      selectedRange: NSRange,
+                      with character: String) -> NSRange? {
     let char = character.utf16.first!
     // Find the beginning of the current line
     var start = selectedRange.location
@@ -290,6 +336,62 @@ struct TextFormatter {
       if start < end && str.character(at: start) == char {
         str.replaceCharacters(in: NSRange(location: start, length: 1), with: "")
         end -= 1
+      }
+    }
+    // Did something change?
+    guard end < selectedRange.location + selectedRange.length else {
+      return nil
+    }
+    // Determine replacement range and replacement string
+    return NSRange(location: selectedRange.location - correction,
+                   length: end - selectedRange.location + correction)
+  }
+  
+  static func outdent(textView: UITextView, with character: String) -> NSRange? {
+    let char = character.utf16.first!
+    let str = NSMutableString(string: textView.text)
+    let selectedRange = textView.selectedRange
+    var start = selectedRange.location
+    var end = start + selectedRange.length
+    // Find the beginning of the current line
+    while start > 0 && str.character(at: start - 1) != NEWLINE {
+      start -= 1
+    }
+    var correction = 0
+    // Remove first space if it exists
+    textView.undoManager?.beginUndoGrouping()
+    defer {
+      textView.undoManager?.endUndoGrouping()
+    }
+    if str.character(at: start) == char {
+      if let pos0 = textView.position(from: textView.beginningOfDocument, offset: start),
+         let pos1 = textView.position(from: pos0, offset: 1),
+         let rng = textView.textRange(from: pos0, to: pos1) {
+        str.replaceCharacters(in: NSRange(location: start, length: 1), with: "")
+        textView.replace(rng, withText: "")
+        end -= 1
+        if selectedRange.location > 0 {
+          correction = 1
+        }
+      }
+    }
+    // Undent remaining lines
+    while start < end {
+      while start < end  && str.character(at: start) != NEWLINE {
+        start += 1
+      }
+      guard start < end else {
+        break
+      }
+      start += 1
+      if start < end && str.character(at: start) == char {
+        if let pos0 = textView.position(from: textView.beginningOfDocument, offset: start),
+           let pos1 = textView.position(from: pos0, offset: 1),
+           let rng = textView.textRange(from: pos0, to: pos1) {
+          str.replaceCharacters(in: NSRange(location: start, length: 1), with: "")
+          textView.replace(rng, withText: "")
+          end -= 1
+        }
       }
     }
     // Did something change?

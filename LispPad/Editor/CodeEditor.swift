@@ -35,6 +35,7 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var selectedRange: NSRange
   @Binding var position: NSRange?
   @Binding var forceUpdate: Bool
+  @Binding var undo: Bool?
   @Binding var editorType: FileExtensions.EditorType
   @ObservedObject var keyboardObserver: KeyboardObserver
   
@@ -111,7 +112,12 @@ struct CodeEditor: UIViewRepresentable {
     }
     if let pos = self.position {
       if self.forceUpdate {
-        textView.text = self.text
+        if let range = textView.textRange(from: textView.beginningOfDocument,
+                                          to: textView.endOfDocument) {
+          textView.replace(range, withText: self.text)
+        } else {
+          textView.text = self.text
+        }
       }
       if UIDevice.current.userInterfaceIdiom == .pad {
         DispatchQueue.main.async {
@@ -149,6 +155,15 @@ struct CodeEditor: UIViewRepresentable {
       textView.text = self.text
       DispatchQueue.main.async {
         self.forceUpdate = false
+      }
+    } else if let undo = self.undo {
+      if undo {
+        textView.undoManager?.undo()
+      } else {
+        textView.undoManager?.redo()
+      }
+      DispatchQueue.main.async {
+        self.undo = nil
       }
     } else if UIDevice.current.userInterfaceIdiom != .pad {
       let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,
