@@ -291,7 +291,8 @@ struct ConsoleView: View {
           #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
       })
     }.overlay(
-      RoundedRectangle(cornerRadius: 14).stroke(Color.gray, lineWidth: 1)
+      RoundedRectangle(cornerRadius: 14)
+        .stroke(Color.gray, lineWidth: 1)
     )
     .padding(.horizontal, 6)
     .padding(.bottom, -4)
@@ -301,9 +302,7 @@ struct ConsoleView: View {
     VStack(alignment: .leading, spacing: 0) {
       GeometryReader { geo in
         ScrollViewReader { scrollViewProxy in
-          ConsoleScrollView(.vertical, offsetChanged: { coord in 
-            // Swift.print("coord = \(coord)")
-          }) {
+          ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(alignment: .leading, spacing: 0) {
               ForEach(self.content, id: \.id) { entry in
                 self.consoleRow(entry, width: geo.size.width)
@@ -331,6 +330,7 @@ struct ConsoleView: View {
           }
         }
       }
+      .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
       // Divider()
       Spacer(minLength: 6)
       self.control
