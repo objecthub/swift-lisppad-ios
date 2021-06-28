@@ -333,6 +333,7 @@ struct ConsoleView: View {
         }
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
+      Divider()
       Spacer(minLength: 6)
       self.control
     }
