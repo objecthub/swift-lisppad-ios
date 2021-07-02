@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		CC0E57B52687CD2800693DD2 /* DefineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0E57B42687CD2800693DD2 /* DefineView.swift */; };
+		CC0E57C9268FC1A300693DD2 /* ObliqueProjection.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
+		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
+		CC0E57CC268FC73E00693DD2 /* DisplayMaze.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
+		CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
 		CC1896DE266D5AC500D384F6 /* (lispkit archive zip).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */; };
 		CC1896DF266D5FE700D384F6 /* (lisppad system).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC327C35260BF98100BD7E32 /* (lisppad system).md */; };
@@ -248,6 +252,8 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */,
+				CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */,
 				CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */,
 				CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */,
 				CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */,
@@ -283,6 +289,8 @@
 
 /* Begin PBXFileReference section */
 		CC0E57B42687CD2800693DD2 /* DefineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefineView.swift; sourceTree = "<group>"; };
+		CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObliqueProjection.scm; sourceTree = "<group>"; };
+		CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMaze.scm; sourceTree = "<group>"; };
 		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
 		CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit archive zip).md"; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
@@ -630,8 +638,10 @@
 			isa = PBXGroup;
 			children = (
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
+				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
 				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
 				CC233D5A266AC6940038016C /* PlotGraphs.scm */,
+				CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 			);
 			path = Examples;
@@ -857,7 +867,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC0E57C9268FC1A300693DD2 /* ObliqueProjection.scm in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
+				CC0E57CC268FC73E00693DD2 /* DisplayMaze.scm in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,

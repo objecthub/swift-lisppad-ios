@@ -42,7 +42,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
-;; Load the example code
+;; Load the example code from LispKit
 (load "Examples/DrawTrees")
 
 ;; Define a test tree
