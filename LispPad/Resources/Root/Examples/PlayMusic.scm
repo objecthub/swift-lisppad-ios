@@ -1,28 +1,30 @@
 ;;; Play music files
 ;;;
-;;; This is a demo showcasing library `(lisppad audio)`. This library provides a simple
-;;; asynchronous API to play back music (e.g. music in AAC, MP3, etc. format). The library
-;;; allows for control over the volume, the pan, and playback rate. It also supports playing
-;;; music in a loop.
+;;; This is a demo showcasing library `(lisppad audio)`. This library
+;;; provides a simple asynchronous API to play back music (e.g. music in AAC,
+;;; MP3, etc. format). The library allows for control over the volume, the
+;;; pan, and playback rate. It also supports playing music in a loop.
 ;;; 
-;;; Procedure `mix-music` plays two music tracks in a row using fade-in and fade-out effects
-;;; as well as changing the playback rate. Here is an example invocation which plays back two
-;;; tracks from Bensound.com:
+;;; Procedure `mix-music` plays two music tracks in a row using fade-in and
+;;; fade-out effects as well as changing the playback rate. Here is an
+;;; example invocation which plays back two tracks from Bensound.com:
 ;;; 
 ;;;   (mix-music endless-motion moose)
 ;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2021 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+;;; implied. See the License for the specific language governing
+;;; permissions and limitations under the License.
 
 (import (lispkit base)
         (lisppad system)
@@ -40,8 +42,8 @@
   ; make audio player play the music from the beginning
   (set-audio-player-elapsed! pl 0))
 
-;; First play `pl1` and, after 20 seconds, fade in `pl2`; after 20 more seconds, incease the
-;; play rate of `pl2` and fade out the music.
+;; First play `pl1` and, after 20 seconds, fade in `pl2`; after 20 more
+;; seconds, incease the play rate of `pl2` and fade out the music.
 (define (mix-music pl1 pl2)
   (reset-audio-player! pl1 1)
   (reset-audio-player! pl2 0)
@@ -66,10 +68,12 @@
 
 ;; Create music player for track "Endless motion" from Bensound.com
 (define endless-motion
-  (make-audio-player (asset-file-path "bensound-endlessmotion" "mp3" "Audio") #f #t))
+  (make-audio-player
+    (asset-file-path "bensound-endlessmotion" "mp3" "Audio") #f #t))
 
-;; Create music player for track "Moose" from Bensound.com. Load track "Moose" into a
-;; bytevector via `read-binary-file` and pass the bytevector to `make-audio-player`.
+;; Create music player for track "Moose" from Bensound.com. Load track
+;; "Moose" into a bytevector via `read-binary-file` and pass the bytevector
+;; to `make-audio-player`.
 (define moose
   (make-audio-player
     (read-binary-file (asset-file-path "bensound-moose" "mp3" "Audio")) #f #t))

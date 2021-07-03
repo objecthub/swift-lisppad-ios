@@ -1,8 +1,9 @@
 ;;; Plot graphs in the LispPad Go console
 ;;;
-;;; This is a demo of the library `(lispkit draw)`. Function `plot` draws a graph of a
-;;; function for a given range using a number of interpolation points. The program
-;;; creates a drawing which combines multiple invocations of `plot`.
+;;; This is a demo of the library `(lispkit draw)`. Function `plot` draws
+;;; a graph of a function for a given range using a number of interpolation
+;;; points. The program creates a drawing which combines multiple invocations
+;;; of `plot`.
 ;;;
 ;;; Example invocations of `plot`:
 ;;;   (plot sin 0 9.4 50)
@@ -11,22 +12,24 @@
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2021 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+;;; implied. See the License for the specific language governing
+;;; permissions and limitations under the License.
 
 (import (lispkit base)
         (lispkit draw))
 
-;; Plots a function `f` over range `[xmin; xmax]` using `n` interpolation points
-;; within rectangle `rect`. Prints `label` at the bottom of the graph. Returns the result
-;; as a drawing object.
+;; Plots a function `f` over range `[xmin; xmax]` using `n` interpolation
+;; points within rectangle `rect`. Prints `label` at the bottom of the graph.
+;; Returns the result as a drawing object.
 (define (plot f xmin xmax n . args)
   (let-optionals args ((clr blue)
                        (rect (rect 10 10 200 100))
@@ -38,7 +41,9 @@
            (ymax (apply max ys))
            (xfac (/ (rect-width rect) (- xmax xmin)))
            (yfac (/ (rect-height rect) (- ymax ymin)))
-           (ps (map (lambda (x y) (point (* xfac (- x xmin)) (* yfac (- y ymin)))) xs ys))
+           (ps (map (lambda (x y)
+                      (point (* xfac (- x xmin)) (* yfac (- y ymin))))
+                    xs ys))
            (graph (flip-shape (interpolate ps))))
       (drawing
         ; Draw a bounding box
@@ -52,7 +57,8 @@
                         (point (* xfac (- xmin)) (rect-height rect))) 0.3))
           (if (and (<= ymin 0.0) (>= ymax 0.0))
             (draw (line (point 0 (+ (rect-height rect) (* yfac ymin)))
-                        (point (rect-width rect) (+ (rect-height rect) (* yfac ymin)))) 0.3))
+                        (point (rect-width rect)
+                               (+ (rect-height rect) (* yfac ymin)))) 0.3))
           ; Draw flipped interpolation shape
           (set-color clr)
           (draw graph)
@@ -70,7 +76,8 @@
 (define combined
   (drawing
     ; Draw a header in font "Helvetica-Bold" of size 12
-    (draw-text "Demo of library (lispkit draw)" (point 160 8) (font "Helvetica" 12) black)
+    (draw-text "Demo of library (lispkit draw)"
+               (point 160 8) (font "Helvetica" 12) black)
     ; Plot four graphs
     (draw-drawing (plot sin -1 6.3 50 blue (rect 10 30 200 100) "sin(x)"))
     (draw-drawing (plot cos -1 6.3 50 blue (rect 220 30 200 100) "cos(x)"))
