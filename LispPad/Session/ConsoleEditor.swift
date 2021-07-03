@@ -25,8 +25,6 @@ import MarkdownKit
 struct ConsoleEditor: UIViewRepresentable {
   typealias Coordinator = ConsoleEditorTextViewDelegate
   
-  let keyboard = CodeEditorKeyboard(console: true)
-  
   @State var editorType: FileExtensions.EditorType = .scheme
   @State var selectedRange: NSRange = NSRange(location: 0, length: 0)
   
@@ -84,7 +82,7 @@ struct ConsoleEditor: UIViewRepresentable {
   }
 
   public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
-    self.keyboard.setup(for: textView)
+    textView.keyboard.setup(for: textView)
     if textView.font != self.settings.inputFont {
       textView.font = self.settings.inputFont
     }

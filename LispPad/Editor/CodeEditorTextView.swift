@@ -44,7 +44,9 @@ class CodeEditorTextView: UITextView {
 
   /// When was the last syntax highlighting settings change?
   var syntaxHighlightingUpdate: Date
-
+  
+  let keyboard: CodeEditorKeyboard
+  
   var showLineNumbers: Bool {
     get {
       return self.internalShowLineNumbers
@@ -127,6 +129,7 @@ class CodeEditorTextView: UITextView {
     self.internalShowLineNumbers = lm.showLineNumbers
     self.syntaxHighlightingUpdate = UserSettings.standard.syntaxHighlightingUpdate
     self.defineAction = defineAction
+    self.keyboard = CodeEditorKeyboard(console: console, editorType: editorType)
     super.init(frame: frame, textContainer: tc)
     self.backgroundColor = .clear
     self.contentMode = .redraw
@@ -238,6 +241,10 @@ class CodeEditorTextView: UITextView {
         self.insertText("?")
       case CodeEditorKeyboard.KeyTag.hash.rawValue:
         self.insertText("#")
+      case CodeEditorKeyboard.KeyTag.backquote.rawValue:
+        self.insertText("`")
+      case CodeEditorKeyboard.KeyTag.underscore.rawValue:
+        self.insertText("_")
       default:
         self.resignFirstResponder()
     }
@@ -273,9 +280,8 @@ class CodeEditorTextView: UITextView {
         }
         return true
       case #selector(indent(_:)),
-           #selector(comment(_:)):
-        return true
-      case #selector(outdent(_:)),
+           #selector(comment(_:)),
+           #selector(outdent(_:)),
            #selector(uncomment(_:)):
         return self.text.count > 0
       default:

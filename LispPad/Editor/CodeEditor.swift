@@ -25,8 +25,6 @@ import MarkdownKit
 struct CodeEditor: UIViewRepresentable {
   typealias Coordinator = CodeEditorTextViewDelegate
   
-  let keyboard = CodeEditorKeyboard(console: false)
-  
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var settings: UserSettings
@@ -89,7 +87,7 @@ struct CodeEditor: UIViewRepresentable {
   }
 
   public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
-    self.keyboard.setup(for: textView)
+    textView.keyboard.setup(for: textView)
     if self.fileManager.requireEditorUpdate() {
       textView.text = self.text
       textView.selectedRange = NSRange(location: 0, length: 0)
