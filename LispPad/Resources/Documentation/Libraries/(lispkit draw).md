@@ -435,10 +435,21 @@ Sets the EXIF metadata for the given bitmap _bmap_ to _exif_. _exif_ is an assoc
 
 Creates a new bitmap-based image by drawing the object _drawing_ into an empty bitmap of size _size_ in points. _ppi_ determines the number of pixels per inch. By default, _ppi_ is set to 72. In this case, the number of pixels of the bitmap corresponds to the number of points (since 1 pixel corresponds to 1/72 of an inch). For a _ppi_ value of 144, the horizontal and vertial number of pixels is doubled, etc.
 
+**(bitmap-crop _bitmap rect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Crops a rectangle from the given bitmap and returns the result in a new bitmap. _rect_ is a rectangle in pixels. Its intersection with the dimensions of _bitmap_ (in pixels) are used for cropping.
+
+**(bitmap-blur _bitmap radius_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Blurs the given bitmap with the given blur radius and returns the result in a new bitmap of the same size.
+
 **(save-bitmap _path bitmap format_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Saves a given bitmap-based image _bitmap_ in a file at filepath _path_. _format_ is a symbol specifying the image file format. Supported are: `png`, `jpg`, `gif`, `bmp`, and `tiff`.
 
+**(bitmap-\>bytevector _bitmap format_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a bytevector with an encoding of _bitmap_ in the given format. _format_ is a symbol specifying the image format. Supported are: `png`, `jpg`, `gif`, `bmp`, and `tiff`.
 
 ## Transformations
 

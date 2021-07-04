@@ -30,6 +30,14 @@ At the top-level, a Markdown document consist of a list of _blocks_. The followi
       where (every? string? lines)
   (reference-def label dest title)
       where (and (string? label) (string? dest) (every? string? title))
+  (table header alignments rows)
+      where (and (every? markdown-text? header)
+                 (every? symbol? alignments)
+                 (every? (lambda (x) (every? markdown-text? x)) rows))
+  (definition-list defs)
+      where (every? (lambda (x)
+                      (and (markdown-text? (car x))
+                           (markdown-list? (cdr x)))) defs)
   (thematic-break))
 ```
 
@@ -43,11 +51,11 @@ At the top-level, a Markdown document consist of a list of _blocks_. The followi
       where (and (fixnum? num) (char? ch) (markdown-blocks? blocks)))
 ```
 
-The most frequent Markdown block type is a paragraph. `(paragraph text)` represents a single paragraph of text where _text_ refers to a list of inline text fragments of type `inline` (see below). `(heading level text)` defines a heading block for a heading of a given level, where _level_ is a number starting with 1 (up to 6). `(indented-code lines)` represents a code block consisting of a list of text lines each represented by a string. `(fenced-code lang lines)` is similar: it defines a code block with code expressed in the given language _lang_. `(html lines)` defines a HTML block consisting of the given lines of text. `(reference-def label dest title)` introduces a reference definition consisting of a given _label_, a destination URI _dest_, as well as a _title_ string. Finally, `(thematic-break)` introduces a thematic break block separating the previous and following blocks visually, often via a line.
+The most frequent Markdown block type is a paragraph. `(paragraph text)` represents a single paragraph of text where _text_ refers to a list of inline text fragments of type `inline` (see below). `(heading level text)` defines a heading block for a heading of a given level, where _level_ is a number starting with 1 (up to 6). `(indented-code lines)` represents a code block consisting of a list of text lines each represented by a string. `(fenced-code lang lines)` is similar: it defines a code block with code expressed in the given language _lang_. `(html lines)` defines a HTML block consisting of the given lines of text. `(reference-def label dest title)` introduces a reference definition consisting of a given _label_, a destination URI _dest_, as well as a _title_ string. `(table header alignments rows)` defines a table consisting of _headers_, a list of markdown text describing the header of each column, _alignments_, a list of symbols `l` (= left), `c` (= center), and `r` (= right), and _rows_, a list of lists of markdown text. `(definition-list defs)` represents a definition list where _defs_ refers to a list of definitions. A definition has the form `(name def ...)` where _name_ is markdown text defining a name, and _def_ is a bullet item using `:` as bullet character. Finally, `(thematic-break)` introduces a thematic break block separating the previous and following blocks visually, often via a line.
 
 ### Inline Text
 
-Text is represented as lists of inline text segments, each represented as an object of type `inline`. `inline` is defined as follows:
+Markdown text is represented as lists of inline text segments, each represented as an object of type `inline`. `inline` is defined as follows:
 
 ```scheme
 (define-datatype inline markdown-inline?
