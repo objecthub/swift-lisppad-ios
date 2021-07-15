@@ -210,6 +210,7 @@ struct InterpreterView: View {
                 .foregroundColor(Color.red)
                 .font(InterpreterView.toolbarFont)
             }
+            .keyCommand("e", modifiers: .command)
           }
           Button(action: {
             self.showSheet = .loadFile

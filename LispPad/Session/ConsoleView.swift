@@ -271,6 +271,7 @@ struct ConsoleView: View {
             .frame(height: 26)
         }
       }
+      .keyCommand("\r", modifiers: .command)
       .disabled(self.input.isEmpty || (!self.ready && self.readingStatus != .accept))
       .contextMenu {
         if self.ready {

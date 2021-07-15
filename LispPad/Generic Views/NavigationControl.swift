@@ -90,6 +90,7 @@ struct NavigationControl: View {
             .foregroundColor(.primary)
             .font(InterpreterView.toolbarSwitchFont)
         }
+        .keyCommand("w", modifiers: .command)
         if self.splitView {
           Button(action: {
             self.splitViewMode = self.masterView ? .normal : .swapped

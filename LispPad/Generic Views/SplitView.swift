@@ -38,8 +38,8 @@ struct SplitView<Master: View, Detail: View>: View {
        @ViewBuilder detail: () -> Detail) {
     let master = master()
     let detail = detail()
-    self.viewControllers = [UIHostingController(rootView: master),
-                            UIHostingController(rootView: detail)]
+    self.viewControllers = [KeyboardEnabledHostingController(rootView: master),
+                            KeyboardEnabledHostingController(rootView: detail)]
     self.master = master
     self.detail = detail
   }

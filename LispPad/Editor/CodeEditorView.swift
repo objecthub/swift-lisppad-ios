@@ -97,6 +97,31 @@ struct CodeEditorView: View {
   @State var editorType: FileExtensions.EditorType = .scheme
   @State var undoEditor: Bool? = nil
   
+  var keyboardShortcuts: some View {
+    ZStack {
+      Button(action: self.indentEditor) {
+        EmptyView()
+      }
+      .keyCommand("]", modifiers: .command)
+      Button(action: self.outdentEditor) {
+        EmptyView()
+      }
+      .keyCommand("[", modifiers: .command)
+      Button(action: self.commentEditor) {
+        EmptyView()
+      }
+      .keyCommand(";", modifiers: .command)
+      Button(action: self.uncommentEditor) {
+        EmptyView()
+      }
+      .keyCommand(";", modifiers: [.shift, .command])
+      Button(action: self.autoIndentEditor) {
+        EmptyView()
+      }
+      .keyCommand("i", modifiers: .command)
+    }
+  }
+  
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
@@ -123,6 +148,7 @@ struct CodeEditorView: View {
         .transition(.move(edge: .top))
         Divider()
       }
+      self.keyboardShortcuts
       CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
                              set: { if let doc = self.fileManager.editorDocument {doc.text = $0}}),
                  selectedRange: .init(
@@ -235,16 +261,17 @@ struct CodeEditorView: View {
               Image(systemName: self.editorType == .scheme ? "play" : "display")
                 .font(InterpreterView.toolbarFont)
             }
-            .disabled((self.editorType != .scheme) &&
-                      (self.editorType != .markdown) ||
-                      (self.fileManager.editorDocument?.text.isEmpty ?? true))
+            .keyCommand("r", modifiers: .command)
+            .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
           } else {
             Button(action: {
               self.showAbortAlert = true
             }) {
               Image(systemName: "stop.circle")
+                .foregroundColor(Color.red)
                 .font(InterpreterView.toolbarFont)
             }
+            .keyCommand("e", modifiers: .command)
             .alert(isPresented: $showAbortAlert) {
               Alert(title: Text("Abort evaluation?"),
                     primaryButton: .cancel(),
@@ -334,81 +361,22 @@ struct CodeEditorView: View {
               Label("Redo", systemImage: "arrow.uturn.forward")
             }
             Divider()
-            Button(action: {
-              if let doc = self.fileManager.editorDocument {
-                let text = doc.text as NSString
-                if let (str, replRange, selRange) = TextFormatter.autoIndentLines(
-                                                      text,
-                                                      range: doc.selectedRange,
-                                                      tabWidth: UserSettings.standard.indentSize) {
-                  doc.text = text.replacingCharacters(in: replRange, with: str)
-                  doc.selectedRange = selRange
-                  self.forceEditorUpdate = true
-                  self.editorPosition = selRange
-                }
-              }
-            }) {
+            Button(action: self.autoIndentEditor) {
               Label("Auto Indent", systemImage: "list.bullet.indent")
             }
             .disabled(self.editorType != .scheme)
-            Button(action: {
-              if let doc = self.fileManager.editorDocument {
-                let text = NSMutableString(string: doc.text)
-                let selRange = TextFormatter.indent(string: text,
-                                                    selectedRange: doc.selectedRange,
-                                                    with: " ")
-                doc.text = text as String
-                doc.selectedRange = selRange
-                self.forceEditorUpdate = true
-                self.editorPosition = selRange
-              }
-            }) {
+            Button(action: self.indentEditor) {
               Label("Increase Indent", systemImage: "increase.indent")
             }
-            Button(action: {
-              if let doc = self.fileManager.editorDocument {
-                let text = NSMutableString(string: doc.text)
-                if let selRange = TextFormatter.outdent(string: text,
-                                                             selectedRange: doc.selectedRange,
-                                                             with: " ") {
-                  doc.text = text as String
-                  doc.selectedRange = selRange
-                  self.forceEditorUpdate = true
-                  self.editorPosition = selRange
-                }
-              }
-            }) {
+            Button(action: self.outdentEditor) {
               Label("Decrease Indent", systemImage: "decrease.indent")
             }
             Divider()
-            Button(action: {
-              if let doc = self.fileManager.editorDocument {
-                let text = NSMutableString(string: doc.text)
-                let selRange = TextFormatter.indent(string: text,
-                                                    selectedRange: doc.selectedRange,
-                                                    with: ";")
-                doc.text = text as String
-                doc.selectedRange = selRange
-                self.forceEditorUpdate = true
-                self.editorPosition = selRange
-              }
-            }) {
+            Button(action: self.commentEditor) {
               Label("Comment", systemImage: "text.bubble")
             }
             .disabled(self.editorType != .scheme)
-            Button(action: {
-              if let doc = self.fileManager.editorDocument {
-                let text = NSMutableString(string: doc.text)
-                if let selRange = TextFormatter.outdent(string: text,
-                                                             selectedRange: doc.selectedRange,
-                                                             with: ";") {
-                  doc.text = text as String
-                  doc.selectedRange = selRange
-                  self.forceEditorUpdate = true
-                  self.editorPosition = selRange
-                }
-              }
-            }) {
+            Button(action: self.uncommentEditor) {
               Label("Uncomment", systemImage: "bubble.left")
             }
             .disabled(self.editorType != .scheme)
@@ -542,23 +510,98 @@ struct CodeEditorView: View {
     }
   }
   
-  func couldNotSave() -> Alert {
+  private func couldNotSave() -> Alert {
     return Alert(title: Text("File not saved"),
                  message: Text("Could not save file. Retry saving using a different name or path."),
                  dismissButton: .default(Text("OK")))
   }
   
-  func couldNotDuplicate() -> Alert {
+  private func couldNotDuplicate() -> Alert {
     return Alert(title: Text("Document not duplicated"),
                  message: Text("Could not duplicate the current document."),
                  dismissButton: .default(Text("OK")))
   }
   
-  func notSavedAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {
+  private func notSavedAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {
     return Alert(title: Text("Discard or save document?"),
                  message: Text("The current document is not saved yet. " +
                                "Discard or save the current document?"),
                  primaryButton: .default(Text("Save"), action: save),
                  secondaryButton: .destructive(Text("Discard"), action: discard))
+  }
+  
+  private func indentEditor() {
+    if let doc = self.fileManager.editorDocument {
+      let text = NSMutableString(string: doc.text)
+      let selRange = TextFormatter.indent(string: text,
+                                          selectedRange: doc.selectedRange,
+                                          with: " ")
+      doc.text = text as String
+      doc.selectedRange = selRange
+      self.forceEditorUpdate = true
+      self.editorPosition = selRange
+    }
+  }
+  
+  private func outdentEditor() {
+    if let doc = self.fileManager.editorDocument {
+      let text = NSMutableString(string: doc.text)
+      if let selRange = TextFormatter.outdent(string: text,
+                                                   selectedRange: doc.selectedRange,
+                                                   with: " ") {
+        doc.text = text as String
+        doc.selectedRange = selRange
+        self.forceEditorUpdate = true
+        self.editorPosition = selRange
+      }
+    }
+  }
+  
+  private func commentEditor() {
+    if let doc = self.fileManager.editorDocument {
+      let text = NSMutableString(string: doc.text)
+      let selRange = TextFormatter.indent(string: text,
+                                          selectedRange: doc.selectedRange,
+                                          with: ";")
+      doc.text = text as String
+      doc.selectedRange = selRange
+      self.forceEditorUpdate = true
+      self.editorPosition = selRange
+    }
+  }
+  
+  private func uncommentEditor() {
+    if let doc = self.fileManager.editorDocument {
+      let text = NSMutableString(string: doc.text)
+      if let selRange = TextFormatter.outdent(string: text,
+                                                   selectedRange: doc.selectedRange,
+                                                   with: ";") {
+        doc.text = text as String
+        doc.selectedRange = selRange
+        self.forceEditorUpdate = true
+        self.editorPosition = selRange
+      }
+    }
+  }
+  
+  private func autoIndentEditor() {
+    if let doc = self.fileManager.editorDocument {
+      let text = doc.text as NSString
+      if let (str, replRange, selRange) = TextFormatter.autoIndentLines(
+                                            text,
+                                            range: doc.selectedRange,
+                                            tabWidth: UserSettings.standard.indentSize) {
+        doc.text = text.replacingCharacters(in: replRange, with: str)
+        doc.selectedRange = selRange
+        self.forceEditorUpdate = true
+        self.editorPosition = selRange
+      }
+    }
+  }
+  
+  private func stopInterpreter() {
+    if !self.interpreter.isReady {
+      self.showAbortAlert = true
+    }
   }
 }

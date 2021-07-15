@@ -107,6 +107,7 @@
 		CC8B95CD2608113800830B4F /* PlayMusic.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8B95CA260810E000830B4F /* PlayMusic.scm */; };
 		CC8B95D12608186500830B4F /* Documentation.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC8B95CE260813EC00830B4F /* Documentation.plist */; };
 		CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B95CF2608179000830B4F /* (lisppad audio).md */; };
+		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
@@ -392,6 +393,7 @@
 		CC8B95CE260813EC00830B4F /* Documentation.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Documentation.plist; sourceTree = "<group>"; };
 		CC8B95CF2608179000830B4F /* (lisppad audio).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad audio).md"; sourceTree = "<group>"; };
 		CC8B95D32609462800830B4F /* LispPad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LispPad.entitlements; sourceTree = "<group>"; };
+		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
@@ -792,6 +794,7 @@
 			children = (
 				CC233D5826696C970038016C /* ImageUtil.swift */,
 				CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */,
+				CC8BBA27269E45EE00552B8F /* KeyCommand.swift */,
 				CC55DD85264ADB59001AAD10 /* MutableSize.swift */,
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
 			);
@@ -911,6 +914,7 @@
 				CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
+				CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */,
 				CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */,
 				CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */,
 				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
