@@ -98,7 +98,7 @@ struct MainView: View {
           .modifier(self.globals.services)
       }
       .navigationViewStyle(StackNavigationViewStyle())
-      .environmentObject(KeyCommandRegistrator()) // This is a hack; need to find a better solution
+      .environmentObject(KeyCommandHandler.empty)
     }
   }
 }

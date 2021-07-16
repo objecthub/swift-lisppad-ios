@@ -19,21 +19,20 @@ import SwiftUI
 import Combine
 
 /// Subclass for `UIHostingController` that enables using the `onKeyCommand` extension.
-@available(iOS 13.0, *)
 class KeyboardEnabledHostingController<Content>:
         UIHostingController<KeyboardEnabledHostingController.Wrapper> where Content: View {
-  private let registrator = KeyCommandRegistrator()
+  private let handler = KeyCommandHandler()
 
   init(rootView: Content) {
-    super.init(rootView: Wrapper(content: rootView, registrator: registrator))
+    super.init(rootView: Wrapper(content: rootView, handler: self.handler))
   }
 
   struct Wrapper: View {
     let content: Content
-    fileprivate let registrator: KeyCommandRegistrator
+    fileprivate let handler: KeyCommandHandler
 
     var body: some View {
-      content.environmentObject(registrator)
+      content.environmentObject(self.handler)
     }
   }
 
@@ -42,12 +41,19 @@ class KeyboardEnabledHostingController<Content>:
   }
 
   override var keyCommands: [UIKeyCommand]? {
-    return registrator.keyCommands + (super.keyCommands ?? [])
+    if let registrator = self.handler.registrator {
+      return registrator.keyCommands + (super.keyCommands ?? [])
+    } else {
+      return super.keyCommands
+    }
   }
 
   // This method must be inside a responder, else it is hidden
   @objc private func performKeyCommand(_ keyCommand: UIKeyCommand) {
-    guard let input = keyCommand.input else { return }
+    guard let input = keyCommand.input,
+          let registrator = self.handler.registrator else {
+      return
+    }
     let keyPair = KeyCommandPair(input: input, modifiers: keyCommand.modifierFlags)
     registrator.keyPublisher.send(keyPair)
   }
@@ -55,7 +61,6 @@ class KeyboardEnabledHostingController<Content>:
   override var canBecomeFirstResponder: Bool { true }
 }
 
-@available(iOS 13.0, *)
 private struct KeyCommandStyle: PrimitiveButtonStyle {
   var commandPair: KeyCommandPair
 
@@ -65,7 +70,6 @@ private struct KeyCommandStyle: PrimitiveButtonStyle {
   }
 }
 
-@available(iOS 13.0, *)
 extension View {
   /// Register a key command for the current button, invoking the button action when triggered.
   func keyCommand(_ key: String,
@@ -88,24 +92,44 @@ extension View {
   }
 }
 
-@available(iOS 13.0, *)
 private struct KeyCommandModifier: ViewModifier {
-  @EnvironmentObject var registrator: KeyCommandRegistrator
+  @EnvironmentObject var handler: KeyCommandHandler
   fileprivate var commandPair: KeyCommandPair
   var action: () -> Void
 
   func body(content: Content) -> some View {
-    content
-      .padding(0) // without a modification, onReceive is not called
-      .onReceive(registrator.keyPublisher.filter { $0 == self.commandPair }) { _ in action() }
-      .onAppear {
+    if let registrator = self.handler.registrator {
+      content
+        .padding(0) // without a modification, onReceive is not called
+        .onReceive(registrator.keyPublisher.filter { $0 == self.commandPair }) { _ in
+          action()
+        }
+        .onAppear {
           registrator.register(commandPair)
-      }
+        }
+    } else {
+      // TODO: fix this
+      content.keyboardShortcut(KeyEquivalent(self.commandPair.input.first!),
+                               modifiers: .command)
+    }
   }
 }
 
-@available(iOS 13.0, *)
-class KeyCommandRegistrator: ObservableObject {
+class KeyCommandHandler: ObservableObject {
+  static let empty = KeyCommandHandler(nil)
+  
+  fileprivate let registrator: KeyCommandRegistrator?
+  
+  convenience init() {
+    self.init(KeyCommandRegistrator())
+  }
+  
+  fileprivate init(_ registrator: KeyCommandRegistrator?) {
+    self.registrator = registrator
+  }
+}
+
+private class KeyCommandRegistrator {
   var keyCommands: [UIKeyCommand] = []
   let keyPublisher = PassthroughSubject<KeyCommandPair, Never>()
 
@@ -117,8 +141,7 @@ class KeyCommandRegistrator: ObservableObject {
   }
 }
 
-@available(iOS 13.0, *)
-struct KeyCommandPair: Equatable {
+private struct KeyCommandPair: Equatable {
   var input: String
   var modifiers: UIKeyModifierFlags
   var title: String?
