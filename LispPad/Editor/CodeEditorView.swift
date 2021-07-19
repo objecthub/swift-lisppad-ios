@@ -119,6 +119,23 @@ struct CodeEditorView: View {
         EmptyView()
       }
       .keyCommand("i", modifiers: .command)
+      Button(action: self.runInterpreter) {
+        EmptyView()
+      }
+      .keyCommand("r", modifiers: .command)
+      Button(action: self.stopInterpreter) {
+        EmptyView()
+      }
+      .keyCommand("e", modifiers: .command)
+      .alert(isPresented: $showAbortAlert, content: self.abortAlert)
+      if !self.splitView {
+        Button(action: {
+          self.presentationMode.wrappedValue.dismiss()
+        }) {
+          EmptyView()
+        }
+        .keyCommand("m", modifiers: .command)
+      }
     }
   }
   
@@ -241,44 +258,18 @@ struct CodeEditorView: View {
               .font(InterpreterView.toolbarFont)
           })
           if self.interpreter.isReady {
-            Button(action: {
-              if self.editorType == .scheme {
-                self.interpreter.append(output: .command("<execute code from editor>"))
-                self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
-                                          url: self.fileManager.editorDocument?.fileURL)
-                if self.splitView && self.splitViewMode == .secondaryOnly {
-                  withAnimation(.linear) {
-                    self.splitViewMode = .primaryOnly
-                  }
-                } else if !self.splitView {
-                  self.presentationMode.wrappedValue.dismiss()
-                }
-              } else {
-                let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
-                self.showSheet = .markdownPreview(block)
-              }
-            }) {
+            Button(action: self.runInterpreter) {
               Image(systemName: self.editorType == .scheme ? "play" : "display")
                 .font(InterpreterView.toolbarFont)
             }
-            .keyCommand("r", modifiers: .command)
             .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
           } else {
-            Button(action: {
-              self.showAbortAlert = true
-            }) {
+            Button(action: self.stopInterpreter) {
               Image(systemName: "stop.circle")
                 .foregroundColor(Color.red)
                 .font(InterpreterView.toolbarFont)
             }
-            .keyCommand("e", modifiers: .command)
-            .alert(isPresented: $showAbortAlert) {
-              Alert(title: Text("Abort evaluation?"),
-                    primaryButton: .cancel(),
-                    secondaryButton: .destructive(Text("Abort"), action: {
-                      self.interpreter.context?.machine.abort()
-                    }))
-            }
+            .alert(isPresented: $showAbortAlert, content: self.abortAlert)
           }
         }
       }
@@ -598,10 +589,36 @@ struct CodeEditorView: View {
       }
     }
   }
+
+  private func runInterpreter() {
+    if self.editorType == .scheme {
+      self.interpreter.append(output: .command("<execute code from editor>"))
+      self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
+                                url: self.fileManager.editorDocument?.fileURL)
+      if self.splitView && self.splitViewMode == .secondaryOnly {
+        withAnimation(.linear) {
+          self.splitViewMode = .primaryOnly
+        }
+      } else if !self.splitView {
+        self.presentationMode.wrappedValue.dismiss()
+      }
+    } else if self.editorType == .markdown {
+      let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
+      self.showSheet = .markdownPreview(block)
+    }
+  }
   
   private func stopInterpreter() {
     if !self.interpreter.isReady {
       self.showAbortAlert = true
     }
+  }
+
+  private func abortAlert() -> Alert {
+    return Alert(title: Text("Abort evaluation?"),
+                 primaryButton: .cancel(),
+                 secondaryButton: .destructive(Text("Abort"), action: {
+                   self.interpreter.context?.machine.abort()
+                 }))
   }
 }

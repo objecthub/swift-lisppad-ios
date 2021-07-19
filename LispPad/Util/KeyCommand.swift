@@ -2,7 +2,7 @@
 //  KeyCommand.swift
 //  LispPad
 //  
-//  Adds Keyboard Shortcuts to SwiftUI on iOS 13
+//  Adds Keyboard Shortcuts to SwiftUI on iOS 13 if the UI is driven by a UIHostingController
 //  See https://steipete.com/posts/fixing-keyboardshortcut-in-swiftui/
 //  Author: Peter Steinberger
 //  License: MIT
@@ -75,7 +75,22 @@ extension View {
   func keyCommand(_ key: String,
                   modifiers: UIKeyModifierFlags = .command,
                   title: String = "") -> some View {
-    buttonStyle(KeyCommandStyle(commandPair: KeyCommandPair(input: key, modifiers: modifiers)))
+    var eventModifiers: EventModifiers = []
+    if modifiers.contains(.command) {
+      eventModifiers.insert(.command)
+    }
+    if modifiers.contains(.shift) {
+      eventModifiers.insert(.shift)
+    }
+    if modifiers.contains(.alternate) {
+      eventModifiers.insert(.option)
+    }
+    if modifiers.contains(.control) {
+      eventModifiers.insert(.control)
+    }
+    return self.buttonStyle(KeyCommandStyle(commandPair:
+                                              KeyCommandPair(input: key, modifiers: modifiers)))
+               .keyboardShortcut(KeyEquivalent(key.first!), modifiers: eventModifiers)
   }
 
   /// Register a key command for the current view
@@ -83,12 +98,12 @@ extension View {
                     modifiers: UIKeyModifierFlags = .command,
                     title: String = "",
                     action: @escaping () -> Void) -> some View {
-    keyCommand(keyPair: KeyCommandPair(input: key, modifiers: modifiers, title: title),
-               action: action)
+    return keyCommand(keyPair: KeyCommandPair(input: key, modifiers: modifiers, title: title),
+                      action: action)
   }
 
   fileprivate func keyCommand(keyPair: KeyCommandPair, action: @escaping () -> Void) -> some View {
-    self.modifier(KeyCommandModifier(commandPair: keyPair, action: action))
+    return self.modifier(KeyCommandModifier(commandPair: keyPair, action: action))
   }
 }
 
@@ -108,9 +123,7 @@ private struct KeyCommandModifier: ViewModifier {
           registrator.register(commandPair)
         }
     } else {
-      // TODO: fix this
-      content.keyboardShortcut(KeyEquivalent(self.commandPair.input.first!),
-                               modifiers: .command)
+      content
     }
   }
 }

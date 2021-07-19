@@ -108,10 +108,35 @@ struct InterpreterView: View {
   @State private var alertAction: AlertAction? = nil
   @State private var showProgressView: String? = nil
   @State private var navigateToEditor: Bool = false
-  
+
+  var keyboardShortcuts: some View {
+    ZStack {
+      Button(action: {
+        if !self.interpreter.isReady {
+          self.alertAction = .abortEvaluation
+        }
+      }) {
+        EmptyView()
+      }
+      .keyCommand("e", modifiers: .command)
+      if !self.splitView {
+        NavigationLink(destination: CodeEditorView(splitView: self.splitView,
+                                                   splitViewMode: $splitViewMode,
+                                                   masterWidthFraction: $masterWidthFraction,
+                                                   editorPosition: $editorPosition,
+                                                   forceEditorUpdate: $forceEditorUpdate),
+                       isActive: $navigateToEditor) {
+          EmptyView()
+        }
+        .keyboardShortcut("m", modifiers: .command)
+      }
+    }
+  }
+
   // The main view
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
+      self.keyboardShortcuts
       ZStack {
         ConsoleView(
           font: settings.consoleFont,
@@ -145,17 +170,6 @@ struct InterpreterView: View {
           .background(Color.secondary.colorInvert())
           .foregroundColor(Color.primary)
           .cornerRadius(20)
-        }
-      }
-      // Spacer()
-      if !self.splitView {
-        NavigationLink(destination: CodeEditorView(splitView: self.splitView,
-                                                   splitViewMode: $splitViewMode,
-                                                   masterWidthFraction: $masterWidthFraction,
-                                                   editorPosition: $editorPosition,
-                                                   forceEditorUpdate: $forceEditorUpdate),
-                       isActive: $navigateToEditor) {
-          EmptyView()
         }
       }
     }
@@ -210,7 +224,6 @@ struct InterpreterView: View {
                 .foregroundColor(Color.red)
                 .font(InterpreterView.toolbarFont)
             }
-            .keyCommand("e", modifiers: .command)
           }
           Button(action: {
             self.showSheet = .loadFile

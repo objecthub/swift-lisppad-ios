@@ -31,7 +31,7 @@ extension UIApplication {
   }
 }
 
-struct ResignKeyboardOnDragGesture: ViewModifier {
+private struct ResignKeyboardOnDragGesture: ViewModifier {
   let enable: Bool
   
   var dismissGesture: some Gesture {
@@ -58,9 +58,7 @@ extension View {
   func resignKeyboardOnDragGesture(enable: Bool = true) -> some View {
     return self.modifier(ResignKeyboardOnDragGesture(enable: enable))
   }
-}
-
-extension View {
+  
   @ViewBuilder func hidden(_ shouldHide: Bool) -> some View {
     switch shouldHide {
       case true:
@@ -72,6 +70,7 @@ extension View {
 }
 
 class KeyboardObserver: ObservableObject {
+  @Published var softwareKeyboardVisible: Bool = false
   @Published var rect: CGRect = .zero
   
   init() {
@@ -86,11 +85,13 @@ class KeyboardObserver: ObservableObject {
             let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
         return
       }
+      self.softwareKeyboardVisible = true
       self.rect = keyboardRect.cgRectValue
     }
     NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidHideNotification,
                                            object: nil,
                                            queue: .main) { notification in
+      self.softwareKeyboardVisible = false
       self.rect = .zero
     }
   }
