@@ -100,6 +100,7 @@ struct SearchField: View {
           }
         }
         .foregroundColor(Color(.systemBlue))
+        .keyCommand("g", modifiers: .command, title: "Find next")
       }
       if showSearchField  {
         Button("Cancel") {

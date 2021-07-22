@@ -8,13 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		CC0E57B52687CD2800693DD2 /* DefineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0E57B42687CD2800693DD2 /* DefineView.swift */; };
-		CC0E57C9268FC1A300693DD2 /* ObliqueProjection.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
 		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
-		CC0E57CC268FC73E00693DD2 /* DisplayMaze.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
 		CC1896DE266D5AC500D384F6 /* (lispkit archive zip).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */; };
 		CC1896DF266D5FE700D384F6 /* (lisppad system).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC327C35260BF98100BD7E32 /* (lisppad system).md */; };
+		CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */ = {isa = PBXBuildFile; fileRef = CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */; };
+		CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1DDB6126A734C60049E99D /* RTFTextView.swift */; };
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
 		CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
@@ -294,6 +294,8 @@
 		CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMaze.scm; sourceTree = "<group>"; };
 		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
 		CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit archive zip).md"; sourceTree = "<group>"; };
+		CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = KeyboardShortcuts.rtf; sourceTree = "<group>"; };
+		CC1DDB6126A734C60049E99D /* RTFTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RTFTextView.swift; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		CC233D5A266AC6940038016C /* PlotGraphs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlotGraphs.scm; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
@@ -495,6 +497,7 @@
 				CC8B95D32609462800830B4F /* LispPad.entitlements */,
 				CC84C25425FE59F000758581 /* Info.plist */,
 				CCE8E435262A415500E3DC6A /* Credits.rtf */,
+				CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */,
 				CC8B95CE260813EC00830B4F /* Documentation.plist */,
 				CCEA5A10263ACAA000D78C62 /* IndentationRules.plist */,
 				CC84C25125FE59F000758581 /* Preview Content */,
@@ -708,6 +711,7 @@
 			isa = PBXGroup;
 			children = (
 				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
+				CC1DDB6126A734C60049E99D /* RTFTextView.swift */,
 				CC0E57B42687CD2800693DD2 /* DefineView.swift */,
 				CC33237E260A8E6900AD3307 /* DocumentationManager.swift */,
 			);
@@ -870,13 +874,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC0E57C9268FC1A300693DD2 /* ObliqueProjection.scm in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
-				CC0E57CC268FC73E00693DD2 /* DisplayMaze.scm in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
+				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -914,6 +917,7 @@
 				CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
+				CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */,
 				CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */,
 				CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */,
 				CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */,

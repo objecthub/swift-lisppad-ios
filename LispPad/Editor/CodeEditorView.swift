@@ -99,34 +99,42 @@ struct CodeEditorView: View {
   
   var keyboardShortcuts: some View {
     ZStack {
+      Button(action: self.selectExpression) {
+        EmptyView()
+      }
+      .keyCommand("e", modifiers: .command, title: "Select expression")
       Button(action: self.indentEditor) {
         EmptyView()
       }
-      .keyCommand("]", modifiers: .command)
+      .keyCommand("]", modifiers: .command, title: "Indent line")
       Button(action: self.outdentEditor) {
         EmptyView()
       }
-      .keyCommand("[", modifiers: .command)
+      .keyCommand("[", modifiers: .command, title: "Outdent line")
       Button(action: self.commentEditor) {
         EmptyView()
       }
-      .keyCommand(";", modifiers: .command)
+      .keyCommand(";", modifiers: .command, title: "Comment line")
       Button(action: self.uncommentEditor) {
         EmptyView()
       }
-      .keyCommand(";", modifiers: [.shift, .command])
+      .keyCommand(";", modifiers: [.shift, .command], title: "Uncomment line")
       Button(action: self.autoIndentEditor) {
         EmptyView()
       }
-      .keyCommand("i", modifiers: .command)
+      .keyCommand("i", modifiers: .command, title: "Auto-indent")
       Button(action: self.runInterpreter) {
         EmptyView()
       }
-      .keyCommand("r", modifiers: .command)
+      .keyCommand("r", modifiers: .command, title: "Evaluate document")
       Button(action: self.stopInterpreter) {
         EmptyView()
       }
-      .keyCommand("e", modifiers: .command)
+      .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
+      Button(action: { self.showSearchField = !self.showSearchField }) {
+        EmptyView()
+      }
+      .keyCommand("f", modifiers: .command, title: "Find")
       .alert(isPresented: $showAbortAlert, content: self.abortAlert)
       if !self.splitView {
         Button(action: {
@@ -134,7 +142,7 @@ struct CodeEditorView: View {
         }) {
           EmptyView()
         }
-        .keyCommand("m", modifiers: .command)
+        .keyboardShortcut("m", modifiers: .command)
       }
     }
   }
@@ -520,6 +528,16 @@ struct CodeEditorView: View {
                  primaryButton: .default(Text("Save"), action: save),
                  secondaryButton: .destructive(Text("Discard"), action: discard))
   }
+
+  private func selectExpression() {
+    if let doc = self.fileManager.editorDocument,
+       let range = TextFormatter.selectEnclosingExpr(string: doc.text as NSString,
+                                                     selectedRange: doc.selectedRange) {
+      doc.selectedRange = range
+      self.forceEditorUpdate = true
+      self.editorPosition = range
+    }
+  }
   
   private func indentEditor() {
     if let doc = self.fileManager.editorDocument {
@@ -615,9 +633,9 @@ struct CodeEditorView: View {
   }
 
   private func abortAlert() -> Alert {
-    return Alert(title: Text("Abort evaluation?"),
+    return Alert(title: Text("Terminate evaluation?"),
                  primaryButton: .cancel(),
-                 secondaryButton: .destructive(Text("Abort"), action: {
+                 secondaryButton: .destructive(Text("Terminate"), action: {
                    self.interpreter.context?.machine.abort()
                  }))
   }

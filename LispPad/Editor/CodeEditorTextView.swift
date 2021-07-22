@@ -249,7 +249,7 @@ class CodeEditorTextView: UITextView {
         self.resignFirstResponder()
     }
   }
-  
+
   func setupEditMenu() {
     let menuController: UIMenuController = UIMenuController.shared
     menuController.menuItems = [

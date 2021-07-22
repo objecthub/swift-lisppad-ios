@@ -29,12 +29,15 @@ struct ConsoleView: View {
   let font: Font
   let infoFont: Font
   let action: () -> Void
+  @State var inputBuffer: String? = nil
+  @State var inputHistoryIndex: Int = -1
   
   @StateObject var keyboardObserver = KeyboardObserver()
   
   @Binding var content: [ConsoleOutput]
   @Binding var history: [String]
   @Binding var input: String
+  @Binding var selectedInputRange: NSRange
   @Binding var readingStatus: Interpreter.ReadingStatus
   @Binding var ready: Bool
   @Binding var showSheet: InterpreterView.SheetAction?
@@ -46,6 +49,7 @@ struct ConsoleView: View {
        content: Binding<[ConsoleOutput]>,
        history: Binding<[String]>,
        input: Binding<String>,
+       selectedInputRange: Binding<NSRange>,
        readingStatus: Binding<Interpreter.ReadingStatus>,
        ready: Binding<Bool>,
        showSheet: Binding<InterpreterView.SheetAction?>,
@@ -56,6 +60,7 @@ struct ConsoleView: View {
     self._content = content
     self._history = history
     self._input = input
+    self._selectedInputRange = selectedInputRange
     self._readingStatus = readingStatus
     self._ready = ready
     self._showSheet = showSheet
@@ -236,6 +241,7 @@ struct ConsoleView: View {
   var control: some View {
     HStack(alignment: .bottom, spacing: 0) {
       ConsoleEditor(text: $input,
+                    selectedRange: $selectedInputRange,
                     calculatedHeight: $dynamicHeight,
                     keyboardObserver: self.keyboardObserver,
                     defineAction: { block in
@@ -244,7 +250,11 @@ struct ConsoleView: View {
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)
-      Button(action: action) {
+      Button(action: {
+        self.inputBuffer = nil
+        self.inputHistoryIndex = -1
+        self.action()
+      }) {
         if !self.ready && self.readingStatus == .accept {
           if self.input.isEmpty {
             Image(systemName: "questionmark.circle.fill")
@@ -271,7 +281,7 @@ struct ConsoleView: View {
             .frame(height: 26)
         }
       }
-      .keyCommand("\r", modifiers: .command)
+      .keyCommand("\r", modifiers: .command, title: "Execute command")
       .disabled(self.input.isEmpty || (!self.ready && self.readingStatus != .accept))
       .contextMenu {
         if self.ready {
@@ -288,17 +298,51 @@ struct ConsoleView: View {
       .padding(.trailing, 3)
       .offset(y: -3)
       .gesture(DragGesture().onEnded { _ in
-        UIApplication.shared.sendAction(
-          #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        UIApplication.shared.endEditing(true)
       })
+      Button(action: {
+        if self.inputHistoryIndex >= 0 &&
+           self.inputHistoryIndex < self.history.count &&
+           self.history[self.inputHistoryIndex] != self.input {
+          self.inputHistoryIndex = -1
+          self.inputBuffer = nil
+        }
+        if self.inputHistoryIndex + 1 < self.history.count {
+          if self.inputBuffer == nil {
+            self.inputBuffer = self.input
+          }
+          self.inputHistoryIndex += 1
+          self.input = self.history[self.inputHistoryIndex]
+        }
+      }) {
+        EmptyView()
+      }
+      .keyCommand(UIKeyCommand.inputUpArrow, modifiers: .command, title: "Previous command")
+      Button(action: {
+        if self.inputHistoryIndex >= 0 &&
+           self.inputHistoryIndex < self.history.count &&
+           self.history[self.inputHistoryIndex] != self.input {
+          self.inputHistoryIndex = -1
+          self.inputBuffer = nil
+        } else if self.inputHistoryIndex > 0 {
+          self.inputHistoryIndex -= 1
+          self.input = self.history[self.inputHistoryIndex]
+        } else if self.inputHistoryIndex == 0 {
+          self.input = self.inputBuffer ?? ""
+          self.inputHistoryIndex = -1
+          self.inputBuffer = nil
+        }
+      }) {
+        EmptyView()
+      }
+      .keyCommand(UIKeyCommand.inputDownArrow, modifiers: .command, title: "Next command")
     }
     .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
                   .stroke(Color.gray, lineWidth: 0.7)
                   .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .fill(Color(.systemBackground))))
-    .padding(.horizontal, 6)
-    .padding(.bottom, 6)
-    .background(Color("NavigationBarColor").padding(.top, -6).ignoresSafeArea())
+    .padding(6)
+    .background(Color("NavigationBarColor").ignoresSafeArea())
   }
   
   var body: some View {
@@ -335,7 +379,6 @@ struct ConsoleView: View {
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
       Divider()
-      Spacer(minLength: 6)
       self.control
     }
   }

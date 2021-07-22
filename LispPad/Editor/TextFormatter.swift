@@ -402,4 +402,64 @@ struct TextFormatter {
     return NSRange(location: selectedRange.location - correction,
                    length: end - selectedRange.location + correction)
   }
+
+  /// Expand the current selection left and right to cover the full enclosing Lisp expression.
+  static func selectEnclosingExpr(string str: NSString,
+                                  selectedRange range: NSRange) -> NSRange? {
+    let start = TextFormatter.find(LPAREN,
+                                   matching: RPAREN,
+                                   from: range.location,
+                                   to: 0,
+                                   in: str)
+    guard start >= 0 else {
+      return nil
+    }
+    let end = TextFormatter.find(RPAREN,
+                                 matching: LPAREN,
+                                 from: range.location - 1,
+                                 to: str.length,
+                                 in: str)
+    guard end >= 0 else {
+      return nil
+    }
+    return NSRange(location: start, length: end - start + 1)
+  }
+
+  /// Find matching parenthesis between the indices `from` and `to`. If `from` is less than `to`,
+  /// then search forward, if `to` is less than `from`, search backward.
+  static func find(_ ch: UniChar,
+                   matching with: UniChar,
+                   from: Int,
+                   to: Int,
+                   in str: NSString) -> Int {
+    var open = 0
+    if to < from {
+      var i = from - 1
+      while i >= to {
+        if str.character(at: i) == with {
+          open += 1
+        } else if str.character(at: i) == ch {
+          if open == 0 {
+            return i
+          }
+          open -= 1
+        }
+        i -= 1
+      }
+    } else if to > from {
+      var i = from + 1
+      while i < to {
+        if str.character(at: i) == with {
+          open += 1
+        } else if str.character(at: i) == ch {
+          if open == 0 {
+            return i
+          }
+          open -= 1
+        }
+        i += 1
+      }
+    }
+    return -1
+  }
 }

@@ -26,12 +26,12 @@ struct ConsoleEditor: UIViewRepresentable {
   typealias Coordinator = ConsoleEditorTextViewDelegate
   
   @State var editorType: FileExtensions.EditorType = .scheme
-  @State var selectedRange: NSRange = NSRange(location: 0, length: 0)
-  
+
   @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var settings: UserSettings
   
   @Binding var text: String
+  @Binding var selectedRange: NSRange
   @Binding var calculatedHeight: CGFloat
   @ObservedObject var keyboardObserver: KeyboardObserver
   
@@ -88,6 +88,9 @@ struct ConsoleEditor: UIViewRepresentable {
     }
     if textView.text != self.text {
       textView.text = self.text
+    }
+    if textView.selectedRange != self.selectedRange {
+      textView.selectedRange = self.selectedRange
     }
     if textView.syntaxHighlightingUpdate != self.settings.syntaxHighlightingUpdate {
       textView.textStorageDelegate.highlight(textView.textStorage)

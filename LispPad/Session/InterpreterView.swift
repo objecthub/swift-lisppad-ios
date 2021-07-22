@@ -31,6 +31,7 @@ struct InterpreterView: View {
     case shareImage(UIImage)
     case shareText(String)
     case showAbout
+    case showShortcuts
     case showPDF(String, URL)
     case saveBeforeOpen(URL)
     case showDocumentation(Block)
@@ -49,12 +50,14 @@ struct InterpreterView: View {
           return 4
         case .showAbout:
           return 5
-        case .showPDF(_, _):
+        case .showShortcuts:
           return 6
-        case .saveBeforeOpen(_):
+        case .showPDF(_, _):
           return 7
-        case .showDocumentation(_):
+        case .saveBeforeOpen(_):
           return 8
+        case .showDocumentation(_):
+          return 9
       }
     }
   }
@@ -102,6 +105,7 @@ struct InterpreterView: View {
 
   // Internal state
   @State private var consoleInput = ""
+  @State private var consoleInputRange = NSRange(location: 0, length: 0)
   @State private var showResetActionSheet = false
   @State private var selectedPreferencesTab = 0
   @State private var showSheet: SheetAction? = nil
@@ -111,6 +115,10 @@ struct InterpreterView: View {
 
   var keyboardShortcuts: some View {
     ZStack {
+      Button(action: self.selectExpression) {
+        EmptyView()
+      }
+      .keyCommand("e", modifiers: .command, title: "Select expression")
       Button(action: {
         if !self.interpreter.isReady {
           self.alertAction = .abortEvaluation
@@ -118,7 +126,7 @@ struct InterpreterView: View {
       }) {
         EmptyView()
       }
-      .keyCommand("e", modifiers: .command)
+      .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
       if !self.splitView {
         NavigationLink(destination: CodeEditorView(splitView: self.splitView,
                                                    splitViewMode: $splitViewMode,
@@ -160,6 +168,7 @@ struct InterpreterView: View {
           content: $interpreter.consoleContent,
           history: $histManager.commandHistory,
           input: $consoleInput,
+          selectedInputRange: $consoleInputRange,
           readingStatus: $interpreter.readingStatus,
           ready: $interpreter.isReady,
           showSheet: $showSheet,
@@ -250,9 +259,14 @@ struct InterpreterView: View {
           Button(action: {
             self.showSheet = .showAbout
           }) {
-            Label("About…", systemImage: "questionmark.square")
+            Label("About…", systemImage: "questionmark.circle")
           }
           Divider()
+          Button(action: {
+            self.showSheet = .showShortcuts
+          }) {
+            Label("Keyboard Shortcuts…", systemImage: "keyboard")
+          }
           Button(action: {
             if let url = self.docManager.r7rsSpec.url {
               self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
@@ -323,6 +337,9 @@ struct InterpreterView: View {
           ShareSheet(activityItems: [text as NSString])
         case .showAbout:
           AboutView()
+            .modifier(self.globals.services)
+        case .showShortcuts:
+          RTFTextView(Bundle.main.url(forResource: "KeyboardShortcuts", withExtension: "rtf"))
             .modifier(self.globals.services)
         case .showPDF(let name, let url):
           DocumentView(title: name, url: url)
@@ -421,6 +438,13 @@ struct InterpreterView: View {
       self.histManager.addCommandEntry(input)
       self.histManager.trackRecentFile(url)
       self.interpreter.load(url)
+    }
+  }
+
+  private func selectExpression() {
+    if let range = TextFormatter.selectEnclosingExpr(string: self.consoleInput as NSString,
+                                                     selectedRange: self.consoleInputRange) {
+      self.consoleInputRange = range
     }
   }
   

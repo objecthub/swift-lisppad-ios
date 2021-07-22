@@ -18,7 +18,8 @@
 import SwiftUI
 import Combine
 
-/// Subclass for `UIHostingController` that enables using the `onKeyCommand` extension.
+/// Subclass for `UIHostingController` that enables using the `keyCommand` and
+/// `onKeyCommand` view modifiers.
 class KeyboardEnabledHostingController<Content>:
         UIHostingController<KeyboardEnabledHostingController.Wrapper> where Content: View {
   private let handler = KeyCommandHandler()
@@ -58,7 +59,9 @@ class KeyboardEnabledHostingController<Content>:
     registrator.keyPublisher.send(keyPair)
   }
 
-  override var canBecomeFirstResponder: Bool { true }
+  override var canBecomeFirstResponder: Bool {
+    return true
+  }
 }
 
 private struct KeyCommandStyle: PrimitiveButtonStyle {
@@ -71,10 +74,12 @@ private struct KeyCommandStyle: PrimitiveButtonStyle {
 }
 
 extension View {
+
   /// Register a key command for the current button, invoking the button action when triggered.
   func keyCommand(_ key: String,
                   modifiers: UIKeyModifierFlags = .command,
-                  title: String = "") -> some View {
+                  title: String? = nil) -> some View {
+    // Map event modifiers to the corresponding data type used by SwiftUI
     var eventModifiers: EventModifiers = []
     if modifiers.contains(.command) {
       eventModifiers.insert(.command)
@@ -88,15 +93,31 @@ extension View {
     if modifiers.contains(.control) {
       eventModifiers.insert(.control)
     }
-    return self.buttonStyle(KeyCommandStyle(commandPair:
-                                              KeyCommandPair(input: key, modifiers: modifiers)))
-               .keyboardShortcut(KeyEquivalent(key.first!), modifiers: eventModifiers)
+    // Map keys to the corresponding data type used by SwiftUI
+    let keyEquiv: KeyEquivalent
+    switch key {
+      case UIKeyCommand.inputUpArrow:
+        keyEquiv = .upArrow
+      case UIKeyCommand.inputDownArrow:
+        keyEquiv = .downArrow
+      case UIKeyCommand.inputRightArrow:
+        keyEquiv = .rightArrow
+      case UIKeyCommand.inputLeftArrow:
+        keyEquiv = .leftArrow
+      default:
+        keyEquiv = KeyEquivalent(key.first!)
+    }
+    return self.buttonStyle(
+                  KeyCommandStyle(commandPair: KeyCommandPair(input: key,
+                                                              modifiers: modifiers,
+                                                              title: title)))
+               .keyboardShortcut(keyEquiv, modifiers: eventModifiers)
   }
 
   /// Register a key command for the current view
   func onKeyCommand(_ key: String,
                     modifiers: UIKeyModifierFlags = .command,
-                    title: String = "",
+                    title: String? = nil,
                     action: @escaping () -> Void) -> some View {
     return keyCommand(keyPair: KeyCommandPair(input: key, modifiers: modifiers, title: title),
                       action: action)

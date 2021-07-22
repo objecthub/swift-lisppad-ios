@@ -350,8 +350,8 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
                  at loc: Int) {
     if self.highlightMatchingParen {
       let str = textView.text as NSString
-      let loc = back ? self.find(ch, matching: this, from: loc, to: 0, in: str)
-                         : self.find(ch, matching: this, from: loc, to: str.length, in: str)
+      let loc = back ? TextFormatter.find(ch, matching: this, from: loc, to: 0, in: str)
+                     : TextFormatter.find(ch, matching: this, from: loc, to: str.length, in: str)
       if loc >= 0 {
         let storage = textView.textStorage
         storage.removeAttribute(.backgroundColor,
@@ -365,43 +365,5 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
         }
       }
     }
-  }
-  
-  /// Find matching parenthesis between the indices `from` and `to`. If `from` is less than `to`,
-  /// then search forward, if `to` is less than `from`, search backward.
-  private func find(_ ch: UniChar,
-                    matching with: UniChar,
-                    from: Int,
-                    to: Int,
-                    in str: NSString) -> Int {
-    var open = 0
-    if to < from {
-      var i = from - 1
-      while i >= to {
-        if str.character(at: i) == with {
-          open += 1
-        } else if str.character(at: i) == ch {
-          if open == 0 {
-            return i
-          }
-          open -= 1
-        }
-        i -= 1
-      }
-    } else if to > from {
-      var i = from + 1
-      while i < to {
-        if str.character(at: i) == with {
-          open += 1
-        } else if str.character(at: i) == ch {
-          if open == 0 {
-            return i
-          }
-          open -= 1
-        }
-        i += 1
-      }
-    }
-    return -1
   }
 }
