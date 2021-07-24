@@ -38,15 +38,15 @@ class CodeEditorTextView: UITextView {
   /// Action executed when "define" is selected from the input menu and the selected
   /// identifier has documentation.
   let defineAction: ((Block) -> Void)?
-  
+
   /// Show line numbers?
   private var internalShowLineNumbers: Bool
 
   /// When was the last syntax highlighting settings change?
   var syntaxHighlightingUpdate: Date
-  
+
   let keyboard: CodeEditorKeyboard
-  
+
   var showLineNumbers: Bool {
     get {
       return self.internalShowLineNumbers
@@ -79,7 +79,7 @@ class CodeEditorTextView: UITextView {
       }
     }
   }
-  
+
   var codingTextColor: UIColor {
     get {
       let lm = self.layoutManager as! CodeEditorLayoutManager
@@ -93,19 +93,19 @@ class CodeEditorTextView: UITextView {
       }
     }
   }
-  
+
   var codingBorderColor: UIColor = .lightGray {
     didSet {
       self.setNeedsDisplay()
     }
   }
-  
+
   var codingBackgroundColor: UIColor = .secondarySystemBackground {
     didSet {
       self.setNeedsDisplay()
     }
   }
-  
+
   init(frame: CGRect,
        console: Bool,
        editorType: FileExtensions.EditorType,
@@ -134,20 +134,20 @@ class CodeEditorTextView: UITextView {
     self.backgroundColor = .clear
     self.contentMode = .redraw
   }
-  
+
   required init(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
+
   /* DOES NOT WORK! Why?
-   
+
   private lazy var codeEditorTokenizer = CodeEditorTextTokenizer(textInput: self)
 
   override var tokenizer: UITextInputTokenizer {
     return self.codeEditorTokenizer
   }
   */
-  
+
   override func draw(_ rect: CGRect) {
     if self.showLineNumbers,
        let context: CGContext = UIGraphicsGetCurrentContext() {
@@ -168,7 +168,7 @@ class CodeEditorTextView: UITextView {
     }
     super.draw(rect)
   }
-  
+
   func selectedName(for range: NSRange? = nil) -> String? {
     let range = self.nameRange(for: range)
     guard case 1...50 = range.length else {
@@ -179,48 +179,17 @@ class CodeEditorTextView: UITextView {
                                .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     return name.isEmpty ? nil : name
   }
-  
+
   func nameRange(for range: NSRange? = nil) -> NSRange {
     if let range = range {
       return range
     } else {
       let range = self.selectedRange
-      if range.length == 0 {
-        return self.nameRange(at: range.location) ?? range
-      }
-      return range
+      return range.length == 0 ? TextFormatter.nameRange(in: self.text as NSString,
+                                                         at: range.location) : range
     }
   }
-  
-  func nameRange(at: Int, moveRight: Bool = true) -> NSRange? {
-    let str = self.text as NSString
-    var i = at - 1
-    while i >= 0 && i < str.length {
-      let ch = str.character(at: i)
-      if isSpace(ch) || ch == LPAREN || ch == RPAREN || ch == LBRACKET || ch == RBRACKET ||
-         ch == SEMI || ch == QUOTE || ch == DQUOTE {
-        break
-      }
-      i -= 1
-    }
-    let start = i + 1
-    i = at
-    if moveRight {
-      while i >= 0 && i < str.length {
-        let ch = str.character(at: i)
-        if isSpace(ch) || ch == LPAREN || ch == RPAREN || ch == LBRACKET || ch == RBRACKET ||
-          ch == SEMI || ch == QUOTE || ch == DQUOTE {
-          break
-        }
-        i += 1
-      }
-    }
-    if i > start {
-      return NSRange(location: start, length: i - start)
-    }
-    return nil
-  }
-  
+
   @objc func keyboardButtonPressed(_ sender: UIButton) {
     switch sender.tag {
       case CodeEditorKeyboard.KeyTag.dash.rawValue:
@@ -261,7 +230,7 @@ class CodeEditorTextView: UITextView {
     ]
     menuController.update()
   }
-  
+
   override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
     switch action {
       case #selector(UIResponderStandardEditActions.cut(_:)),
@@ -288,7 +257,7 @@ class CodeEditorTextView: UITextView {
         return false
     }
   }
-  
+
   @objc func define(_ sender: UIMenuItem) {
     guard let action = self.defineAction,
           let name = self.selectedName(),
@@ -298,7 +267,7 @@ class CodeEditorTextView: UITextView {
     }
     action(documentation)
   }
-  
+
   @objc func indent(_ sender: UIMenuItem) {
     let selRange = TextFormatter.indent(textView: self, with: " ")
     self.selectedRange = selRange
@@ -307,7 +276,7 @@ class CodeEditorTextView: UITextView {
       delegate.selectedRange = selRange
     }
   }
-  
+
   @objc func outdent(_ sender: UIMenuItem) {
     if let selRange = TextFormatter.outdent(textView: self, with: " ") {
       self.selectedRange = selRange
@@ -318,7 +287,7 @@ class CodeEditorTextView: UITextView {
       }
     }
   }
-  
+
   @objc func comment(_ sender: UIMenuItem) {
     let selRange = TextFormatter.indent(textView: self, with: ";")
     self.selectedRange = selRange
@@ -327,7 +296,7 @@ class CodeEditorTextView: UITextView {
       delegate.selectedRange = selRange
     }
   }
-  
+
   @objc func uncomment(_ sender: UIMenuItem) {
     if let selRange = TextFormatter.outdent(textView: self, with: ";") {
       self.selectedRange = selRange

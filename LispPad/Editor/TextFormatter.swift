@@ -22,7 +22,7 @@ import Foundation
 import UIKit
 
 struct TextFormatter {
-  
+
   private static let (nested, fixed) = { () -> (Set<String>, Set<String>) in
     var nested = Set<String>()
     var fixed = Set<String>()
@@ -43,15 +43,15 @@ struct TextFormatter {
     }
     return (nested, fixed)
   }()
-  
+
   private static func argsUseNestedIndent(_ ident: String) -> Bool {
     return self.nested.contains(ident)
   }
-  
+
   private static func argsUseFixedIndent(_ ident: String) -> Bool {
     return self.fixed.contains(ident)
   }
-  
+
   private static func expandRange(_ range: NSRange, in str: NSString) -> NSRange {
     var start = range.location
     guard start >= 0 && start <= str.length else {
@@ -71,7 +71,7 @@ struct TextFormatter {
     }
     return NSRange(location: start, length: end - start)
   }
-  
+
   static func autoIndentLines(_ str: NSString,
                               range: NSRange,
                               tabWidth: Int) -> (String, NSRange, NSRange)? {
@@ -231,7 +231,7 @@ struct TextFormatter {
       return nil
     }
   }
-    
+
   static func indent(string str: NSMutableString,
                      selectedRange: NSRange,
                      with character: String) -> NSRange {
@@ -262,7 +262,7 @@ struct TextFormatter {
     return NSRange(location: selectedRange.location + 1,
                    length: end - selectedRange.location - 1)
   }
-  
+
   static func indent(textView: UITextView, with character: String) -> NSRange {
     let str = NSMutableString(string: textView.text)
     let selectedRange = textView.selectedRange
@@ -304,7 +304,7 @@ struct TextFormatter {
     // Determine new selection
     return NSRange(location: selectedRange.location + 1, length: end - selectedRange.location - 1)
   }
-  
+
   static func outdent(string str: NSMutableString,
                       selectedRange: NSRange,
                       with character: String) -> NSRange? {
@@ -346,7 +346,7 @@ struct TextFormatter {
     return NSRange(location: selectedRange.location - correction,
                    length: end - selectedRange.location + correction)
   }
-  
+
   static func outdent(textView: UITextView, with character: String) -> NSRange? {
     let char = character.utf16.first!
     let str = NSMutableString(string: textView.text)
@@ -423,6 +423,43 @@ struct TextFormatter {
       return nil
     }
     return NSRange(location: start, length: end - start + 1)
+  }
+
+  static func selectedName(in text: String, for range: NSRange) -> String? {
+    let str = text as NSString
+    let range = range.length == 0 ? self.nameRange(in: str, at: range.location) : range
+    guard case 1...50 = range.length else {
+      return nil
+    }
+    let name = str.substring(with: range)
+                  .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    return name.isEmpty ? nil : name
+  }
+
+  static func nameRange(in str: NSString, at: Int, moveRight: Bool = true) -> NSRange {
+    var i = at - 1
+    while i >= 0 && i < str.length {
+      let ch = str.character(at: i)
+      if isSpace(ch) || ch == LPAREN || ch == RPAREN || ch == LBRACKET || ch == RBRACKET ||
+         ch == SEMI || ch == QUOTE || ch == DQUOTE {
+        break
+      }
+      i -= 1
+    }
+    let start = i + 1
+    i = at
+    if moveRight {
+      while i >= 0 && i < str.length {
+        let ch = str.character(at: i)
+        if isSpace(ch) || ch == LPAREN || ch == RPAREN || ch == LBRACKET || ch == RBRACKET ||
+          ch == SEMI || ch == QUOTE || ch == DQUOTE {
+          break
+        }
+        i += 1
+      }
+    }
+    return i > start ? NSRange(location: start, length: i - start)
+                     : NSRange(location: at, length: 0)
   }
 
   /// Find matching parenthesis between the indices `from` and `to`. If `from` is less than `to`,

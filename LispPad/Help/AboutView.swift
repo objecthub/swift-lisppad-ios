@@ -22,12 +22,12 @@ import SwiftUI
 
 struct AboutView: View {
   @Environment(\.presentationMode) var presentationMode
-  
+
   static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
   static let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
   static let copyright = Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String
   static let creditsUrl = Bundle.main.url(forResource: "Credits", withExtension: "rtf")
-  
+
   let aboutText: NSAttributedString = {
     if let url = AboutView.creditsUrl,
        let astr = try? NSAttributedString(
@@ -38,7 +38,7 @@ struct AboutView: View {
     }
     return NSAttributedString(string: "")
   }()
-  
+
   var body: some View {
     VStack(alignment: .center, spacing: 0) {
       HStack {
@@ -46,12 +46,15 @@ struct AboutView: View {
         Button(action: {
           self.presentationMode.wrappedValue.dismiss()
         }) {
-          Text("Cancel")
+          Image(systemName: "xmark.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 24)
+            .foregroundColor(.gray)
         }
+        .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
       }
-      .font(.body)
-      .padding()
-      .edgesIgnoringSafeArea(.all)
+      .padding(EdgeInsets(top: 12, leading: 12, bottom: 0, trailing: 12))
       HStack(alignment: .center, spacing: 16) {
         Image("SmallLogo")
           .resizable()

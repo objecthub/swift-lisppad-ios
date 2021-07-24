@@ -65,7 +65,7 @@ struct Organizer: View {
                                  onSelection: { url in })
               .font(.body)
           }
-          Section(header: Text("User")) {
+          Section(header: Text("Locations")) {
             FileHierarchyBrowser(self.fileManager.userRootDirectories,
                                  options: [.mutable, .organizer],
                                  showShareSheet: $showShareSheet,

@@ -83,7 +83,7 @@ struct Open: View {
                                  })
               .font(.body)
           }
-          Section(header: Text("User")) {
+          Section(header: Text("Locations")) {
             FileHierarchyBrowser(self.fileManager.userRootDirectories,
                                  options: self.directories ? [.directories, .mutable, .organizer]
                                                            : [.files, .mutable, .organizer],

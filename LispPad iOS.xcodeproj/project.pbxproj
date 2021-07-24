@@ -120,6 +120,8 @@
 		CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565A261BADAD0080B96E /* DefinitionView.swift */; };
 		CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565C261CE5710080B96E /* TextDocument.swift */; };
 		CCC85660261D09410080B96E /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565F261D09410080B96E /* PreferencesView.swift */; };
+		CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701C26AC7E75008DF3D0 /* Sheet.swift */; };
+		CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */; };
 		CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42126219C0000E3DC6A /* PDFViewer.swift */; };
 		CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E4232621A31A00E3DC6A /* DocumentView.swift */; };
 		CCE8E4282621A49F00E3DC6A /* lisppad_ref.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */; };
@@ -409,6 +411,8 @@
 		CCC8565A261BADAD0080B96E /* DefinitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefinitionView.swift; sourceTree = "<group>"; };
 		CCC8565C261CE5710080B96E /* TextDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDocument.swift; sourceTree = "<group>"; };
 		CCC8565F261D09410080B96E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		CCE5701C26AC7E75008DF3D0 /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
+		CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollSheet.swift; sourceTree = "<group>"; };
 		CCE8E42126219C0000E3DC6A /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
 		CCE8E4232621A31A00E3DC6A /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = lisppad_ref.pdf; sourceTree = "<group>"; };
@@ -731,6 +735,8 @@
 				CCE8E4232621A31A00E3DC6A /* DocumentView.swift */,
 				CCE8E42126219C0000E3DC6A /* PDFViewer.swift */,
 				CC327C46260E1D5100BD7E32 /* ShareSheet.swift */,
+				CCE5701C26AC7E75008DF3D0 /* Sheet.swift */,
+				CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -893,6 +899,7 @@
 				CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */,
 				CC327C582610CF4D00BD7E32 /* CodeEditor.swift in Sources */,
 				CCE8E444262C258400E3DC6A /* SaveAs.swift in Sources */,
+				CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */,
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
@@ -952,6 +959,7 @@
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,
 				CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */,
+				CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */,
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,
 				CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */,
 				CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */,

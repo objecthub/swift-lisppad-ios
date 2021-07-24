@@ -113,12 +113,16 @@ struct InterpreterView: View {
   @State private var showProgressView: String? = nil
   @State private var navigateToEditor: Bool = false
 
-  var keyboardShortcuts: some View {
+  private var keyboardShortcuts: some View {
     ZStack {
       Button(action: self.selectExpression) {
         EmptyView()
       }
       .keyCommand("e", modifiers: .command, title: "Select expression")
+      Button(action: self.defineIdentifier) {
+        EmptyView()
+      }
+      .keyCommand("d", modifiers: .command, title: "Define identifier")
       Button(action: {
         if !self.interpreter.isReady {
           self.alertAction = .abortEvaluation
@@ -138,6 +142,60 @@ struct InterpreterView: View {
         }
         .keyboardShortcut("m", modifiers: .command)
       }
+    }
+  }
+
+  @ViewBuilder private func sheetView(_ sheet: SheetAction) -> some View {
+    switch sheet {
+      case .loadFile:
+        Open() { url, mutable in
+          if self.interpreter.isReady {
+            self.execute(url)
+          }
+          return true
+        }
+        .modifier(self.globals.services)
+      case .organizeFiles:
+        Organizer()
+          .modifier(self.globals.services)
+      case .shareConsole:
+        ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+      case .shareImage(let image):
+        ShareSheet(activityItems: [image])
+      case .shareText(let text):
+        ShareSheet(activityItems: [text as NSString])
+      case .showAbout:
+        AboutView()
+          .modifier(self.globals.services)
+      case .showShortcuts:
+        RTFTextView(Bundle.main.url(forResource: "KeyboardShortcuts", withExtension: "rtf"))
+          .modifier(self.globals.services)
+      case .showPDF(let name, let url):
+        DocumentView(title: name, url: url)
+          .modifier(self.globals.services)
+      case .saveBeforeOpen(let ourl):
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new) { url in
+          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+            if newURL == nil {
+              self.alertAction = .notSaved
+            } else {
+              self.fileManager.loadEditorDocument(
+                source: ourl,
+                makeUntitled: false,
+                action: { success in
+                  if success {
+                    self.navigateToEditor = true
+                  }})
+            }
+          }
+        }
+        .modifier(self.globals.services)
+      case .showDocumentation(let doc):
+        ScrollSheet {
+          MarkdownText(doc)
+        }
+        .modifier(self.globals.services)
     }
   }
 
@@ -316,57 +374,7 @@ struct InterpreterView: View {
         }
       }
     }
-    .sheet(item: $showSheet, onDismiss: { }) { sheet in
-      switch sheet {
-        case .loadFile:
-          Open() { url, mutable in
-            if self.interpreter.isReady {
-              self.execute(url)
-            }
-            return true
-          }
-          .modifier(self.globals.services)
-        case .organizeFiles:
-          Organizer()
-            .modifier(self.globals.services)
-        case .shareConsole:
-          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
-        case .shareImage(let image):
-          ShareSheet(activityItems: [image])
-        case .shareText(let text):
-          ShareSheet(activityItems: [text as NSString])
-        case .showAbout:
-          AboutView()
-            .modifier(self.globals.services)
-        case .showShortcuts:
-          RTFTextView(Bundle.main.url(forResource: "KeyboardShortcuts", withExtension: "rtf"))
-            .modifier(self.globals.services)
-        case .showPDF(let name, let url):
-          DocumentView(title: name, url: url)
-            .modifier(self.globals.services)
-        case .saveBeforeOpen(let ourl):
-          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
-            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
-              if newURL == nil {
-                self.alertAction = .notSaved
-              } else {
-                self.fileManager.loadEditorDocument(
-                  source: ourl,
-                  makeUntitled: false,
-                  action: { success in
-                    if success {
-                      self.navigateToEditor = true
-                    }})
-              }
-            }
-          }
-          .modifier(self.globals.services)
-        case .showDocumentation(let doc):
-          DefineView(documentation: doc)
-            .modifier(self.globals.services)
-      }
-    }
+    .sheet(item: $showSheet, content: self.sheetView)
     .actionSheet(isPresented: $showResetActionSheet) {
       ActionSheet(title: Text("Reset"),
                   message: Text("Clear console and reset interpreter?"),
@@ -447,7 +455,14 @@ struct InterpreterView: View {
       self.consoleInputRange = range
     }
   }
-  
+
+  private func defineIdentifier() {
+    if let name = TextFormatter.selectedName(in: self.consoleInput, for: self.consoleInputRange),
+       let documentation = self.docManager.documentation(for: name) {
+      self.showSheet = .showDocumentation(documentation)
+    }
+  }
+
   static func canonicalizeInput(_ input: String) -> String {
     let str = input.trimmingCharacters(in: .whitespacesAndNewlines)
     var res = ""

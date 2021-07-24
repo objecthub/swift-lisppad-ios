@@ -76,6 +76,7 @@ struct CodeEditorView: View {
   @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
   @EnvironmentObject var globals: LispPadGlobals
+  @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
@@ -99,30 +100,36 @@ struct CodeEditorView: View {
   
   var keyboardShortcuts: some View {
     ZStack {
+      ZStack {
+        Button(action: self.indentEditor) {
+          EmptyView()
+        }
+        .keyCommand("]", modifiers: .command, title: "Indent line")
+        Button(action: self.outdentEditor) {
+          EmptyView()
+        }
+        .keyCommand("[", modifiers: .command, title: "Outdent line")
+        Button(action: self.commentEditor) {
+          EmptyView()
+        }
+        .keyCommand(";", modifiers: .command, title: "Comment line")
+        Button(action: self.uncommentEditor) {
+          EmptyView()
+        }
+        .keyCommand(";", modifiers: [.shift, .command], title: "Uncomment line")
+        Button(action: self.autoIndentEditor) {
+          EmptyView()
+        }
+        .keyCommand("i", modifiers: .command, title: "Auto-indent")
+      }
       Button(action: self.selectExpression) {
         EmptyView()
       }
       .keyCommand("e", modifiers: .command, title: "Select expression")
-      Button(action: self.indentEditor) {
+      Button(action: self.defineIdentifier) {
         EmptyView()
       }
-      .keyCommand("]", modifiers: .command, title: "Indent line")
-      Button(action: self.outdentEditor) {
-        EmptyView()
-      }
-      .keyCommand("[", modifiers: .command, title: "Outdent line")
-      Button(action: self.commentEditor) {
-        EmptyView()
-      }
-      .keyCommand(";", modifiers: .command, title: "Comment line")
-      Button(action: self.uncommentEditor) {
-        EmptyView()
-      }
-      .keyCommand(";", modifiers: [.shift, .command], title: "Uncomment line")
-      Button(action: self.autoIndentEditor) {
-        EmptyView()
-      }
-      .keyCommand("i", modifiers: .command, title: "Auto-indent")
+      .keyCommand("d", modifiers: .command, title: "Define identifier")
       Button(action: self.runInterpreter) {
         EmptyView()
       }
@@ -475,11 +482,15 @@ struct CodeEditorView: View {
           DocStructureView(structure: structure, position: $editorPosition)
             .modifier(self.globals.services)
         case .markdownPreview(let block):
-          MarkdownViewer(markdown: block)
-            .modifier(self.globals.services)
+          ScrollSheet {
+            MarkdownText(block)
+          }
+          .modifier(self.globals.services)
         case .showDocumentation(let doc):
-          DefineView(documentation: doc)
-            .modifier(self.globals.services)
+          ScrollSheet {
+            MarkdownText(doc)
+          }
+          .modifier(self.globals.services)
       }
     }
     .alert(item: $notSavedAlertAction) { alertAction in
@@ -538,7 +549,15 @@ struct CodeEditorView: View {
       self.editorPosition = range
     }
   }
-  
+
+  private func defineIdentifier() {
+    if let doc = self.fileManager.editorDocument,
+       let name = TextFormatter.selectedName(in: doc.text, for: doc.selectedRange),
+       let documentation = self.docManager.documentation(for: name) {
+      self.showSheet = .showDocumentation(documentation)
+    }
+  }
+
   private func indentEditor() {
     if let doc = self.fileManager.editorDocument {
       let text = NSMutableString(string: doc.text)

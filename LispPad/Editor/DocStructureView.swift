@@ -39,19 +39,7 @@ struct DocStructureView: View {
   @Binding var position: NSRange?
 
   var body: some View {
-    VStack(alignment: .center, spacing: 0) {
-      HStack {
-        Spacer()
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          Text("Cancel")
-        }
-      }
-      .font(.body)
-      .padding()
-      .edgesIgnoringSafeArea(.all)
-      .background(Color(.systemGroupedBackground))
+    ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
       Form {
         if self.structure.headers.count > 0 {
           ForEach(self.structure.headers) { header in
@@ -67,6 +55,23 @@ struct DocStructureView: View {
           .font(.body)
         }
       }
+      .padding(.top, 12)
+      .edgesIgnoringSafeArea(.all)
+      .background(Color(.systemGroupedBackground))
+      HStack {
+        Spacer()
+        Button(action: {
+          self.presentationMode.wrappedValue.dismiss()
+        }) {
+          Image(systemName: "xmark.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 24)
+            .foregroundColor(.gray)
+        }
+        .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+      }
+      .padding(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
     }
   }
 

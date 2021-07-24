@@ -1,8 +1,8 @@
 //
-//  RTFTextView.swift
+//  ScrollSheet.swift
 //  LispPad
 //
-//  Created by Matthias Zenger on 16/04/2021.
+//  Created by Matthias Zenger on 24/07/2021.
 //  Copyright © 2021 Matthias Zenger. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,26 +20,27 @@
 
 import SwiftUI
 
-struct RTFTextView: View {
-  @Environment(\.presentationMode) var presentationMode
+struct ScrollSheet<Content: View>: View {
+  let content: Content
 
-  let text: NSAttributedString
-
-  init(_ fileUrl: URL?) {
-    if let url = fileUrl,
-       let astr = try? NSAttributedString(
-                         url: url,
-                         options: [.documentType: NSAttributedString.DocumentType.rtf],
-                         documentAttributes: nil) {
-      self.text = astr
-    } else {
-      self.text = NSAttributedString(string: "Text not found")
-    }
+  init(@ViewBuilder content: () -> Content) {
+    self.content = content()
   }
 
   var body: some View {
+    Sheet {
+      ScrollView(.vertical) {
+        Spacer(minLength: 28)
+        self.content.padding(16)
+      }
+    }
+  }
+}
+
+struct ScrollSheetViewer_Previews: PreviewProvider {
+  static var previews: some View {
     ScrollSheet {
-      RichText(self.text)
+      Text("Hello\nWorld!")
     }
   }
 }
