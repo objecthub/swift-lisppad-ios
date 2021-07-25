@@ -28,6 +28,9 @@ struct MainView: View {
   /// The registry of all global services
   @EnvironmentObject var globals: LispPadGlobals
 
+  /// URL of a file to load
+  @Binding var urlToOpen: URL?
+  
   // UserDefault keys
   static let splitViewModeKey = "SplitView.mode"
   static let splitViewWidthFractionKey = "SplitView.widthFraction"
@@ -54,7 +57,7 @@ struct MainView: View {
 
   /// The definition of the view.
   var body: some View {
-    if UIDevice.current.userInterfaceIdiom == .pad {
+    if self.splitView {
       ZStack {
         Color("NavigationBarColor").ignoresSafeArea()
         SplitView {
@@ -62,6 +65,7 @@ struct MainView: View {
             InterpreterView(splitView: true,
                             splitViewMode: $splitViewMode,
                             masterWidthFraction: $masterWidthFraction,
+                            urlToOpen: $urlToOpen,
                             editorPosition: $editorPosition,
                             forceEditorUpdate: $forceEditorUpdate)
           }
@@ -72,6 +76,7 @@ struct MainView: View {
             CodeEditorView(splitView: true,
                            splitViewMode: $splitViewMode,
                            masterWidthFraction: $masterWidthFraction,
+                           urlToOpen: $urlToOpen,
                            editorPosition: $editorPosition,
                            forceEditorUpdate: $forceEditorUpdate)
           }
@@ -93,11 +98,16 @@ struct MainView: View {
         InterpreterView(splitView: false,
                         splitViewMode: $splitViewMode,
                         masterWidthFraction: $masterWidthFraction,
+                        urlToOpen: $urlToOpen,
                         editorPosition: $editorPosition,
                         forceEditorUpdate: $forceEditorUpdate)
       }
       .navigationViewStyle(StackNavigationViewStyle())
       .modifier(self.globals.services)
     }
+  }
+  
+  private var splitView: Bool {
+    return UIDevice.current.userInterfaceIdiom == .pad
   }
 }

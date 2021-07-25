@@ -22,7 +22,7 @@ The datatype `tree` defines a predicate `tree?` for checking whether a value is 
 The following line defines a new tree:
 
 ```
-(define t1 (node (empty) 4 (node 7 (empty) (empty))))
+(define t1 (node (empty) 4 (node (empty) 7 (empty))))
 ```
 
 Using `match`, values like `t1` can be deconstructed using pattern matching. The following function `elements` shows how to collect all elements from a tree in a list:

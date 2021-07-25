@@ -31,6 +31,7 @@ struct CodeEditorView: View {
     case organizeFiles
     case saveBeforeNew
     case saveBeforeEdit
+    case saveBeforeOpen(URL)
     case showDefinitions(DefinitionView.Definitions)
     case showDocStructure(DocStructureView.DocStructure)
     case markdownPreview(Block)
@@ -50,26 +51,40 @@ struct CodeEditorView: View {
           return 4
         case .saveBeforeEdit:
           return 5
-        case .showDefinitions(_):
+        case .saveBeforeOpen(_):
           return 6
-        case .showDocStructure(_):
+        case .showDefinitions(_):
           return 7
-        case .markdownPreview(_):
+        case .showDocStructure(_):
           return 8
-        case .showDocumentation(_):
+        case .markdownPreview(_):
           return 9
+        case .showDocumentation(_):
+          return 10
       }
     }
   }
   
-  enum NotSavedAlertAction: Int, Identifiable {
-    case newFile = 0
-    case editFile = 1
-    case notSaved = 2
-    case couldNotDuplicate = 3
+  enum NotSavedAlertAction: Identifiable {
+    case newFile
+    case editFile
+    case openFile(URL)
+    case notSaved
+    case couldNotDuplicate
     
     var id: Int {
-      self.rawValue
+      switch self {
+        case .newFile:
+          return 0
+        case .editFile:
+          return 1
+        case .openFile(_):
+          return 2
+        case .notSaved:
+          return 3
+        case .couldNotDuplicate:
+          return 4
+      }
     }
   }
   
@@ -86,6 +101,7 @@ struct CodeEditorView: View {
 
   @Binding var splitViewMode: SplitViewMode
   @Binding var masterWidthFraction: Double
+  @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
   
@@ -475,6 +491,21 @@ struct CodeEditorView: View {
             }
           }
           .modifier(self.globals.services)
+        case .saveBeforeOpen(let ourl):
+          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
+            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+              if newURL == nil {
+                self.notSavedAlertAction = .notSaved
+              } else {
+                self.fileManager.loadEditorDocument(
+                  source: ourl,
+                  makeUntitled: false,
+                  action: { success in })
+              }
+            }
+          }
+          .modifier(self.globals.services)
         case .showDefinitions(let definitions):
           DefinitionView(defitions: definitions, position: $editorPosition)
             .modifier(self.globals.services)
@@ -503,10 +534,32 @@ struct CodeEditorView: View {
                    save: { self.showSheet = .saveBeforeEdit },
                    discard: { self.fileManager.editorDocument?.text = ""
                               self.showSheet = .editFile })
+        case .openFile(let url):
+          return self.notSavedOnOpenAlert(
+                   save: { self.showSheet = .saveBeforeOpen(url) },
+                   discard: {
+                    self.fileManager.loadEditorDocument(
+                      source: url,
+                      makeUntitled: false,
+                      action: { success in })
+                   })
         case .notSaved:
           return self.couldNotSave()
         case .couldNotDuplicate:
           return self.couldNotDuplicate()
+      }
+    }
+    .onChange(of: self.urlToOpen) { optUrl in
+      if let url = optUrl {
+        if (self.fileManager.editorDocumentInfo.new) &&
+           !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+          self.notSavedAlertAction = .openFile(url)
+        } else {
+          self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
+        }
+        DispatchQueue.main.async {
+          self.urlToOpen = nil
+        }
       }
     }
     .onDisappear {
@@ -532,6 +585,14 @@ struct CodeEditorView: View {
     return Alert(title: Text("Discard or save document?"),
                  message: Text("The current document is not saved yet. " +
                                "Discard or save the current document?"),
+                 primaryButton: .default(Text("Save"), action: save),
+                 secondaryButton: .destructive(Text("Discard"), action: discard))
+  }
+  
+  func notSavedOnOpenAlert(save: @escaping () -> Void, discard: @escaping () -> Void) -> Alert {
+    return Alert(title: Text("Discard or save document?"),
+                 message: Text("LispPad was asked to open a new file, but the current document " +
+                               "is not saved yet. Discard or save the current document?"),
                  primaryButton: .default(Text("Save"), action: save),
                  secondaryButton: .destructive(Text("Discard"), action: discard))
   }

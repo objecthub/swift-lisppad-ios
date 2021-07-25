@@ -260,25 +260,25 @@ struct ConsoleView: View {
             Image(systemName: "questionmark.circle.fill")
               .resizable()
               .scaledToFit()
-              .frame(height: 26)
+              .frame(height: 24.5)
               .foregroundColor(.init(.sRGB, red: 0.8, green: 0.5, blue: 0.5, opacity: 1.0))
           } else {
             Image(systemName: "arrow.forward.circle.fill")
               .resizable()
               .scaledToFit()
-              .frame(height: 26)
+              .frame(height: 24.5)
               .foregroundColor(.red)
           }
         } else if self.input.isEmpty {
           Image(systemName: "pencil.circle.fill")
             .resizable()
             .scaledToFit()
-            .frame(height: 26)
+            .frame(height: 24.5)
         } else {
           Image(systemName: "arrow.up.circle.fill")
             .resizable()
             .scaledToFit()
-            .frame(height: 26)
+            .frame(height: 24.5)
         }
       }
       .keyCommand("\r", modifiers: .command, title: "Execute command")

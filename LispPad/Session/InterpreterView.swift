@@ -100,6 +100,7 @@ struct InterpreterView: View {
   // External state
   @Binding var splitViewMode: SplitViewMode
   @Binding var masterWidthFraction: Double
+  @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
 
@@ -135,6 +136,7 @@ struct InterpreterView: View {
         NavigationLink(destination: CodeEditorView(splitView: self.splitView,
                                                    splitViewMode: $splitViewMode,
                                                    masterWidthFraction: $masterWidthFraction,
+                                                   urlToOpen: $urlToOpen,
                                                    editorPosition: $editorPosition,
                                                    forceEditorUpdate: $forceEditorUpdate),
                        isActive: $navigateToEditor) {
@@ -185,7 +187,7 @@ struct InterpreterView: View {
                 makeUntitled: false,
                 action: { success in
                   if success {
-                    self.navigateToEditor = true
+                    self.switchToEditor()
                   }})
             }
           }
@@ -407,23 +409,23 @@ struct InterpreterView: View {
                       makeUntitled: false,
                       action: { success in
                         if success {
-                          self.navigateToEditor = true
+                          self.switchToEditor()
                         }})
                    })
       }
     }
-    .onOpenURL { url in
-      if (self.fileManager.editorDocumentInfo.new) &&
-         !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-        self.alertAction = .openURL(url)
-      } else {
-        self.fileManager.loadEditorDocument(
-          source: url,
-          makeUntitled: false,
-          action: { success in
-            if success {
-              self.navigateToEditor = true
-            }})
+    .onChange(of: self.urlToOpen) { optUrl in
+      if let url = optUrl {
+        if (self.fileManager.editorDocumentInfo.new) &&
+           !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+          self.alertAction = .openURL(url)
+        } else {
+          self.switchToEditor()
+          self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
+        }
+        DispatchQueue.main.async {
+          self.urlToOpen = nil
+        }
       }
     }
   }
@@ -434,6 +436,16 @@ struct InterpreterView: View {
                                "is not saved yet. Discard or save the current document?"),
                  primaryButton: .default(Text("Save"), action: save),
                  secondaryButton: .destructive(Text("Discard"), action: discard))
+  }
+  
+  private func switchToEditor() {
+    if self.splitView {
+      if self.splitViewMode == .primaryOnly {
+        self.splitViewMode = .secondaryOnly
+      }
+    } else {
+      self.navigateToEditor = true
+    }
   }
   
   private func execute(_ url: URL?) {

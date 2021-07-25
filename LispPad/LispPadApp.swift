@@ -33,13 +33,17 @@ import SwiftUI
   
   // Application-level state
   @StateObject private var globals = LispPadGlobals()
+  @State private var urlToOpen: URL? = nil
   
   // The scene powering the app
   var body: some Scene {
     WindowGroup {
-      MainView()
+      MainView(urlToOpen: $urlToOpen)
         .environmentObject(KeyCommandHandler.empty)
         .environmentObject(self.globals)
+        .onOpenURL { url in
+          self.urlToOpen = url
+        }
     }
     .onChange(of: scenePhase) { phase in
       switch phase {
