@@ -49,11 +49,3 @@ struct Sheet<Content: View>: View {
     }
   }
 }
-
-struct SheetViewer_Previews: PreviewProvider {
-  static var previews: some View {
-    Sheet {
-      Text("Hello\nWorld!")
-    }
-  }
-}

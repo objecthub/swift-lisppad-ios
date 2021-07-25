@@ -48,6 +48,8 @@ final class LispPadGlobals: ObservableObject {
   }
 
   struct Services: ViewModifier {
+    @EnvironmentObject var keyHandler: KeyCommandHandler
+    
     let globals: LispPadGlobals
     let settings: UserSettings
     let histManager: HistoryManager
@@ -64,6 +66,7 @@ final class LispPadGlobals: ObservableObject {
         .environmentObject(self.fileManager)
         .environmentObject(self.docManager)
         .environmentObject(self.interpreter)
+        .environmentObject(self.keyHandler)
     }
   }
 }

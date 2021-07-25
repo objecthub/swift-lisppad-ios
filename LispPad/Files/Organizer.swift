@@ -35,64 +35,56 @@ struct Organizer: View {
   
   var body: some View {
     VStack(alignment: .center, spacing: 0) {
-      if self.showShareSheet,
-         let url = self.selectedUrl {
+      if self.showShareSheet, let url = self.selectedUrl {
         ShareSheet(activityItems: [url])
       } else if self.urlToMove == nil {
-        HStack {
-          Spacer()
-          Button(action: {
-            self.presentationMode.wrappedValue.dismiss()
-          }) {
-            Text("Done")
+        Sheet {
+          Form {
+            Section(header: Text("Usage")) {
+              FileHierarchyBrowser(self.fileManager.usageRootDirectories,
+                                   options: [.organizer],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in })
+                .font(.body)
+            }
+            Section(header: Text("Locations")) {
+              FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                                   options: [.mutable, .organizer],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in })
+                .font(.body)
+            }
+            Section(header: Text("System")) {
+              FileHierarchyBrowser(self.fileManager.systemRootDirectories,
+                                   options: [.organizer],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in })
+                .font(.body)
+            }
           }
+          .padding(.top)
+          .edgesIgnoringSafeArea(.all)
+          .background(Color(.systemGroupedBackground))
+          .transition(.move(edge: .top))
         }
-        .font(.body)
-        .padding(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
-        .edgesIgnoringSafeArea(.all)
-        .background(Color(.systemGroupedBackground))
-        Form {
-          Section(header: Text("Usage")) {
-            FileHierarchyBrowser(self.fileManager.usageRootDirectories,
-                                 options: [.organizer],
-                                 showShareSheet: $showShareSheet,
-                                 showFileImporter: $showFileImporter,
-                                 urlToMove: $urlToMove,
-                                 selectedUrl: $selectedUrl,
-                                 editUrl: $editUrl,
-                                 editName: $editName,
-                                 selectedUrls: $selectedUrls,
-                                 onSelection: { url in })
-              .font(.body)
-          }
-          Section(header: Text("Locations")) {
-            FileHierarchyBrowser(self.fileManager.userRootDirectories,
-                                 options: [.mutable, .organizer],
-                                 showShareSheet: $showShareSheet,
-                                 showFileImporter: $showFileImporter,
-                                 urlToMove: $urlToMove,
-                                 selectedUrl: $selectedUrl,
-                                 editUrl: $editUrl,
-                                 editName: $editName,
-                                 selectedUrls: $selectedUrls,
-                                 onSelection: { url in })
-              .font(.body)
-          }
-          Section(header: Text("System")) {
-            FileHierarchyBrowser(self.fileManager.systemRootDirectories,
-                                 options: [.organizer],
-                                 showShareSheet: $showShareSheet,
-                                 showFileImporter: $showFileImporter,
-                                 urlToMove: $urlToMove,
-                                 selectedUrl: $selectedUrl,
-                                 editUrl: $editUrl,
-                                 editName: $editName,
-                                 selectedUrls: $selectedUrls,
-                                 onSelection: { url in })
-              .font(.body)
-          }
-        }
-        .transition(.move(edge: .top))
       } else {
         Move(showShareSheet: $showShareSheet,
              showFileImporter: $showFileImporter,

@@ -36,11 +36,3 @@ struct ScrollSheet<Content: View>: View {
     }
   }
 }
-
-struct ScrollSheetViewer_Previews: PreviewProvider {
-  static var previews: some View {
-    ScrollSheet {
-      Text("Hello\nWorld!")
-    }
-  }
-}

@@ -192,10 +192,8 @@ struct InterpreterView: View {
         }
         .modifier(self.globals.services)
       case .showDocumentation(let doc):
-        ScrollSheet {
-          MarkdownText(doc)
-        }
-        .modifier(self.globals.services)
+        MarkdownViewer(markdown: doc)
+          .modifier(self.globals.services)
     }
   }
 
@@ -390,9 +388,9 @@ struct InterpreterView: View {
     .alert(item: $alertAction) { alertAction in
       switch alertAction {
         case .abortEvaluation:
-          return Alert(title: Text("Abort evaluation?"),
+          return Alert(title: Text("Terminate evaluation?"),
                        primaryButton: .cancel(),
-                       secondaryButton: .destructive(Text("Abort"), action: {
+                       secondaryButton: .destructive(Text("Terminate"), action: {
                          self.interpreter.context?.machine.abort()
                        }))
         case .notSaved:

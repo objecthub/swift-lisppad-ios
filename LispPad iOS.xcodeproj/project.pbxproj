@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CC0E57B52687CD2800693DD2 /* DefineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0E57B42687CD2800693DD2 /* DefineView.swift */; };
 		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
 		CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
@@ -291,7 +290,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		CC0E57B42687CD2800693DD2 /* DefineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefineView.swift; sourceTree = "<group>"; };
 		CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObliqueProjection.scm; sourceTree = "<group>"; };
 		CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMaze.scm; sourceTree = "<group>"; };
 		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
@@ -716,7 +714,6 @@
 			children = (
 				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
 				CC1DDB6126A734C60049E99D /* RTFTextView.swift */,
-				CC0E57B42687CD2800693DD2 /* DefineView.swift */,
 				CC33237E260A8E6900AD3307 /* DocumentationManager.swift */,
 			);
 			path = Help;
@@ -903,7 +900,6 @@
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
-				CC0E57B52687CD2800693DD2 /* DefineView.swift in Sources */,
 				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,

@@ -37,7 +37,9 @@ import SwiftUI
   // The scene powering the app
   var body: some Scene {
     WindowGroup {
-      MainView().modifier(self.globals.services)
+      MainView()
+        .environmentObject(KeyCommandHandler.empty)
+        .environmentObject(self.globals)
     }
     .onChange(of: scenePhase) { phase in
       switch phase {

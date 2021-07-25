@@ -482,15 +482,11 @@ struct CodeEditorView: View {
           DocStructureView(structure: structure, position: $editorPosition)
             .modifier(self.globals.services)
         case .markdownPreview(let block):
-          ScrollSheet {
-            MarkdownText(block)
-          }
-          .modifier(self.globals.services)
+          MarkdownViewer(markdown: block)
+            .modifier(self.globals.services)
         case .showDocumentation(let doc):
-          ScrollSheet {
-            MarkdownText(doc)
-          }
-          .modifier(self.globals.services)
+          MarkdownViewer(markdown: doc)
+            .modifier(self.globals.services)
       }
     }
     .alert(item: $notSavedAlertAction) { alertAction in

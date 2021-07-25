@@ -55,7 +55,7 @@ struct DocStructureView: View {
           .font(.body)
         }
       }
-      .padding(.top, 12)
+      .padding(.top)
       .edgesIgnoringSafeArea(.all)
       .background(Color(.systemGroupedBackground))
       HStack {

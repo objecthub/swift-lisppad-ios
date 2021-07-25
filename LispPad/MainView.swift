@@ -58,15 +58,15 @@ struct MainView: View {
       ZStack {
         Color("NavigationBarColor").ignoresSafeArea()
         SplitView {
-            NavigationView {
-              InterpreterView(splitView: true,
-                              splitViewMode: $splitViewMode,
-                              masterWidthFraction: $masterWidthFraction,
-                              editorPosition: $editorPosition,
-                              forceEditorUpdate: $forceEditorUpdate)
-                .modifier(self.globals.services)
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
+          NavigationView {
+            InterpreterView(splitView: true,
+                            splitViewMode: $splitViewMode,
+                            masterWidthFraction: $masterWidthFraction,
+                            editorPosition: $editorPosition,
+                            forceEditorUpdate: $forceEditorUpdate)
+          }
+          .navigationViewStyle(StackNavigationViewStyle())
+          .modifier(self.globals.services)
         } detail: {
           NavigationView {
             CodeEditorView(splitView: true,
@@ -74,9 +74,9 @@ struct MainView: View {
                            masterWidthFraction: $masterWidthFraction,
                            editorPosition: $editorPosition,
                            forceEditorUpdate: $forceEditorUpdate)
-              .modifier(self.globals.services)
           }
           .navigationViewStyle(StackNavigationViewStyle())
+          .modifier(self.globals.services)
         }
         .splitViewPreferredDisplayMode(.oneBesideSecondary)
         .splitViewMasterWidthFraction(self.masterWidthFraction)
@@ -95,10 +95,9 @@ struct MainView: View {
                         masterWidthFraction: $masterWidthFraction,
                         editorPosition: $editorPosition,
                         forceEditorUpdate: $forceEditorUpdate)
-          .modifier(self.globals.services)
       }
       .navigationViewStyle(StackNavigationViewStyle())
-      .environmentObject(KeyCommandHandler.empty)
+      .modifier(self.globals.services)
     }
   }
 }

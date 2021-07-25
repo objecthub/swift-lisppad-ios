@@ -28,30 +28,8 @@ struct MarkdownViewer: View {
   let markdown: Block
 
   var body: some View {
-    VStack(alignment: .center, spacing: 0) {
-      HStack {
-        Spacer()
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          Text("Cancel")
-        }
-      }
-      .font(.body)
-      .padding()
-      .edgesIgnoringSafeArea(.all)
-      // .background(Color(.systemGroupedBackground))
-      ScrollView {
-        MarkdownText(self.markdown)
-          .padding()
-          .padding(.horizontal)
-      }
+    ScrollSheet {
+      MarkdownText(self.markdown)
     }
-  }
-}
-
-struct MarkdownViewer_Previews: PreviewProvider {
-  static var previews: some View {
-    MarkdownViewer(markdown: .paragraph(Text("Hello World")))
   }
 }
