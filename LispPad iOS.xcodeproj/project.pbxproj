@@ -107,6 +107,8 @@
 		CC8B95D12608186500830B4F /* Documentation.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC8B95CE260813EC00830B4F /* Documentation.plist */; };
 		CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B95CF2608179000830B4F /* (lisppad audio).md */; };
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
+		CC8BBA3026C041DA00552B8F /* Sierpinski.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
+		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
@@ -254,6 +256,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */,
 				CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */,
 				CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */,
 				CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */,
@@ -396,6 +399,7 @@
 		CC8B95CF2608179000830B4F /* (lisppad audio).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad audio).md"; sourceTree = "<group>"; };
 		CC8B95D32609462800830B4F /* LispPad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LispPad.entitlements; sourceTree = "<group>"; };
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
+		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
@@ -644,11 +648,12 @@
 		CC8B95AD2607FBDC00830B4F /* Examples */ = {
 			isa = PBXGroup;
 			children = (
-				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
-				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
-				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
+				CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */,
 				CC233D5A266AC6940038016C /* PlotGraphs.scm */,
 				CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */,
+				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
+				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
+				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 			);
 			path = Examples;
@@ -882,6 +887,7 @@
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
+				CC8BBA3026C041DA00552B8F /* Sierpinski.scm in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

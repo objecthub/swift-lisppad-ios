@@ -321,6 +321,13 @@ struct InterpreterView: View {
           }
           Divider()
           Button(action: {
+            if let url = URL(string: "http://lisppad.objecthub.net/lisppadgo.html") {
+              UIApplication.shared.open(url)
+            }
+          }) {
+            Label("Manual…", systemImage: "book")
+          }
+          Button(action: {
             self.showSheet = .showShortcuts
           }) {
             Label("Keyboard Shortcuts…", systemImage: "keyboard")

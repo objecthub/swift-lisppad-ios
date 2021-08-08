@@ -27,6 +27,9 @@ import LispKit
 ///
 public final class SystemLibrary: NativeLibrary {
   
+  /// Imported native library
+  private var systemLibrary: LispKit.SystemLibrary?
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lisppad", "system"]
@@ -39,10 +42,12 @@ public final class SystemLibrary: NativeLibrary {
 
   /// Dependencies of the library.
   public override func dependencies() {
+    self.`import`(from: ["lispkit", "system"],  "current-directory")
   }
   
   /// Declarations of the library.
   public override func declarations() {
+    self.define(Procedure("open-in-files-app", self.openInFilesApp))
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("project-directory", self.projectDirectory))
     self.define(Procedure("screen-size", self.screenSize))
@@ -51,6 +56,18 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   public override func initializations() {
+    self.systemLibrary = self.nativeLibrary(LispKit.SystemLibrary.self)
+  }
+  
+  private func openInFilesApp(expr: Expr) throws -> Expr {
+    let path = self.context.fileHandler.path(try expr.asPath(),
+                                             relativeTo: self.systemLibrary?.currentDirectoryPath)
+    if let url = URL(string: "shareddocuments://\(path)") {
+      DispatchQueue.main.async {
+        UIApplication.shared.open(url)
+      }
+    }
+    return .void
   }
   
   private func saveBitmapInLibrary(expr: Expr) throws -> Expr {
