@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.2 (2021-08-15)
+
+- Comprehensive support for keyboard shortcuts
+- Keyboard shortcut documentation accessible via LispPad menu
+- New library `(lisppad location)` supporting geocoding and reverse geocoding
+- New procedure `open-in-files-app` in library `(lisppad system)`
+- New example code
+- Interpreter now based on LispKit 2.0.2
+
 ## 1.1.1 (2021-07-03)
 
 - Extended keyboard for editing Markdown and Scheme code
