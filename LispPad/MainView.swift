@@ -83,7 +83,6 @@ struct MainView: View {
           .navigationViewStyle(StackNavigationViewStyle())
           .modifier(self.globals.services)
         }
-        .splitViewPreferredDisplayMode(.oneBesideSecondary)
         .splitViewMasterWidthFraction(self.masterWidthFraction)
         .splitViewMode(self.splitViewMode)
         .onChange(of: self.splitViewMode) { mode in

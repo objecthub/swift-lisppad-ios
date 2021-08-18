@@ -113,6 +113,7 @@
 		CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */; };
 		CCBF9E6A26C890B400654D60 /* (lisppad location).md in Resources */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
+		CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
 		CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */; };
@@ -407,6 +408,7 @@
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
 		CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CCBF9E6926C890B400654D60 /* (lisppad location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad location).md"; sourceTree = "<group>"; };
+		CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBySideViewController.swift; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyBrowser.swift; sourceTree = "<group>"; };
@@ -737,6 +739,7 @@
 			children = (
 				CC327C37260D399400BD7E32 /* LazyView.swift */,
 				CC55DD7926469A8F001AAD10 /* SplitView.swift */,
+				CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */,
 				CC55DD7D26481279001AAD10 /* NavigationControl.swift */,
 				CCC85658261B18C70080B96E /* SearchField.swift */,
 				CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */,
@@ -963,6 +966,7 @@
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
+				CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
 				CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */,
 				CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */,

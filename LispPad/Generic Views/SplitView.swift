@@ -50,40 +50,42 @@ struct SplitView<Master: View, Detail: View>: View {
 }
 
 struct SplitViewController: UIViewControllerRepresentable {
-  @Environment(\.splitViewPreferredDisplayMode) var preferredDisplayMode:
-                                                      UISplitViewController.DisplayMode
   @Environment(\.splitViewMasterWidthFraction) var masterWidthFraction: Double
   @Environment(\.splitViewMode) var mode: SplitViewMode
   var viewControllers: [UIViewController]
 
-  func makeUIViewController(context: Context) -> UISplitViewController {
-    let splitController = UISplitViewController()
-    splitController.presentsWithGesture = false
-    splitController.minimumPrimaryColumnWidth = 320
-    splitController.maximumPrimaryColumnWidth = 10000
-    return splitController
+  func makeUIViewController(context: Context) -> SideBySideViewController {
+    let sbsController = SideBySideViewController()
+    sbsController.leftViewController = self.viewControllers[0]
+    sbsController.rightViewController = self.viewControllers[1]
+    return sbsController
   }
 
-  func updateUIViewController(_ splitController: UISplitViewController, context: Context) {
-    splitController.preferredDisplayMode = preferredDisplayMode
-    splitController.preferredPrimaryColumnWidthFraction = CGFloat(self.masterWidthFraction)
+  func updateUIViewController(_ sbsController: SideBySideViewController, context: Context) {
+    sbsController.preferredLeftColumnFraction = CGFloat(self.masterWidthFraction)
     switch self.mode {
       case .normal:
-        splitController.viewControllers = self.viewControllers
+        sbsController.preferredDisplayMode = .sideBySide
+        if sbsController.displayFocus == .right {
+          sbsController.showLeftView(true)
+        }
       case .swapped:
-        splitController.viewControllers = [self.viewControllers[1], self.viewControllers[0]]
+        sbsController.preferredDisplayMode = .sideBySide
+        if sbsController.displayFocus == .left {
+          sbsController.showRightView(true)
+        }
       case .primaryOnly:
-        splitController.viewControllers = self.viewControllers
-        splitController.show(self.viewControllers[0], sender: nil)
+        sbsController.preferredDisplayMode = .one
+        if sbsController.displayFocus == .right {
+          sbsController.showLeftView(true)
+        }
       case .secondaryOnly:
-        splitController.viewControllers = [self.viewControllers[1], self.viewControllers[0]]
-        splitController.show(self.viewControllers[1], sender: nil)
+        sbsController.preferredDisplayMode = .one
+        if sbsController.displayFocus == .left {
+          sbsController.showRightView(true)
+        }
     }
   }
-}
-
-struct PreferredDisplayModeKey : EnvironmentKey {
-  static var defaultValue: UISplitViewController.DisplayMode = .automatic
 }
 
 struct MasterWidthFraction : EnvironmentKey {
@@ -95,15 +97,6 @@ struct SplitViewModeKey : EnvironmentKey {
 }
 
 extension EnvironmentValues {
-  var splitViewPreferredDisplayMode: UISplitViewController.DisplayMode {
-    get {
-      self[PreferredDisplayModeKey.self]
-    }
-    set {
-      self[PreferredDisplayModeKey.self] = newValue
-    }
-  }
-
   var splitViewMasterWidthFraction: Double {
     get {
       self[MasterWidthFraction.self]
@@ -124,10 +117,6 @@ extension EnvironmentValues {
 }
 
 extension View {
-  func splitViewPreferredDisplayMode(_ mode: UISplitViewController.DisplayMode) -> some View {
-    self.environment(\.splitViewPreferredDisplayMode, mode)
-  }
-
   func splitViewMasterWidthFraction(_ fraction: Double) -> some View {
     self.environment(\.splitViewMasterWidthFraction, fraction)
   }
