@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDocumentTypes</key>
@@ -75,6 +69,12 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2021 Matthias Zenger. All rights reserved.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The library (lispkit system) provides functionality for writing and reading images from the photo library.</string>
 	<key>NSUbiquitousContainers</key>

@@ -1,9 +1,10 @@
 # Changelog
 
-## 1.1.2 (2021-08-15)
+## 1.1.2 (2021-08-19)
 
 - Comprehensive support for keyboard shortcuts
 - Keyboard shortcut documentation accessible via LispPad menu
+- Fixed split view-related bugs (on iPadOS)
 - New library `(lisppad location)` supporting geocoding and reverse geocoding
 - New procedure `open-in-files-app` in library `(lisppad system)`
 - New example code
