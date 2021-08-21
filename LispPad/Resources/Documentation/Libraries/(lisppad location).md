@@ -151,7 +151,7 @@ pl ⇒ (("CH" "Schweiz" "Zürich" "Zürich"
 ⇒
 Brandschenkestrasse 110
 8002 Zürich
-Schweiz"
+Schweiz
 ```
 
 **(address-\>place _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  

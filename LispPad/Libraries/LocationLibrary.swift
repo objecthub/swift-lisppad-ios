@@ -571,11 +571,19 @@ fileprivate final class LocationManager: NSObject, ObservableObject, CLLocationM
     self.lastLocation = self.locationManager.location
     self.locationStatus = self.locationManager.authorizationStatus
     self.locationError = false
+    var n = 0
     while self.lastLocation == nil &&
           !self.accessDenied &&
           !self.locationError &&
           !self.machine.isAbortionRequested() {
+      n += 1
+      if n >= 16 {
+        break
+      }
       self.condition.wait(until: Date().advanced(by: 0.5))
+      if self.lastLocation == nil {
+        self.lastLocation = self.locationManager.location
+      }
     }
     let res = self.lastLocation
     self.condition.unlock()
@@ -584,12 +592,18 @@ fileprivate final class LocationManager: NSObject, ObservableObject, CLLocationM
   
   func locationManager(_ manager: CLLocationManager,
                        didFailWithError: Error) {
+    self.condition.lock()
     self.locationError = true
+    self.condition.signal()
+    self.condition.unlock()
   }
   
   func locationManager(_ manager: CLLocationManager,
                        didChangeAuthorization status: CLAuthorizationStatus) {
+    self.condition.lock()
     self.locationStatus = status
+    self.condition.signal()
+    self.condition.unlock()
   }
   
   func locationManager(_ manager: CLLocationManager,
@@ -597,7 +611,9 @@ fileprivate final class LocationManager: NSObject, ObservableObject, CLLocationM
     guard let location = locations.last else {
       return
     }
+    self.condition.lock()
     self.lastLocation = location
     self.condition.signal()
+    self.condition.unlock()
   }
 }

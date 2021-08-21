@@ -70,11 +70,11 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2021 Matthias Zenger. All rights reserved.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
+	<string>The library (lisppad location) provides functionality for accessing a users location.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
+	<string>The library (lisppad location) provides functionality for accessing a users location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>The library (lispkit system) provides functionality for accessing a users location.</string>
+	<string>The library (lisppad location) provides functionality for accessing a users location.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The library (lispkit system) provides functionality for writing and reading images from the photo library.</string>
 	<key>NSUbiquitousContainers</key>
