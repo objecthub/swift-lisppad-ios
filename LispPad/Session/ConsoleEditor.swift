@@ -33,6 +33,7 @@ struct ConsoleEditor: UIViewRepresentable {
   @Binding var text: String
   @Binding var selectedRange: NSRange
   @Binding var calculatedHeight: CGFloat
+  @Binding var update: ((CodeEditorTextView) -> Void)?
   @ObservedObject var keyboardObserver: KeyboardObserver
   
   let defineAction: ((Block) -> Void)?
@@ -94,6 +95,12 @@ struct ConsoleEditor: UIViewRepresentable {
     }
     if textView.syntaxHighlightingUpdate != self.settings.syntaxHighlightingUpdate {
       textView.textStorageDelegate.highlight(textView.textStorage)
+    }
+    if let update = self.update {
+      update(textView)
+      DispatchQueue.main.async {
+        self.update = nil
+      }
     }
     ConsoleEditor.recalculateHeight(textView: textView, result: self._calculatedHeight)
   }

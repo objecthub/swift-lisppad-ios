@@ -112,7 +112,7 @@ struct CodeEditorView: View {
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
-  @State var undoEditor: Bool? = nil
+  @State var updateEditor: ((CodeEditorTextView) -> Void)? = nil
   
   var keyboardShortcuts: some View {
     ZStack {
@@ -207,7 +207,7 @@ struct CodeEditorView: View {
                                        }}),
                  position: $editorPosition,
                  forceUpdate: $forceEditorUpdate,
-                 undo: $undoEditor,
+                 update: $updateEditor,
                  editorType: $editorType,
                  keyboardObserver: self.keyboardObserver,
                  defineAction: { block in
@@ -217,6 +217,11 @@ struct CodeEditorView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
+          /*
+          self.updateEditor = { textView in
+            textView.becomeFirstResponder()
+          }
+          */
         }
         .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
           self.editorType = self.fileManager.editorDocumentInfo.editorType
@@ -373,12 +378,16 @@ struct CodeEditorView: View {
         HStack(alignment: .center, spacing: 16) {
           Menu(content: {
             Button(action: {
-              self.undoEditor = true
+              self.updateEditor = { textView in
+                textView.undoManager?.undo()
+              }
             }) {
               Label("Undo", systemImage: "arrow.uturn.backward")
             }
             Button(action: {
-              self.undoEditor = false
+              self.updateEditor = { textView in
+                textView.undoManager?.redo()
+              }
             }) {
               Label("Redo", systemImage: "arrow.uturn.forward")
             }

@@ -31,7 +31,7 @@ struct ConsoleView: View {
   let action: () -> Void
   @State var inputBuffer: String? = nil
   @State var inputHistoryIndex: Int = -1
-  
+  @State var updateConsole: ((CodeEditorTextView) -> Void)? = nil
   @StateObject var keyboardObserver = KeyboardObserver()
   
   @Binding var content: [ConsoleOutput]
@@ -243,6 +243,7 @@ struct ConsoleView: View {
       ConsoleEditor(text: $input,
                     selectedRange: $selectedInputRange,
                     calculatedHeight: $dynamicHeight,
+                    update: $updateConsole,
                     keyboardObserver: self.keyboardObserver,
                     defineAction: { block in
                       self.showSheet = .showDocumentation(block)
@@ -250,6 +251,13 @@ struct ConsoleView: View {
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)
+        .onAppear {
+          if !input.isEmpty {
+            self.updateConsole = { textView in
+              textView.becomeFirstResponder()
+            }
+          }
+        }
       Button(action: {
         self.inputBuffer = nil
         self.inputHistoryIndex = -1
