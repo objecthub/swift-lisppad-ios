@@ -55,9 +55,6 @@ struct MainView: View {
   /// Setting this to `true` will force an editor update. The variable is automatically reset.
   @State private var forceEditorUpdate: Bool = false
   
-  /// The history of Search/Replace actions.
-  @State private var searchHistory: [SearchField.HistoryEntry] = []
-  
   /// The definition of the view.
   var body: some View {
     if self.splitView {
@@ -70,8 +67,7 @@ struct MainView: View {
                             masterWidthFraction: $masterWidthFraction,
                             urlToOpen: $urlToOpen,
                             editorPosition: $editorPosition,
-                            forceEditorUpdate: $forceEditorUpdate,
-                            searchHistory: $searchHistory)
+                            forceEditorUpdate: $forceEditorUpdate)
           }
           .navigationViewStyle(StackNavigationViewStyle())
           .modifier(self.globals.services)
@@ -82,8 +78,7 @@ struct MainView: View {
                            masterWidthFraction: $masterWidthFraction,
                            urlToOpen: $urlToOpen,
                            editorPosition: $editorPosition,
-                           forceEditorUpdate: $forceEditorUpdate,
-                           searchHistory: $searchHistory)
+                           forceEditorUpdate: $forceEditorUpdate)
           }
           .navigationViewStyle(StackNavigationViewStyle())
           .modifier(self.globals.services)
@@ -104,8 +99,7 @@ struct MainView: View {
                         masterWidthFraction: $masterWidthFraction,
                         urlToOpen: $urlToOpen,
                         editorPosition: $editorPosition,
-                        forceEditorUpdate: $forceEditorUpdate,
-                        searchHistory: $searchHistory)
+                        forceEditorUpdate: $forceEditorUpdate)
       }
       .navigationViewStyle(StackNavigationViewStyle())
       .modifier(self.globals.services)

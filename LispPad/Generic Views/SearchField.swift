@@ -28,22 +28,7 @@ struct SearchField: View {
     case backward
   }
   
-  struct HistoryEntry: Hashable, CustomStringConvertible {
-    let searchText: String
-    let replaceText: String?
-    
-    var searchOnly: Bool {
-      return self.replaceText == nil
-    }
-    
-    var description: String {
-      if let replaceText = self.replaceText {
-        return "\(self.searchText) ▶︎ \(replaceText)"
-      } else {
-        return self.searchText
-      }
-    }
-  }
+  @EnvironmentObject var histManager: HistoryManager
   
   @State var replaceMode: Bool = false
   @State var showNext: Bool = false
@@ -52,60 +37,47 @@ struct SearchField: View {
   @State var replaceText: String = ""
   @State var lastReplaceText: String = ""
   @Binding var showSearchField: Bool
-  @Binding var searchHistory: [HistoryEntry]
-  let maxHistory: Int
   let search: (String, Direction) -> Bool
   let replace: (String, String, ((Bool) -> Void)?) -> Void
   let replaceAll: (String, String) -> Void
   
-  func insert(term: String, replaceWith repl: String? = nil) {
-    let entry = HistoryEntry(searchText: term, replaceText: repl)
-    var i = 0
-    while i < self.searchHistory.count && entry != self.searchHistory[i] {
-      i += 1
-    }
-    if i < self.searchHistory.count {
-      self.searchHistory.remove(at: i)
-    }
-    self.searchHistory.insert(entry, at: 0)
-    if self.searchHistory.count > self.maxHistory {
-      self.searchHistory.removeLast()
-    }
-  }
-  
   var body: some View {
-    VStack {
+    VStack(alignment: .leading, spacing: 0.0) {
       HStack {
         HStack {
           Menu {
             Button(action: {
-              self.replaceMode = !self.replaceMode
-              self.showNext = false
-              self.lastSearchText = ""
-              self.lastReplaceText = ""
-            }) {
-              Label(self.replaceMode ? "Search" : "Search/Replace",
-                    systemImage: self.replaceMode ? "magnifyingglass" : "arrow.triangle.swap").font(.footnote)
-            }
-            if !self.searchHistory.isEmpty {
-              Divider().font(.footnote)
-            }
-            ForEach(self.searchHistory, id: \.self) { entry in
-              Button(action: {
-                self.searchText = entry.searchText
-                if let replaceText = entry.replaceText {
-                  self.replaceText = replaceText
-                  self.replaceMode = true
-                } else {
-                  self.replaceMode = false
-                }
+              withAnimation(.default) {
+                self.replaceMode = !self.replaceMode
                 self.showNext = false
                 self.lastSearchText = ""
                 self.lastReplaceText = ""
+              }
+            }) {
+              Label(self.replaceMode ? "Search" : "Search/Replace",
+                    systemImage: self.replaceMode ? "magnifyingglass" : "arrow.triangle.swap")
+            }
+            if !self.histManager.searchHistory.isEmpty {
+              Divider()
+            }
+            ForEach(self.histManager.searchHistory, id: \.self) { entry in
+              Button(action: {
+                withAnimation(.default) {
+                  self.searchText = entry.searchText
+                  if let replaceText = entry.replaceText {
+                    self.replaceText = replaceText
+                    self.replaceMode = true
+                  } else {
+                    self.replaceMode = false
+                  }
+                  self.showNext = false
+                  self.lastSearchText = ""
+                  self.lastReplaceText = ""
+                }
               }) {
                 Label(title: { Text(entry.description) },
                       icon: { Image(systemName: entry.searchOnly ?  "magnifyingglass"
-                                                                 : "arrow.triangle.swap") }).font(.footnote)
+                                                                 : "arrow.triangle.swap") })
               }
             }
           } label: {
@@ -117,7 +89,9 @@ struct SearchField: View {
             if !self.searchText.isEmpty {
               let term = self.searchText
               let repl = self.replaceText
-              self.insert(term: term, replaceWith: self.replaceMode ? repl : nil)
+              self.histManager.rememberSearch(
+                SearchHistoryEntry(searchText: term,
+                                   replaceText: self.replaceMode ? repl : nil))
               let more = self.search(term, .first)
               withAnimation(.default) {
                 self.lastSearchText = term
@@ -164,11 +138,9 @@ struct SearchField: View {
             let term = self.searchText
             let repl = self.replaceText
             let more = self.search(self.searchText, .forward)
-            withAnimation(.default) {
-              self.lastSearchText = term
-              self.lastReplaceText = repl
-              self.showNext = more
-            }
+            self.lastSearchText = term
+            self.lastReplaceText = repl
+            self.showNext = more
           }
         }, label: {
           Image(systemName: "chevron.forward")
@@ -191,109 +163,93 @@ struct SearchField: View {
       .padding(EdgeInsets(top: 8, leading: 8,
                           bottom: self.replaceMode ? 6 : 8, trailing: 8))
       .animation(.default)
-    }
-    if self.replaceMode {
-      HStack {
+      if self.replaceMode {
         HStack {
-          Image(systemName: "pencil").font(.callout)
-          TextField("Replace", text: $replaceText, onEditingChanged: { isEditing in
-            self.showSearchField = true
-          }, onCommit: {
-            if !self.searchText.isEmpty {
-              let term = self.searchText
-              let repl = self.replaceText
-              self.insert(term: term, replaceWith: self.replaceMode ? repl : nil)
-              let more = self.search(term, .first)
-              withAnimation(.default) {
-                self.lastSearchText = term
-                self.lastReplaceText = repl
-                self.showNext = more
-              }
-            }
-          })
-          .font(.callout)
-          .foregroundColor(.primary)
-          .autocapitalization(.none)
-          .disableAutocorrection(true)
-          Button(action: {
-            withAnimation(.default) {
-              self.replaceText = ""
-              self.showNext = false
-            }
-          }) {
-            Image(systemName: "xmark.circle.fill")
-              .font(.callout)
-              .opacity(self.replaceText == "" ? 0 : 1)
-          }
-        }
-        .padding(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
-        .foregroundColor(.secondary)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
-        Button(action: { }) {
-          Image(systemName: "repeat")
-          .padding(.leading, 12)
-          .padding(.trailing, 4)
-          .onTapGesture {
-            self.replace(self.searchText, self.replaceText) { more in
-              DispatchQueue.main.async {
+          HStack {
+            Image(systemName: "pencil").font(.callout)
+            TextField("Replace", text: $replaceText, onEditingChanged: { isEditing in
+              self.showSearchField = true
+            }, onCommit: {
+              if !self.searchText.isEmpty {
+                let term = self.searchText
+                let repl = self.replaceText
+                self.histManager.rememberSearch(
+                  SearchHistoryEntry(searchText: term,
+                                     replaceText: self.replaceMode ? repl : nil))
+                let more = self.search(term, .first)
                 withAnimation(.default) {
+                  self.lastSearchText = term
+                  self.lastReplaceText = repl
                   self.showNext = more
                 }
               }
+            })
+            .font(.callout)
+            .foregroundColor(.primary)
+            .autocapitalization(.none)
+            .disableAutocorrection(true)
+            Button(action: {
+              withAnimation(.default) {
+                self.replaceText = ""
+                self.showNext = false
+              }
+            }) {
+              Image(systemName: "xmark.circle.fill")
+                .font(.callout)
+                .opacity(self.replaceText == "" ? 0 : 1)
             }
           }
-          .onLongPressGesture(minimumDuration: 1.0) {
-            self.replaceAll(self.searchText, self.replaceText)
+          .padding(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
+          .foregroundColor(.secondary)
+          .background(Color(.secondarySystemBackground))
+          .cornerRadius(12)
+          Button(action: { }) {
+            Image(systemName: "repeat")
+            .padding(.leading, 12)
+            .padding(.trailing, 4)
+            .onTapGesture {
+              self.replace(self.searchText, self.replaceText) { more in
+                DispatchQueue.main.async {
+                  withAnimation(.default) {
+                    self.showNext = more
+                  }
+                }
+              }
+            }
+            .onLongPressGesture(minimumDuration: 1.0) {
+              self.replaceAll(self.searchText, self.replaceText)
+              withAnimation(.default) {
+                self.lastSearchText = ""
+                self.lastReplaceText = ""
+                self.showNext = false
+              }
+            }
+          }
+          .disabled(!showNext ||
+                      self.searchText.isEmpty ||
+                      self.searchText != self.lastSearchText ||
+                      self.replaceText != self.lastReplaceText)
+          Button(action: {
+            _ = self.replace(self.searchText, self.replaceText, nil)
             withAnimation(.default) {
               self.lastSearchText = ""
               self.lastReplaceText = ""
               self.showNext = false
             }
-          }
+          }, label: {
+            Image(systemName: "repeat.1")
+          })
+          .padding(.horizontal, 4)
+          .disabled(self.searchText.isEmpty ||
+                      self.searchText != self.lastSearchText ||
+                      self.replaceText != self.lastReplaceText)
         }
-        .disabled(!showNext ||
-                    self.searchText.isEmpty ||
-                    self.searchText != self.lastSearchText ||
-                    self.replaceText != self.lastReplaceText)
-        Button(action: {
-          _ = self.replace(self.searchText, self.replaceText, nil)
-          withAnimation(.default) {
-            self.lastSearchText = ""
-            self.lastReplaceText = ""
-            self.showNext = false
-          }
-        }, label: {
-          Image(systemName: "repeat.1")
-        })
-        .padding(.horizontal, 4)
-        .disabled(self.searchText.isEmpty ||
-                    self.searchText != self.lastSearchText ||
-                    self.replaceText != self.lastReplaceText)
+        .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 8))
+        .animation(.default)
       }
-      .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 8))
-      .animation(.default)
     }
-  }
-}
-
-struct SearchField_Previews: PreviewProvider {
-  @State static var showCancel = true
-  @State static var history: [SearchField.HistoryEntry] = []
-  static var previews: some View {
-    VStack {
-      Text("Top")
-      SearchField(showSearchField: $showCancel,
-                  searchHistory: $history,
-                  maxHistory: 10,
-                  search: { str, initial in
-                    return true
-                  },
-                  replace: { str, repl, srch in
-        
-                  },
-                  replaceAll: { str, repl in })
-      Text("Bottom")
+    .onDisappear {
+      self.histManager.saveSearchHistory()
     }
   }
 }

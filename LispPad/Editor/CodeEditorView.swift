@@ -107,7 +107,6 @@ struct CodeEditorView: View {
   @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
-  @Binding var searchHistory: [SearchField.HistoryEntry]
   
   @StateObject var keyboardObserver = KeyboardObserver()
   @State var showSearchField: Bool = false
@@ -177,8 +176,6 @@ struct CodeEditorView: View {
     VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
         SearchField(showSearchField: $showSearchField,
-                    searchHistory: $searchHistory,
-                    maxHistory: 10,
                     search: { str, direction in
                       if let doc = self.fileManager.editorDocument {
                         let text = NSString(string: doc.text)
@@ -285,6 +282,7 @@ struct CodeEditorView: View {
             self.presentationMode.wrappedValue.dismiss()
           } splitViewAction: {
             self.fileManager.editorDocument?.saveFile()
+            self.histManager.saveSearchHistory()
             self.histManager.saveFilesHistory()
             self.histManager.saveFavorites()
           }
@@ -621,6 +619,7 @@ struct CodeEditorView: View {
     }
     .onDisappear {
       self.fileManager.editorDocument?.saveFile()
+      self.histManager.saveSearchHistory()
       self.histManager.saveFilesHistory()
       self.histManager.saveFavorites()
     }

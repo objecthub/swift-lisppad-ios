@@ -58,6 +58,7 @@ import SwiftUI
           self.globals.histManager.suspendFilePresenters()
           self.globals.fileManager.editorDocument?.saveFile()
           self.globals.histManager.saveCommandHistory()
+          self.globals.histManager.saveSearchHistory()
           self.globals.histManager.saveFilesHistory()
           self.globals.histManager.saveFavorites()
         default:

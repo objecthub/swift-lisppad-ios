@@ -103,7 +103,6 @@ struct InterpreterView: View {
   @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
-  @Binding var searchHistory: [SearchField.HistoryEntry]
   
   // Internal state
   @State private var consoleInput = ""
@@ -139,8 +138,7 @@ struct InterpreterView: View {
                                                    masterWidthFraction: $masterWidthFraction,
                                                    urlToOpen: $urlToOpen,
                                                    editorPosition: $editorPosition,
-                                                   forceEditorUpdate: $forceEditorUpdate,
-                                                   searchHistory: $searchHistory),
+                                                   forceEditorUpdate: $forceEditorUpdate),
                        isActive: $navigateToEditor) {
           EmptyView()
         }

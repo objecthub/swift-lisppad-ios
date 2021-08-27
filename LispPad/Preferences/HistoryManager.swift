@@ -23,6 +23,7 @@ import SwiftUI
 final class HistoryManager: ObservableObject {
   private static let commandHistoryUserDefaultsKey = "Console.history"
   private static let filesHistoryUserDefaultsKey = "Files.history"
+  private static let searchHistoryUserDefaultsKey = "Files.searchHistory"
   private static let favoritesUserDefaultsKey = "Files.favorites"
   private static let maxFavoritesUserDefaultsKey = "Files.maxFavorites"
   private static let maxFavoritesMax = 50
@@ -65,6 +66,16 @@ final class HistoryManager: ObservableObject {
         }
       }
       return res
+    } else {
+      return []
+    }
+  }()
+  
+  @Published var searchHistory: [SearchHistoryEntry] = {
+    if let data = UserDefaults.standard.value(forKey:
+                    HistoryManager.searchHistoryUserDefaultsKey) as? Data,
+       let entries = try? PropertyListDecoder().decode(Array<SearchHistoryEntry>.self, from: data) {
+      return entries
     } else {
       return []
     }
@@ -197,6 +208,41 @@ final class HistoryManager: ObservableObject {
     }
   }
   
+  // Search history
+  
+  var maxSearchHistory: Int {
+    return 20
+  }
+  
+  private var searchHistoryRequiresSaving: Bool = false
+  
+  func rememberSearch(_ entry: SearchHistoryEntry) {
+    self.removeRecentSearch(entry)
+    self.searchHistory.insert(entry, at: 0)
+    if self.maxSearchHistory < self.searchHistory.count {
+      self.searchHistory.removeLast(self.searchHistory.count - self.maxSearchHistory)
+    }
+    self.searchHistoryRequiresSaving = true
+  }
+  
+  func removeRecentSearch(_ entry: SearchHistoryEntry) {
+    for i in self.searchHistory.indices {
+      if self.searchHistory[i] == entry {
+        self.searchHistory.remove(at: i)
+        self.searchHistoryRequiresSaving = true
+        return
+      }
+    }
+  }
+  
+  func saveSearchHistory() {
+    if self.searchHistoryRequiresSaving {
+      UserDefaults.standard.set(try? self.encoder.encode(self.searchHistory),
+                                forKey: HistoryManager.searchHistoryUserDefaultsKey)
+      self.searchHistoryRequiresSaving = false
+    }
+  }
+  
   // Favorites
   
   private(set) var maxFavorites: Int = {
@@ -277,6 +323,23 @@ final class HistoryManager: ObservableObject {
       UserDefaults.standard.set(try? self.encoder.encode(self.favoriteFiles),
                                 forKey: HistoryManager.favoritesUserDefaultsKey)
       self.favoritesRequiresSaving = false
+    }
+  }
+}
+
+struct SearchHistoryEntry: Hashable, Codable, CustomStringConvertible {
+  let searchText: String
+  let replaceText: String?
+  
+  var searchOnly: Bool {
+    return self.replaceText == nil
+  }
+  
+  var description: String {
+    if let replaceText = self.replaceText {
+      return "\(self.searchText) ▶︎ \(replaceText)"
+    } else {
+      return self.searchText
     }
   }
 }
