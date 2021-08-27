@@ -71,6 +71,7 @@ struct CodeEditorView: View {
     case openFile(URL)
     case notSaved
     case couldNotDuplicate
+    case replaceAll(String, String)
     
     var id: Int {
       switch self {
@@ -84,6 +85,8 @@ struct CodeEditorView: View {
           return 3
         case .couldNotDuplicate:
           return 4
+        case .replaceAll(_, _):
+          return 5
       }
     }
   }
@@ -104,9 +107,9 @@ struct CodeEditorView: View {
   @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
+  @Binding var searchHistory: [SearchField.HistoryEntry]
   
   @StateObject var keyboardObserver = KeyboardObserver()
-  @State var searchHistory: [String] = []
   @State var showSearchField: Bool = false
   @State var showSheet: SheetAction? = nil
   @State var showAbortAlert = false
@@ -174,24 +177,66 @@ struct CodeEditorView: View {
     VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
         SearchField(showSearchField: $showSearchField,
-                    forceEditorUpdate: $forceEditorUpdate,
                     searchHistory: $searchHistory,
-                    maxHistory: 10) { str, initial in
-          let doc = self.fileManager.editorDocument
-          let text = (doc?.text ?? "") as NSString
-          let pos = initial ? 0 : (doc?.selectedRange.location ?? 0) +
-                                    ((doc?.selectedRange.length ?? 0) > 0 ? 1 : 0)
-          let result = text.range(of: str,
-                                  options: [.diacriticInsensitive],
-                                  range: NSRange(location: pos, length: text.length - pos),
-                                  locale: nil)
-          if result.location != NSNotFound {
-            self.editorPosition = result
-            return true
-          } else {
-            return false
-          }
-        }
+                    maxHistory: 10,
+                    search: { str, direction in
+                      if let doc = self.fileManager.editorDocument {
+                        let text = NSString(string: doc.text)
+                        let pos = direction == .first ? 0 : doc.selectedRange.location +
+                                                              (doc.selectedRange.length > 0 ? 1 : 0)
+                        let result = direction == .backward
+                          ? text.range(of: str,
+                                       options: [.diacriticInsensitive, .backwards],
+                                       range: NSRange(location: 0, length: pos),
+                                       locale: nil)
+                          : text.range(of: str,
+                                       options: [.diacriticInsensitive],
+                                       range: NSRange(location: pos, length: text.length - pos),
+                                       locale: nil)
+                        if result.location != NSNotFound {
+                          self.editorPosition = result
+                          return true
+                        } else {
+                          return false
+                        }
+                      } else {
+                        return false
+                      }
+                    },
+                    replace: { str, repl, cont in
+                      self.updateEditor = { textView in
+                        let formerRange = textView.selectedRange
+                        if let range = textView.selectedTextRange {
+                          textView.replace(range, withText: repl)
+                        } else {
+                          textView.textStorage.replaceCharacters(in: textView.selectedRange,
+                                                                 with: repl)
+                        }
+                        if let cont = cont {
+                          let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
+                          let text = textView.text as NSString
+                          let result = text.range(
+                                         of: str,
+                                         options: [.diacriticInsensitive],
+                                         range: NSRange(location: pos, length: text.length - pos),
+                                         locale: nil)
+                          if result.location != NSNotFound {
+                            self.editorPosition = result
+                            cont(true)
+                          } else {
+                            self.editorPosition = NSRange(location: formerRange.location,
+                                                          length: NSString(string: repl).length)
+                            cont(false)
+                          }
+                        } else {
+                          self.editorPosition = NSRange(location: formerRange.location,
+                                                        length: NSString(string: repl).length)
+                        }
+                      }
+                    },
+                    replaceAll: { str, repl in
+                      self.notSavedAlertAction = .replaceAll(str, repl)
+                    })
         .font(.body)
         .transition(.move(edge: .top))
         Divider()
@@ -556,6 +601,9 @@ struct CodeEditorView: View {
           return self.couldNotSave()
         case .couldNotDuplicate:
           return self.couldNotDuplicate()
+        case .replaceAll(let str, let repl):
+          return self.replaceAll(str, repl)
+          
       }
     }
     .onChange(of: self.urlToOpen) { optUrl in
@@ -576,6 +624,34 @@ struct CodeEditorView: View {
       self.histManager.saveFilesHistory()
       self.histManager.saveFavorites()
     }
+  }
+  
+  private func replaceAll(_ str: String, _ repl: String) -> Alert {
+    return Alert(title: Text("Replace all"),
+                 message: Text("Replace all occurences of \"\(str)\" in the remaining document?"),
+                 primaryButton: .default(Text("No")),
+                 secondaryButton: .destructive(Text("Yes"), action: {
+                  self.updateEditor = { textView in
+                    if let txt = textView.text,
+                       let textRange = textView.selectedTextRange {
+                      let range = textView.selectedRange
+                      let text = NSMutableString(string: txt)
+                      text.replaceOccurrences(
+                        of: str,
+                        with: repl, 
+                        options: [.diacriticInsensitive], 
+                        range: NSRange(location: range.location,
+                                       length: text.length - range.location))
+                      if let replRange = textView.textRange(from: textRange.start,
+                                                            to: textView.endOfDocument) {
+                        textView.replace(replRange,
+                                         withText: text.substring(from: range.location))
+                        textView.selectedRange = NSRange(location: textView.textStorage.length,
+                                                         length: 0)
+                      }
+                    }
+                  }
+                 }))
   }
   
   private func couldNotSave() -> Alert {
