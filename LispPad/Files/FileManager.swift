@@ -88,10 +88,15 @@ class FileManager: ObservableObject {
     }
   }
 
+  /// Base URLs for the various locations.
   var baseURLs: [(URL, Int)] = []
-
-  /// Constructor, responsible for defining the named resources as well as for setting them up
-  /// initially.
+  
+  /// File observer which makes sure that modified iCloud files are downloaded as quickly
+  /// as possible.
+  let fileObserver: FileObserver? = FileObserver.default
+  
+  /// Constructor, responsible for defining the named resources as well as for setting them
+  /// up initially.
   init() {
     DispatchQueue.global(qos: .default).async {
       let sysFileManager = Foundation.FileManager()

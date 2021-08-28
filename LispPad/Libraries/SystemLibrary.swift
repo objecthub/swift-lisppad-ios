@@ -50,9 +50,11 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("open-in-files-app", self.openInFilesApp))
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("project-directory", self.projectDirectory))
+    self.define(Procedure("icloud-directory", self.icloudDirectory))
     self.define(Procedure("screen-size", self.screenSize))
     self.define(Procedure("dark-mode?", self.isDarkMode))
     self.define(Procedure("sleep", self.sleep))
+    self.define(Procedure("icloud-list", self.iCloudList))
   }
   
   public override func initializations() {
@@ -88,6 +90,14 @@ public final class SystemLibrary: NativeLibrary {
     }
   }
   
+  private func icloudDirectory() -> Expr {
+    if let path = PortableURL.Base.icloud.url?.absoluteURL.path {
+      return .makeString(path)
+    } else {
+      return .false
+    }
+  }
+  
   private func screenSize(docid: Expr?) throws -> Expr {
     let screen = UIScreen.main.bounds
     return .pair(.flonum(Double(screen.width)), .flonum(Double(screen.height)))
@@ -105,5 +115,19 @@ public final class SystemLibrary: NativeLibrary {
       remaining = endTime - Timer.currentTimeInSec
     }
     return .void
+  }
+  
+  private func iCloudList(_ expr: Expr?) throws -> Expr {
+    if let urls = FileObserver.default?.observedFiles(expr?.isTrue) {
+      var res = Expr.null
+      for url in urls {
+        if let portableUrl = PortableURL(url) {
+          res = .pair(.makeString(portableUrl.relativePath), res)
+        }
+      }
+      return res
+    } else {
+      return .false
+    }
   }
 }

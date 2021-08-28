@@ -29,6 +29,7 @@
 		CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */; };
 		CC327C5C2611201100BD7E32 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
 		CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33237E260A8E6900AD3307 /* DocumentationManager.swift */; };
+		CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5157B626DA84AB0056B05B /* FileObserver.swift */; };
 		CC55DD7A26469A8F001AAD10 /* SplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7926469A8F001AAD10 /* SplitView.swift */; };
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
 		CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7D26481279001AAD10 /* NavigationControl.swift */; };
@@ -320,6 +321,7 @@
 		CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextStorageDelegate.swift; sourceTree = "<group>"; };
 		CC327C5B2611201100BD7E32 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };
 		CC33237E260A8E6900AD3307 /* DocumentationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationManager.swift; sourceTree = "<group>"; };
+		CC5157B626DA84AB0056B05B /* FileObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileObserver.swift; sourceTree = "<group>"; };
 		CC55DD7926469A8F001AAD10 /* SplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitView.swift; sourceTree = "<group>"; };
 		CC55DD7B2646B4C4001AAD10 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		CC55DD7D26481279001AAD10 /* NavigationControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControl.swift; sourceTree = "<group>"; };
@@ -713,6 +715,7 @@
 				CCE8E42F2623CC6E00E3DC6A /* NamedRef.swift */,
 				CCEA5A12263B6E2500D78C62 /* FileExtensions.swift */,
 				CCC8563A2616778D0080B96E /* FileManager.swift */,
+				CC5157B626DA84AB0056B05B /* FileObserver.swift */,
 				CCC8563E2617A8960080B96E /* FileHierarchy.swift */,
 				CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */,
 				CCEA5A0C263977C400D78C62 /* Move.swift */,
@@ -950,6 +953,7 @@
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
+				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
