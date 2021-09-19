@@ -24,13 +24,13 @@ import LispKit
 struct LibraryDetailView: View {
   @EnvironmentObject var docManager: DocumentationManager
   
-  let name: Expr
+  let libProxy: LibraryManager.LibraryProxy
   
   var body: some View {
     ScrollView(.vertical) {
-      MarkdownText(self.docManager.libraryDocumentation(for: self.name))
+      MarkdownText(self.docManager.libraryDocumentation(for: self.libProxy.components))
         .padding(12)
     }
-    .navigationTitle(self.name.description)
+    .navigationTitle(self.libProxy.name)
   }
 }

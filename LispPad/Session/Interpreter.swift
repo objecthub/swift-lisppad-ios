@@ -309,6 +309,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
        let homePath = PortableURL.Base.documents.url?.path {
       _ = context.fileHandler.addSearchPath(homePath)
     }
+    // Attach file handler to library manager
+    self.libManager.attachFileHandler(context.fileHandler)
     // Bootstrap context
     do {
       try context.bootstrap(forRepl: true)
@@ -332,6 +334,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
       }
       return
     }
+    // Schedule a library list update
+    self.libManager.scheduleLibraryUpdate()
     // The interpreter is ready now
     DispatchQueue.main.sync {
       self.isReady = true
@@ -500,7 +504,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
   
   /// This is called whenever a new library is loaded
   func loaded(library lib: Library, by: LispKit.LibraryManager) {
-    self.libManager.add(library: lib)
+    DispatchQueue.main.sync {
+      self.libManager.add(library: lib)
+    }
   }
   
   /// This is called whenever a symbol is bound in an environment

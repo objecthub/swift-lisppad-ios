@@ -66,10 +66,14 @@ Quasiquote expressions can be nested. Substitutions are made only for unquoted c
 **(lambda _(arg1 ...) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 **(lambda _(arg1 ... . rest) expr ..._)**  
 **(lambda _rest expr ..._)**  
+**(λ _(arg1 ...) expr ..._)**  
+**(λ _(arg1 ... . rest) expr ..._)**  
+**(λ _rest expr ..._)**  
 
 A lambda expression evaluates to a procedure. The environment in effect when the lambda expression was evaluated is remembered as part of the procedure. When the procedure is later called with some actual arguments, the environment in which the lambda expression was evaluated will be extended by binding the variables in the formal argument list _arg1 ..._ to fresh locations, and the corresponding actual argument values will be stored in those locations. Next, the expressions in the body of the lambda expression will be evaluated sequentially in the extended environment. The results of the last expression in the body will be returned as the results of the procedure call.
 
-**(case-lambda _(formals expr ...) ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>
+**(case-lambda _(formals expr ...) ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(case-λ _(formals expr ...) ..._)**  
 
 A case-lambda expression evaluates to a procedure that accepts a variable number of arguments and is lexically scoped in the same manner as a procedure resulting from a lambda expression. When the procedure is called, the first clause for which the arguments agree with _formals_ is selected, where agreement is specified as for _formals_ of a lambda expression. The variables of _formals_ are bound to fresh locations, the values of the arguments are stored in those locations, the expressions in the body are evaluated in the extended environment, and the results of the last expression in the body is returned as the results of the procedure call. It is an error for the arguments not to agree with _formals_ of any clause.
 

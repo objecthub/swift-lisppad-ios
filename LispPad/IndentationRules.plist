@@ -9,6 +9,7 @@
 		<string>cond-expand</string>
 		<string>case</string>
 		<string>case-lambda</string>
+		<string>case-λ</string>
 	</array>
 	<key>fixed indentation</key>
 	<array>
@@ -25,6 +26,7 @@
 		<string>define-type</string>
 		<string>define-values</string>
 		<string>lambda</string>
+		<string>λ</string>
 		<string>stream-lambda</string>
 		<string>let</string>
 		<string>let*</string>

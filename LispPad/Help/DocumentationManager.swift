@@ -87,8 +87,8 @@ final class DocumentationManager: ObservableObject {
   }
   
   /// Returns the documentation for the given library name
-  func libraryDocumentation(for expr: Expr) -> Block? {
-    return self.documentation[self.libName(expr)]?.content
+  func libraryDocumentation(for components: [String]) -> Block? {
+    return self.documentation[components]?.content
   }
   
   /// Returns a documentation for the given symbol name
