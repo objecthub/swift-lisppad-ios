@@ -110,6 +110,8 @@ struct CodeEditorView: View {
   
   @StateObject var keyboardObserver = KeyboardObserver()
   @State var showSearchField: Bool = false
+  @State var replaceModeSearch: Bool = false
+  @State var caseSensitiveSearch: Bool = true
   @State var showSheet: SheetAction? = nil
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
@@ -156,10 +158,22 @@ struct CodeEditorView: View {
         EmptyView()
       }
       .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
-      Button(action: { self.showSearchField = !self.showSearchField }) {
+      Button(action: { self.showSearchField.toggle() }) {
         EmptyView()
       }
       .keyCommand("f", modifiers: .command, title: "Find")
+      .alert(isPresented: $showAbortAlert, content: self.abortAlert)
+      Button(action: {
+        if !self.showSearchField {
+          self.showSearchField = true
+          self.replaceModeSearch = true
+        } else {
+          self.replaceModeSearch.toggle()
+        }
+      }) {
+        EmptyView()
+      }
+      .keyCommand("f", modifiers: [.command, .shift], title: "Find/Replace")
       .alert(isPresented: $showAbortAlert, content: self.abortAlert)
       if !self.splitView {
         Button(action: {
@@ -176,6 +190,8 @@ struct CodeEditorView: View {
     VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
         SearchField(showSearchField: $showSearchField,
+                    replaceMode: $replaceModeSearch,
+                    caseSensitive: $caseSensitiveSearch,
                     search: { str, direction in
                       if let doc = self.fileManager.editorDocument {
                         let text = NSString(string: doc.text)
@@ -183,11 +199,16 @@ struct CodeEditorView: View {
                                                               (doc.selectedRange.length > 0 ? 1 : 0)
                         let result = direction == .backward
                           ? text.range(of: str,
-                                       options: [.diacriticInsensitive, .backwards],
+                                       options:
+                                         self.caseSensitiveSearch
+                                           ? [.diacriticInsensitive, .backwards]
+                                           : [.diacriticInsensitive, .backwards, .caseInsensitive],
                                        range: NSRange(location: 0, length: pos),
                                        locale: nil)
                           : text.range(of: str,
-                                       options: [.diacriticInsensitive],
+                                       options: self.caseSensitiveSearch
+                                                  ? [.diacriticInsensitive]
+                                                  : [.diacriticInsensitive, .caseInsensitive],
                                        range: NSRange(location: pos, length: text.length - pos),
                                        locale: nil)
                         if result.location != NSNotFound {
@@ -203,18 +224,22 @@ struct CodeEditorView: View {
                     replace: { str, repl, cont in
                       self.updateEditor = { textView in
                         let formerRange = textView.selectedRange
-                        if let range = textView.selectedTextRange {
-                          textView.replace(range, withText: repl)
-                        } else {
-                          textView.textStorage.replaceCharacters(in: textView.selectedRange,
-                                                                 with: repl)
+                        if formerRange.length > 0 {
+                          if let range = textView.selectedTextRange {
+                            textView.replace(range, withText: repl)
+                          } else {
+                            textView.textStorage.replaceCharacters(in: textView.selectedRange,
+                                                                   with: repl)
+                          }
                         }
                         if let cont = cont {
                           let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
                           let text = textView.text as NSString
                           let result = text.range(
                                          of: str,
-                                         options: [.diacriticInsensitive],
+                                         options: self.caseSensitiveSearch
+                                                    ? [.diacriticInsensitive]
+                                                    : [.diacriticInsensitive, .caseInsensitive],
                                          range: NSRange(location: pos, length: text.length - pos),
                                          locale: nil)
                           if result.location != NSNotFound {
@@ -638,7 +663,9 @@ struct CodeEditorView: View {
                       text.replaceOccurrences(
                         of: str,
                         with: repl, 
-                        options: [.diacriticInsensitive], 
+                        options: self.caseSensitiveSearch
+                                   ? [.diacriticInsensitive]
+                                   : [.diacriticInsensitive, .caseInsensitive], 
                         range: NSRange(location: range.location,
                                        length: text.length - range.location))
                       if let replRange = textView.textRange(from: textRange.start,

@@ -30,13 +30,14 @@ struct SearchField: View {
   
   @EnvironmentObject var histManager: HistoryManager
   
-  @State var replaceMode: Bool = false
   @State var showNext: Bool = false
   @State var searchText: String = ""
   @State var lastSearchText: String = ""
   @State var replaceText: String = ""
   @State var lastReplaceText: String = ""
   @Binding var showSearchField: Bool
+  @Binding var replaceMode: Bool
+  @Binding var caseSensitive: Bool
   let search: (String, Direction) -> Bool
   let replace: (String, String, ((Bool) -> Void)?) -> Void
   let replaceAll: (String, String) -> Void
@@ -56,6 +57,12 @@ struct SearchField: View {
             }) {
               Label(self.replaceMode ? "Search" : "Search/Replace",
                     systemImage: self.replaceMode ? "magnifyingglass" : "arrow.triangle.swap")
+            }
+            Button(action: {
+              self.caseSensitive.toggle()
+            }) {
+              Label("Case Sensitive",
+                    systemImage: self.caseSensitive ? "checkmark.square" : "square")
             }
             if !self.histManager.searchHistory.isEmpty {
               Divider()
@@ -203,6 +210,37 @@ struct SearchField: View {
           .foregroundColor(.secondary)
           .background(Color(.secondarySystemBackground))
           .cornerRadius(12)
+          Button(action: {
+            self.replace(self.searchText, self.replaceText) { more in
+              DispatchQueue.main.async {
+                withAnimation(.default) {
+                  self.showNext = more
+                }
+              }
+            }
+          }) {
+            EmptyView()
+          }
+          .keyCommand("y", modifiers: .command, title: "Replace and find next")
+          .disabled(!showNext ||
+                      self.searchText.isEmpty ||
+                      self.searchText != self.lastSearchText ||
+                      self.replaceText != self.lastReplaceText)
+          Button(action: {
+            self.replaceAll(self.searchText, self.replaceText)
+            withAnimation(.default) {
+              self.lastSearchText = ""
+              self.lastReplaceText = ""
+              self.showNext = false
+            }
+          }) {
+            EmptyView()
+          }
+          .keyCommand("y", modifiers: [.command, .shift], title: "Replace all")
+          .disabled(!showNext ||
+                      self.searchText.isEmpty ||
+                      self.searchText != self.lastSearchText ||
+                      self.replaceText != self.lastReplaceText)
           Button(action: { }) {
             Image(systemName: "repeat")
             .padding(.leading, 12)
