@@ -2,10 +2,6 @@
 
 ## Primitives
 
-**(procedure? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>
-
-Returns `#t` if _obj_ is a procedure. Otherwise, it returns `#f`.
-
 **(eval _expr_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(eval _expr env_)**  
 
@@ -62,42 +58,6 @@ The `eq?` procedure is similar to `eqv?` except that in some cases it is capable
 Quasiquote expressions are useful for constructing a list or vector structure when some but not all of the desired structure is known in advance. If no commas appear within _template_, the result of evaluating `(quasiquote` _template_`)` is equivalent to the result of evaluating `(quote` _template_`)`. If a comma appears within _template_, however, the expression following the comma is evaluated ("unquoted") and its result is inserted into the structure instead of the comma and the expression. If a comma appears followed without intervening whitespace by `@`, then it is an error if the following expression does not evaluate to a list; the opening and closing parentheses of the list are then "stripped away" and the elements of the list are inserted in place of the `,@` expression sequence. `,@` normally appears only within a list or vector.
 
 Quasiquote expressions can be nested. Substitutions are made only for unquoted components appearing at the same nesting level as the outermost quasiquote. The nesting level increases by one inside each successive quasiquotation, and decreases by one inside each unquotation. Comma corresponds to form `unquote`, `,@` corresponds to form `unquote-splicing`.
-
-**(lambda _(arg1 ...) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
-**(lambda _(arg1 ... . rest) expr ..._)**  
-**(lambda _rest expr ..._)**  
-**(λ _(arg1 ...) expr ..._)**  
-**(λ _(arg1 ... . rest) expr ..._)**  
-**(λ _rest expr ..._)**  
-
-A lambda expression evaluates to a procedure. The environment in effect when the lambda expression was evaluated is remembered as part of the procedure. When the procedure is later called with some actual arguments, the environment in which the lambda expression was evaluated will be extended by binding the variables in the formal argument list _arg1 ..._ to fresh locations, and the corresponding actual argument values will be stored in those locations. Next, the expressions in the body of the lambda expression will be evaluated sequentially in the extended environment. The results of the last expression in the body will be returned as the results of the procedure call.
-
-**(case-lambda _(formals expr ...) ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
-**(case-λ _(formals expr ...) ..._)**  
-
-A case-lambda expression evaluates to a procedure that accepts a variable number of arguments and is lexically scoped in the same manner as a procedure resulting from a lambda expression. When the procedure is called, the first clause for which the arguments agree with _formals_ is selected, where agreement is specified as for _formals_ of a lambda expression. The variables of _formals_ are bound to fresh locations, the values of the arguments are stored in those locations, the expressions in the body are evaluated in the extended environment, and the results of the last expression in the body is returned as the results of the procedure call. It is an error for the arguments not to agree with _formals_ of any clause.
-
-Here is an example showing how to use `case-lambda` for defining a simple accumulator:
-
-```scheme
-(define (make-accumulator n)
-  (case-lambda
-    (()  n)
-    ((m) (set! n (+ n m)) n)))
-(define a (make-accumulator 1))
-(a)                              ⇒ 1
-(a 5)                            ⇒ 6
-(a)                              ⇒ 6
-```
-
-**(thunk _expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
-
-Returns a procedure accepting no arguments and evaluating _expr_ ..., returning the result of the last expression being evaluated as the result of a procedure call. `(thunk expr ...)` is equivalent to `(lambda () expr ...)`.
-
-**(thunk\* _expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
-
-Returns a procedure accepting an arbitrary amount of arguments and evaluating _expr_ ..., returning the result of the last expression being evaluated as the result of a procedure call. `(thunk* expr ...)` is equivalent to `(lambda args expr ...)`.
-
 
 ## Definitions
 
@@ -249,6 +209,97 @@ In the first form, all of the identifiers in the named library’s export clause
 
 In a program or library declaration, it is an error to import the same identifier more than once with different bindings, or to redefine or mutate an imported binding with a definition or with `set!`, or to refer to an identifier before it is imported. However, a read-eval-print loop will permit these actions.
 
+## Procedures
+
+**(procedure? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>
+
+Returns `#t` if _obj_ is a procedure; otherwise, it returns `#f`.
+
+**(thunk? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>
+
+Returns `#t` if _obj_ is a procedure which accepts zero arguments; otherwise, it returns `#f`.
+
+**(procedure-of-arity? _obj n_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a procedure that accepts _n_ arguments; otherwise, it returns `#f`. This is equivalent to:
+
+```scheme
+(and (procedure? obj)
+     (procedure-arity-includes? obj n))
+```
+
+**(lambda _(arg1 ...) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(lambda _(arg1 ... . rest) expr ..._)**  
+**(lambda _rest expr ..._)**  
+**(λ _(arg1 ...) expr ..._)**  
+**(λ _(arg1 ... . rest) expr ..._)**  
+**(λ _rest expr ..._)**  
+
+A lambda expression evaluates to a procedure. The environment in effect when the lambda expression was evaluated is remembered as part of the procedure. When the procedure is later called with some actual arguments, the environment in which the lambda expression was evaluated will be extended by binding the variables in the formal argument list _arg1 ..._ to fresh locations, and the corresponding actual argument values will be stored in those locations. Next, the expressions in the body of the lambda expression will be evaluated sequentially in the extended environment. The results of the last expression in the body will be returned as the results of the procedure call.
+
+**(case-lambda _(formals expr ...) ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(case-λ _(formals expr ...) ..._)**  
+
+A case-lambda expression evaluates to a procedure that accepts a variable number of arguments and is lexically scoped in the same manner as a procedure resulting from a lambda expression. When the procedure is called, the first clause for which the arguments agree with _formals_ is selected, where agreement is specified as for _formals_ of a lambda expression. The variables of _formals_ are bound to fresh locations, the values of the arguments are stored in those locations, the expressions in the body are evaluated in the extended environment, and the results of the last expression in the body is returned as the results of the procedure call. It is an error for the arguments not to agree with _formals_ of any clause.
+
+Here is an example showing how to use `case-lambda` for defining a simple accumulator:
+
+```scheme
+(define (make-accumulator n)
+  (case-lambda
+    (()  n)
+    ((m) (set! n (+ n m)) n)))
+(define a (make-accumulator 1))
+(a)                              ⇒ 1
+(a 5)                            ⇒ 6
+(a)                              ⇒ 6
+```
+
+**(thunk _expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+
+Returns a procedure accepting no arguments and evaluating _expr_ ..., returning the result of the last expression being evaluated as the result of a procedure call. `(thunk expr ...)` is equivalent to `(lambda () expr ...)`.
+
+**(thunk\* _expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+
+Returns a procedure accepting an arbitrary amount of arguments and evaluating _expr_ ..., returning the result of the last expression being evaluated as the result of a procedure call. `(thunk* expr ...)` is equivalent to `(lambda args expr ...)`.
+
+**(procedure-name _proc_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the name of procedure _proc_ as a string, or `#f` if _proc_ does not have a name.
+
+**(procedure-arity _proc_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a value representing the arity of procedure _proc_, or returns `#f` if no arity information is available for _proc_.
+
+If `procedure-arity` returns a fixnum _k_, then procedure _proc_ accepts exactly _k_ arguments and applying _proc_ to some number of arguments other than _k_ will result in an arity error.
+
+If `procedure-arity` returns an "arity-at-least" object _a_, then procedure _proc_ accepts `(arity-at-least-value a)` or more arguments and applying _proc_ to some number of arguments less than `(arity-at-least-value a)` will result in an arity error.
+
+If `procedure-arity` returns a list, then procedure _proc_ accepts any of the arities described by the elements of the list. Applying _proc_ to some number of arguments not described by an element of the list will result in an arity error.
+
+**(procedure-arity-range _proc_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the smallest arity range in form of a pair _(min . max)_ such that if _proc_ is provided _n_ arguments with _n < min_ or _n > max_, an arity error gets raised.
+
+```scheme
+(procedure-arity-range (lambda () 3))      ⇒  (0 . 0)
+(procedure-arity-range (lambda (x) x))     ⇒  (1 . 1)
+(procedure-arity-range (lambda x x))       ⇒  (0 . #f)
+(procedure-arity-range (lambda (x . y) x)) ⇒  (1 . #f)
+```
+
+**(procedure-arity-includes? _proc k_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if procedure _proc_ can accept _k_ arguments and `#f` otherwise. If this procedure returns `#f`, applying _proc_ to _k_ arguments will result in an arity error.
+
+**(arity-at-least? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is an "arity-at-least" object and `#f` otherwise.
+
+**(arity-at-least-value _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a fixnum denoting the minimum number of arguments required by the given "arity-at-least" object _obj_.
+
 ## Delayed execution
 
 LispKit provides _promises_ to delay the execution of code. Built on top of _promises_ are _streams_. Streams are similar to lists, except that the tail of a stream is not computed until it is de-referenced. This allows streams to be used to represent infinitely long lists. Library `(lispkit core)` only defines procedures for _streams_ equivalent to _promises_. Library `(lispkit stream)` provides all the list-like functionality.
@@ -337,7 +388,6 @@ The `stream-delay` syntax is used together with procedure `stream-force` to impl
 **(stream-lazy _expr_)**  
 
 The expression `(stream-delay-force expr)` is conceptually similar to `(stream-delay (stream-force expr))`, with the difference that forcing the result of `stream-delay-force` will in effect result in a tail call to `(stream-force expr)`, while forcing the result of `(stream-delay (stream-force expr))` might not. Thus iterative lazy algorithms that might result in a long series of chains of delay and force can be rewritten using `stream-delay-force` to prevent consuming unbounded space during evaluation. `stream-lazy` represents the same procedure like `stream-delay-force`.
-
 
 ## Symbols
 
