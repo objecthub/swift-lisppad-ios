@@ -109,6 +109,8 @@ struct CodeEditorView: View {
   @Binding var forceEditorUpdate: Bool
   
   @StateObject var keyboardObserver = KeyboardObserver()
+  @State var searchText: String = ""
+  @State var replaceText: String = ""
   @State var showSearchField: Bool = false
   @State var replaceModeSearch: Bool = false
   @State var caseSensitiveSearch: Bool = true
@@ -189,54 +191,26 @@ struct CodeEditorView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       if self.showSearchField {
-        SearchField(showSearchField: $showSearchField,
-                    replaceMode: $replaceModeSearch,
-                    caseSensitive: $caseSensitiveSearch,
-                    search: { str, direction in
-                      if let doc = self.fileManager.editorDocument {
-                        let text = NSString(string: doc.text)
-                        let pos = direction == .first ? 0 : doc.selectedRange.location +
-                                                              (doc.selectedRange.length > 0 ? 1 : 0)
-                        let result = direction == .backward
-                          ? text.range(of: str,
-                                       options:
-                                         self.caseSensitiveSearch
-                                           ? [.diacriticInsensitive, .backwards]
-                                           : [.diacriticInsensitive, .backwards, .caseInsensitive],
-                                       range: NSRange(location: 0, length: pos),
-                                       locale: nil)
-                          : text.range(of: str,
-                                       options: self.caseSensitiveSearch
-                                                  ? [.diacriticInsensitive]
-                                                  : [.diacriticInsensitive, .caseInsensitive],
-                                       range: NSRange(location: pos, length: text.length - pos),
-                                       locale: nil)
-                        if result.location != NSNotFound {
-                          self.editorPosition = result
-                          return true
-                        } else {
-                          return false
-                        }
-                      } else {
-                        return false
-                      }
-                    },
-                    replace: { str, repl, cont in
-                      self.updateEditor = { textView in
-                        let formerRange = textView.selectedRange
-                        if formerRange.length > 0 {
-                          if let range = textView.selectedTextRange {
-                            textView.replace(range, withText: repl)
-                          } else {
-                            textView.textStorage.replaceCharacters(in: textView.selectedRange,
-                                                                   with: repl)
-                          }
-                        }
-                        if let cont = cont {
-                          let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
-                          let text = textView.text as NSString
-                          let result = text.range(
-                                         of: str,
+        VStack(alignment: .leading, spacing: 0) {
+          SearchField(searchText: $searchText,
+                      replaceText: $replaceText,
+                      showSearchField: $showSearchField,
+                      replaceMode: $replaceModeSearch,
+                      caseSensitive: $caseSensitiveSearch,
+                      search: { str, direction in
+                        if let doc = self.fileManager.editorDocument {
+                          let text = NSString(string: doc.text)
+                          let pos = direction == .first ? 0 : doc.selectedRange.location +
+                                                                (doc.selectedRange.length > 0 ? 1 : 0)
+                          let result = direction == .backward
+                            ? text.range(of: str,
+                                         options:
+                                           self.caseSensitiveSearch
+                                             ? [.diacriticInsensitive, .backwards]
+                                             : [.diacriticInsensitive, .backwards, .caseInsensitive],
+                                         range: NSRange(location: 0, length: pos),
+                                         locale: nil)
+                            : text.range(of: str,
                                          options: self.caseSensitiveSearch
                                                     ? [.diacriticInsensitive]
                                                     : [.diacriticInsensitive, .caseInsensitive],
@@ -244,24 +218,55 @@ struct CodeEditorView: View {
                                          locale: nil)
                           if result.location != NSNotFound {
                             self.editorPosition = result
-                            cont(true)
+                            return true
+                          } else {
+                            return false
+                          }
+                        } else {
+                          return false
+                        }
+                      },
+                      replace: { str, repl, cont in
+                        self.updateEditor = { textView in
+                          let formerRange = textView.selectedRange
+                          if formerRange.length > 0 {
+                            if let range = textView.selectedTextRange {
+                              textView.replace(range, withText: repl)
+                            } else {
+                              textView.textStorage.replaceCharacters(in: textView.selectedRange,
+                                                                     with: repl)
+                            }
+                          }
+                          if let cont = cont {
+                            let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
+                            let text = textView.text as NSString
+                            let result = text.range(
+                                           of: str,
+                                           options: self.caseSensitiveSearch
+                                                      ? [.diacriticInsensitive]
+                                                      : [.diacriticInsensitive, .caseInsensitive],
+                                           range: NSRange(location: pos, length: text.length - pos),
+                                           locale: nil)
+                            if result.location != NSNotFound {
+                              self.editorPosition = result
+                              cont(true)
+                            } else {
+                              self.editorPosition = NSRange(location: formerRange.location,
+                                                            length: NSString(string: repl).length)
+                              cont(false)
+                            }
                           } else {
                             self.editorPosition = NSRange(location: formerRange.location,
                                                           length: NSString(string: repl).length)
-                            cont(false)
                           }
-                        } else {
-                          self.editorPosition = NSRange(location: formerRange.location,
-                                                        length: NSString(string: repl).length)
                         }
-                      }
-                    },
-                    replaceAll: { str, repl in
-                      self.notSavedAlertAction = .replaceAll(str, repl)
-                    })
-        .font(.body)
+                      },
+                      replaceAll: { str, repl in
+                        self.notSavedAlertAction = .replaceAll(str, repl)
+                      })
+          Divider()
+        }
         .transition(.move(edge: .top))
-        Divider()
       }
       self.keyboardShortcuts
       CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
@@ -294,12 +299,12 @@ struct CodeEditorView: View {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
     }
-    .navigationBarHidden(false)
+    // .navigationBarHidden(false)
     .navigationBarTitleDisplayMode(.inline)
     .navigationBarBackButtonHidden(true)
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarLeading) {
-        HStack(alignment: .center, spacing: 16)  {
+        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
           NavigationControl(splitView: self.splitView,
                             masterView: false,
                             splitViewMode: $splitViewMode,
@@ -311,7 +316,7 @@ struct CodeEditorView: View {
             self.histManager.saveFilesHistory()
             self.histManager.saveFavorites()
           }
-          Menu(content: {
+          Menu {
             Button(action: {
               if (self.fileManager.editorDocumentInfo.new) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
@@ -357,21 +362,21 @@ struct CodeEditorView: View {
                 }
               }
             }
-          }, label: {
+          } label: {
             Image(systemName: "doc")
-              .font(InterpreterView.toolbarFont)
-          })
+              .font(LispPadUI.toolbarFont)
+          }
           if self.interpreter.isReady {
             Button(action: self.runInterpreter) {
               Image(systemName: self.editorType == .scheme ? "play" : "display")
-                .font(InterpreterView.toolbarFont)
+                .font(LispPadUI.toolbarFont)
             }
             .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
           } else {
             Button(action: self.stopInterpreter) {
               Image(systemName: "stop.circle")
                 .foregroundColor(Color.red)
-                .font(InterpreterView.toolbarFont)
+                .font(LispPadUI.toolbarFont)
             }
             .alert(isPresented: $showAbortAlert, content: self.abortAlert)
           }
@@ -443,8 +448,8 @@ struct CodeEditorView: View {
         }
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: 16) {
-          Menu(content: {
+        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+          Menu {
             Button(action: {
               self.updateEditor = { textView in
                 textView.undoManager?.undo()
@@ -460,28 +465,45 @@ struct CodeEditorView: View {
               Label("Redo", systemImage: "arrow.uturn.forward")
             }
             Divider()
-            Button(action: self.autoIndentEditor) {
-              Label("Auto Indent", systemImage: "list.bullet.indent")
-            }
-            .disabled(self.editorType != .scheme)
-            Button(action: self.indentEditor) {
-              Label("Increase Indent", systemImage: "increase.indent")
-            }
-            Button(action: self.outdentEditor) {
-              Label("Decrease Indent", systemImage: "decrease.indent")
+            Group {
+              Button(action: self.autoIndentEditor) {
+                Label("Auto Indent", systemImage: "list.bullet.indent")
+              }
+              .disabled(self.editorType != .scheme)
+              Button(action: self.indentEditor) {
+                Label("Increase Indent", systemImage: "increase.indent")
+              }
+              Button(action: self.outdentEditor) {
+                Label("Decrease Indent", systemImage: "decrease.indent")
+              }
             }
             Divider()
-            Button(action: self.commentEditor) {
-              Label("Comment", systemImage: "text.bubble")
+            Group {
+              Button(action: self.commentEditor) {
+                Label("Comment", systemImage: "text.bubble")
+              }
+              .disabled(self.editorType != .scheme)
+              Button(action: self.uncommentEditor) {
+                Label("Uncomment", systemImage: "bubble.left")
+              }
+              .disabled(self.editorType != .scheme)
             }
-            .disabled(self.editorType != .scheme)
-            Button(action: self.uncommentEditor) {
-              Label("Uncomment", systemImage: "bubble.left")
+            Divider()
+            Button(action: {
+              withAnimation(.default) {
+                if self.showSearchField {
+                  self.replaceModeSearch.toggle()
+                } else {
+                  self.replaceModeSearch = true
+                  self.showSearchField = true
+                }
+              }
+            }) {
+              Label("Search/Replace", systemImage: "repeat")
             }
-            .disabled(self.editorType != .scheme)
-          }) {
-            Image(systemName: "text.alignright")
-              .font(InterpreterView.toolbarFont)
+          } label: {
+            Image(systemName: "text.aligncenter")
+              .font(LispPadUI.toolbarFont)
           }
           Button(action: {
             guard let doc = self.fileManager.editorDocument else {
@@ -498,7 +520,7 @@ struct CodeEditorView: View {
             }
           }) {
             Image(systemName: "f.cursive")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           .disabled(self.editorType != .scheme && self.editorType != .markdown)
           Button(action: {
@@ -507,13 +529,13 @@ struct CodeEditorView: View {
             }
           }) {
             Image(systemName: "magnifyingglass")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           .disabled(self.showSearchField)
         }
       }
     }
-    .sheet(item: $showSheet, onDismiss: { }) { sheet in
+    .fullScreenCover(item: $showSheet) { sheet in
       switch sheet {
         case .renameFile:
           SaveAs(url: self.fileManager.editorDocument?.saveAsURL,

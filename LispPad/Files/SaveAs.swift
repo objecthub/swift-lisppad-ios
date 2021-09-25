@@ -93,58 +93,59 @@ struct SaveAs: View {
   }
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      HStack(alignment: .top, spacing: 16) {
-        Spacer()
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          Text("Cancel")
+    ZStack {
+      Color(.systemGroupedBackground).ignoresSafeArea()
+      VStack(alignment: .leading, spacing: 0) {
+        HStack(alignment: .top, spacing: 16) {
+          Spacer()
+          Button(action: {
+            self.presentationMode.wrappedValue.dismiss()
+          }) {
+            Text("Cancel")
+          }
+          Button(action: self.tapSave) {
+            Text("Save")
+          }
+          .disabled(self.folder == nil || self.fileName.isEmpty)
         }
-        Button(action: self.tapSave) {
-          Text("Save")
+        .font(.body)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        HStack(alignment: .top, spacing: 16) {
+          self.targetDescription
+            .font(.footnote)
+            .foregroundColor(.secondary)
+          Spacer(minLength: 0)
         }
-        .disabled(self.folder == nil || self.fileName.isEmpty)
-      }
-      .font(.body)
-      .padding()
-      .edgesIgnoringSafeArea(.all)
-      .background(Color(.systemGroupedBackground))
-      HStack(alignment: .top, spacing: 16) {
-        self.targetDescription
-          .font(.footnote)
-          .foregroundColor(.secondary)
-        Spacer(minLength: 0)
-      }
-      .padding(EdgeInsets(top: -16, leading: 20, bottom: 16, trailing: 16))
-      .background(Color(.systemGroupedBackground))
-      Form {
-        Section(header: Text("File")) {
-          TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-        }
-        if !self.lockFolder {
-          Section(header: Text("Folder")) {
-            FileHierarchyBrowser(self.fileManager.userRootDirectories,
-                                 options: [.directories, .mutable],
-                                 showShareSheet: $showShareSheet,
-                                 showFileImporter: $showFileImporter,
-                                 urlToMove: $urlToMove,
-                                 selectedUrl: $selectedUrl,
-                                 editUrl: $editUrl,
-                                 editName: $editName,
-                                 selectedUrls: $selectedUrls,
-                                 onSelection: { url in
-                                   self.selectedUrls.removeAll()
-                                   self.selectedUrls.insert(url)
-                                 })
-              .font(.body)
-              .onChange(of: self.selectedUrls) { value in
-                if let folder = self.selectedUrls.first {
-                  self.folder = folder
+        .padding(EdgeInsets(top: -16, leading: 20, bottom: 8, trailing: 16))
+        Form {
+          Section(header: Text("File")) {
+            TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)
+              .autocapitalization(.none)
+              .disableAutocorrection(true)
+          }
+          if !self.lockFolder {
+            Section(header: Text("Locations")) {
+              FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                                   options: [.directories, .mutable],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in
+                                     self.selectedUrls.removeAll()
+                                     self.selectedUrls.insert(url)
+                                   })
+                .font(.body)
+                .onChange(of: self.selectedUrls) { value in
+                  if let folder = self.selectedUrls.first {
+                    self.folder = folder
+                  }
                 }
-              }
+            }
           }
         }
       }

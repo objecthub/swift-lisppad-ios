@@ -33,7 +33,7 @@ struct NavigationControl: View {
       Button(action: { self.splitViewMode = self.masterView ? .swapped : .normal }) {
         Image(systemName: "arrow.triangle.2.circlepath")
           .foregroundColor(.primary)
-          .font(InterpreterView.toolbarSwitchFont)
+          .font(LispPadUI.toolbarSwitchFont)
       }
     } else if self.splitView && self.splitViewMode == (self.masterView ? .swapped : .normal) {
       Menu {
@@ -72,7 +72,7 @@ struct NavigationControl: View {
       } label: {
         Image(systemName: "arrow.left.and.right")
           .foregroundColor(.primary)
-          .font(InterpreterView.toolbarFont)
+          .font(LispPadUI.toolbarFont)
       }
     } else {
       HStack {
@@ -88,7 +88,7 @@ struct NavigationControl: View {
         }) {
           Image(systemName: self.masterView ? "pencil.circle.fill" : "terminal.fill")
             .foregroundColor(.primary)
-            .font(InterpreterView.toolbarSwitchFont)
+            .font(LispPadUI.toolbarSwitchFont)
         }
         .keyCommand("m", modifiers: .command, title: "Switch console/editor")
         if self.splitView {
@@ -97,7 +97,7 @@ struct NavigationControl: View {
           }) {
             Image(systemName: "rectangle.split.2x1")
               .foregroundColor(.primary)
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           Spacer(minLength: 12)
         }

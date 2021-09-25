@@ -25,11 +25,13 @@ struct DocumentView: View {
   let url: URL
   
   var body: some View {
-    GeometryReader { geometry in
-      VStack {
-        PDFViewer(url: self.url, viewSize: geometry.size)
-            .navigationTitle(self.title)
-            .navigationBarHidden(false)
+    Sheet(backgroundColor: Color(.secondarySystemBackground)) {
+      GeometryReader { geometry in
+        VStack {
+          PDFViewer(url: self.url, viewSize: geometry.size)
+              .navigationTitle(self.title)
+              .navigationBarHidden(false)
+        }
       }
     }
   }

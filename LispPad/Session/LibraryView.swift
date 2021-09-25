@@ -36,26 +36,25 @@ struct LibraryView: View {
     VStack {
       HStack {
         HStack {
-            Image(systemName: "magnifyingglass")
-            TextField("Search", text: $searchText, onEditingChanged: { isEditing in
-              self.showCancel = true
-            }, onCommit: {
-            })
-            .foregroundColor(.primary)
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-            Button(action: {
-              self.searchText = ""
-            }) {
-              Image(systemName: "xmark.circle.fill")
-              .opacity(searchText == "" ? 0 : 1)
-            }
+          Image(systemName: "magnifyingglass")
+          TextField("Search", text: $searchText, onEditingChanged: { isEditing in
+            self.showCancel = true
+          }, onCommit: { })
+          .foregroundColor(.primary)
+          .autocapitalization(.none)
+          .disableAutocorrection(true)
+          Button(action: {
+            self.searchText = ""
+          }) {
+            Image(systemName: "xmark.circle.fill")
+            .opacity(searchText == "" ? 0 : 1)
+          }
         }
-        .padding(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
+        .padding(6)
         .foregroundColor(.secondary)
         .background(Color(.secondarySystemBackground))
         .cornerRadius(12)
-        if showCancel  {
+        if self.showCancel  {
           Button("Cancel") {
             UIApplication.shared.endEditing(true)
             self.searchText = ""
@@ -66,7 +65,8 @@ struct LibraryView: View {
       }
       .font(.body)
       .padding(.horizontal)
-      .padding(.top, self.showCancel ? 0 : 8)
+      .padding(.top, self.showCancel ? 9 : 8)
+      .padding(.bottom, self.showCancel ? -1 : 0)
       .navigationBarHidden(showCancel)
       // .animation(.default)
       Divider()
@@ -170,12 +170,12 @@ struct LibraryView: View {
     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
           Button(action: {
             self.libManager.updateLibraries()
           }) {
             Image(systemName: "arrow.clockwise")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           Menu {
             Button(action: {
@@ -190,7 +190,7 @@ struct LibraryView: View {
             }
           } label: {
             Image(systemName: "slider.horizontal.3")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
         }
       }

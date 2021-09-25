@@ -31,10 +31,11 @@ struct SearchField: View {
   @EnvironmentObject var histManager: HistoryManager
   
   @State var showNext: Bool = false
-  @State var searchText: String = ""
   @State var lastSearchText: String = ""
-  @State var replaceText: String = ""
   @State var lastReplaceText: String = ""
+  @State var appearing: Bool = true
+  @Binding var searchText: String
+  @Binding var replaceText: String
   @Binding var showSearchField: Bool
   @Binding var replaceMode: Bool
   @Binding var caseSensitive: Bool
@@ -46,49 +47,58 @@ struct SearchField: View {
     VStack(alignment: .leading, spacing: 0.0) {
       HStack {
         HStack {
-          Menu {
-            Button(action: {
-              withAnimation(.default) {
-                self.replaceMode = !self.replaceMode
-                self.showNext = false
-                self.lastSearchText = ""
-                self.lastReplaceText = ""
+          if self.appearing { // This is a huge hack; without this, the transition won't work
+            Image(systemName: "magnifyingglass")
+              .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+                  self.appearing = false
+                }
               }
-            }) {
-              Label(self.replaceMode ? "Search" : "Search/Replace",
-                    systemImage: self.replaceMode ? "magnifyingglass" : "arrow.triangle.swap")
-            }
-            Button(action: {
-              self.caseSensitive.toggle()
-            }) {
-              Label("Case Sensitive",
-                    systemImage: self.caseSensitive ? "checkmark.square" : "square")
-            }
-            if !self.histManager.searchHistory.isEmpty {
-              Divider()
-            }
-            ForEach(self.histManager.searchHistory, id: \.self) { entry in
+          } else {
+            Menu {
               Button(action: {
                 withAnimation(.default) {
-                  self.searchText = entry.searchText
-                  if let replaceText = entry.replaceText {
-                    self.replaceText = replaceText
-                    self.replaceMode = true
-                  } else {
-                    self.replaceMode = false
-                  }
+                  self.replaceMode = !self.replaceMode
                   self.showNext = false
                   self.lastSearchText = ""
                   self.lastReplaceText = ""
                 }
               }) {
-                Label(title: { Text(entry.description) },
-                      icon: { Image(systemName: entry.searchOnly ?  "magnifyingglass"
-                                                                 : "arrow.triangle.swap") })
+                Label("Replace",
+                      systemImage: self.replaceMode ? "checkmark.square" : "square")
               }
+              Button(action: {
+                self.caseSensitive.toggle()
+              }) {
+                Label("Case Sensitive",
+                      systemImage: self.caseSensitive ? "checkmark.square" : "square")
+              }
+              if !self.histManager.searchHistory.isEmpty {
+                Divider()
+              }
+              ForEach(self.histManager.searchHistory, id: \.self) { entry in
+                Button(action: {
+                  withAnimation(.default) {
+                    self.searchText = entry.searchText
+                    if let replaceText = entry.replaceText {
+                      self.replaceText = replaceText
+                      self.replaceMode = true
+                    } else {
+                      self.replaceMode = false
+                    }
+                    self.showNext = false
+                    self.lastSearchText = ""
+                    self.lastReplaceText = ""
+                  }
+                }) {
+                  Label(title: { Text(entry.description) },
+                        icon: { Image(systemName: entry.searchOnly ? "magnifyingglass"
+                                                                   : "repeat") })
+                }
+              }
+            } label: {
+              Image(systemName: "magnifyingglass")
             }
-          } label: {
-            Image(systemName: "magnifyingglass").font(.callout)
           }
           TextField("Search", text: $searchText, onEditingChanged: { isEditing in
             self.showSearchField = true
@@ -107,10 +117,10 @@ struct SearchField: View {
               }
             }
           })
-          .font(.callout)
-          .foregroundColor(.primary)
-          .autocapitalization(.none)
+          .keyboardType(.default)
           .disableAutocorrection(true)
+          .autocapitalization(.none)
+          .foregroundColor(.primary)
           Button(action: {
             withAnimation(.default) {
               self.searchText = ""
@@ -119,7 +129,6 @@ struct SearchField: View {
             }
           }) {
             Image(systemName: "xmark.circle.fill")
-              .font(.callout)
               .opacity(self.searchText == "" ? 0 : 1)
           }
         }
@@ -155,6 +164,7 @@ struct SearchField: View {
         .padding(.horizontal, 4)
         .keyCommand("g", modifiers: .command, title: "Find next")
         .disabled(self.searchText.isEmpty)
+        Spacer(minLength: 8)
         Button("Cancel") {
           UIApplication.shared.endEditing(true)
           withAnimation(.default) {
@@ -164,16 +174,15 @@ struct SearchField: View {
         }
         .padding(.leading, 4)
         .padding(.trailing, 0)
-        .font(.callout)
         .foregroundColor(Color(.systemBlue))
       }
       .padding(EdgeInsets(top: 8, leading: 8,
                           bottom: self.replaceMode ? 6 : 8, trailing: 8))
-      .animation(.default)
+      // .animation(.default)
       if self.replaceMode {
         HStack {
           HStack {
-            Image(systemName: "pencil").font(.callout)
+            Image(systemName: "pencil")
             TextField("Replace", text: $replaceText, onEditingChanged: { isEditing in
               self.showSearchField = true
             }, onCommit: {
@@ -191,10 +200,9 @@ struct SearchField: View {
                 }
               }
             })
-            .font(.callout)
-            .foregroundColor(.primary)
-            .autocapitalization(.none)
             .disableAutocorrection(true)
+            .autocapitalization(.none)
+            .foregroundColor(.primary)
             Button(action: {
               withAnimation(.default) {
                 self.replaceText = ""
@@ -202,7 +210,6 @@ struct SearchField: View {
               }
             }) {
               Image(systemName: "xmark.circle.fill")
-                .font(.callout)
                 .opacity(self.replaceText == "" ? 0 : 1)
             }
           }
@@ -283,7 +290,7 @@ struct SearchField: View {
                       self.replaceText != self.lastReplaceText)
         }
         .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 8))
-        .animation(.default)
+        // .animation(.default)
       }
     }
     .onDisappear {

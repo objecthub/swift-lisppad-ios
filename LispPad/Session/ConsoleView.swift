@@ -362,12 +362,13 @@ struct ConsoleView: View {
               ForEach(self.content, id: \.id) { entry in
                 self.consoleRow(entry, width: geo.size.width)
               }
-            }.frame(minWidth: 0,
+            }
+            /* .frame(minWidth: 0,               // Looks like we don't need that anymore
                     maxWidth: .infinity,
                     minHeight: 0,
                     maxHeight: .infinity,
                     alignment: .topLeading
-            )
+            ) */
             .onChange(of: self.content.count) { _ in
               if self.content.count > 0 {
                 withAnimation {

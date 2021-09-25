@@ -69,6 +69,7 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.keyboardType = .default
     textView.autocapitalizationType = .none
     textView.autocorrectionType = .no
+    textView.spellCheckingType = .no
     textView.font = self.settings.inputFont
     textView.textColor = UIColor(named: "CodeEditorTextColor")
     textView.backgroundColor = .clear

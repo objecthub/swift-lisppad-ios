@@ -23,14 +23,19 @@ import SwiftUI
 struct Sheet<Content: View>: View {
   @Environment(\.presentationMode) var presentationMode
 
+  let backgroundColor: Color?
   let content: Content
 
-  init(@ViewBuilder content: () -> Content) {
+  init(backgroundColor: Color? = nil, @ViewBuilder content: () -> Content) {
+    self.backgroundColor = backgroundColor
     self.content = content()
   }
 
   var body: some View {
     ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
+      if let color = self.backgroundColor {
+        color.ignoresSafeArea()
+      }
       self.content
       HStack {
         Spacer()

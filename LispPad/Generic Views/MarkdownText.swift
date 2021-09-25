@@ -140,40 +140,43 @@ struct MarkdownTextView: UIViewRepresentable {
          context.coordinator.colorScheme != context.environment.colorScheme {
         context.coordinator.colorScheme = context.environment.colorScheme
         if let md = self.markdownText {
-          uiView.attributedText =
-            (context.coordinator.colorScheme == .dark ?
-              DocumentationStringGenerator(
-                fontSize: UserSettings.standard.documentationTextFontSize,
-                fontFamily: MarkdownTextView.textFont,
-                fontColor: "#fff",
-                codeFontSize: UserSettings.standard.documentationCodeFontSize,
-                codeFontFamily: MarkdownTextView.codeFont,
-                codeFontColor: "#ccddff",
-                codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
-                codeBlockFontColor: "#aaddff",
-                codeBlockBackground: "#333",
-                borderColor: "#333",
-                blockquoteColor: "#fff",
-                h1Color: "#007aff",
-                h2Color: "#007aff",
-                h3Color: "#007aff",
-                h4Color: "#007aff") :
-              DocumentationStringGenerator(
-                fontSize: UserSettings.standard.documentationTextFontSize,
-                fontFamily: MarkdownTextView.textFont,
-                fontColor: "#000",
-                codeFontSize: UserSettings.standard.documentationCodeFontSize,
-                codeFontFamily: MarkdownTextView.codeFont,
-                codeFontColor: "#0000aa",
-                codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
-                codeBlockFontColor: "#000099",
-                codeBlockBackground: "#eee",
-                borderColor: "#eee",
-                blockquoteColor: "#000",
-                h1Color: "#007aff",
-                h2Color: "#007aff",
-                h3Color: "#007aff",
-                h4Color: "#007aff")).generate(doc: md)
+          DispatchQueue.main.async {
+            uiView.attributedText =
+              (context.coordinator.colorScheme == .dark ?
+                DocumentationStringGenerator(
+                  fontSize: UserSettings.standard.documentationTextFontSize,
+                  fontFamily: MarkdownTextView.textFont,
+                  fontColor: "#fff",
+                  codeFontSize: UserSettings.standard.documentationCodeFontSize,
+                  codeFontFamily: MarkdownTextView.codeFont,
+                  codeFontColor: "#ccddff",
+                  codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
+                  codeBlockFontColor: "#aaddff",
+                  codeBlockBackground: "#333",
+                  borderColor: "#333",
+                  blockquoteColor: "#fff",
+                  h1Color: "#007aff",
+                  h2Color: "#007aff",
+                  h3Color: "#007aff",
+                  h4Color: "#007aff") :
+                DocumentationStringGenerator(
+                  fontSize: UserSettings.standard.documentationTextFontSize,
+                  fontFamily: MarkdownTextView.textFont,
+                  fontColor: "#000",
+                  codeFontSize: UserSettings.standard.documentationCodeFontSize,
+                  codeFontFamily: MarkdownTextView.codeFont,
+                  codeFontColor: "#0000aa",
+                  codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
+                  codeBlockFontColor: "#000099",
+                  codeBlockBackground: "#eee",
+                  borderColor: "#eee",
+                  blockquoteColor: "#000",
+                  h1Color: "#007aff",
+                  h2Color: "#007aff",
+                  h3Color: "#007aff",
+                  h4Color: "#007aff")).generate(doc: md)
+            self.intrinsicContentSize.size = uiView.intrinsicContentSize
+          }
         } else {
           uiView.attributedText = NSAttributedString(string: "Content not available")
         }

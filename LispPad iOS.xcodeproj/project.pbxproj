@@ -16,6 +16,7 @@
 		CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1DDB6126A734C60049E99D /* RTFTextView.swift */; };
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
 		CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
+		CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5026FE93F900835745 /* LispPadUI.swift */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
@@ -307,6 +308,7 @@
 		CC1DDB6126A734C60049E99D /* RTFTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RTFTextView.swift; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		CC233D5A266AC6940038016C /* PlotGraphs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlotGraphs.scm; sourceTree = "<group>"; };
+		CC302E5026FE93F900835745 /* LispPadUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadUI.swift; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
 		CC327C37260D399400BD7E32 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
@@ -499,6 +501,7 @@
 			children = (
 				CC84C24925FE59EE00758581 /* LispPadApp.swift */,
 				CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */,
+				CC302E5026FE93F900835745 /* LispPadUI.swift */,
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
 				CC84C27525FE7B1100758581 /* Session */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
@@ -731,7 +734,6 @@
 			isa = PBXGroup;
 			children = (
 				CCE8E433262A3C2500E3DC6A /* AboutView.swift */,
-				CC1DDB6126A734C60049E99D /* RTFTextView.swift */,
 				CC33237E260A8E6900AD3307 /* DocumentationManager.swift */,
 			);
 			path = Help;
@@ -748,6 +750,7 @@
 				CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */,
 				CCFBC5CA2605F50B00E29F99 /* RichText.swift */,
 				CC327C4A260E818500BD7E32 /* MarkdownText.swift */,
+				CC1DDB6126A734C60049E99D /* RTFTextView.swift */,
 				CCE8E4232621A31A00E3DC6A /* DocumentView.swift */,
 				CCE8E42126219C0000E3DC6A /* PDFViewer.swift */,
 				CC327C46260E1D5100BD7E32 /* ShareSheet.swift */,
@@ -951,6 +954,7 @@
 				CC327C552610B60400BD7E32 /* CodeEditorTextView.swift in Sources */,
 				CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */,
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
+				CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */,
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,
@@ -1042,7 +1046,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1097,7 +1101,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

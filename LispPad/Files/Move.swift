@@ -129,7 +129,7 @@ struct Move: View {
       }
       .font(.body)
       .padding()
-      .edgesIgnoringSafeArea(.all)
+      //.edgesIgnoringSafeArea(.all)
       .background(Color(.systemGroupedBackground))
       HStack(alignment: .top, spacing: 16) {
         VStack(alignment: .leading, spacing: 8) {

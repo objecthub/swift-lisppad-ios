@@ -50,6 +50,7 @@ struct DefinitionView: View {
 
   var body: some View {
     ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
+      Color(.systemGroupedBackground).ignoresSafeArea()
       Form {
         if self.defitions.values.count > 0 {
           Section(header: Text("Values")) {
@@ -92,9 +93,7 @@ struct DefinitionView: View {
           }
         }
       }
-      .padding(.top)
-      .edgesIgnoringSafeArea(.all)
-      .background(Color(.systemGroupedBackground))
+      .padding(.top, LispPadUI.panelTopPadding)
       HStack {
         Spacer()
         Button(action: {
@@ -108,7 +107,7 @@ struct DefinitionView: View {
         }
         .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
       }
-      .padding(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
+      .padding(12)
     }
   }
 

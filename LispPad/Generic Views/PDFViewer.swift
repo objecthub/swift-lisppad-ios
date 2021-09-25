@@ -77,9 +77,9 @@ struct PDFViewer: UIViewRepresentable {
         }
       }
       // Add new label
-      let pageLabel = UILabel(frame: CGRect(x: viewSize.width - 108, y: 4, width: 100, height: 20))
+      let pageLabel = UILabel(frame: CGRect(x: 0, y: 4, width: self.viewSize.width, height: 20))
       pageLabel.font = UIFont.systemFont(ofSize: 14.0)
-      pageLabel.textAlignment = .right
+      pageLabel.textAlignment = .center
       pageLabel.text = String(format: "%@ of %d",
                                     self.currentPage?.label ?? "0",
                                     self.document?.pageCount ?? 0)

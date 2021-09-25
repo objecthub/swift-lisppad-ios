@@ -68,6 +68,7 @@ struct CodeEditor: UIViewRepresentable {
     textView.keyboardType = .default
     textView.autocapitalizationType = .none
     textView.autocorrectionType = .no
+    textView.spellCheckingType = .no
     textView.font = self.settings.editorFont
     textView.textColor = UIColor(named: "CodeEditorTextColor")
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject

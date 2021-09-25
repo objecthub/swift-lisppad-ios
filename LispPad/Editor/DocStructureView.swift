@@ -40,6 +40,7 @@ struct DocStructureView: View {
 
   var body: some View {
     ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
+      Color(.systemGroupedBackground).ignoresSafeArea()
       Form {
         if self.structure.headers.count > 0 {
           ForEach(self.structure.headers) { header in
@@ -56,8 +57,6 @@ struct DocStructureView: View {
         }
       }
       .padding(.top)
-      .edgesIgnoringSafeArea(.all)
-      .background(Color(.systemGroupedBackground))
       HStack {
         Spacer()
         Button(action: {
@@ -71,7 +70,7 @@ struct DocStructureView: View {
         }
         .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
       }
-      .padding(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
+      .padding(12)
     }
   }
 

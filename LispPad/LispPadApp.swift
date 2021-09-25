@@ -35,6 +35,11 @@ import SwiftUI
   @StateObject private var globals = LispPadGlobals()
   @State private var urlToOpen: URL? = nil
   
+  // Global UI setup
+  init() {
+    LispPadUI.configure()
+  }
+  
   // The scene powering the app
   var body: some Scene {
     WindowGroup {

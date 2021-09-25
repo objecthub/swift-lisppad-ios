@@ -62,8 +62,9 @@ struct EnvironmentView: View {
       }
       .font(.body)
       .padding(.horizontal)
-      .padding(.top, self.showCancel ? 0 : 8)
-      .navigationBarHidden(showCancel)
+      .padding(.top, self.showCancel ? 9 : 8)
+      .padding(.bottom, self.showCancel ? -1 : 0)
+      .navigationBarHidden(self.showCancel)
       // .animation(.default)
       Divider()
       List {
@@ -81,23 +82,23 @@ struct EnvironmentView: View {
       }
       .padding(.top, -8)
       .resignKeyboardOnDragGesture()
-      .listStyle(DefaultListStyle())
+      .listStyle(PlainListStyle())
       .navigationTitle("Environment")
       .navigationBarBackButtonHidden(false)
       .toolbar {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-          HStack(alignment: .center, spacing: 16) {
+          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
             Button(action: {
               self.showLispPadRef = self.docManager.lispPadRef.url != nil
             }) {
               Image(systemName: "info.circle")
-                .font(InterpreterView.toolbarFont)
+                .font(LispPadUI.toolbarFont)
             }
           }
         }
       }
     }
-    .sheet(isPresented: $showLispPadRef) {
+    .fullScreenCover(isPresented: $showLispPadRef) {
       DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)
     }
   }

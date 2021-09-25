@@ -77,7 +77,7 @@ struct AboutView: View {
         .padding(.leading, 8)
         .padding(.bottom, 16)
       }
-      ScrollView {
+      ScrollView(.vertical) {
         RichText(self.aboutText).padding(24)
       }
     }

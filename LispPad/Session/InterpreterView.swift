@@ -79,13 +79,6 @@ struct InterpreterView: View {
     }
   }
   
-  // Static parameters
-  static let toolbarItemSize: CGFloat = 20
-  static let toolbarFont: SwiftUI.Font = .system(size: InterpreterView.toolbarItemSize,
-                                                 weight: .light)
-  static let toolbarSwitchFont: SwiftUI.Font = .system(size: InterpreterView.toolbarItemSize,
-                                                       weight: .regular)
-  
   // Environment objects
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var docManager: DocumentationManager
@@ -161,11 +154,20 @@ struct InterpreterView: View {
         Organizer()
           .modifier(self.globals.services)
       case .shareConsole:
-        ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+        ZStack {
+          Color(.secondarySystemBackground).ignoresSafeArea()
+          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+        }
       case .shareImage(let image):
-        ShareSheet(activityItems: [image])
+        ZStack {
+          Color(.secondarySystemBackground).ignoresSafeArea()
+          ShareSheet(activityItems: [image])
+        }
       case .shareText(let text):
-        ShareSheet(activityItems: [text as NSString])
+        ZStack {
+          Color(.secondarySystemBackground).ignoresSafeArea()
+          ShareSheet(activityItems: [text as NSString])
+        }
       case .showAbout:
         AboutView()
           .modifier(self.globals.services)
@@ -241,10 +243,9 @@ struct InterpreterView: View {
       }
     }
     .navigationBarTitleDisplayMode(.inline)
-    .navigationTitle("LispPad")
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarLeading) {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
           NavigationControl(splitView: self.splitView,
                             masterView: true,
                             splitViewMode: $splitViewMode,
@@ -281,7 +282,7 @@ struct InterpreterView: View {
               }
             } label: {
               Image(systemName: "terminal")
-                .font(InterpreterView.toolbarFont)
+                .font(LispPadUI.toolbarFont)
             }
           } else {
             Button(action: {
@@ -289,14 +290,14 @@ struct InterpreterView: View {
             }) {
               Image(systemName: "stop.circle")
                 .foregroundColor(Color.red)
-                .font(InterpreterView.toolbarFont)
+                .font(LispPadUI.toolbarFont)
             }
           }
           Button(action: {
             self.showSheet = .loadFile
           }) {
             Image(systemName: "arrow.down.doc")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           .contextMenu {
             if self.interpreter.isReady {
@@ -360,28 +361,28 @@ struct InterpreterView: View {
         }
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
           NavigationLink(destination: LazyView(
                           PreferencesView(selectedTab: $selectedPreferencesTab))) {
             Image(systemName: "gearshape")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           NavigationLink(destination: LazyView(
                            LibraryView(libManager: interpreter.libManager))) {
             Image(systemName: "building.columns")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           .disabled(!self.docManager.initialized)
           NavigationLink(destination: LazyView(
                            EnvironmentView(envManager: interpreter.envManager))) {
             Image(systemName: "square.stack.3d.up")
-              .font(InterpreterView.toolbarFont)
+              .font(LispPadUI.toolbarFont)
           }
           .disabled(!self.docManager.initialized)
         }
       }
     }
-    .sheet(item: $showSheet, content: self.sheetView)
+    .fullScreenCover(item: $showSheet, content: self.sheetView)
     .actionSheet(isPresented: $showResetActionSheet) {
       ActionSheet(title: Text("Reset"),
                   message: Text("Clear console and reset interpreter?"),
