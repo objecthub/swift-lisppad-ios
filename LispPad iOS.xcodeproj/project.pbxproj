@@ -17,6 +17,7 @@
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
 		CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
 		CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5026FE93F900835745 /* LispPadUI.swift */; };
+		CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5A2700828600835745 /* SlideOverCard.swift */; };
 		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
@@ -37,7 +38,7 @@
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
 		CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD8126492307001AAD10 /* DocStructureView.swift */; };
 		CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */; };
-		CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD85264ADB59001AAD10 /* MutableSize.swift */; };
+		CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD85264ADB59001AAD10 /* Mutable.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
@@ -309,6 +310,7 @@
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		CC233D5A266AC6940038016C /* PlotGraphs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlotGraphs.scm; sourceTree = "<group>"; };
 		CC302E5026FE93F900835745 /* LispPadUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadUI.swift; sourceTree = "<group>"; };
+		CC302E5A2700828600835745 /* SlideOverCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideOverCard.swift; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
 		CC327C37260D399400BD7E32 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
@@ -330,7 +332,7 @@
 		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
 		CC55DD8126492307001AAD10 /* DocStructureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocStructureView.swift; sourceTree = "<group>"; };
 		CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
-		CC55DD85264ADB59001AAD10 /* MutableSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MutableSize.swift; sourceTree = "<group>"; };
+		CC55DD85264ADB59001AAD10 /* Mutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutable.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -756,6 +758,7 @@
 				CC327C46260E1D5100BD7E32 /* ShareSheet.swift */,
 				CCE5701C26AC7E75008DF3D0 /* Sheet.swift */,
 				CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */,
+				CC302E5A2700828600835745 /* SlideOverCard.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -824,7 +827,7 @@
 				CC233D5826696C970038016C /* ImageUtil.swift */,
 				CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */,
 				CC8BBA27269E45EE00552B8F /* KeyCommand.swift */,
-				CC55DD85264ADB59001AAD10 /* MutableSize.swift */,
+				CC55DD85264ADB59001AAD10 /* Mutable.swift */,
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
 			);
 			path = Util;
@@ -946,7 +949,7 @@
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
 				CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */,
 				CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */,
-				CC55DD86264ADB59001AAD10 /* MutableSize.swift in Sources */,
+				CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */,
 				CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */,
 				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
 				CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */,
@@ -959,6 +962,7 @@
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
+				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
 				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
 				CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */,

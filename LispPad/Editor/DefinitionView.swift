@@ -99,11 +99,7 @@ struct DefinitionView: View {
         Button(action: {
           self.presentationMode.wrappedValue.dismiss()
         }) {
-          Image(systemName: "xmark.circle.fill")
-            .resizable()
-            .scaledToFit()
-            .frame(height: 24)
-            .foregroundColor(.gray)
+          ExitButton()
         }
         .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
       }

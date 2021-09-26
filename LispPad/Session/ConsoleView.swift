@@ -22,16 +22,18 @@ import SwiftUI
 import MobileCoreServices
 
 struct ConsoleView: View {
-  @EnvironmentObject var settings: UserSettings
-  
-  @State var dynamicHeight: CGFloat = 100
-  
   let font: Font
   let infoFont: Font
   let action: () -> Void
+  
+  @EnvironmentObject var globals: LispPadGlobals
+  @EnvironmentObject var settings: UserSettings
+  @State var dynamicHeight: CGFloat = 100
   @State var inputBuffer: String? = nil
   @State var inputHistoryIndex: Int = -1
   @State var updateConsole: ((CodeEditorTextView) -> Void)? = nil
+  @State var showCard: Bool = false
+  @StateObject var cardContent = MutableBlock()
   @StateObject var keyboardObserver = KeyboardObserver()
   
   @Binding var content: [ConsoleOutput]
@@ -246,7 +248,8 @@ struct ConsoleView: View {
                     update: $updateConsole,
                     keyboardObserver: self.keyboardObserver,
                     defineAction: { block in
-                      self.showSheet = .showDocumentation(block)
+                      self.showCard = true
+                      self.cardContent.block = block
                     })
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
@@ -363,12 +366,6 @@ struct ConsoleView: View {
                 self.consoleRow(entry, width: geo.size.width)
               }
             }
-            /* .frame(minWidth: 0,               // Looks like we don't need that anymore
-                    maxWidth: .infinity,
-                    minHeight: 0,
-                    maxHeight: .infinity,
-                    alignment: .topLeading
-            ) */
             .onChange(of: self.content.count) { _ in
               if self.content.count > 0 {
                 withAnimation {
@@ -384,6 +381,14 @@ struct ConsoleView: View {
               }
             }
           }
+        }
+      }
+      .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
+        ScrollView {
+          Spacer(minLength: 30)
+          MutableMarkdownText(self.cardContent)
+            .modifier(self.globals.services)
+            .padding(.horizontal, 10)
         }
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)

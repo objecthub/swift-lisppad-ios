@@ -23,15 +23,37 @@ import MarkdownKit
 
 struct MarkdownText: View {
   @StateObject private var intrinsicContentSize = MutableSize()
-  private let markdownText: Block?
+  private let mutableBlock = MutableBlock()
   
   init(_ markdownText: Block?) {
-    self.markdownText = markdownText
+    self.mutableBlock.block = markdownText
   }
   
   var body: some View {
     GeometryReader { geometry in
-      MarkdownTextView(markdownText: self.markdownText,
+      MarkdownTextView(mutableBlock: self.mutableBlock,
+                       maxLayoutWidth: geometry.size.width -
+                                       geometry.safeAreaInsets.leading -
+                                       geometry.safeAreaInsets.trailing,
+                       intrinsicContentSize: self.intrinsicContentSize)
+    }
+    .frame(idealWidth: self.intrinsicContentSize.size?.width,
+           idealHeight: self.intrinsicContentSize.size?.height)
+    .fixedSize(horizontal: false, vertical: true)
+  }
+}
+
+struct MutableMarkdownText: View {
+  @StateObject private var intrinsicContentSize = MutableSize()
+  @ObservedObject private var mutableBlock: MutableBlock
+  
+  init(_ mutableBlock: MutableBlock) {
+    self.mutableBlock = mutableBlock
+  }
+  
+  var body: some View {
+    GeometryReader { geometry in
+      MarkdownTextView(mutableBlock: self.mutableBlock,
                        maxLayoutWidth: geometry.size.width -
                                        geometry.safeAreaInsets.leading -
                                        geometry.safeAreaInsets.trailing,
@@ -68,6 +90,7 @@ struct MarkdownTextView: UIViewRepresentable {
   final class Coordinator: NSObject, UITextViewDelegate {
     var openURLProc: OpenURLAction? = nil
     var colorScheme: ColorScheme = .light
+    var version: Int = 0
     func textView(_ view: UITextView,
                   shouldInteractWith url: URL,
                   in range: NSRange,
@@ -112,7 +135,7 @@ struct MarkdownTextView: UIViewRepresentable {
     }
   }
   
-  let markdownText: Block?
+  @ObservedObject var mutableBlock: MutableBlock
   let maxLayoutWidth: CGFloat
   let intrinsicContentSize: MutableSize
   
@@ -137,9 +160,11 @@ struct MarkdownTextView: UIViewRepresentable {
   func updateUIView(_ uiView: TextView, context: Context) {
     if context.environment.scenePhase != .background {
       if uiView.attributedText.length == 0 ||
-         context.coordinator.colorScheme != context.environment.colorScheme {
+         context.coordinator.colorScheme != context.environment.colorScheme ||
+         context.coordinator.version != self.mutableBlock.version {
         context.coordinator.colorScheme = context.environment.colorScheme
-        if let md = self.markdownText {
+        context.coordinator.version = self.mutableBlock.version
+        if let md = self.mutableBlock.block {
           DispatchQueue.main.async {
             uiView.attributedText =
               (context.coordinator.colorScheme == .dark ?

@@ -23,7 +23,17 @@
 /// from custom SwiftUI-wrapped UIKit widgets.
 ///
 import SwiftUI
+import MarkdownKit
 
 final class MutableSize: ObservableObject {
   @Published var size: CGSize? = nil
+}
+
+final class MutableBlock: ObservableObject {
+  @Published private(set) var version: Int = 0
+  var block: Block? = nil {
+    didSet {
+      self.version = self.version &+ 1
+    }
+  }
 }
