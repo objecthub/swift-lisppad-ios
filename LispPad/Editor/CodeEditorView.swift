@@ -109,6 +109,8 @@ struct CodeEditorView: View {
   @Binding var forceEditorUpdate: Bool
   
   @StateObject var keyboardObserver = KeyboardObserver()
+  @StateObject var cardContent = MutableBlock()
+  @State var showCard: Bool = false
   @State var searchText: String = ""
   @State var replaceText: String = ""
   @State var showSearchField: Bool = false
@@ -122,7 +124,7 @@ struct CodeEditorView: View {
   
   var keyboardShortcuts: some View {
     ZStack {
-      ZStack {
+      Group {
         Button(action: self.indentEditor) {
           EmptyView()
         }
@@ -160,12 +162,16 @@ struct CodeEditorView: View {
         EmptyView()
       }
       .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
-      Button(action: { self.showSearchField.toggle() }) {
+      Button(action: {
+        self.dismissCard()
+        self.showSearchField.toggle()
+      }) {
         EmptyView()
       }
       .keyCommand("f", modifiers: .command, title: "Find")
       .alert(isPresented: $showAbortAlert, content: self.abortAlert)
       Button(action: {
+        self.dismissCard()
         if !self.showSearchField {
           self.showSearchField = true
           self.replaceModeSearch = true
@@ -179,6 +185,7 @@ struct CodeEditorView: View {
       .alert(isPresented: $showAbortAlert, content: self.abortAlert)
       if !self.splitView {
         Button(action: {
+          self.dismissCard()
           self.presentationMode.wrappedValue.dismiss()
         }) {
           EmptyView()
@@ -198,10 +205,11 @@ struct CodeEditorView: View {
                       replaceMode: $replaceModeSearch,
                       caseSensitive: $caseSensitiveSearch,
                       search: { str, direction in
+                        self.dismissCard()
                         if let doc = self.fileManager.editorDocument {
                           let text = NSString(string: doc.text)
                           let pos = direction == .first ? 0 : doc.selectedRange.location +
-                                                                (doc.selectedRange.length > 0 ? 1 : 0)
+                                                              (doc.selectedRange.length > 0 ? 1 : 0)
                           let result = direction == .backward
                             ? text.range(of: str,
                                          options:
@@ -227,6 +235,7 @@ struct CodeEditorView: View {
                         }
                       },
                       replace: { str, repl, cont in
+                        self.dismissCard()
                         self.updateEditor = { textView in
                           let formerRange = textView.selectedRange
                           if formerRange.length > 0 {
@@ -262,6 +271,7 @@ struct CodeEditorView: View {
                         }
                       },
                       replaceAll: { str, repl in
+                        self.dismissCard()
                         self.notSavedAlertAction = .replaceAll(str, repl)
                       })
           Divider()
@@ -283,10 +293,19 @@ struct CodeEditorView: View {
                  editorType: $editorType,
                  keyboardObserver: self.keyboardObserver,
                  defineAction: { block in
-                  self.showSheet = .showDocumentation(block)
+                  self.showCard = true
+                  self.cardContent.block = block
                  })
         .multilineTextAlignment(.leading)
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
+          ScrollView {
+            Spacer(minLength: 30)
+            MutableMarkdownText(self.cardContent)
+              .modifier(self.globals.services)
+              .padding(.horizontal, 10)
+          }
+        }
         .onAppear {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
           /*
@@ -309,6 +328,7 @@ struct CodeEditorView: View {
                             masterView: false,
                             splitViewMode: $splitViewMode,
                             masterWidthFraction: $masterWidthFraction) {
+            self.dismissCard()
             self.presentationMode.wrappedValue.dismiss()
           } splitViewAction: {
             self.fileManager.editorDocument?.saveFile()
@@ -318,6 +338,7 @@ struct CodeEditorView: View {
           }
           Menu {
             Button(action: {
+              self.dismissCard()
               if (self.fileManager.editorDocumentInfo.new) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .newFile
@@ -328,6 +349,7 @@ struct CodeEditorView: View {
               Label("New", systemImage: "square.and.pencil")
             }
             Button(action: {
+              self.dismissCard()
               if (self.fileManager.editorDocumentInfo.new) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .editFile
@@ -338,6 +360,7 @@ struct CodeEditorView: View {
               Label("Open…", systemImage: "tray.and.arrow.up")
             }
             Button(action: {
+              self.dismissCard()
               self.fileManager.editorDocument?.saveFile { success in
                 self.showSheet = .saveFile
               }
@@ -346,6 +369,7 @@ struct CodeEditorView: View {
                     systemImage: "tray.and.arrow.down")
             }
             Button(action: {
+              self.dismissCard()
               self.showSheet = .organizeFiles
             }) {
               Label("Organize…", systemImage: "doc.text.magnifyingglass")
@@ -355,6 +379,7 @@ struct CodeEditorView: View {
               ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
                 if let url = purl.url {
                   Button(action: {
+                    self.dismissCard()
                     self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
                   }) {
                     Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
@@ -385,6 +410,7 @@ struct CodeEditorView: View {
       ToolbarItemGroup(placement: .principal) {
         Menu {
           Button(action: {
+            self.dismissCard()
             if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
               UIPasteboard.general.setValue(path, forPasteboardType: kUTTypePlainText as String)
             }
@@ -395,6 +421,7 @@ struct CodeEditorView: View {
           .disabled(self.fileManager.editorDocumentInfo.new)
           Divider()
           Button(action: {
+            self.dismissCard()
             self.fileManager.editorDocument?.saveFile { success in
               self.showSheet = .saveFile
             }
@@ -403,12 +430,14 @@ struct CodeEditorView: View {
                   systemImage: "tray.and.arrow.down")
           }
           Button(action: {
+            self.dismissCard()
             self.showSheet = .renameFile
           }) {
             Label("Rename", systemImage: "pencil")
           }
           .disabled(self.fileManager.editorDocumentInfo.new)
           Button(action: {
+            self.dismissCard()
             if let doc = self.fileManager.editorDocument, !doc.info.new {
               doc.saveFile { success in
                 if success {
@@ -431,6 +460,7 @@ struct CodeEditorView: View {
           .disabled(self.fileManager.editorDocumentInfo.new)
           Divider()
           Button(action: {
+            self.dismissCard()
             self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
           }) {
             if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
@@ -451,6 +481,7 @@ struct CodeEditorView: View {
         HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
           Menu {
             Button(action: {
+              self.dismissCard()
               self.updateEditor = { textView in
                 textView.undoManager?.undo()
               }
@@ -458,6 +489,7 @@ struct CodeEditorView: View {
               Label("Undo", systemImage: "arrow.uturn.backward")
             }
             Button(action: {
+              self.dismissCard()
               self.updateEditor = { textView in
                 textView.undoManager?.redo()
               }
@@ -490,6 +522,7 @@ struct CodeEditorView: View {
             }
             Divider()
             Button(action: {
+              self.dismissCard()
               withAnimation(.default) {
                 if self.showSearchField {
                   self.replaceModeSearch.toggle()
@@ -506,6 +539,7 @@ struct CodeEditorView: View {
               .font(LispPadUI.toolbarFont)
           }
           Button(action: {
+            self.dismissCard()
             guard let doc = self.fileManager.editorDocument else {
               return
             }
@@ -524,6 +558,7 @@ struct CodeEditorView: View {
           }
           .disabled(self.editorType != .scheme && self.editorType != .markdown)
           Button(action: {
+            self.dismissCard()
             withAnimation(.default) {
               self.showSearchField = true
             }
@@ -672,6 +707,10 @@ struct CodeEditorView: View {
     }
   }
   
+  private func dismissCard() {
+    self.showCard = false
+  }
+  
   private func replaceAll(_ str: String, _ repl: String) -> Alert {
     return Alert(title: Text("Replace all"),
                  message: Text("Replace all occurences of \"\(str)\" in the remaining document?"),
@@ -731,6 +770,7 @@ struct CodeEditorView: View {
   }
 
   private func selectExpression() {
+    self.dismissCard()
     if let doc = self.fileManager.editorDocument,
        let range = TextFormatter.selectEnclosingExpr(string: doc.text as NSString,
                                                      selectedRange: doc.selectedRange) {
@@ -744,11 +784,13 @@ struct CodeEditorView: View {
     if let doc = self.fileManager.editorDocument,
        let name = TextFormatter.selectedName(in: doc.text, for: doc.selectedRange),
        let documentation = self.docManager.documentation(for: name) {
-      self.showSheet = .showDocumentation(documentation)
+      self.showCard = true
+      self.cardContent.block = documentation
     }
   }
 
   private func indentEditor() {
+    self.dismissCard()
     if let doc = self.fileManager.editorDocument {
       let text = NSMutableString(string: doc.text)
       let selRange = TextFormatter.indent(string: text,
@@ -762,6 +804,7 @@ struct CodeEditorView: View {
   }
   
   private func outdentEditor() {
+    self.dismissCard()
     if let doc = self.fileManager.editorDocument {
       let text = NSMutableString(string: doc.text)
       if let selRange = TextFormatter.outdent(string: text,
@@ -776,6 +819,7 @@ struct CodeEditorView: View {
   }
   
   private func commentEditor() {
+    self.dismissCard()
     if let doc = self.fileManager.editorDocument {
       let text = NSMutableString(string: doc.text)
       let selRange = TextFormatter.indent(string: text,
@@ -789,6 +833,7 @@ struct CodeEditorView: View {
   }
   
   private func uncommentEditor() {
+    self.dismissCard()
     if let doc = self.fileManager.editorDocument {
       let text = NSMutableString(string: doc.text)
       if let selRange = TextFormatter.outdent(string: text,
@@ -803,6 +848,7 @@ struct CodeEditorView: View {
   }
   
   private func autoIndentEditor() {
+    self.dismissCard()
     if let doc = self.fileManager.editorDocument {
       let text = doc.text as NSString
       if let (str, replRange, selRange) = TextFormatter.autoIndentLines(
@@ -818,6 +864,7 @@ struct CodeEditorView: View {
   }
 
   private func runInterpreter() {
+    self.dismissCard()
     if self.editorType == .scheme {
       self.interpreter.append(output: .command("<execute code from editor>"))
       self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
