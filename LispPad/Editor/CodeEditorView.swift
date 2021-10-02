@@ -299,11 +299,11 @@ struct CodeEditorView: View {
         .multilineTextAlignment(.leading)
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
-          ScrollView {
-            Spacer(minLength: 30)
+          OptionalScrollView {
             MutableMarkdownText(self.cardContent)
               .modifier(self.globals.services)
               .padding(.horizontal, 10)
+              .padding(.top, 30)
           }
         }
         .onAppear {

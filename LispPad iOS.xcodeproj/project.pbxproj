@@ -128,6 +128,7 @@
 		CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565A261BADAD0080B96E /* DefinitionView.swift */; };
 		CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565C261CE5710080B96E /* TextDocument.swift */; };
 		CCC85660261D09410080B96E /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565F261D09410080B96E /* PreferencesView.swift */; };
+		CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */; };
 		CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701C26AC7E75008DF3D0 /* Sheet.swift */; };
 		CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */; };
 		CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42126219C0000E3DC6A /* PDFViewer.swift */; };
@@ -427,6 +428,7 @@
 		CCC8565A261BADAD0080B96E /* DefinitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefinitionView.swift; sourceTree = "<group>"; };
 		CCC8565C261CE5710080B96E /* TextDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDocument.swift; sourceTree = "<group>"; };
 		CCC8565F261D09410080B96E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalScrollView.swift; sourceTree = "<group>"; };
 		CCE5701C26AC7E75008DF3D0 /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
 		CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollSheet.swift; sourceTree = "<group>"; };
 		CCE8E42126219C0000E3DC6A /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
@@ -746,6 +748,7 @@
 			children = (
 				CC327C37260D399400BD7E32 /* LazyView.swift */,
 				CC55DD7926469A8F001AAD10 /* SplitView.swift */,
+				CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */,
 				CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */,
 				CC55DD7D26481279001AAD10 /* NavigationControl.swift */,
 				CCC85658261B18C70080B96E /* SearchField.swift */,
@@ -977,6 +980,7 @@
 				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
+				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
 				CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
@@ -1122,7 +1126,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 50;
+				CURRENT_PROJECT_VERSION = 52;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1132,7 +1136,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1147,7 +1151,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 50;
+				CURRENT_PROJECT_VERSION = 52;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1157,7 +1161,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

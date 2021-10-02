@@ -36,7 +36,9 @@ struct Sheet<Content: View>: View {
       if let color = self.backgroundColor {
         color.ignoresSafeArea()
       }
-      self.content
+      VStack(alignment: .center, spacing: 0) {
+        self.content
+      }
       HStack {
         Spacer()
         Button(action: {

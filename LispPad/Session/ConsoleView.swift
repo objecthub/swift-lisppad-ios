@@ -376,19 +376,21 @@ struct ConsoleView: View {
             }
             .onChange(of: self.input.count) { _ in
               if self.content.count > 0 {
-                scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
-                                         anchor: .bottomLeading)
+                withAnimation {
+                  scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
+                                           anchor: .bottomLeading)
+                }
               }
             }
           }
         }
       }
       .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
-        ScrollView {
-          Spacer(minLength: 30)
+        OptionalScrollView {
           MutableMarkdownText(self.cardContent)
             .modifier(self.globals.services)
             .padding(.horizontal, 10)
+            .padding(.top, 30)
         }
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)

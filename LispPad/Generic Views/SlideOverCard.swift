@@ -24,6 +24,7 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 //  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 //  DEALINGS IN THE SOFTWARE.
+// 
 
 import SwiftUI
 
@@ -50,25 +51,19 @@ public struct SlideOverCard<Content: View>: View {
           .edgesIgnoringSafeArea(.all)
           .transition(.opacity)
           .zIndex(1)
-        Group {
-          container
+        VStack {
+          Spacer()
+          card
             .padding(.horizontal, 8)
             .padding(.top, 40)
             .padding(.bottom, 8)
-            .ignoresSafeArea(.container, edges: .bottom)
+            .ignoresSafeArea(.container, edges: [])
         }
         .transition(.move(edge: .bottom))
         .zIndex(2)
       }
     }
     .animation(.spring(response: 0.35, dampingFraction: 1))
-  }
-  
-  private var container: some View {
-    VStack {
-      Spacer()
-      card.frame(maxHeight: 500)
-    }
   }
   
   private var card: some View {

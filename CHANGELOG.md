@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 (2021-10-02)
+
+- Optimized user interface for iOS 15
+- Improved synchronization with iCloud Drive
+- New in-context documentation viewer
+- Searchable Libraries view; include libraries that are not loaded
+- Support for search/replace; save the search/replace history; enable case-insensitive search
+- New procedures `icloud-directory` and `icloud-list` in library `(lisppad system)`
+- Bug fixes in library `(lispkit location)`
+- Interpreter now based on LispKit 2.0.3
+
 ## 1.1.2 (2021-08-19)
 
 - Comprehensive support for keyboard shortcuts

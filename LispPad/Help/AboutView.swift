@@ -30,27 +30,20 @@ struct AboutView: View {
 
   let aboutText: NSAttributedString = {
     if let url = AboutView.creditsUrl,
-       let astr = try? NSAttributedString(
+       let astr = try? NSMutableAttributedString(
                          url: url,
                          options: [.documentType: NSAttributedString.DocumentType.rtf],
                          documentAttributes: nil) {
+      astr.addAttribute(.foregroundColor,
+                        value: UIColor.secondaryLabel,
+                        range: NSRange(location: 0, length: astr.length))
       return astr
     }
     return NSAttributedString(string: "")
   }()
 
   var body: some View {
-    VStack(alignment: .center, spacing: 0) {
-      HStack {
-        Spacer()
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          ExitButton()
-        }
-        .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
-      }
-      .padding(EdgeInsets(top: 12, leading: 12, bottom: 0, trailing: 12))
+    Sheet(backgroundColor: Color(.tertiarySystemBackground)) {
       HStack(alignment: .center, spacing: 16) {
         Image("SmallLogo")
           .resizable()
@@ -71,10 +64,12 @@ struct AboutView: View {
         .padding(.trailing, 20)
         .frame(width: 170, height: 110, alignment: .center)
         .padding(.leading, 8)
-        .padding(.bottom, 16)
       }
+      .padding(.top, 32)
+      .padding(.bottom, 16)
       ScrollView(.vertical) {
-        RichText(self.aboutText).padding(24)
+        RichText(self.aboutText)
+          .padding(.horizontal, 24)
       }
     }
   }
