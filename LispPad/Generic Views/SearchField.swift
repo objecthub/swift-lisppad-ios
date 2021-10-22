@@ -248,10 +248,23 @@ struct SearchField: View {
                       self.searchText.isEmpty ||
                       self.searchText != self.lastSearchText ||
                       self.replaceText != self.lastReplaceText)
+          Button(action: {
+            _ = self.replace(self.searchText, self.replaceText, nil)
+            withAnimation(.default) {
+              self.lastSearchText = ""
+              self.lastReplaceText = ""
+              self.showNext = false
+            }
+          }, label: {
+            Image(systemName: "repeat.1")
+              .padding(.leading, 13)
+              .padding(.trailing, 4)
+          })
+          .disabled(self.searchText.isEmpty ||
+                      self.searchText != self.lastSearchText ||
+                      self.replaceText != self.lastReplaceText)
           Button(action: { }) {
             Image(systemName: "repeat")
-            .padding(.leading, 12)
-            .padding(.trailing, 4)
             .onTapGesture {
               self.replace(self.searchText, self.replaceText) { more in
                 DispatchQueue.main.async {
@@ -274,20 +287,8 @@ struct SearchField: View {
                       self.searchText.isEmpty ||
                       self.searchText != self.lastSearchText ||
                       self.replaceText != self.lastReplaceText)
-          Button(action: {
-            _ = self.replace(self.searchText, self.replaceText, nil)
-            withAnimation(.default) {
-              self.lastSearchText = ""
-              self.lastReplaceText = ""
-              self.showNext = false
-            }
-          }, label: {
-            Image(systemName: "repeat.1")
-          })
-          .padding(.horizontal, 4)
-          .disabled(self.searchText.isEmpty ||
-                      self.searchText != self.lastSearchText ||
-                      self.replaceText != self.lastReplaceText)
+          Text("Cancel")
+            .foregroundColor(.clear)
         }
         .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 8))
         // .animation(.default)

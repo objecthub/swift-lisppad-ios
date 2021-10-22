@@ -136,7 +136,8 @@ struct LibraryView: View {
                 DragGesture().onChanged { value in
                   withAnimation(.default) {
                     if value.translation.width > 60 {
-                      self.swipeOffset = value.translation.width > 180 ? 180 : value.translation.width
+                      self.swipeOffset = value.translation.width > 180 ? 180
+                                                                       : value.translation.width
                       self.swiped = proxy
                     } else if value.translation.width < 0 {
                       self.swipeOffset = 0
