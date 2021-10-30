@@ -41,6 +41,11 @@
 		CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD85264ADB59001AAD10 /* Mutable.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
+		CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CC27240997004C9B89 /* SessionLog.swift */; };
+		CC6598D82725859C004C9B89 /* log.sld in Copy Root/Libraries/lispkit */ = {isa = PBXBuildFile; fileRef = CC6598D52725846D004C9B89 /* log.sld */; };
+		CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC6598D227258405004C9B89 /* log.sld */; };
+		CC6598DE272628A7004C9B89 /* CustomPopOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598DD272628A7004C9B89 /* CustomPopOver.swift */; };
+		CC6598E027292CB6004C9B89 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598DF27292CB6004C9B89 /* LogView.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
 		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
 		CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24D25FE59EE00758581 /* ContentView.swift */; };
@@ -110,11 +115,10 @@
 		CC8B95D12608186500830B4F /* Documentation.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC8B95CE260813EC00830B4F /* Documentation.plist */; };
 		CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B95CF2608179000830B4F /* (lisppad audio).md */; };
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
-		CC8BBA3026C041DA00552B8F /* Sierpinski.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
+		CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134C272B3AEA0046F474 /* LogFilterView.swift */; };
 		CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */; };
-		CCBF9E6A26C890B400654D60 /* (lisppad location).md in Resources */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
@@ -156,6 +160,28 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		CC6598D72725856E004C9B89 /* Copy Root/Libraries/lispkit */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/Libraries/lispkit;
+			dstSubfolderSpec = 7;
+			files = (
+				CC6598D82725859C004C9B89 /* log.sld in Copy Root/Libraries/lispkit */,
+			);
+			name = "Copy Root/Libraries/lispkit";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC6598D9272585A8004C9B89 /* Copy Root/Libraries/lisppad */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/Libraries/lisppad;
+			dstSubfolderSpec = 7;
+			files = (
+				CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */,
+			);
+			name = "Copy Root/Libraries/lisppad";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC8B957E2607B44200830B4F /* Copy Documentation/Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -336,6 +362,11 @@
 		CC55DD85264ADB59001AAD10 /* Mutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutable.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
+		CC6598CC27240997004C9B89 /* SessionLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLog.swift; sourceTree = "<group>"; };
+		CC6598D227258405004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
+		CC6598D52725846D004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
+		CC6598DD272628A7004C9B89 /* CustomPopOver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPopOver.swift; sourceTree = "<group>"; };
+		CC6598DF27292CB6004C9B89 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
 		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
@@ -413,6 +444,7 @@
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
+		CCBE134C272B3AEA0046F474 /* LogFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFilterView.swift; sourceTree = "<group>"; };
 		CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CCBF9E6926C890B400654D60 /* (lisppad location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad location).md"; sourceTree = "<group>"; };
 		CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBySideViewController.swift; sourceTree = "<group>"; };
@@ -477,6 +509,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CC6598CB27240983004C9B89 /* Log */ = {
+			isa = PBXGroup;
+			children = (
+				CC6598DF27292CB6004C9B89 /* LogView.swift */,
+				CCBE134C272B3AEA0046F474 /* LogFilterView.swift */,
+				CC6598CC27240997004C9B89 /* SessionLog.swift */,
+			);
+			path = Log;
+			sourceTree = "<group>";
+		};
+		CC6598D1272583E9004C9B89 /* lisppad */ = {
+			isa = PBXGroup;
+			children = (
+				CC6598D227258405004C9B89 /* log.sld */,
+			);
+			path = lisppad;
+			sourceTree = "<group>";
+		};
+		CC6598D427258455004C9B89 /* lispkit */ = {
+			isa = PBXGroup;
+			children = (
+				CC6598D52725846D004C9B89 /* log.sld */,
+			);
+			path = lispkit;
+			sourceTree = "<group>";
+		};
 		CC84C23D25FE59EE00758581 = {
 			isa = PBXGroup;
 			children = (
@@ -508,6 +566,7 @@
 				CC302E5026FE93F900835745 /* LispPadUI.swift */,
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
 				CC84C27525FE7B1100758581 /* Session */,
+				CC6598CB27240983004C9B89 /* Log */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
 				CCC85639261677560080B96E /* Files */,
 				CCC8565E261D09190080B96E /* Preferences */,
@@ -659,6 +718,8 @@
 		CC8B95AC2607FBD200830B4F /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				CC6598D427258455004C9B89 /* lispkit */,
+				CC6598D1272583E9004C9B89 /* lisppad */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -762,6 +823,7 @@
 				CCE5701C26AC7E75008DF3D0 /* Sheet.swift */,
 				CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */,
 				CC302E5A2700828600835745 /* SlideOverCard.swift */,
+				CC6598DD272628A7004C9B89 /* CustomPopOver.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -854,6 +916,8 @@
 				CC8B95BF26080EF400830B4F /* Copy Root/Assets/Audio */,
 				CC8B95C326080F6100830B4F /* Copy Root/Assets/Images */,
 				CC8B95C626080F8B00830B4F /* Copy Root/Assets/Documents */,
+				CC6598D72725856E004C9B89 /* Copy Root/Libraries/lispkit */,
+				CC6598D9272585A8004C9B89 /* Copy Root/Libraries/lisppad */,
 			);
 			buildRules = (
 			);
@@ -906,13 +970,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
+				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
-				CCBF9E6A26C890B400654D60 /* (lisppad location).md in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
-				CC8BBA3026C041DA00552B8F /* Sierpinski.scm in Resources */,
-				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -932,6 +994,7 @@
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
 				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
+				CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
 				CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */,
 				CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */,
@@ -943,6 +1006,7 @@
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
+				CC6598E027292CB6004C9B89 /* LogView.swift in Sources */,
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,
 				CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */,
 				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
@@ -976,6 +1040,7 @@
 				CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
+				CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
 				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
@@ -990,6 +1055,7 @@
 				CC55DD7A26469A8F001AAD10 /* SplitView.swift in Sources */,
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,
+				CC6598DE272628A7004C9B89 /* CustomPopOver.swift in Sources */,
 				CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */,
 				CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */,
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,

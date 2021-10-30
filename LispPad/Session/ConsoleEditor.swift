@@ -89,6 +89,10 @@ struct ConsoleEditor: UIViewRepresentable {
       textView.font = self.settings.inputFont
     }
     if textView.text != self.text {
+      if textView.text.isEmpty {
+        textView.textStorage.removeAttribute(.backgroundColor,
+          range: NSRange(location: 0, length: textView.textStorage.length))
+      }
       textView.text = self.text
     }
     if textView.selectedRange != self.selectedRange {

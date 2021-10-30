@@ -103,10 +103,11 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
     private static let documentsUrl = Self.documentsDirectory()
     private static let icloudUrl = Self.icloudDirectory()
     private static let lispkitUrl = { () -> URL? in
-      guard let base = Context.bundle?.bundleURL.absoluteURL else {
+      guard let base = LispKitContext.bundle?.bundleURL.absoluteURL else {
         return nil
       }
-      return URL(fileURLWithPath: Context.rootDirectory, relativeTo: base).resolvingSymlinksInPath()
+      return URL(fileURLWithPath: LispKitContext.rootDirectory,
+                 relativeTo: base).resolvingSymlinksInPath()
     }()
     private static let lisppadUrl = URL(fileURLWithPath: "Root",
                                         relativeTo: Bundle.main.bundleURL.absoluteURL)

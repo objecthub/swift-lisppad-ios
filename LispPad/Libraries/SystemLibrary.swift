@@ -55,6 +55,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("dark-mode?", self.isDarkMode))
     self.define(Procedure("sleep", self.sleep))
     self.define(Procedure("icloud-list", self.iCloudList))
+    self.define(Procedure("session-log", self.sessionLog))
   }
   
   public override func initializations() {
@@ -129,5 +130,30 @@ public final class SystemLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func sessionLog(tme: Expr, sev: Expr, message: Expr, tag: Expr?) throws -> Expr {
+    let time: Double? = tme.isFalse ? nil : try tme.asDouble()
+    let sym = try sev.asSymbol()
+    let severity: Severity
+    switch sym.identifier {
+      case "debug":
+        severity = .debug
+      case "info":
+        severity = .info
+      case "warn":
+        severity = .warning
+      case "error":
+        severity = .error
+      case "fatal":
+        severity = .fatal
+      default:
+        throw RuntimeError.custom("error", "invalid severity", [sev])
+    }
+    SessionLog.standard.addLogEntry(time: time,
+                                    severity: severity,
+                                    tag: try tag?.asString() ?? "",
+                                    message: try message.asString())
+    return .void
   }
 }

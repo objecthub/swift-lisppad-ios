@@ -69,7 +69,7 @@ struct MainView: View {
                             editorPosition: $editorPosition,
                             forceEditorUpdate: $forceEditorUpdate)
           }
-          .navigationViewStyle(StackNavigationViewStyle())
+          .navigationViewStyle(.stack)
           .modifier(self.globals.services)
         } detail: {
           NavigationView {
@@ -80,7 +80,7 @@ struct MainView: View {
                            editorPosition: $editorPosition,
                            forceEditorUpdate: $forceEditorUpdate)
           }
-          .navigationViewStyle(StackNavigationViewStyle())
+          .navigationViewStyle(.stack)
           .modifier(self.globals.services)
         }
         .splitViewMasterWidthFraction(self.masterWidthFraction)
@@ -101,7 +101,7 @@ struct MainView: View {
                         editorPosition: $editorPosition,
                         forceEditorUpdate: $forceEditorUpdate)
       }
-      .navigationViewStyle(StackNavigationViewStyle())
+      .navigationViewStyle(.stack)
       .modifier(self.globals.services)
     }
   }

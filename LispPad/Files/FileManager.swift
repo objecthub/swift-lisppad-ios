@@ -40,10 +40,11 @@ class FileManager: ObservableObject {
                image: "building.columns.fill",
                url: URL(fileURLWithPath: "Root", relativeTo: Bundle.main.bundleURL.absoluteURL))
     ]
-    if let base = Context.bundle?.bundleURL.absoluteURL {
+    if let base = LispKitContext.bundle?.bundleURL.absoluteURL {
       roots.append(NamedRef(name: "LispKit",
                             image: "building.columns",
-                            url: URL(fileURLWithPath: Context.rootDirectory, relativeTo: base)))
+                            url: URL(fileURLWithPath: LispKitContext.rootDirectory,
+                                     relativeTo: base)))
     }
     return roots
   }()
@@ -138,8 +139,8 @@ class FileManager: ObservableObject {
       self.applicationSupportURL = appDir
       self.newEditorDocument()
     }
-    self.baseURLs.append((URL(fileURLWithPath: Context.rootDirectory,
-                              relativeTo: Context.bundle!.bundleURL.absoluteURL), 0))
+    self.baseURLs.append((URL(fileURLWithPath: LispKitContext.rootDirectory,
+                              relativeTo: LispKitContext.bundle!.bundleURL.absoluteURL), 0))
     self.baseURLs.append((URL(fileURLWithPath: "Root",
                               relativeTo: Bundle.main.bundleURL.absoluteURL), 1))
     if let url = PortableURL.Base.documents.url {

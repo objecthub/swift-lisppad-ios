@@ -33,6 +33,11 @@ struct ConsoleView: View {
   @State var inputHistoryIndex: Int = -1
   @State var updateConsole: ((CodeEditorTextView) -> Void)? = nil
   @State var showCard: Bool = false
+  @State var showLog: Bool = false
+  @State var minSeverityFilter = Severity.debug
+  @State var logMessageFilter = ""
+  @State var filterMessage = true
+  @State var filterTag = true
   @StateObject var cardContent = MutableBlock()
   @StateObject var keyboardObserver = KeyboardObserver()
   
@@ -303,7 +308,7 @@ struct ConsoleView: View {
           }
         }
         Button(action: { self.input = "" }) {
-          Label("Clear input", systemImage: "xmark.circle.fill")
+          Label("Clear Input", systemImage: "xmark.circle.fill")
         }
       }
       .padding(.trailing, 3)
@@ -359,29 +364,48 @@ struct ConsoleView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       GeometryReader { geo in
-        ScrollViewReader { scrollViewProxy in
-          ScrollView(.vertical, showsIndicators: true) {
-            LazyVStack(alignment: .leading, spacing: 0) {
-              ForEach(self.content, id: \.id) { entry in
-                self.consoleRow(entry, width: geo.size.width)
+        ZStack(alignment: .bottomTrailing) {
+          ScrollViewReader { scrollViewProxy in
+            ScrollView(.vertical, showsIndicators: true) {
+              LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(self.content, id: \.id) { entry in
+                  self.consoleRow(entry, width: geo.size.width)
+                }
               }
-            }
-            .onChange(of: self.content.count) { _ in
-              if self.content.count > 0 {
-                withAnimation {
-                  scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
-                                           anchor: .bottomLeading)
+              .onChange(of: self.content.count) { _ in
+                if self.content.count > 0 {
+                  withAnimation {
+                    scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
+                                             anchor: .bottomLeading)
+                  }
+                }
+              }
+              .onChange(of: self.input.count) { _ in
+                if self.content.count > 0 {
+                  withAnimation {
+                    scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
+                                             anchor: .bottomLeading)
+                  }
                 }
               }
             }
-            .onChange(of: self.input.count) { _ in
-              if self.content.count > 0 {
-                withAnimation {
-                  scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
-                                           anchor: .bottomLeading)
-                }
-              }
+          }
+          if self.showLog {
+            LogView(font: self.font, input: $input, showSheet: $showSheet, showLog: $showLog)
+          }
+          Button(action: {
+            withAnimation(.easeInOut) {
+              self.showLog.toggle()
             }
+          }) {
+            Circle()
+              .stroke(lineWidth: 1)
+              .frame(width: 23.5, height: 23.5)
+              .overlay(Image(systemName: self.showLog ? "list.triangle" : "scroll")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: self.showLog ? 11 : 13), alignment: .center)
+              .padding(9.5)
           }
         }
       }
@@ -395,6 +419,7 @@ struct ConsoleView: View {
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
       Divider()
+        .ignoresSafeArea(.container, edges: [.leading, .trailing])
       self.control
     }
   }

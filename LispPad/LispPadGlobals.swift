@@ -26,13 +26,11 @@ import LispKit
 /// state object in `LispPadApp`.
 /// 
 final class LispPadGlobals: ObservableObject {
-
-  let settings = UserSettings.standard
   let histManager = HistoryManager()
   let fileManager = FileManager()
   let docManager = DocumentationManager()
   let interpreter = Interpreter()
-
+  
   init() {
     Context.simplifiedDescriptions = true
     self.fileManager.histManager = self.histManager
@@ -40,11 +38,12 @@ final class LispPadGlobals: ObservableObject {
 
   var services: Services {
     return Services(globals: self,
-                    settings: self.settings,
+                    settings: UserSettings.standard,
                     histManager: self.histManager,
                     fileManager: self.fileManager,
                     docManager: self.docManager,
-                    interpreter: self.interpreter)
+                    interpreter: self.interpreter,
+                    sessionLog: SessionLog.standard)
   }
 
   struct Services: ViewModifier {
@@ -56,6 +55,7 @@ final class LispPadGlobals: ObservableObject {
     let fileManager: FileManager
     let docManager: DocumentationManager
     let interpreter: Interpreter
+    let sessionLog: SessionLog
 
     func body(content: Content) -> some View {
       content
@@ -66,6 +66,7 @@ final class LispPadGlobals: ObservableObject {
         .environmentObject(self.fileManager)
         .environmentObject(self.docManager)
         .environmentObject(self.interpreter)
+        .environmentObject(self.sessionLog)
         .environmentObject(self.keyHandler)
     }
   }

@@ -45,6 +45,13 @@ final class UserSettings: ObservableObject {
   private static let consoleMarkupIdentKey = "Console.schemeMarkupIdent"
   private static let balancedParenthesisKey = "Console.balancedParenthesis"
   private static let maxCommandHistoryKey = "Console.maxCommandHistory"
+  private static let logSeverityFilterKey = "Log.severityFilter"
+  private static let logMessageFilterKey = "Log.messageFilter"
+  private static let logFilterTagsKey = "Log.filterTags"
+  private static let logFilterMessagesKey = "Log.filterMessages"
+  private static let logCommandsKey = "Log.commands"
+  private static let logGarbageCollectionKey = "Log.garbageCollection"
+  private static let logMaxHistoryKey = "Log.maxHistory"
   private static let editorFontSizeKey = "Editor.fontSize"
   private static let indentSizeKey = "Editor.indentSize"
   private static let showLineNumbersKey = "Editor.showLineNumbers"
@@ -189,6 +196,49 @@ final class UserSettings: ObservableObject {
   @Published var maxCommandHistory: Int {
     didSet {
       UserDefaults.standard.set(self.maxCommandHistory, forKey: Self.maxCommandHistoryKey)
+    }
+  }
+  
+  @Published var logSeverityFilter: Severity {
+    didSet {
+      UserDefaults.standard.set(self.logSeverityFilter.description,
+                                forKey: Self.logSeverityFilterKey)
+    }
+  }
+  
+  @Published var logMessageFilter: String {
+    didSet {
+      UserDefaults.standard.set(self.logMessageFilter, forKey: Self.logMessageFilterKey)
+    }
+  }
+  
+  @Published var logFilterTags: Bool {
+    didSet {
+      UserDefaults.standard.set(self.logFilterTags, forKey: Self.logFilterTagsKey)
+    }
+  }
+  
+  @Published var logFilterMessages: Bool {
+    didSet {
+      UserDefaults.standard.set(self.logFilterMessages, forKey: Self.logFilterMessagesKey)
+    }
+  }
+  
+  @Published var logCommands: Bool {
+    didSet {
+      UserDefaults.standard.set(self.logCommands, forKey: Self.logCommandsKey)
+    }
+  }
+  
+  @Published var logGarbageCollection: Bool {
+    didSet {
+      UserDefaults.standard.set(self.logGarbageCollection, forKey: Self.logGarbageCollectionKey)
+    }
+  }
+  
+  @Published var logMaxHistory: Int {
+    didSet {
+      UserDefaults.standard.set(self.logMaxHistory, forKey: Self.logMaxHistoryKey)
     }
   }
   
@@ -447,6 +497,14 @@ final class UserSettings: ObservableObject {
                                                            false)
     self.balancedParenthesis = UserDefaults.standard.boolean(forKey: Self.balancedParenthesisKey)
     self.maxCommandHistory = UserDefaults.standard.int(forKey: Self.maxCommandHistoryKey, 30)
+    self.logSeverityFilter = Severity(UserDefaults.standard.str(forKey:
+                                        Self.logSeverityFilterKey, "Default"))
+    self.logMessageFilter = UserDefaults.standard.str(forKey: Self.logMessageFilterKey, "")
+    self.logFilterTags = UserDefaults.standard.boolean(forKey: Self.logFilterTagsKey)
+    self.logFilterMessages = UserDefaults.standard.boolean(forKey: Self.logFilterMessagesKey)
+    self.logCommands = UserDefaults.standard.boolean(forKey: Self.logCommandsKey)
+    self.logGarbageCollection = UserDefaults.standard.boolean(forKey: Self.logGarbageCollectionKey)
+    self.logMaxHistory = UserDefaults.standard.int(forKey: Self.logMaxHistoryKey, 10000)
     self.documentationFontSize = UserDefaults.standard.str(
       forKey: Self.documentationFontSizeKey, UIDevice.current.userInterfaceIdiom == .pad ?
                                                UserSettings.mediumFontSize :

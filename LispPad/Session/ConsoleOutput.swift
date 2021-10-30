@@ -71,6 +71,26 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
     }
   }
   
+  var logMessage: (Bool, String, String)? {
+    switch self.kind {
+      case .error(let ctxt):
+        var res = self.text
+        if let context = ctxt, !context.description.isEmpty {
+          res += "\n" + context.description
+        }
+        if let type = ctxt?.type {
+          return (true, "repl/err/\(type)", res)
+        } else {
+          return (true, "repl/err", res)
+        }
+      case .result,
+           .drawingResult(_, _):
+        return (false, "repl/res", self.text)
+      default:
+        return nil
+    }
+  }
+  
   var description: String {
     switch self.kind {
       case .info:
@@ -102,11 +122,16 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
 }
 
 struct ErrorContext: CustomStringConvertible, Equatable {
+  let type: String?
   let position: String?
   let library: String?
   let stackTrace: String?
   
-  init(position: String? = nil, library: String? = nil, stackTrace: String? = nil) {
+  init(type: String? = nil,
+       position: String? = nil,
+       library: String? = nil,
+       stackTrace: String? = nil) {
+    self.type = type
     self.position = position
     self.library = library
     self.stackTrace = stackTrace

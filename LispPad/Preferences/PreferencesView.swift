@@ -137,10 +137,19 @@ struct PreferencesView: View {
         }
       }
       .tabItem {
-        Label("Syntax", systemImage: "scroll")
+        Label("Syntax", systemImage: "paintpalette")
       }
       .tag(2)
       Form {
+        Section(header: Text("Log")) {
+          Toggle("Commands and results", isOn: $settings.logCommands)
+          Toggle("Garbage collection", isOn: $settings.logGarbageCollection)
+          Stepper(value: $settings.logMaxHistory, in: 500...50000, step: 500) {
+            Text("Log history:")
+            Spacer(minLength: 16)
+            Text("\(settings.logMaxHistory)").foregroundColor(.gray)
+          }
+        }
         Section(header: Text("Install Folders")) {
           Toggle("iCloud Drive", isOn: $settings.foldersOnICloud)
           switch UIDevice.current.userInterfaceIdiom {
@@ -164,6 +173,9 @@ struct PreferencesView: View {
         Label("Misc", systemImage: "switch.2")
       }
       .tag(3)
+      .onDisappear {
+        SessionLog.standard.setMaxLogEntries(self.settings.logMaxHistory)
+      }
     }
     .navigationTitle("Preferences")
   }

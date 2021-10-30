@@ -266,7 +266,7 @@ struct InterpreterView: View {
               Button(action: {
                 self.interpreter.consoleContent.removeAll()
               }) {
-                Label("Clear Console", systemImage: "clear")
+                Label("Clear Console", systemImage: "trash")
               }
               .disabled(self.interpreter.consoleContent.isEmpty)
               Button(action: {

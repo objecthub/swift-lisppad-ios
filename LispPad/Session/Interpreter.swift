@@ -25,8 +25,8 @@ import LispKit
 final class Interpreter: ContextDelegate, ObservableObject {
   
   // Bundle references
-  static let lispKitResourcePath = Context.rootDirectory
-  static let lispKitExamplePath = Context.rootDirectory + "/Examples"
+  static let lispKitResourcePath = LispKitContext.rootDirectory
+  static let lispKitExamplePath = LispKitContext.rootDirectory + "/Examples"
   static let lispPadResourcePath = "Root"
   static let lispPadLibrariesPath = "Root/Libraries"
   static let lispPadAssetsPath = "Root/Assets"
@@ -47,6 +47,22 @@ final class Interpreter: ContextDelegate, ObservableObject {
         case .read(let str):
           return "read(\(str))"
       }
+    }
+  }
+  
+  final class Context: LispKit.Context {
+    public init(delegate: ContextDelegate) {
+      super.init(delegate: delegate,
+                 implementationName: LispKitContext.implementationName,
+                 implementationVersion: LispKitContext.implementationVersion,
+                 commandLineArguments: CommandLine.arguments,
+                 initialHomePath: PortableURL.Base.documents.url?.path ??
+                                  PortableURL.Base.icloud.url?.path,
+                 includeInternalResources: true,
+                 includeDocumentPath: "LispKit",
+                 assetPath: nil,
+                 gcDelay: 5.0,
+                 features: Interpreter.lispKitFeatures)
     }
   }
   
@@ -145,10 +161,25 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.isReady = false
     self.readingStatus = .reject
     self.processingQueue.addOperation { [weak self] in
+      if UserSettings.standard.logCommands {
+        SessionLog.standard.addLogEntry(
+          severity: .info,
+          tag: "repl/exec",
+          message: command.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+      }
       let res = self?.execute { context in
         try context.machine.eval(str: command,
                                  sourceId: SourceManager.consoleSourceId,
                                  in: context.global, as: "<repl>")
+      }
+      if UserSettings.standard.logCommands, let outputs = res {
+        for output in outputs {
+          if let (err, type, message) = output.logMessage {
+            SessionLog.standard.addLogEntry(severity: err ? .error : .info,
+                                            tag: type,
+                                            message: message)
+          }
+        }
       }
       DispatchQueue.main.sync {
         self?.isReady = true
@@ -261,11 +292,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     self.libManager.reset()
     self.envManager.reset()
-    let context = Context(delegate: self,
-                          initialHomePath: PortableURL.Base.documents.url?.path ??
-                                           PortableURL.Base.icloud.url?.path,
-                          // includeDocumentPath: "LispPad",
-                          features: Interpreter.lispKitFeatures)
+    let context = Context(delegate: self)
     // Setup search paths
     if let internalUrl = Bundle.main.resourceURL?
                            .appendingPathComponent(Interpreter.lispPadLibrariesPath,
@@ -321,7 +348,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let preludePath = Bundle.main.path(forResource: "Prelude",
                                        ofType: "scm",
                                        inDirectory: Interpreter.lispPadResourcePath) ??
-                      Context.defaultPreludePath
+                      LispKitContext.defaultPreludePath
     self.context = context
     do {
       _ = try context.machine.eval(file: preludePath, in: context.global, as: "<prelude>")
@@ -421,7 +448,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
                                     stackTraceHeader: nil)
   }
   
-  private func errorLocation(_ err: RuntimeError, in context: Context) -> ErrorContext? {
+  private func errorLocation(_ err: RuntimeError, in context: Context) -> ErrorContext {
     var position: String? = nil
     if !err.pos.isUnknown {
       if let filename = context.sources.sourcePath(for: err.pos.sourceId) {
@@ -435,7 +462,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
       library = libraryName
     }
     guard let stackTrace = err.stackTrace, stackTrace.count > 0 else {
-      return ErrorContext(position: position, library: library)
+      return ErrorContext(type: err.descriptor.shortTypeDescription,
+                          position: position,
+                          library: library)
     }
     var res = ""
     var sep = ""
@@ -444,7 +473,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
       res += proc.name
       sep = " ← "
     }
-    return ErrorContext(position: position, library: library, stackTrace: res)
+    return ErrorContext(type: err.descriptor.shortTypeDescription,
+                        position: position,
+                        library: library,
+                        stackTrace: res)
   }
   
   /// Prints the given string into the console window.
@@ -502,6 +534,58 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
+  public func trace(call proc: Procedure,
+                    args: Exprs,
+                    tailCall: Bool,
+                    in machine: VirtualMachine) {
+    var builder = StringBuilder()
+    var offset = tailCall ? 0 : 1
+    let callStack = machine.getStackTrace()
+    if machine.traceCalls == .byProc {
+      offset += self.countTracedProcedures(callStack)
+    } else {
+      offset += callStack.count
+    }
+    let procname = proc.originalName ?? proc.name
+    builder.append(tailCall ? "↪︎" : "⟶", width: offset * 2, alignRight: true)
+    builder.append(" (", procname)
+    for arg in args {
+      builder.append(" ", arg.description)
+    }
+    builder.append(")")
+    if let currentProc = callStack.first {
+      builder.append(" in ", currentProc.originalName ?? currentProc.name)
+    }
+    SessionLog.standard.addLogEntry(severity: .debug,
+                                    tag: "trace/call/\(procname)",
+                                    message: builder.description)
+  }
+  
+  public func trace(return proc: Procedure,
+                    result: Expr,
+                    tailCall: Bool,
+                    in machine: VirtualMachine) {
+    var builder = StringBuilder()
+    var offset = tailCall ? 0 : 1
+    let callStack = machine.getStackTrace()
+    if machine.traceCalls == .byProc {
+      offset += self.countTracedProcedures(callStack)
+    } else {
+      offset += callStack.count
+    }
+    let procname = proc.originalName ?? proc.name
+    builder.append("⟵", width: offset * 2, alignRight: true)
+    builder.append(" ", result.description)
+    builder.append(" from ", procname)
+    if callStack.count > 1 {
+      let currentProc = callStack[1]
+      builder.append(" in ", currentProc.originalName ?? currentProc.name)
+    }
+    SessionLog.standard.addLogEntry(severity: .debug,
+                                    tag: "trace/retn/\(procname)",
+                                    message: builder.description)
+  }
+  
   /// This is called whenever a new library is loaded
   func loaded(library lib: Library, by: LispKit.LibraryManager) {
     DispatchQueue.main.sync {
@@ -516,9 +600,16 @@ final class Interpreter: ContextDelegate, ObservableObject {
 
   /// This is called whenever garbage collection was called
   func garbageCollected(objectPool: ManagedObjectPool, time: Double, objectsBefore: Int) {
-    
+    if UserSettings.standard.logGarbageCollection {
+      SessionLog.standard.addLogEntry(
+        severity: .info,
+        tag: "repl/gc/\(objectPool.cycles)",
+        message: "collected \(objectsBefore - objectPool.numManagedObjects) objects in " +
+                 "\(String(format: "%.2f", time * 1000.0))ms; " +
+                 "\(objectPool.numManagedObjects) remain")
+    }
   }
-
+  
   /// This is called when the execution of the virtual machine got aborted.
   func aborted() {
     
