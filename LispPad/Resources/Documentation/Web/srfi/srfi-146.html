@@ -1,0 +1,1377 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 146: Mappings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+<body>
+
+<H1><a name="lp-srfi-146">Title</a></H1>
+
+Mappings
+
+<h1>Authors</h1>
+
+Arthur A. Gleckler, Marc Nieper-Wi&szlig;kirchen
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="http://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+146+at+srfi+dotschemers+dot+org">srfi-146@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="http://srfi-email.schemers.org/srfi-146">archive</a>.</p>
+<ul>
+  <li>Received: 2016/12/18</li>
+  <li>Draft #1 published: 2016/12/18</li>
+  <li>Draft #2 published: 2016/12/20</li>
+  <li>Draft #3 published: 2016/12/27</li>
+  <li>Draft #4 published: 2017/1/3</li>
+  <li>Draft #5 published: 2017/1/4</li>
+  <li>Draft #6 published: 2017/5/2</li>
+  <li>Draft #7 published: 2017/7/1</li>
+  <li>Draft #8 published: 2017/7/2</li>
+  <li>Draft #9 published: 2017/7/3</li>
+  <li>Draft #10 published: 2017/7/12</li>
+  <li>Draft #11 published: 2017/7/28</li>
+  <li>Draft #12 published: 2018/4/11</li>
+  <li>Draft #13 published: 2018/5/19</li>
+  <li>Finalized: 2018/5/24</li>
+  <li>Revised to fix errata:<ul>
+    <li>2018/7/3 (Fixed wording error, a simple miscount.)</li>
+    <li>2018/7/3 (Fixed previous fix.)</li></ul></li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+<em>Mappings</em> are finite sets of associations, where each association
+is a pair consisting of a key and an arbitrary Scheme value.  The keys
+are elements of a suitable domain.  Each mapping holds no more than one
+association with the same key.  The fundamental mapping operation is
+retrieving the value of an association stored in the mapping when the key
+is given.
+</p>
+
+<h1>Rationale</h1>
+
+<p>
+Like sets and bags, mappings represent a fundamental data type.
+Currently, a Scheme programmer has quite a few means to implement this
+data type: The base library has some support for association lists,
+which are lightweight data structures that can function as mappings.
+More efficient data structures are supported by SRFI 125, namely hash
+tables.  Finally, the set data structure of SRFI 113 using suitable
+comparators can be used to model mappings.  However, all three means have
+individual short-comings when it comes to mappings:
+</p>
+
+<p>
+Most operations on association lists are of
+running time O(n) and thus not very efficient, and association lists
+do not implement the restriction that keys have to be unique in mappings.
+</p>
+
+<p>
+While the hash table model of SRFI 125 implements proper mappings, it
+makes very strict assumptions on how these mappings have to be implemented.
+In particular, these requirements make purely functional mappings based on
+SRFI 125 rather inefficient.
+</p>
+
+<p>
+On the other hand, SRFI 113 has an interface that allows
+implementations to implement purely functional mappings efficiently, while
+allowing even more efficient mutable data structures when immutability
+is not needed.  However, although one can use SRFI 113 to implement
+sets of associations, SRFI 113 does not export any procedures that
+explicitly deal with sets of associations.
+</p>
+
+<p>One can view the interface proposed in this SRFI as the mapping
+  analogue of the set interface of SRFI 113.  The choices of names in this SRFI
+  are drawn from SRFI 113, SRFI 125, and general Scheme conventions.
+</p>
+
+<p>
+  Multi-mappings (<i>i.e.</i> general relations) are not covered by this SRFI.
+  They are left to a future SRFI should they prove to be essential.
+</p>
+
+<p>Marc Nieper-Wißkirchen is the author and shepherd of this SRFI.
+  Arthur Gleckler implemented the HAMT (Hash Array Mapped Tries) data
+  structure on which the sample implementation of
+  <code>hashmap</code>s is based.</p>
+
+<h1>Specification</h1>
+
+<p>
+  Mappings form a new type as if created
+  by <code>define-record-type</code>.  The effect of using record-type
+  inspection or inheritance for the mapping type is
+  unspecified.
+</p>
+
+<p>
+  The two mapping types as exported from <code>(srfi 146)</code>
+  and <code>(srfi 146 hash)</code> (see below) are mutually disjoint.
+</p>
+
+<p>
+  This specification uses the notion of equality of comparators.  The
+  exact equality predicate is left implementation-dependent but is
+  always at least as fine as <code>equal?</code> (and not finer
+  than <code>eq?</code>).
+</p>
+
+<p>
+  It is an error for any procedure defined in this SRFI to be invoked
+  on mappings with distinct comparators, except if noted otherwise.
+</p>
+
+<p>
+  It is an error to mutate any key while it is contained in an association in a mapping.
+</p>
+
+<p>
+  It is an error to add any association to a mapping whose key does not
+  satisfy the type test predicate of the comparator.
+</p>
+
+<p>
+  It is an error to apply any procedures defined in this SRFI whose
+  names end in <code>!</code> to a mapping while iterating over it.
+</p>
+
+<p>
+  When part of an R7RS implementation, the library <code>(srfi
+    146)</code> should export exactly those identifiers that are
+    described in this specification with the appropriate bindings.  Should
+    this SRFI become an essential part of a future Scheme system based
+    on R7RS (<i>e.g.</i> R7RS-large), the library's name would
+    become <code>(scheme mapping)</code>.
+</p>
+
+<h2>Linear update</h2>
+
+<p>The procedures of this SRFI, like those of SRFI 113, by default, are
+"pure functional" &mdash; they do not alter their parameters.
+However, this SRFI also defines "linear-update" procedures, all of
+whose names end in <code>!</code>.  They have hybrid
+pure-functional/side-effecting semantics: they are allowed, but not
+required, to side-effect one of their parameters in order to construct
+their result.  An implementation may legally implement these procedures
+as pure, side-effect-free functions, or it may implement them using
+side effects, depending upon the details of what is the most efficient
+  or simple to implement in terms of the underlying representation.
+</p>
+
+<p>It is an error to reference a (mapping) parameter after a
+linear-update procedure has been invoked.  For example, this is not
+guaranteed to work:</p>
+
+<pre>
+  (let* ((mapping1
+         (mapping (make-default-comparator) 'a 1 'b 2 'c 3)) ; mapping1 = {a&map;1,b&map;2,c&map;3}.
+    (mapping2 (mapping-set! mapping1 'd 4))) ; mapping2 = {a&map;1,b&map;2,c&map;3,d&map;4}
+  mapping1) ; mapping1 = {a&map;1,b&map;2,c&map;3} or mapping1 = {a&map;1,b&map;2,c&map;3;d&map;4} ???
+</pre>
+
+<p>However, this is well-defined:</p>
+
+<pre>
+  (let ((mapping1 (mapping (make-default-comparator) 'a 1 'b 2 'c 3)))
+    (mapping-set! mapping1 'd 4)) ; &rArr; {a&map;1,b&map;2,c&map;3;d&map;4}
+</pre>
+
+<p>So clients of these procedures write in a functional style, but
+must additionally be sure that, when the procedure is called, there
+are no other live pointers to the potentially-modified mapping (hence the
+term "linear update").</p>
+
+<p>There are two benefits to this convention:</p>
+
+<ul><li><p>Implementations are free to provide the most efficient
+possible implementation, either functional or side-effecting.</p></li>
+
+<li><p>Programmers may nonetheless continue to assume that mappings are
+purely functional data structures: they may be reliably shared without
+needing to be copied, uniquified, and so forth (as long as the mapping in
+question is not an argument of a "linear-update"
+procedure).</p></li></ul>
+
+<p>In practice, these procedures are most useful for efficiently
+constructing mappings in a side-effecting manner, in some limited local
+context, before passing the mapping outside the local
+construction scope to be used in a functional manner.</p>
+
+<p>Scheme provides no assistance in checking the linearity of the
+potentially side-effected parameters passed to these functions &mdash;
+there's no linear type checker or run-time mechanism for detecting
+violations.</p>
+
+<p>Note that if an implementation uses no side effects at all, it is
+allowed to return existing mappings rather than newly allocated ones, even
+where this SRFI explicitly says otherwise.  For
+example, <code>mapping-copy</code> could be a no-op.</p>
+
+<h2>Comparator restrictions</h2>
+
+<p>The library <code>(srfi 146)</code> described in this SRFI requires
+  comparators to provide an ordering predicate.  Any
+  implementation shall also provide the library <code>(srfi 146
+  hash)</code> which implements essentially the same interface (see
+  below) as <code>(srfi 146)</code> but requires comparators to
+  provide a hash function instead of an ordering predicate, unless the
+  equality predicate of the comparator
+  is <code>eq?</code>, <code>eqv?</code>, <code>equal?</code>, <code>string=?</code>,
+  or <code>string-ci=?</code>.
+</p>
+
+<p>
+  The library <code>(srfi 146 hash)</code> exports exactly the same
+  identifiers (up to a simple prefix-replacing textual substitution as
+  described in the next paragraph), except for
+  those bound to locations which make no sense when an ordering
+  predicate is absent (e.g. <code>mapping-split</code>).
+  Should <code>(srfi 146)</code> once become known as <code>(scheme
+  mapping)</code>, it is recommended that the library
+  <code>(srfi 146 hash)</code> receives the alternative
+  name <code>(scheme hashmap)</code>.
+</p>
+
+<p>To make it possible for a program to easily import <code>(srfi
+  146)</code> and <code>(srfi 146 hash)</code> at the same time, the
+  prefix <code>mapping</code> that prefixes the identifiers
+  in <code>(srfi 146)</code> is substituted by <code>hashmap</code>
+  in <code>(srfi 146 hash)</code>.  For example, <code>mapping</code>
+  becomes <code>hashmap</code>, <code>mapping?</code>
+  becomes <code>hashmap?</code>, and <code>mapping-ref</code>
+  becomes <code>hashmap-ref</code>.
+  <code>comparator?</code> remains unchanged.
+  For simplicity, the rest of this
+  SRFI refers to the identifiers by their names in <code>(srfi 146)</code>.
+</p>
+
+<h2 id="index">Index</h2>
+
+<ul>
+  <li><p><a href="#Constructors">Constructors</a>:
+      <code>mapping</code>, <code>mapping-unfold</code>,
+      <code>mapping/ordered</code>, <code>mapping-unfold/ordered</code>
+    </p>
+  </li>
+
+  <li><p><a href="#Predicates">Predicates</a>:
+      <code>mapping?</code>, <code>mapping-contains?</code>, <code>mapping-empty?</code>,
+      <code>mapping-disjoint?</code></p>
+  </li>
+
+  <li><p><a href="#Accessors">Accessors</a>:
+      <code>mapping-ref</code>, <code>mapping-ref/default</code>,
+      <code>mapping-key-comparator</code>
+    </p>
+  </li>
+
+  <li><p><a href="#Updaters">Updaters</a>:
+      <code>mapping-adjoin</code>, <code>mapping-adjoin!</code>,
+      <code>mapping-set</code>, <code>mapping-set!</code>,
+      <code>mapping-replace</code>, <code>mapping-replace!</code>,
+      <code>mapping-delete</code>, <code>mapping-delete!</code>,
+      <code>mapping-delete-all</code>, <code>mapping-delete-all!</code>,
+      <code>mapping-intern</code>, <code>mapping-intern!</code>,
+      <code>mapping-update</code>, <code>mapping-update!</code>,
+      <code>mapping-update/default</code>, <code>mapping-update!/default</code>,
+      <code>mapping-pop</code>, <code>mapping-pop!</code>,
+      <code>mapping-search</code>, <code>mapping-search!</code></p>
+  </li>
+
+  <li><p><a href="#Thewholemapping">The whole mapping</a>:
+      <code>mapping-size</code>,
+      <code>mapping-find</code>,
+      <code>mapping-count</code>,
+      <code>mapping-any?</code>,
+      <code>mapping-every?</code>,
+      <code>mapping-keys</code>,
+      <code>mapping-values</code>,
+      <code>mapping-entries</code>
+    </p>
+  </li>
+
+  <li><p><a href="#Mappingandfolding">Mapping and folding</a>:
+      <code>mapping-map</code>,
+      <code>mapping-map-&gt;list</code>,
+      <code>mapping-for-each</code>,
+      <code>mapping-fold</code>,
+      <code>mapping-filter</code>, <code>mapping-filter!</code>,
+      <code>mapping-remove</code>,
+      <code>mapping-remove!</code>,
+      <code>mapping-partition</code>, <code>mapping-partition!</code></p>
+  </li>
+
+  <li><p><a href="#Copyingandconversion">Copying and conversion</a>:
+      <code>mapping-copy</code>,
+      <code>mapping-&gt;alist</code>,
+      <code>alist-&gt;mapping</code>, <code>alist-&gt;mapping!</code></p>
+  </li>
+
+  <li><p><a href="#Submappings">Submappings</a>:
+      <code>mapping=?</code>,
+      <code>mapping&lt;?</code>,
+      <code>mapping&gt;?</code>,
+      <code>mapping&lt;=?</code>,
+      <code>mapping&gt;=?</code></p>
+  </li>
+
+  <li><p><a href="#Settheoryoperations">Set theory operations</a>:
+      <code>mapping-union</code>,
+      <code>mapping-intersection</code>,
+      <code>mapping-difference</code>,
+      <code>mapping-xor</code>,
+      <code>mapping-union!</code>,
+      <code>mapping-intersection!</code>,
+      <code>mapping-difference!</code>,
+      <code>mapping-xor!</code>
+    </p>
+  </li>
+
+  <li><p><a href="#Additionalproceduresformappingswithorderedkeys">Additional
+	procedures for mappings with ordered keys</a>:
+      <code>mapping-min-key</code>,
+      <code>mapping-max-key</code>, <code>mapping-min-value</code>.
+      <code>mapping-max-value</code>,
+      <code>mapping-key-predecessor</code>,
+      <code>mapping-key-successor</code>,
+      <code>mapping-range=</code>,
+      <code>mapping-range&lt;</code>,
+      <code>mapping-range&gt;</code>,
+      <code>mapping-range&lt;=</code>,
+      <code>mapping-range&gt;=</code>,
+      <code>mapping-range=!</code>,
+      <code>mapping-range&lt;!</code>,
+      <code>mapping-range&gt;!</code>,
+      <code>mapping-range&lt;=!</code>,
+      <code>mapping-range&gt;=!</code>,
+      <code>mapping-split</code>,
+      <code>mapping-catenate</code>,
+      <code>mapping-catenate!</code>,
+      <code>mapping-map/monotone</code>,
+      <code>mapping-map/monotone!</code>,
+      <code>mapping-fold/reverse</code>
+      </p>
+  </li>
+
+  <li>
+    <p><a href="#Comparators">Comparators</a>:
+      <code>comparator?</code>,
+      <code>mapping-comparator</code>,
+      <code>make-mapping-comparator</code>
+  </li>
+</ul>
+
+<h2 id="Constructors">Constructors</h2>
+
+<p><code>(mapping <em>comparator</em> <em>arg</em> ...)</code></p>
+
+<p>Returns a newly allocated mapping.  The <em>comparator</em>
+argument is
+a <a href="http://srfi.schemers.org/srfi-128/srfi-128.html">SRFI
+128</a> comparator, which is used to control and distinguish the keys
+of the mapping.  The <code><em>arg</em></code>s alternate between keys
+and values and are used to initialize the mapping.  In particular, the
+number of <code><em>arg</em></code>s has to be even.  Earlier
+associations with equal keys take precedence over later arguments.
+</p>
+
+<p><code>(mapping-unfold <em>stop?</em> <em>mapper</em> <em>successor</em> <em>seed</em> <em>comparator</em>)</code></p>
+
+<p>Create a newly allocated mapping as if by <code>mapping</code>
+  using <em>comparator</em>.  If the result of applying the
+  predicate <em>stop?</em> to <em>seed</em> is true, return the mapping.
+  Otherwise, apply the procedure <em>mapper</em> to <em>seed</em>.
+  <em>Mapper</em> returns two values which are added to the mapping as the
+  key and the value, respectively.  Then get a new seed by applying the
+  procedure <em>successor</em> to <em>seed</em>, and repeat this
+  algorithm.  Associations earlier in the list take precedence over those that come later.
+</p>
+
+<p><i>Note that the choice of precedence in <code>mapping</code> and <code>mapping-unfold</code>
+    is compatible
+    with <code>mapping-adjoin</code> and <code>alist->mapping</code>
+    detailed below and with <code>alist-&gt;hash-table</code> from SRFI
+    125, but different from the one in <code>mapping-set</code> from below.
+</i></p>
+
+<h2 id="Predicates">Predicates</h2>
+
+<p><code>(mapping? </code><em>obj</em><code>)</code></p>
+
+<p>Returns <code>#t</code> if <code><em>obj</em></code> is a mapping,
+and <code>#f</code> otherwise.</p>
+
+<p><code>(mapping-contains? <em>mapping</em> <em>key</em>)</code></p>
+
+<p>Returns <code>#t</code> if <code><em>key</em></code> is the key of an
+association of <code><em>mapping</em></code> and <code>#f</code> otherwise.</p>
+
+<p><code>(mapping-empty? <em>mapping</em>)</code></p>
+
+<p>Returns <code>#t</code> if <em>mapping</em> has no associations and <code>#f</code> otherwise.</p>
+
+<p><code>(mapping-disjoint? <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em>)</code></p>
+
+<p>Returns <code>#t</code> if <code><em>mapping<sub>1</sub></em></code>
+and <code><em>mapping<sub>2</sub></em></code> have no keys in common
+and <code>#f</code> otherwise.</p>
+
+<h2 id="Accessors">Accessors</h2>
+
+The following three procedures, given a key, return the corresponding value.
+
+<p><code>(mapping-ref <em>mapping</em> <em>key</em> <em>failure</em> <em>success</em>)</code></p>
+<p><code>(mapping-ref <em>mapping</em> <em>key</em> <em>failure</em>)</code></p>
+<p><code>(mapping-ref <em>mapping</em> <em>key</em>)</code></p>
+
+<p>Extracts the value associated to <code><em>key</em></code>
+  in the mapping <code><em>mapping</em></code>, invokes the
+  procedure <code><em>success</em></code> in tail context on it, and returns its result;
+  if <code><em>success</em></code> is not provided, then the value
+  itself is returned.  If <code><em>key</em></code> is not contained
+  in <code><em>mapping</em></code> and <code><em>failure</em></code> is
+  supplied, then <code><em>failure</em></code> is invoked in tail context on no
+  arguments and its values are returned.  Otherwise, it is an error.
+</p>
+
+<p><code>(mapping-ref/default <em>mapping</em> <em>key</em> <em>default</em>)</code></p>
+
+Semantically equivalent to, but may be more efficient than, the following code:
+
+<pre>
+  (mapping-ref <em>mapping</em> <em>key</em> (lambda () <em>default</em>))
+</pre>
+
+<p><code>(mapping-key-comparator <em>mapping</em>)</code></p>
+
+<p>Returns the comparator used to compare the keys of the mapping <em>mapping</em>.</p>
+
+<h2 id="Updaters">Updaters</h2>
+
+<p><code>(mapping-adjoin <em>mapping</em> <em>arg</em> ...)</code></p>
+
+<p>The <code>mapping-adjoin</code> procedure returns a newly allocated
+  mapping that uses the same comparator as the
+  mapping <code><em>mapping</em></code> and contains all the
+  associations of <code><em>mapping</em></code>, and in addition new
+  associations by processing the arguments from left to
+  right. The <code><em>arg</em></code>s alternate between keys and
+  values.  Whenever there is a previous association for a key, the
+  previous association prevails and the new association is skipped.
+  It is an error to add an association
+  to <code><em>mapping</em></code> whose key that does not
+  return <code>#t</code> when passed to the type test procedure of the
+  comparator.
+</p>
+
+<p><code>(mapping-adjoin! <em>mapping</em> <em>arg</em> ...)</code></p>
+
+<p>The <code>mapping-adjoin!</code> procedure is the same
+  as <code>mapping-adjoin</code>, except that it is permitted to mutate and
+  return the <code><em>mapping</em></code> argument rather than allocating
+  a new mapping.
+</p>
+
+<p><code>(mapping-set <em>mapping</em> <em>arg</em> ...)</code></p>
+
+<p>The <code>mapping-set</code> procedure returns a newly allocated
+  mapping that uses the same comparator as the
+  mapping <code><em>mapping</em></code> and contains all the
+  associations of <code><em>mapping</em></code>, and in addition new
+  associations by processing the arguments from left to
+  right. The <code><em>arg</em></code>s alternate between keys and
+  values.  Whenever there is a previous association for a key, it is
+  deleted.  It is an error to add an association
+  to <code><em>mapping</em></code> whose key that does not
+  return <code>#t</code> when passed to the type test procedure of the
+  comparator.
+</p>
+
+<p><code>(mapping-set! <em>mapping</em> <em>arg</em> ...)</code></p>
+
+<p>The <code>mapping-set!</code> procedure is the same
+  as <code>mapping-set</code>, except that it is permitted to mutate and
+  return the <code><em>mapping</em></code> argument rather than allocating
+  a new mapping.
+</p>
+
+<p><code>(mapping-replace <em>mapping</em> <em>key</em> <em>value</em>)</code></p>
+
+<p>
+  The <code>mapping-replace</code> procedure returns a newly allocated mapping
+  that uses the same comparator as the mapping <em>mapping</em> and contains all the
+  associations of <em>mapping</em> except as follows: If <code><em>key</em></code> is equal
+  (in the sense of <code><em>mapping</em></code>'s comparator) to an existing key
+  of <code><em>mapping</em></code>, then the association for that key is omitted and replaced
+  the association defined by the pair <code><em>key</em></code> and <code><em>value</em></code>.
+  If there is no such key in <code><em>mapping</em></code>,
+  then <code><em>mapping</em></code> is returned unchanged.
+</p>
+
+<p><code>(mapping-replace! <em>mapping</em> <em>key</em> <em>value</em>)</code></p>
+
+<p>The <code>mapping-replace!</code> procedure is the same
+as <code>mapping-replace</code>, except that it is permitted to mutate and
+return the <code><em>mapping</em></code> argument rather than allocating a new
+  mapping.
+</p>
+
+<p><code>(mapping-delete <em>mapping</em> <em>key</em> ...)</code></p>
+
+<p><code>(mapping-delete! <em>mapping</em> <em>key</em> ...)</code></p>
+
+<p><code>(mapping-delete-all <em>mapping</em> <em>key-list</em>)</code></p>
+
+<p><code>(mapping-delete-all! <em>mapping</em> <em>key-list</em>)</code></p>
+
+<p>The <code>mapping-delete</code> procedure returns a newly allocated mapping
+containing all the associations of the mapping <code><em>mapping</em></code>
+except for any whose keys are equal (in the sense
+of <code><em>mapping</em></code>'s comparator) to one or more of
+the <code><em>key</em></code>s.  Any <code><em>key</em></code> that is
+not equal to some key of the mapping is ignored.</p>
+
+<p>The <code>mapping-delete!</code> procedure is the same
+as <code>mapping-delete</code>, except that it is permitted to mutate and
+return the <code><em>mapping</em></code> argument rather than allocating a
+new mapping.</p>
+
+<p>The <code>mapping-delete-all</code> and <code>mapping-delete-all!</code>
+procedures are the same as <code>mapping-delete</code>
+and <code>mapping-delete!</code>, respectively, except that they accept a
+single argument which is a list of keys whose associations are to be
+  deleted.
+</p>
+
+<p><code>(mapping-intern <em>mapping</em> <em>key</em> <em>failure</em>)</code></p>
+
+<p>Extracts the value associated to <code><em>key</em></code> in the
+  mapping <code><em>mapping</em></code>, and returns <code><em>mapping</em></code>
+  and the value as two values.  If <code><em>key</em></code> is not
+  contained
+  in <code><em>mapping</em></code>, <code><em>failure</em></code> is
+  invoked on no arguments.  The procedure then returns two values, a
+  newly allocated mapping that uses the same comparator as
+  the <code><em>mapping</em></code> and contains all the associations
+  of <code><em>mapping</em></code>, and in addition a new association
+  mapping
+  <em>key</em> to the result of invoking <code><em>failure</em></code>,
+  and the result of invoking <code><em>failure</em></code>.
+</p>
+
+<p><code>(mapping-intern! <em>mapping</em> <em>key</em> <em>failure</em>)</code></p>
+
+<p>The <code>mapping-intern!</code> procedure is the same
+as <code>mapping-intern</code>, except that it is permitted to mutate and
+return the <code><em>mapping</em></code> argument as its first value
+rather than allocating a new mapping.
+</p>
+
+<p><code>(mapping-update <em>mapping</em> <em>key</em> <em>updater</em> <em>failure</em> <em>success</em>)</code></p>
+
+<p><code>(mapping-update <em>mapping</em> <em>key</em> <em>updater</em> <em>failure</em>)</code></p>
+
+<p><code>(mapping-update <em>mapping</em> <em>key</em> <em>updater</em>)</code></p>
+
+Semantically equivalent to, but may be more efficient than, the following code
+<pre>
+  (mapping-set <em>mapping</em> <em>key</em> (<em>updater</em> (mapping-ref <em>mapping</em> <em>key</em> <em>failure</em> <em>success</em>)))
+</pre>
+
+<p>
+  The obvious semantics hold when <code><em>success</em></code> (and <code><em>failure</em></code>)
+  are omitted (see <code>mapping-ref</code>).
+</p>
+
+<p><code>(mapping-update! <em>mapping</em> <em>key</em> <em>updater</em> <em>failure</em> <em>success</em>)</code></p>
+
+<p><code>(mapping-update! <em>mapping</em> <em>key</em> <em>updater</em> <em>failure</em>)</code></p>
+
+<p><code>(mapping-update! <em>mapping</em> <em>key</em> <em>updater</em>)</code></p>
+
+<p>The <code>mapping-update!</code> procedure is the same
+  as <code>mapping-update</code>, except that it is permitted to mutate and
+  return the <code><em>mapping</em></code> argument rather than allocating
+  a new mapping.
+</p>
+
+<p><code>(mapping-update/default <em>mapping</em> <em>key</em> <em>updater</em> <em>default</em>)</code></p>
+
+Semantically equivalent to, but may be more efficient than, the following code
+<pre>
+  (mapping-set <em>mapping</em> <em>key</em> (<em>updater</em> (mapping-ref/default <em>mapping</em> <em>key</em> <em>default</em>)))
+</pre>
+
+<p><code>(mapping-update!/default <em>mapping</em> <em>key</em> <em>updater</em> <em>default</em>)</code></p>
+
+<p>The <code>mapping-update!/default</code> procedure is the same
+  as <code>mapping-update/default</code>, except that it is permitted to mutate and
+  return the <code><em>mapping</em></code> argument rather than allocating
+  a new mapping.
+</p>
+
+<p><code>(mapping-pop <em>mapping</em> <em>failure</em>)</code></p>
+<p><code>(mapping-pop <em>mapping</em>)</code></p>
+
+<p>The <code>mapping-pop</code> procedure exported from <code>(srfi
+  146)</code> chooses the
+  association with the least key from <code><em>mapping</em></code> and returns three
+  values, a newly allocated mapping that uses the same comparator
+  as <code><em>mapping</em></code> and contains all associations
+  of <code><em>mapping</em></code> except the chosen one, and the key
+  and the value of the chosen association.
+  If <code><em>mapping</em></code> contains no association
+  and <code><em>failure</em></code> is supplied,
+  then <code><em>failure</em></code> is invoked in tail context on no
+  arguments and its values returned.  Otherwise, it is an error.
+</p>
+
+<p>The <code>hashmap-pop</code> procedure exported by <code>(srfi
+    146 hash)</code> is similar but chooses an arbitrary association.
+</p>
+
+<p><code>(mapping-pop! <em>mapping</em> <em>failure</em>)</code></p>
+<p><code>(mapping-pop! <em>mapping</em>)</code></p>
+
+<p>The <code>mapping-pop!</code> procedure is the same
+  as <code>mapping-pop</code>, except that it is permitted to mutate
+  and return the <code><em>mapping</em></code> argument rather than
+  allocating a new mapping.
+</p>
+
+<p><code>(mapping-search <em>mapping</em> <em>key</em> <em>failure</em> <em>success</em>)</code></p>
+
+<p>The mapping <code><em>mapping</em></code> is searched in order
+(that is in the order of the stored keys) for an association with
+key <code><em>key</em></code>.  If it is not found, then
+the <code><em>failure</em></code> procedure is tail-called with two
+continuation arguments, <code><em>insert</em></code>
+and <code><em>ignore</em></code>, and is expected to tail-call one of
+them.  If an association with key <code><em>key</em></code> is found,
+then the <code><em>success</em></code> procedure is tail-called with
+the matching key of <code><em>mapping</em></code>, the associated
+value, and two continuations, <code><em>update</em></code>
+and <code><em>remove</em></code>, and is expected to tail-call one of
+them.
+</p>
+
+<p>The <code>hashmap-search</code> procedure exported by <code>(srfi
+    146 hash)</code> searches in an arbitrary order.
+</p>
+
+<p>
+It is an error if the continuation arguments are invoked, but not in
+tail position in the
+<code><em>failure</em></code> and <code><em>success</em></code>
+procedures.  It is also an error if the <code><em>failure</em></code>
+and <code><em>success</em></code> procedures return to their implicit
+continuation without invoking one of their continuation arguments.
+</p>
+
+<p>The effects of the continuations are as follows
+(where <code><em>obj</em></code> is any Scheme object):
+</p>
+
+<ul>
+<li><p>Invoking <code>(<em>insert</em> <em>value</em> <em>obj</em>)</code>
+causes a mapping to be newly allocated that uses the same comparator as
+the mapping <code><em>mapping</em></code> and contains all the associations
+of <code><em>mapping</em></code>, and in addition a new association
+mapping <code><em>key</em></code> to <code><em>value</em></code>.
+</p></li>
+<li>
+  <p>Invoking <code>(<em>ignore</em> <em>obj</em>)</code>
+    has no effects; in particular, no new mapping is allocated (but see below).
+  </p>
+</li>
+<li>
+  <p>Invoking <code>(<em>update</em> <em>new-key</em> <em>new-value</em>
+      <em>obj</em>)</code> causes a mapping to be newly allocated that
+    uses the same comparator as the <code><em>mapping</em></code> and
+    contains all the associations of <code><em>mapping</em></code>, except
+    for the association with key <code><em>key</em></code>, which is
+    replaced by a new association
+    mapping <code><em>new-key</em></code>
+    to <code><em>new-value</em></code>.
+  </p>
+</li>
+<li>
+  <p>Invoking <code>(<em>remove</em> <em>obj</em>)</code>
+    causes a mapping to be newly allocated that
+    uses the same comparator as the <code><em>mapping</em></code> and
+    contains all the associations of <code><em>mapping</em></code>, except
+    for the association with key <code><em>key</em></code>.
+  </p>
+</li>
+</ul>
+
+<p>In all cases, two values are returned: the possibly newly
+allocated <code><em>mapping</em></code> and
+  <code><em>obj</em></code>.
+</p>
+
+<p><code>(mapping-search! <em>mapping</em> <em>key</em> <em>failure</em> <em>success</em>)</code></p>
+
+<p>The <code>mapping-search!</code> procedure is the same
+  as <code>mapping-search</code>, except that it is permitted to mutate
+  and return the <code><em>mapping</em></code> argument rather than
+  allocating a new mapping.
+</p>
+
+<h2 id="Thewholemapping">The whole mapping</h2>
+
+<p><code>(mapping-size <em>mapping</em>)</code></p>
+
+<p>
+Returns the number of associations in <em>mapping</em> as an exact integer.
+</p>
+
+<p><code>(mapping-find <em>predicate</em> <em>mapping</em> <em>failure</em>)</code></p>
+
+<p>
+  Returns the association with the least key
+  of the mapping <code><em>mapping</em></code> consisting of a key and value as two
+  values such that <code><em>predicate</em></code> returns a true
+  value when invoked with key and value as arguments, or the result of
+  tail-calling <code><em>failure</em></code> with no arguments if there is
+  none.  There are no guarantees how many times and with which keys and values
+  <code><em>predicate</em></code> is invoked.
+</p>
+
+<p>The <code>hashmap-find</code> procedure exported by <code>(srfi 146
+    hash)</code> searches in arbitrary order.
+</p>
+
+<p><code>(mapping-count <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>
+Returns the number of associations of the mapping <em>mapping</em>
+that satisfy <code><em>predicate</em></code> (in the sense
+of <code>mapping-find</code>) as an exact integer.  There are no
+guarantees how many times and with which keys and values
+<code><em>predicate</em></code> is invoked.</p>
+
+<p><code>(mapping-any? <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>
+Returns <code>#t</code> if any association of the mapping <code><em>mapping</em></code>
+satisfies <code><em>predicate</em></code> (in the sense
+of <code>mapping-find</code>), or <code>#f</code> otherwise.  There are no guarantees how many times and with which keys and values
+  <code><em>predicate</em></code> is invoked.
+</p>
+
+<p><code>(mapping-every? <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>
+Returns <code>#t</code> if every association of the
+mapping <code><em>mapping</em></code>
+satisfies <code><em>predicate</em></code> (in the sense
+of <code>mapping-find</code>), or <code>#f</code> otherwise.  There are no guarantees how many times and with which keys and values
+<code><em>predicate</em></code> is invoked.
+</p>
+
+<p><code>(mapping-keys <em>mapping</em>)</code></p>
+
+<p>Returns a newly allocated list of all the keys in increasing order
+in the mapping <code><em>mapping</em></code>.</p>
+
+<p>If <code>hashmap-keys</code> is imported from <code>(srfi 146
+    hash)</code>, the list is returned in
+  arbitrary order.
+</p>
+
+<p><code>(mapping-values <em>mapping</em>)</code></p>
+
+<p>
+  Returns a newly allocated list of all the values in increasing order
+  of the keys in the mapping <code><em>mapping</em></code>.
+</p>
+
+<p>If <code>hashmap-values</code> is imported from <code>(srfi 146
+    hash)</code>,
+  the list is returned in arbitrary order.
+</p>
+
+<p><code>(mapping-entries <em>mapping</em>)</code></p>
+
+<p>
+Returns two values, a newly allocated list of all the keys in the
+mapping <code><em>mapping</em></code>, and a newly allocated list of all the
+values in the mapping <code><em>mapping</em></code> in increasing
+order of the keys.
+</p>
+
+<p>If <code>hashmap-entries</code> is imported from <code>(srfi 146
+    hash)</code>,
+  the lists are returned in arbitrary, but consistent order.
+</p>
+
+<h2 id="Mappingandfolding">Mapping and folding</h2>
+
+<p><code>(mapping-map <em>proc</em> <em>comparator</em> <em>mapping</em>)</code></p>
+
+<p>Applies <code><em>proc</em></code>, which returns two
+  values, on two arguments, the key and value of each association of
+  <code><em>mapping</em></code> in increasing order of the keys and returns a newly allocated mapping that uses the
+  comparator <code><em>comparator</em></code>, and which contains
+  the results of the applications inserted as keys and values. Note
+  that this is more akin to <code>set-mapping</code> from SRFI 113 than
+  to <code>hash-table-mapping</code> from SRFI 125. For example:
+</p>
+
+<pre>
+  (mapping-map (proc (key value)
+             (values (symbol-&gt;string key) value))
+           (make-default-comparator)
+           (mapping (make-default-comparator) 'foo 1 'bar 2 'baz 3))
+  ; &rArr; (mapping (make-default-comparator) "foo" 1 "bar" 2 "baz" 3)
+</pre>
+
+<p>Note that, when <code><em>proc</em></code> defines a mapping that
+is not 1:1 between the keys, some of the mapped objects may be
+equivalent in the sense of the <code><em>comparator</em></code>'s
+equality predicate, and in this case duplicate associations are
+omitted as in the mapping constructor.  It is unpredictable which one
+will be preserved in the result.
+</p>
+
+<p>If <code>hashmap-map</code> is imported from <code>(srfi 146
+    hash)</code>, the associations are mapped in arbitrary order.
+</p>
+
+<p><code>(mapping-for-each <em>proc</em> <em>mapping</em>)</code></p>
+
+<p>Invokes <code><em>proc</em></code> for every association in the
+mapping <code><em>mapping</em></code> in increasing order of the keys, discarding the
+returned values, with two arguments: the key of the association and
+the value of the association.  Returns an unspecified value.
+</p>
+
+<p>If <code>hashmap-for-each</code> is imported from <code>(srfi
+    146 hash)</code>, the associations are processed in arbitrary order.
+</p>
+
+<p><code>(mapping-fold <em>proc</em> <em>nil</em> <em>mapping</em>)</code></p>
+
+<p>Invokes <code><em>proc</em></code> for each association of the
+mapping <code><em>mapping</em></code> in increasing order of the keys
+with three arguments: the key of the association, the value of the
+association, and an accumulated result of the previous invocation.
+For the first invocation, <code><em>nil</em></code> is used as the
+third argument.  Returns the result of the last invocation,
+or <code><em>nil</em></code> if there was no invocation.
+</p>
+
+<p>If <code>hashmap-fold</code> is imported from <code>(srfi
+  146 hash)</code>, the associations are accumulated in arbitrary
+  order.
+</p>
+
+<p><code>(mapping-map-&gt;list <em>proc</em> <em>mapping</em>)</code></p>
+
+<p>
+Calls <code><em>proc</em></code> for every association in increasing
+order of the keys in the mapping <code><em>mapping</em></code> with
+two arguments: the key of the association and the value of the
+association.  The values returned by the invocations
+of <code><em>proc</em></code> are accumulated into a list, which is
+returned.
+</p>
+
+<p>If <code>hashmap-&gt;list</code> is imported from <code>(srfi 146
+    hash)</code>, the associations are processed in arbitrary order.
+</p>
+
+<p><code>(mapping-filter <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>Returns a newly allocated mapping with the same comparator as the
+  mapping <code><em>mapping</em></code>, containing just the associations
+  of <code><em>mapping</em></code> that satisfy <em>predicate</em> (in the
+  sense of <code>mapping-find</code>).
+</p>
+
+<p><code>(mapping-filter! <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>A linear update procedure that returns a mapping containing just the
+associations of <code><em>mapping</em></code> that satisfy <code><em>predicate</em></code>.
+</p>
+
+<p><code>(mapping-remove <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>Returns a newly allocated mapping with the same comparator as the
+  mapping <code><em>mapping</em></code>, containing just the associations
+  of <code><em>mapping</em></code> that do not satisfy <em>predicate</em> (in the
+  sense of <code>mapping-find</code>).
+</p>
+
+<p><code>(mapping-remove! <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>A linear update procedure that returns a mapping containing just the
+associations of <code><em>mapping</em></code> that do not
+satisfy <code><em>predicate</em></code>.
+</p>
+
+<p><code>(mapping-partition <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>Returns two values: a newly allocated mapping with the same comparator
+as the mapping <code><em>mapping</em></code> that contains just the
+associations of <code><em>mapping</em></code> that
+satisfy <code><em>predicate</em></code> (in the sense
+of <code>mapping-find</code>), and another newly allocated mapping, also with
+the same comparator, that contains just the associations
+of <code><em>mapping</em></code> that do not
+satisfy <code><em>predicate</em></code>.</p>
+
+<p><code>(mapping-partition! <em>predicate</em> <em>mapping</em>)</code></p>
+
+<p>A linear update procedure that returns two mappings containing the associations of
+  <code><em>mapping</em></code> that do and do not, respectively, satisfy
+  <code><em>predicate</em></code>.
+</p>
+
+<h2 id="Copyingandconversion">Copying and conversion</h2>
+
+
+<p><code>(mapping-copy <em>mapping</em>)</code></p>
+
+<p>
+Returns a newly allocated mapping containing the associations of the
+mapping <code><em>mapping</em></code>, and using the same comparator.
+</p>
+
+<p><code>(mapping-&gt;alist <em>mapping</em>)</code></p>
+
+<p>
+  Returns a newly allocated association list containing the
+  associations of the <code><em>mapping</em></code> in increasing
+  order of the keys.
+  Each association in the list is a pair whose car is the key and
+  whose cdr is the associated value.
+</p>
+
+<p>If <code>hashmap-&gt;alist</code> is imported from <code>(srfi
+    146 hash)</code>, the association list is in arbitrary order.
+</p>
+
+<p><code>(alist-&gt;mapping <em>comparator</em> <em>alist</em>)</code></p>
+
+<p>
+Returns a newly allocated mapping, created as if by <code>mapping</code>
+using the comparator <code><em>comparator</em></code>, that contains
+the associations in the list, which consist of a pair whose car is the
+key and whose cdr is the value.  Associations earlier in the list take
+precedence over those that come later.
+</p>
+
+<p><code>(alist-&gt;mapping! <em>mapping</em> <em>alist</em>)</code></p>
+
+<p>
+A linear update procedure that returns a mapping that contains the
+associations of both <code><em>mapping</em></code>
+and <code><em>alist</em></code>.  Associations in the mapping and those
+earlier in the list take precedence over those that come later.
+</p>
+
+<h2 id="Submappings">Submappings</h2>
+
+<p>
+  All predicates in this subsection take a <code><em>comparator</em></code> argument, which
+  is a comparator used to compare the values of the associations
+  stored in the mappings.  Associations in the mappings are equal if their
+  keys are equal with mappings' key comparator and their values are
+  equal with the given comparator.  Two mappings are equal if and
+  only if their associations are equal, respectively.
+</p>
+
+<p>
+  Note: None of these five predicates produces a total order on
+  mappings.  In particular, <code>mapping=?</code>,
+  <code>mapping&lt;?</code>, and <code>mapping&gt;?</code> do not obey
+  the trichotomy law.
+</p>
+
+<p><code>(mapping=? <em>comparator</em> <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em> ...)</code></p>
+
+<p>Returns <code>#t</code> if each mapping <code><em>mapping</em></code>
+contains the same associations, and <code>#f</code> otherwise.
+</p>
+
+<p>Furthermore, it is explicitly not an error
+  if <code>mapping=?</code> is invoked on mappings that do not share
+  the same (key) comparator.  In that case, <code>#f</code> is returned.
+</p>
+
+<p><code>(mapping&lt;? <em>comparator</em> <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em> ...)</code></p>
+
+<p>Returns <code>#t</code> if the set of associations of each
+mapping <code><em>mapping</em></code> other than the last is a proper subset
+of the following <em>mapping</em>, and <code>#f</code> otherwise.</p>
+
+<p><code>(mapping&gt;? <em>comparator</em> <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em> ...)</code></p>
+
+<p>Returns <code>#t</code> if the set of associations of each
+mapping <code><em>mapping</em></code> other than the last is a proper superset
+of the following <em>mapping</em>, and <code>#f</code> otherwise.</p>
+
+<p><code>(mapping&lt;=? <em>comparator</em> <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em> ...)</code></p>
+
+<p>Returns <code>#t</code> if the set of associations of each
+mapping <code><em>mapping</em></code> other than the last is a subset
+of the following <em>mapping</em>, and <code>#f</code> otherwise.</p>
+
+<p><code>(mapping&gt;=? <em>comparator</em> <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em> ...)</code></p>
+
+<p>Returns <code>#t</code> if the set of associations of each
+mapping <code><em>mapping</em></code> other than the last is a superset
+of the following <em>mapping</em>, and <code>#f</code> otherwise.</p>
+
+<h2 id="Settheoryoperations">Set theory operations</h2>
+
+<p><code>(mapping-union <em>mapping<sub>1</sub> mapping<sub>2</sub></em> ...)</code></p>
+
+<p><code>(mapping-intersection <em>mapping<sub>1</sub> mapping<sub>2</sub></em> ...)</code></p>
+
+<p><code>(mapping-difference <em>mapping<sub>1</sub> mapping<sub>2</sub></em> ...)</code></p>
+
+<p><code>(mapping-xor <em>mapping<sub>1</sub> mapping<sub>2</sub></em>)</code></p>
+
+<p>
+Return a newly allocated mapping whose set of associations is the
+union, intersection, asymmetric difference, or symmetric difference of
+the sets of associations of the
+mappings <code><em>mapping</em></code>s.  Asymmetric difference is
+extended to more than two mappings by taking the difference between
+the first mapping and the union of the others.  Symmetric difference
+is not extended beyond two mappings.  When comparing associations,
+only the keys are compared.  In case of duplicate keys (in the sense of
+the <code><em>mapping</em></code>s comparators), associations in the
+result mapping are drawn from the first mapping in which they appear.
+</p>
+
+<p><code>(mapping-union! <em>mapping<sub>1</sub> mapping<sub>2</sub></em> ...)</code></p>
+
+<p><code>(mapping-intersection! <em>mapping<sub>1</sub> mapping<sub>2</sub></em> ...)</code></p>
+
+<p><code>(mapping-difference! <em>mapping<sub>1</sub> mapping<sub>2</sub></em> ...)</code></p>
+
+<p><code>(mapping-xor! <em>mapping<sub>1</sub> mapping<sub>2</sub></em>)</code></p>
+
+<p>
+  These procedures are the linear update analogs of the corresponding
+  pure functional procedures above.
+</p>
+
+<h2 id="Additionalproceduresformappingswithorderedkeys">Additional
+procedures for mappings with ordered keys</h2>
+
+<p>The following procedures are only exported by the <code>(srfi 146)</code> library
+  and not by <code>(srfi 146 hash)</code>:
+</p>
+
+<p><code>(mapping/ordered <em>comparator</em> <em>arg</em> ...)</code></p>
+
+<p><code>(mapping-unfold/ordered <em>stop?</em> <em>mapper</em> <em>successor</em> <em>seed</em> <em>comparator</em>)</code></p>
+
+<p>
+  These are the same as <code>mapping</code>
+  and <code>mapping-unfold</code>, except that it is an error if the
+  keys are not in order, and they may be more efficient.
+</p>
+
+<p><code>(alist-&gt;mapping/ordered <em>comparator</em> <em>alist</em>)</code></p>
+
+<p><code>(alist-&gt;mapping/ordered! <em>mapping</em> <em>alist</em>)</code></p>
+
+<p>
+  These are the same as <code>alist-&gt;mapping</code>
+  and <code>alist-&gt;mapping!</code>, except that it is an error if
+  the keys are not in order, and they may be more efficient.
+</p>
+
+<p><code>(mapping-min-key <em>mapping</em>)</code></p>
+<p><code>(mapping-max-key <em>mapping</em>)</code></p>
+
+<p>Returns the least/greatest key contained in the mapping <code><em>mapping</em></code>.  It is an error for
+  <code><em>mapping</em></code> to be empty.
+</p>
+
+<p><code>(mapping-min-value <em>mapping</em>)</code></p>
+<p><code>(mapping-max-value <em>mapping</em>)</code></p>
+
+<p>Returns the value associated with the least/greatest key contained
+  in the mapping <code><em>mapping</em></code>.  It is an error
+  for <code><em>mapping</em></code> to be empty.</p>
+
+<p><i>Note: It does not make sense to ask for the least/greatest value
+contained in <code><em>mapping</em></code> because the values have no specified
+order.</i></p>
+
+<p><code>(mapping-min-entry <em>mapping</em>)</code></p>
+<p><code>(mapping-max-entry <em>mapping</em>)</code></p>
+
+<p>Returns the entry associated with the least/greatest key contained
+  in the mapping <code><em>mapping</em></code> as two values, the key
+  and its associated value.  It is an error
+  for <code><em>mapping</em></code> to be empty.</p>
+
+<p><code>(mapping-key-predecessor <em>mapping</em> <em>obj</em> <em>failure</em>)</code></p>
+<p><code>(mapping-key-successor <em>mapping</em> <em>obj</em> <em>failure</em>)</code></p>
+<p>Returns the key contained in the mapping <code><em>mapping</em></code> that
+immediately precedes/succeeds <code><em>obj</em></code> in the mapping's order of
+keys.  If no such key is contained in <code><em>mapping</em></code>
+(because <code><em>obj</em></code> is the minimum/maximum key, or
+because <code><em>mapping</em></code> is empty), returns the result of tail-calling
+the thunk <code><em>failure</em></code>.
+
+<p><code>(mapping-range= <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&lt; <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&gt; <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&lt;= <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&gt;= <em>mapping</em> <em>obj</em>)</code></p>
+
+<p>Returns a mapping containing only the associations of
+the <code><em>mapping</em></code> whose keys are equal to, less
+than, greater than, less than or equal to, or greater than or equal
+  to <code><em>obj</em></code>.
+</p>
+
+<p><i>Note: Note that since keys in mappings are
+unique, <code>mapping-range=</code> returns a mapping with at most one
+association.</i></p>
+
+<p><code>(mapping-range=! <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&lt;! <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&gt;! <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&lt;=! <em>mapping</em> <em>obj</em>)</code></p>
+<p><code>(mapping-range&gt;=! <em>mapping</em> <em>obj</em>)</code></p>
+
+<p>Linear update procedures returning a mapping containing only the
+associations of the <code><em>mapping</em></code> whose keys are equal
+to, less than, greater than, less than or equal to, or greater than or
+equal to <code><em>obj</em></code>.
+</p>
+
+<p><code>(mapping-split <em>mapping</em> <em>obj</em>)</code></p>
+
+<p>
+  Returns five values, equivalent to the results of invoking
+  <code>(mapping-range&lt; <em>mapping</em> <em>obj</em>)</code>,
+  <code>(mapping-range&lt;= <em>mapping</em> <em>obj</em>)</code>,
+  <code>(mapping-range= <em>mapping</em> <em>obj</em>)</code>,
+  <code>(mapping-range&gt;= <em>mapping</em> <em>obj</em>)</code>,
+  and
+  <code>(mapping-range&gt; <em>mapping</em> <em>obj</em>)</code>, but
+  may be more efficient.
+</p>
+
+<p><code>(mapping-split! <em>mapping</em> <em>obj</em>)</code></p>
+
+<p>The <code>mapping-split!</code> procedure is the same
+as <code>mapping-split</code>, except that it is permitted to mutate
+and return the <code><em>mapping</em></code> rather than allocating a
+new mapping.
+</p>
+
+<p><code>(mapping-catenate <em>comparator</em> <em>mapping</em><sub>1</sub> <em>key</em> <em>value</em>
+    <em>mapping</em><sub>2</sub>)</code></p>
+
+<p>
+Returns a newly allocated mapping using the
+comparator <code><em>comparator</em></code> whose set of associations
+is the union of the sets of associations of the
+mapping <code><em>mapping</em><sub>1</sub></code>,
+the association mapping <code><em>key</em></code> to
+<code><em>value</em></code>, and the associations of
+<code><em>mapping</em><sub>2</sub></code>.  It is an error if the keys
+contained in <code><em>mapping</em><sub>1</sub></code> in their
+natural order, the key <em>key</em>, and the keys contained
+in <code><em>mapping</em><sub>2</sub></code> in their natural order
+(in that order) do not form a strictly monotone sequence with respect
+to the ordering of <code><em>comparator</em></code>.
+</p>
+
+<p><code>(mapping-catenate! <em>mapping1</em> <em>key</em> <em>value</em> <em>mapping2</em>)</code></p>
+
+<p>The <code>mapping-catenate!</code> procedure is the same
+as <code>mapping-catenate</code>, except that it is permitted to mutate and
+return one of the <code><em>mapping</em></code>s rather than allocating a new mapping.
+</p>
+
+<p><code>(mapping-map/monotone <em>proc</em> <em>comparator</em> <em>mapping</em>)</code></p>
+
+<p>Equivalent
+to <code>(mapping-map <em>proc</em> <em>comparator</em> <em>mapping</em>)</code>,
+but it is an error if <em>proc</em> does not induce a strictly
+monotone mapping between the keys with respect to the ordering of the
+comparator of <code><em>mapping</em></code> and the ordering
+of <code><em>comparator</em></code>.  Maybe be implemented more
+efficiently than <code>mapping-map</code>.
+</p>
+
+<p><code>(mapping-map/monotone! <em>proc</em> <em>comparator</em> <em>mapping</em>)</code></p>
+
+<p>The <code>mapping-map/monotone!</code> procedure is the same
+as <code>mapping-map/monotone</code>, except that it is permitted to mutate and
+return the <code><em>mapping</em></code> argument rather than allocating a new mapping.
+</p>
+
+<p><code>(mapping-fold/reverse <em>proc</em> <em>nil</em> <em>mapping</em>)</code></p>
+
+<p>Equivalent
+to <code>(mapping-fold <em>proc</em> <em>nil</em> <em>mapping</em>)</code>
+except that the associations are processed in reverse order with
+respect to the natural ordering of the keys.
+</p>
+
+<h2 id="Comparators">Comparators</h2>
+
+<p><code>(comparator? <em>obj</em>)</code></p>
+
+<p>Type predicate for comparators as exported by <code>(srfi 128)</code>.</p>
+
+<p><i>Rationale:</i> The reason why <code>comparator?</code> is
+  reexported from <code>(srfi 128)</code> is that it helps to detect
+  if an implementation of the R7RS module system is broken in the
+  sense that it does not allow interdependent libraries.  If a
+  program's imports are <code>(import (srfi 128) (srfi 146))</code>,
+  it would be an error (principally detectable at expansion time) if
+  the Scheme system loaded <code>(srfi 128)</code> twice, once for
+  importing into the program, and once for importing into <code>(srfi
+  146)</code>.  Namely, in that case the main program would
+  import <code>comparator?</code> with two different bindings, and it
+  would be impossible to invoke any procedure of <code>(srfi
+    146)</code> with a comparator created in the top-level program.
+</p>
+
+<p>
+  If <code>(srfi 146)</code> didn't export <code>comparator?</code>,
+  multiple loadings of <code>(srfi 128)</code> would not be detected
+  early; only when a <code>(srfi 146)</code> procedure is invoked with
+  a comparator created in the top-level program.
+</p>
+
+<p>
+  One may view exporting <code>comparator?</code> as a hack only
+  necessary because the R7RS library system fails to say anything
+  about interdependent libraries (although it is usually assumed that
+  interdependent libraries are possible); one can, however, also make
+  independent sense out of it: By
+  exporting <code>comparator?</code>, this specification declares or
+  announces the actual type of comparators, on which its procedures depend.
+</p>
+
+<p><code>(make-mapping-comparator <em>comparator</em>)</code></p>
+
+<p>
+  Returns a comparator for mappings that is compatible with the equality
+  predicate
+  <code>(mapping=? <em>comparator</em> <em>mapping<sub>1</sub></em> <em>mapping<sub>2</sub></em>)</code>.
+  If <code>make-mapping-comparator</code> is imported from <code>(srfi
+  146)</code>, it provides a (partial) ordering predicate that is
+  applicable to pairs of mappings with the same (key) comparator.
+  If <code>(make-hashmap-comparator)</code> is imported
+  from <code>(srfi 146 hash)</code>, it provides an
+  implementation-dependent hash function.
+</p>
+
+<p>If <code>make-mapping-comparator</code> is imported from <code>(srfi
+    146)</code>, the lexicographic ordering with respect to
+    the keys (and, in case a tiebreak is necessary, with respect to
+    the ordering of the values) is used for mappings sharing a comparator.
+</p>
+
+<p>The existence of comparators returned
+  by <code>make-mapping-comparator</code> allows mappings whose keys
+  are mappings themselves, and it allows to compare mappings whose
+  values are mappings.
+</p>
+
+<p>
+The following comparator is used to compare mappings when <code>(make-default-comparator)</code>
+from SRFI 128 is invoked:
+</p>
+
+<p><code>mapping-comparator</code></p>
+
+<p><code>mapping-comparator</code> is constructed by
+invoking <code>make-mapping-comparator</code>
+on <code>(make-default-comparator)</code>.
+</p>
+
+<h1>Implementation</h1>
+
+<p>
+The sample implementation for <code>(srfi 146)</code> uses a purely
+functional data structure and is based on red-black trees.  This sample
+R7RS implementation is based on SRFI 1, SRFI 2, SRFI 8, SRFI 121, SRFI
+128, and SRFI 145 for which the sample implementations are included in
+the repository.  (Except for SRFI 128, to which the interface proposed
+in this SRFI is intimately tied, the dependencies are trivial.)
+</p>
+
+<p>
+  The sample implementation for <code>(srfi 146 hash)</code> is a thin
+  layer on top of Arthur Gleckler's Hash Array Mapped Trie
+  implementation.  This implementation and its tests depend on the
+  SRFIs 1, 16, 27, 113, 125, 128, 132, 143, 151.
+</p>
+
+<a href="https://srfi.schemers.org/srfi-146/srfi-146.tgz">Source for the reference implementation.</a>
+
+<!--
+<p>For demonstration purposes, this SRFI also includes a <a href="https://srfi.schemers.org/srfi-113/srfi-113.tgz">new
+implementation of SRFI 113</a> as a thin
+layer over the procedures of SRFI 146.
+</p>
+-->
+
+<h1>Acknowledgements</h1>
+
+<p>
+Credit goes to John Cowan for SRFI 113 and SRFI 128, to Will Clinger
+and John Cowan for SRFI 125, and to Kevin Wortman for his
+immutable-maps-proposal.  Special credit also goes to Sudarshan S
+Chawathe and Shiro Kawai for their careful readings of the drafts of
+this SRFI and their many valuable comments which helped to improve
+this proposal, and to Jown Cowan for ideas on ordered mappings.
+</p>
+
+<p>
+Some wording from SRFI 113 and SRFI 125 has been copied <i> mutatis mutandis</i>.
+</p>
+
+<h1>Copyright</h1> Copyright (C) Marc Nieper-Wi&szlig;kirchen (2016,
+2017).  All Rights Reserved.
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

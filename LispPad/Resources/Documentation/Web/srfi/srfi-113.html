@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "" "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>SRFI 113: Sets and Bags</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+<body>
+
+<H1><a name="lp-srfi-113">Title</a></H1>
+
+Sets and bags
+
+<H1>Author</H1>
+
+John Cowan
+
+<p>
+<h1>Status</h1>
+This SRFI is currently in ``final'' status.
+
+To see an explanation of
+each status that a SRFI can hold, see <a
+href="http://srfi.schemers.org/srfi-process.html">here</a>.
+
+To provide input on this SRFI, please
+<a href="mailto:srfi minus 113 at srfi dot schemers dot org">mail to
+<code>&lt;srfi minus 113 at srfi dot schemers dot org&gt;</code></a>.  See
+<a href="../srfi-list-subscribe.html">instructions here</a> to
+subscribe to the list.  You can access previous messages via
+<a href="mail-archive/maillist.html">the archive of the mailing list</a>.
+You can access
+post-finalization messages via
+<a href="http://srfi.schemers.org/srfi-111/post-mail-archive/maillist.html">
+the archive of the mailing list</a>.
+</p>
+
+
+<ul>
+      <li>Received: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.1.html">2013/05/31</a></li>
+      <li>Draft: 2013/06/01-2013/08/01</li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.2.html">2013/06/09</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.3.html">2013/07/03</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.4.html">2013/12/04</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.5.html">2014/03/31</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.6.html">2014/08/15</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.8.html">2014/08/19</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.9.html">2014/08/22</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.10.html">2014/08/22</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.11.html">2014/08/29</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.12.html">2014/11/16</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.13.html">2014/11/28</a></li>
+      <li>Final: <a href="http://srfi.schemers.org/srfi-113/srfi-113-1.14.html">2014/11/29</a></li>
+      <li>Revised to fix errata:
+	<ul>
+	  <li>2016/5/14 (Add post-finalization note.)</li>
+	  <li>2016/11/29 (Fixed calls to `set-map` and `bag-map`.)</li>
+	  <li>2017/1/3 (Replaced references to "character set" with "set or bag.")</li>
+	  <li>2018/7/3 (Fixed wording error about total orders.)</li></ul></li>
+    </ul>
+<p><b>Post-finalization note 1</b>: Because SRFI 114 has been deprecated
+        by SRFI 128, it is recommended that implementers make use of
+        SRFI 128 rather than SRFI 114 comparators where comparators are
+        specified in this SRFI.  Specifically, the procedures <code>set</code>,
+        <code>bag</code>, <code>set-unfold</code>, <code>bag-unfold</code>, <code>set-map</code>, <code>list->set</code>,
+        <code>list->bag</code>, and <code>alist->bag</code>, should accept SRFI 128 rather
+        than SRFI 114 comparators as arguments.  By the same token, the
+        results of <code>set-element-comparator</code> and <code>bag-element-comparator</code>,
+        as well as the values of <code>set-comparator</code> and <code>bag-comparator</code>,
+        should be SRFI 128 comparators.  The sample implementation has
+        been updated to depend on SRFI 128 rather than SRFI 114.
+</p>
+<p><b>Post-finalization note 2</b>: The order of arguments of <code>set-map</code> and <code>set-unfold</code> are not consistent with those of <code>hash-table-map</code> and <code>hash-table-unfold</code> in <a href="https://srfi.schemers.org/srfi-125/">SRFI 125</a>.  Both SRFI 113 and SRFI 125 are going to be part of R7RS large (also known as the <a href="http://trac.sacrideo.us/wg/wiki/RedEdition">Red Edition</a>), and the plan is to make them consistent there, following the order in SRFI 125.  Furthermore, <a href="https://srfi.schemers.org/srfi-146/">SRFI 146</a> (in draft status at the time of this writing) uses the order of SRFI 125.  Since this problem was discovered after SRFI 113 was finalized, and it wasn't an error in the SRFI, it's too late to fix it here.  However, John Cowan, the author, encourages implementers to consider adopting the order of SRFI 125.  Thanks to Marc Nieper-Wißkirchen for reporting this mismatch, and for providing a version of SRFI 113 with the recommended argument order in the implementation of SRFI 146.</p>
+
+<h1>Abstract</h1><p><em>Sets</em> and <em>bags</em> (also known as multisets) are unordered collections that can contain any Scheme object.  Sets enforce the constraint that no two elements can be the same in the sense of the set's associated <em>equality predicate</em>; bags do not.
+
+</p>
+
+<h1>Rationale</h1>
+
+<p>Sets are a standard part of the libraries of many high-level programming languages, including Smalltalk, <a href="http://docs.oracle.com/javase/6/docs/api/java/util/Set.html">Java</a>, and <a href="http://www.cplusplus.com/reference/set/set/">C++</a>.  <a href="http://docs.racket-lang.org/reference/sets.html">Racket</a> provides general sets similar to those of this proposal, though with fewer procedures, and there is a Chicken egg called <code>sets</code> (unfortunately undocumented), which provides a minimal set of procedures.  <a href="http://srfi.schemers.org/srfi-1/srfi-1.html">SRFI 1</a> also provides a list-based implementation of sets.</p>
+
+<p>Bags are useful for counting anything from a fixed set of possibilities, e.g. the number of each type of error in a log file or the number of uses of each word in a lexicon drawn from a body of documents.  Although other data structures can serve the same purpose, using bags clearly expresses the programmer's intent and allows for optimization.</p>
+
+<p>Insofar as possible, the names in this SRFI are harmonized with the names used for ordered collections (lists, strings, vectors, and bytevectors) in Scheme.  However, <code>size</code> is used instead of <code>length</code> to express the number of elements in a collection, because <code>length</code> implies order.</p>
+
+<p>It's possible to use the general sets of this SRFI to contain characters, but the use of <a href="http://srfi.schemers.org/srfi-14/srfi-14.html">SRFI 14</a> is recommended instead.  The names and facilities in this SRFI are harmonized with SRFI 14, except that SRFI 14 does not contain analogues of the <code>set-search!</code>, <code>set&gt;?</code>, <code>set&lt;=?</code>, <code>set&gt;=?</code>, <code>set-remove</code>, or <code>set-partition</code> procedures.</p>
+
+<p>Sets and bags do not have a lexical syntax representation.  It's possible to use <a href="http://srfi.schemers.org/srfi-108/srfi-108.html">SRFI 108</a> quasi-literal constructors to create them in code, but this SRFI does not standardize how that is done.</p>
+
+<p>The interface to general sets and bags depends on <a href="http://srfi.schemers.org/srfi-114/srfi-114.html">SRFI 114</a> comparators, despite that SRFI having a higher number than this one for <a href="http://www.catb.org/jargon/html/H/hysterical-reasons.html">hysterical raisins</a>. Comparators conveniently package the equality predicate of the set with the hash function or comparison procedure needed to implement the set efficiently.</p>
+
+<h1>Specification</h1>
+
+<p>Sets and bags are mutually disjoint, and disjoint from other types of Scheme objects.</p>
+
+<p>It is an error for any procedure defined in this SRFI to be invoked on sets or bags with distinct comparators (in the sense of <code>eq?</code>).</p>
+
+<p>It is an error to mutate any object while it is contained in a set or bag.</p>
+
+<p>It is an error to add an object to a set or bag which does not satisfy the type test predicate of the comparator.</p>
+
+<p>It is an error to add or remove an object for a set or a bag while iterating over it.</p>
+
+<h2>Linear update</h2>
+
+<p>The procedures of this SRFI, by default, are "pure functional" — they do not alter their parameters. However, this SRFI also defines "linear-update" procedures, all of whose names end in <code>!</code>.  They have hybrid pure-functional/side-effecting semantics: they are allowed, but not required, to side-effect one of their parameters in order to construct their result. An implementation may legally implement these procedures as pure, side-effect-free functions, or it may implement them using side effects, depending upon the details of what is the most efficient or simple to implement in terms of the underlying representation.</p>
+
+<p>It is an error to rely upon these procedures working by side effect. For example, this is not guaranteed to work:</p>
+
+<pre>
+        (let* ((set1 (set 'a 'b 'c))      ; set1 = {a,b,c}.
+               (set2 (set-adjoin! set1 'd)))   ; Add d to {a,b,c}.
+          set1) ; Could be either {a,b,c} or {a,b,c,d}.
+</pre>
+
+<p>However, this is well-defined:</p>
+
+<pre>
+        (let ((set1 (set 'a 'b 'c)))
+          (set-adjoin! set1 'd)) ; Add d to {a,b,c}.
+</pre>
+  
+<p>So clients of these procedures write in a functional style, but must additionally be sure that, when the procedure is called, there are no other live pointers to the potentially-modified set or bag (hence the term "linear update").</p>
+
+<p>There are two benefits to this convention:</p>
+
+<ul><li><p>Implementations are free to provide the most efficient possible implementation, either functional or side-effecting.</p></li>
+
+<li><p>Programmers may nonetheless continue to assume that sets are purely functional data structures: they may be reliably shared without needing to be copied, uniquified, and so forth.</p></li></ul>
+
+<p>In practice, these procedures are most useful for efficiently constructing sets and bags in a side-effecting manner, in some limited local context, before passing the set or bag outside the local construction scope to be used in a functional manner.</p>
+
+<p>Scheme provides no assistance in checking the linearity of the potentially side-effected parameters passed to these functions — there's no linear type checker or run-time mechanism for detecting violations.</p>
+
+<p>Note that if an implementation uses no side effects at all, it is allowed to return existing sets and bags rather than newly allocated ones, even where this SRFI explicitly says otherwise.</p>
+
+<h2>Comparator restrictions</h2>
+
+<p>Implementations of this SRFI are allowed to place restrictions on the comparators that the procedures accept.  In particular, an implementation may require comparators to provide a comparison procedure.  Alternatively, an implementation may require comparators to provide a hash function, unless the equality predicate of the comparator is <code>eq?</code>, <code>eqv?</code>, <code>equal?</code>, <code>string=?</code>, or <code>string-ci=?</code>.  Implementations must not require the provision of both a comparison procedure and a hash function. </p>
+
+<h2 id="Index">Index</h2>
+
+<ul><li><p><a href="#Constructors">Constructors</a>: <code>set</code>, <code>set-unfold</code></p>
+</li><li><p><a href="#Predicates">Predicates</a>: <code>set?</code>, <code>set-contains?</code>, <code>set-empty?</code>, <code>set-disjoint?</code></p>
+</li><li><p><a href="#Accessors">Accessors</a>: <code>set-member</code>, <code>set-element-comparator</code></p>
+</li><li><p><a href="#Updaters">Updaters</a>: <code>set-adjoin</code>, <code>set-adjoin!</code>, <code>set-replace</code>, <code>set-replace!</code>, <code>set-delete</code>, <code>set-delete!</code>, <code>set-delete-all</code>, <code>set-delete-all!</code>, <code>set-search!</code></p>
+</li><li><p><a href="#Thewholeset">The whole set</a>: <code>set-size</code>, <code>set-find</code>, <code>set-count</code>, <code>set-any?</code>, <code>set-every?</code></p>
+</li><li><p><a href="#Mappingandfolding">Mapping and folding</a>: <code>set-map</code>, <code>set-for-each</code>, <code>set-fold</code>, <code>set-filter</code>, <code>set-filter!</code>, <code>set-remove</code>, <code>set-remove!</code>, <code>set-partition</code>, <code>set-partition!</code></p>
+</li><li><p><a href="#Copyingandconversion">Copying and conversion</a>: <code>set-copy</code>, <code>set-&gt;list</code>, <code>list-&gt;set</code>, <code>list-&gt;set!</code></p>
+</li><li><p><a href="#Subsets">Subsets</a>: <code>set=?</code>, <code>set&lt;?</code>, <code>set&gt;?</code>, <code>set&lt;=?</code>, <code>set&gt;=?</code></p>
+</li><li><p><a href="#Settheoryoperations">Set theory operations</a>: <code>set-union</code>, <code>set-intersection</code>, <code>set-difference</code>, <code>set-xor</code>, <code>set-union!</code>, <code>set-intersection!</code>, <code>set-difference!</code>, <code>set-xor!</code></p>
+</li><li><p><a href="#Additionalbagprocedures">Additional bag procedures</a>: <code>bag-sum</code>, <code>bag-sum!</code>, <code>bag-product</code>, <code>bag-product!</code>, <code>bag-element-count</code>, <code>bag-for-each-unique</code>, <code>bag-fold-unique</code>, <code>bag-increment!</code>, <code>bag-decrement!</code>, <code>bag-&gt;set</code>, <code>set-&gt;bag</code>, <code>set-&gt;bag!</code></p>
+</li><li><p><a href="#Comparators">Comparators</a>: <code>set-comparator</code>, <code>bag-comparator</code></p>
+</li>
+
+</ul>
+
+<h2 id="Setprocedures">Set procedures</h2>
+
+<h3 id="Constructors">Constructors</h3>
+
+<p><code>(set </code><em>comparator</em> <em>element</em> ... <code>)</code></p>
+
+<p>Returns a newly allocated empty set.  The <em>comparator</em> argument is a <a href="http://srfi.schemers.org/srfi-114/srfi-114.html">SRFI 114</a> comparator, which is used to control and distinguish the elements of the set.  The <em>elements</em> are used to initialize the set.</p>
+
+<p><code>(set-unfold </code><em>comparator stop? mapper successor seed</em><code>)</code></p>
+
+<p>Create a newly allocated set as if by <code>set</code> using <em>comparator</em>.  If the result of applying the predicate <em>stop?</em> to <em>seed</em> is true, return the set.  Otherwise, apply the procedure <em>mapper</em> to <em>seed</em>.  The value that <em>mapper</em> returns is added to the set.  Then get a new seed by applying the procedure <em>successor</em> to <em>seed</em>, and repeat this algorithm.</p>
+
+<h3 id="Predicates">Predicates</h3>
+
+<p><code>(set? </code><em>obj</em><code>)</code></p>
+
+<p>Returns <code>#t</code> if <em>obj</em> is a set, and <code>#f</code> otherwise.</p>
+
+<p><code>(set-contains? </code><em>set element</em><code>)</code></p>
+
+<p>Returns <code>#t</code> if <em>element</em> is a member of <em>set</em> and <code>#f</code> otherwise.</p>
+
+<p><code>(set-empty? </code><em>set</em><code>)</code></p>
+
+<p>Returns <code>#t</code> if <em>set</em> has no elements and <code>#f</code> otherwise.</p>
+
+<p><code>(set-disjoint? </code><em>set<sub>1</sub> set<sub>2</sub></em><code>)</code></p>
+
+<p>Returns <code>#t</code> if <em>set<sub>1</sub></em> and <em>set<sub>2</sub></em> have no elements in common and <code>#f</code> otherwise.</p>
+
+<h3 id="Accessors">Accessors</h3>
+
+<p><code>(set-member </code><em>set element default</em><code>)</code></p>
+
+<p>Returns the element of <em>set</em> that is equal, in the sense of <em>set's</em> equality predicate, to <em>element</em>.  If <em>element</em> is not a member of <em>set</em>, <em>default</em> is returned.</p>
+
+<p><code>(set-element-comparator </code><em>set</em><code>)</code></p>
+
+<p>Returns the comparator used to compare the elements of <em>set</em>.</p>
+
+<h3 id="Updaters">Updaters</h3>
+
+<p><code>(set-adjoin </code><em>set element</em> ...<code>)</code></p>
+
+<p>The <code>set-adjoin</code> procedure returns a newly allocated set that uses the same comparator as <em>set</em> and contains all the values of <em>set</em>, and in addition each <em>element</em> unless it is already equal (in the sense of the comparator) to one of the existing or newly added members.  It is an error to add an element to <i>set</i> that does not return <code>#t</code> when passed to the type test procedure of the comparator.</p>
+
+<p><code>(set-adjoin! </code><em>set element</em> ...<code>)</code></p>
+
+<p>The <code>set-adjoin!</code> procedure is the same as <code>set-adjoin</code>, except that it is permitted to mutate and return the <em>set</em> argument rather than allocating a new set.</p>
+
+<p><code>(set-replace </code><em>set element</em><code>)</code></p>
+
+<p>The <code>set-replace</code> procedure returns a newly allocated set that uses the same comparator as <em>set</em> and contains all the values of <em>set</em> except as follows:  If <i>element</i> is equal (in the sense of <i>set</i>'s comparator) to an existing member of <i>set</i>, then that member is omitted and replaced by <i>element</i>.  If there is no such element in <i>set</i>, then <i>set</i> is returned unchanged.</p>
+
+<p><code>(set-replace! </code><em>set element</em><code>)</code></p>
+
+<p>The <code>set-replace!</code> procedure is the same as<code>set-replace</code>, except that it is permitted to mutate and return the <em>set</em> argument rather than allocating a new set.</p>
+
+<p><code>(set-delete </code><em>set element</em> ...<code>)</code></p>
+
+<p><code>(set-delete! </code><em>set element</em> ...<code>)</code></p>
+
+<p><code>(set-delete-all </code><em>set element-list</em><code>)</code></p>
+
+<p><code>(set-delete-all! </code><em>set element-list</em><code>)</code></p>
+
+<p>The <code>set-delete</code> procedure returns a newly allocated set containing all the values of <em>set</em> except for any that are equal (in the sense of <em>set</em>'s comparator) to one or more of the <em>elements</em>.  Any <em>element</em> that is not equal to some member of the set is ignored.</p>
+
+<p>The <code>set-delete!</code> procedure is the same as <code>set-delete</code>, except that it is permitted to mutate and return the <em>set</em> argument rather than allocating a new set.</p>
+
+<p>The <code>set-delete-all</code> and <code>set-delete-all!</code> procedures are the same as <code>set-delete</code> and <code>set-delete!</code>, except that they accept a single argument which is a list of elements to be deleted.</p>
+
+<p><code>(set-search! </code><em>set element failure success</em><code>)</code></p>
+
+<p>The <em>set</em> is searched for <em>element</em>.  If it is not found, then the <em>failure</em> procedure is tail-called with two continuation arguments, <em>insert</em> and <em>ignore</em>, and is expected to tail-call one of them.  If <em>element</em> is found, then the <em>success</em> procedure is tail-called with the matching element of <em>set</em> and two continuations, <em>update</em> and <em>remove</em>, and is expected to tail-call one of them.</p>
+
+<p>The effects of the continuations are as follows (where <em>obj</em> is any Scheme object):</p>
+
+<ul>
+<li><p>Invoking <code>(</code><em>insert obj</em><code>)</code> causes <em>element</em> to be inserted into <em>set</em>.</p></li>
+<li><p>Invoking <code>(</code><em>ignore obj</em><code>)</code> causes <em>set</em> to remain unchanged.</p></li>
+<li><p>Invoking <code>(</code><em>update new-element obj</em><code>)</code> causes <em>new-element</em> to be inserted into <em>set</em> in place of <i>element</i>.</p></li>
+<li><p>Invoking <code>(</code><em>remove obj</em><code>)</code> causes the matching element of <em>set</em> to be removed from it.</p></li>
+</ul>
+
+<p>In all cases, two values are returned: the possibly updated <em>set</em> and <em>obj</em>.</p>
+
+<h3 id="Thewholeset">The whole set</h3><p><code>(set-size </code><em>set</em><code>)</code></p><p>
+
+Returns the number of elements in <em>set</em> as an exact integer.
+
+</p><p><code>(set-find </code><em>predicate set failure</em><code>)</code></p><p>
+
+Returns an arbitrarily chosen element of <em>set</em> that satisfies <em>predicate</em>, or the result of invoking <em>failure</em> with no arguments if there is none.
+</p><p><code>(set-count </code><em>predicate set</em><code>)</code></p><p>
+
+Returns the number of elements of <em>set</em> that satisfy <em>predicate</em> as an exact integer.
+
+</p><p><code>(set-any? </code><em>predicate set</em><code>)</code></p><p>
+
+Returns <code>#t</code> if any element of <em>set</em> satisfies <em>predicate</em>, or <code>#f</code> otherwise.  Note that this differs from the SRFI 1 analogue because it does not return an element of the set.
+
+</p><p><code>(set-every? </code><em>predicate set</em><code>)</code></p><p>
+
+Returns <code>#t</code> if every element of <em>set</em> satisfies <em>predicate</em>, or <code>#f</code> otherwise.  Note that this differs from the SRFI 1 analogue because it does not return an element of the set.  
+
+</p>
+
+<h3 id="Mappingandfolding">Mapping and folding</h3>
+
+<p><code>(set-map </code><em>comparator proc set</em><code>)</code></p>
+
+<p>Applies <em>proc</em> to each element of <em>set</em> in arbitrary order and returns a newly allocated set, created as if by <code>(set </code><em>comparator</em><code>)</code>, which contains the results of the applications.  For example:</p>
+
+<pre>
+        (set-map string-ci-comparator symbol-&gt;string (set eq? 'foo 'bar 'baz))
+             =&gt; (set string-ci-comparator "foo" "bar" "baz")
+</pre>
+
+<p>Note that, when <em>proc</em> defines a mapping that is not 1:1, some of the mapped objects may be equivalent in the sense of <em>comparator's</em> equality predicate, and in this case duplicate elements are omitted as in the set constructor.  For example:</p>
+
+<pre>
+(set-map (lambda (x) (quotient x 2))
+         integer-comparator
+         (set integer-comparator 1 2 3 4 5))
+ => (set integer-comparator 0 1 2)
+</pre>
+
+<p>If the elements are the same in the sense of <code>eqv?</code>, it is unpredictable which one will be preserved in the result.</p>
+
+<p><code>(set-for-each </code><em>proc set</em><code>)</code></p>
+
+<p>Applies <em>proc</em> to <em>set</em> in arbitrary order, discarding the returned values.  Returns an unspecified result.</p>
+
+<p><code>(set-fold </code><em>proc nil set</em><code>)</code></p>
+
+<p>Invokes <em>proc</em> on each member of <em>set</em> in arbitrary order, passing the result of the previous invocation as a second argument.  For the first invocation, <em>nil</em> is used as the second argument.  Returns the result of the last invocation, or <em>nil</em> if there was no invocation.</p>
+
+<p><code>(set-filter </code><em>predicate set</em><code>)</code></p>
+
+<p>Returns a newly allocated set with the same comparator as <em>set</em>, containing just the elements of <em>set</em> that satisfy <em>predicate</em>.</p>
+
+<p><code>(set-filter! </code><em>predicate set</em><code>)</code></p>
+
+<p>A linear update procedure that returns a set containing just the elements of <em>set</em> that satisfy <em>predicate</em>.</p>
+
+<p><code>(set-remove </code><em>predicate set</em><code>)</code></p>
+
+<p>Returns a newly allocated set with the same comparator as <em>set</em>, containing just the elements of <em>set</em> that do not satisfy <em>predicate</em>.</p>
+
+<p><code>(set-remove! </code><em>predicate set</em><code>)</code></p>
+
+<p>A linear update procedure that returns a set containing just the elements of <em>set</em> that do not satisfy <em>predicate</em>.</p>
+
+<p><code>(set-partition </code><em>predicate set</em><code>)</code></p>
+
+<p>Returns two values: a newly allocated set with the same comparator as <em>set</em> that contains just the elements of <em>set</em> that satisfy <em>predicate</em>, and another newly allocated set, also with the same comparator,  that contains just the elements of <em>set</em> that do not satisfy <em>predicate</em>.</p>
+
+<p><code>(set-partition! </code><em>predicate set</em><code>)</code></p>
+
+<p>A linear update procedure that returns two sets containing the elements of <em>set</em> that do and do not, respectively, not satisfy <em>predicate</em>.</p>
+
+<h3 id="Copyingandconversion">Copying and conversion</h3>
+
+<p><code>(set-copy </code><em>set</em><code>)</code></p><p>
+
+Returns a newly allocated set containing the elements of <em>set</em>, and using the same comparator.
+
+</p><p><code>(set-&gt;list </code><em>set</em><code>)</code></p><p>
+
+Returns a newly allocated list containing the members of <em>set</em> in unspecified order.
+
+</p><p><code>(list-&gt;set </code><em>comparator list</em><code>)</code></p><p>
+
+Returns a newly allocated set, created as if by <code>set</code> using <em>comparator</em>, that contains the elements of <em>list</em>.  Duplicate elements (in the sense of the equality predicate) are omitted.
+
+</p><p><code>(list-&gt;set! </code><em>set list</em><code>)</code></p><p>
+
+Returns a set that contains the elements of both <em>set</em> and <em>list</em>.  Duplicate elements (in the sense of the equality predicate) are omitted.
+
+</p><h3 id="Subsets">Subsets</h3>
+
+<p>
+  Note: None of these predicates produces a total order on
+  sets.  In particular, <code>set=?</code>,
+  <code>set&lt;?</code>, and <code>set&gt;?</code> do not obey
+  the trichotomy law.
+</p>
+
+<p><code>(set=? </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p>
+
+Returns <code>#t</code> if each <em>set</em> contains the same elements.
+
+</p><p><code>(set&lt;? </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p>
+
+Returns <code>#t</code> if each <em>set</em> other than the last is a proper subset of the following <em>set</em>, and <code>#f</code> otherwise.
+
+</p><p><code>(set&gt;? </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p>
+
+Returns <code>#t</code> if each <em>set</em> other than the last is a proper superset of the following <em>set</em>, and <code>#f</code> otherwise.
+
+</p><p><code>(set&lt;=? </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p>
+
+Returns <code>#t</code> if each <em>set</em> other than the last is a subset of the following <em>set</em>, and <code>#f</code> otherwise.
+
+</p><p><code>(set&gt;=? </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p>
+
+Returns <code>#t</code> if each <em>set</em> other than the last is a superset of the following <em>set</em>, and <code>#f</code> otherwise.
+
+</p>
+
+<h3 id="Settheoryoperations">Set theory operations</h3><p><code>(set-union </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p><code>(set-intersection </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p><code>(set-difference </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p><code>(set-xor </code><em>set<sub>1</sub> set<sub>2</sub></em><code>)</code></p><p>
+
+Return a newly allocated set that is the union, intersection, asymmetric difference, or symmetric difference of the <em>sets</em>.  Asymmetric difference is extended to more than two sets by taking the difference between the first set and the union of the others.  Symmetric difference is not extended beyond two sets.  Elements in the result set are drawn from the first set in which they appear.
+
+</p><p><code>(set-union! </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p><code>(set-intersection! </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p><code>(set-difference! </code><em>set<sub>1</sub> set<sub>2</sub></em> ...<code>)</code>
+
+</p><p><code>(set-xor! </code><em>set<sub>1</sub> set<sub>2</sub></em><code>)</code></p>  
+
+<p>Linear update procedures returning a set that is the union, intersection, asymmetric difference, or symmetric difference of the <em>sets</em>.  Asymmetric difference is extended to more than two sets by taking the difference between the first set and the union of the others.  Symmetric difference is not extended beyond two sets.  Elements in the result set are drawn from the first set in which they appear.</p>
+
+<h2 id="Bagprocedures">Bag procedures</h2><p>
+
+Bags are like sets, but can contain the same object more than once.  However, if two elements that are the same in the sense of the equality predicate, but not in the sense of <code>eqv?</code>, are both included, it is not guaranteed that they will remain distinct when retrieved from the bag.  It is an error for a single procedure to be invoked on bags with different comparators.
+
+</p><p>
+
+The procedures for creating and manipulating bags are the same as those for sets, except that <code>set</code> is replaced by <code>bag</code> in their names, and that adjoining an element to a bag is effective even if the bag already contains the element.  If two elements in a bag are the same in the sense of the bag's comparator, the implementation may in fact store just one of them.
+</p>
+
+<p>The <code>bag-union</code>, <code>bag-intersection</code>, <code>bag-difference</code>, and <code>bag-xor</code> procedures (and their linear update analogues) behave as follows when both bags contain elements that are equal in the sense of the bags' comparator:</p>
+
+<ul>
+<li><p>For <code>bag-union</code>, the number of equal elements in the result is the largest number of equal elements in any of the original bags.</p></li>
+
+<li><p>For <code>bag-intersection</code>, the number of equal elements in the result is the smallest number of equal elements in any of the original bags.</p></li>
+
+<li><p>For <code>bag-difference</code>, the number of equal elements in the result is the number of equal elements in the first bag, minus the number of elements in the other bags (but not less than zero).</p></li>
+
+<li><p>For <code>bag-xor</code>, the number of equal elements in the result is the absolute value of the difference between the number of equal elements in the first and second bags.</p></li></ul>
+
+<h3 id="Additionalbagprocedures">Additional bag procedures</h3>
+
+<p><code>(bag-sum </code><em>set<sub>1</sub> set<sub>2</sub></em> ... <code>)</code></p>
+
+<p><code>(bag-sum! </code><em>bag<sub>1</sub> bag<sub>2</sub></em> ... <code>)</code></p><p>
+
+The <code>bag-sum</code> procedure returns a newly allocated bag containing all the unique elements in all the <em>bags</em>, such that the count of each unique element in the result is equal to the sum of the counts of that element in the arguments.  It differs from <code>bag-union</code> by treating identical elements as potentially distinct rather than attempting to match them up.
+
+</p><p>The <code>bag-sum!</code> procedure is equivalent except that it is linear-update.
+
+<p><code>(bag-product </code><em>n bag</em><code>)</code></p>
+
+<p><code>(bag-product! </code><em>n bag</em><code>)</code></p>
+
+The <code>bag-product</code> procedure returns a newly allocated bag containing all the unique elements in <em>bag</em>, where the count of each unique element in the bag is equal to the count of that element in <code>bag</code> multiplied by <em>n</em>.
+
+</p><p>The <code>bag-product!</code> procedure is equivalent except that it is linear-update.
+
+</p><p><code>(bag-unique-size </code><em>bag</em><code>)</code></p><p>
+
+Returns the number of unique elements of <em>bag</em>.
+
+</p><p><code>(bag-element-count </code><em>bag element</em><code>)</code></p><p>
+
+Returns an exact integer representing the number of times that <em>element</em> appears in <em>bag</em>.
+
+</p><p><code>(bag-for-each-unique </code><em>proc bag</em><code>)</code></p><p>
+
+Applies <em>proc</em> to each unique element of <em>bag</em> in arbitrary order, passing the element and the number of times it occurs in <em>bag</em>, and discarding the returned values.  Returns an unspecified result.
+
+</p><p><code>(bag-fold-unique </code><em>proc nil bag</em><code>)</code></p><p>
+
+Invokes <em>proc</em> on each unique element of <em>bag</em> in arbitrary order, passing the number of occurrences as a second argument and the result of the previous invocation as a third argument.  For the first invocation, <em>nil</em> is used as the third argument.  Returns the result of the last invocation.
+
+</p><p><code>(bag-increment! </code><em>bag<code> </code>element<code> </code>count</em><code>)</code></p><p><code>(bag-decrement! </code><em>bag<code> </code>element<code> </code>count</em><code>)</code></p><p>
+
+Linear update procedures that return a bag with the same elements as <em>bag</em>, but with the element count of <em>element</em> in <em>bag</em> increased or decreased by the exact integer <em>count</em> (but not less than zero).
+
+</p><p><code>(bag-&gt;set </code><em>bag</em><code>)</code></p><p><code>(set-&gt;bag </code><em>set</em><code>)</code></p><p><code>(set-&gt;bag! </code><em>bag set</em><code>)</code></p><p>
+
+The <code>bag-&gt;set</code> procedure returns a newly allocated set containing the unique elements (in the sense of the equality predicate) of <em>bag</em>.  The <code>set-&gt;bag</code> procedure returns a newly allocated bag containing the elements of <em>set</em>.  The <code>set-&gt;bag!</code> procedure returns a bag containing the elements of both <em>bag</em> and <em>set</em>.  In all cases, the comparator of the result is the same as the comparator of the argument or arguments.
+
+</p><p><code>(bag-&gt;alist </code><em>bag</em><code>)</code></p><p><code>(alist-&gt;bag </code><em>comparator alist</em><code>)</code></p><p>
+
+The <code>bag-&gt;alist</code> procedure returns a newly allocated alist whose keys are the unique elements of <em>bag</em> and whose values are the number of occurrences of each element.  The <code>alist-&gt;bag</code> returning a newly allocated bag based on <em>comparator</em>, where the keys of <em>alist</em> specify the elements and the corresponding values of <em>alist</em> specify how many times they occur.</p>
+
+<h2 id="Comparators">Comparators</h2><p>
+
+The following comparators are used to compare sets or bags, and allow sets of sets, bags of sets, etc.
+
+</p><p><code>set-comparator</code></p><p><code>bag-comparator</code></p><p>
+
+Note that these comparators do not provide comparison procedures, as there is no ordering between sets or bags.  It is an error to compare sets or bags with different element comparators.
+
+</p><h1>Implementation</h1>
+
+<p>The implementation places the identifiers defined above into the <code>sets</code> library.</p>
+
+<p>Sets and bags are implemented as a thin veneer over hashtables.</p>
+
+<p>The implementation registers <code>set-comparator</code> and
+<code>bag-comparator</code> with SRFI 114's default comparator, assuming
+the sample implementation of SRFI 114 is being used.  Scheme implementers
+who provide their own implementations of SRFI 114 must change this part
+of the code.</p>
+
+<p>The <a href="http://srfi.schemers.org/srfi-113/sets.tar.gz">sample implementation</a> contains the following files:</p>
+
+<ul><li><code>sets-impl.scm</code> – implementation of general sets and bags</li>
+<li><code>sets.sld</code> – an R7RS library named <code>(sets)</code></li>
+<li><code>sets.scm</code> – a Chicken library</li>
+<li><code>sets-test.scm</code> – test suite</li></ul>
+
+<p>The test suite will work with the Chicken <code>test</code> egg, which is provided on Chibi as the <code>(chibi test)</code> library.</p>
+
+<h1>Copyright</h1>
+
+<p>Copyright (C) John Cowan 2013. All Rights Reserved.</p> 
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.</p>
+
+    <hr/>
+<address>Editor: <a href="mailto:srfi-editors at srfi dot schemers dot org">
+             Mike Sperber</a></address>
+  
+
+</body></html>

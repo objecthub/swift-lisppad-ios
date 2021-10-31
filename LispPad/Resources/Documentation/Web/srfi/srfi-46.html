@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <title>SRFI 46: Basic Syntax-rules Extensions</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+<body>
+
+
+<H1><a name="lp-srfi-46">Title</a></H1>
+
+<p>Basic Syntax-rules Extensions</p>
+
+<H1>Author</H1>
+
+<p>Taylor Campbell</p>
+
+<H1>Status</H1>
+
+<p>This SRFI is currently in ``final'' status. To see an explanation of each status that a SRFI can hold, see <a href="http://srfi.schemers.org/srfi-process.html">here</a>.
+You can access
+previous messages via
+<a href="http://srfi.schemers.org/srfi-46/mail-archive/maillist.html">
+the archive of the mailing list</a>.
+</p>
+
+<ul>
+    <li>Received: 2003/10/06</li>
+    <li>Draft: 2003/10/06-2004/01/15</li>
+    <li>Revised: 2004/09/12</li>
+    <li>Revised: 2004/11/07</li>
+    <li>Final: 2005/02/28</li>
+</ul>
+
+
+<H1>Abstract</H1>
+
+<p>This SRFI proposes two extensions to the R5RS<sup><a href="#1" name="Revised
+(5) Report on the Algorithmic Language Scheme">1</a></sup> <code>syntax-rules</code>
+pattern language: the first allows <code>syntax-rules</code> macros to generate
+macros, where the macro-generated macros use ellipsis that is not used by the
+macro-generating macros; the second allows for 'tail patterns.'</p>
+
+<H1>Rationale</H1>
+
+<p>Macros that generate macros are fairly common and very useful in a
+variety of circumstances, e.g. in CPS macros<sup><a href="#2">2</a></sup> for local continuation
+macros.  R5RS currently provides no mechanism for generating literal
+ellipsis in a <code>syntax-rules</code> clause's template &mdash; all ellipsis
+in the template is processed by the macro.  Macros that generate macros are
+thereby restricted, since the generated macros are unable to make use
+of ellipsis.  This is a severe restriction that can be removed by a
+simple extension to the <code>syntax-rules</code> syntax.</p>
+
+<p>Additionally, it is often very convenient to be able to match a finite
+sequence of elements not only <em>before</em> any ellipsis but also <em>after</em>
+any ellipsis.  Such 'tail patterns' are unsupported by R5RS in its
+specification of <code>syntax-rules</code>; thus, this SRFI proposes the simple
+addition of tail patterns to <code>syntax-rules</code>.</p>
+
+<H1>Specification</H1>
+
+<p><code>Syntax-rules</code> syntax is extended so that there is an extra possible
+token before the literal identifier list:</p>
+
+<blockquote>
+<pre><code>  (syntax-rules [&lt;ellipsis-identifier&gt;] (&lt;literal-identifier&gt; ...)
+    (&lt;pattern&gt; &lt;template&gt;)
+    ...)</code></pre>
+</blockquote>
+
+<p><code>Ellipsis-identifier</code> specifies the token used for ellipsis.  It defaults
+to the usual R5RS<sup><a href="#1">1</a></sup> ellipsis identifier, <code>...</code>, but it can be specified
+to be any identifier, such as <code>:::</code>.  This identifier's specification is
+considered to be a binding whose scope is the rules of the transformer.
+The macro system implementation must make the hygienic arrangements
+described in R5RS's section 4.3 to preserve the lexical scope of these
+bindings.</p>
+
+<p>The <code>syntax-rules</code> pattern language is also extended to allow 'tail
+patterns.'  The following clauses are added to <code>&lt;pattern&gt;</code>:</p>
+
+<blockquote>
+<pre><code> (&lt;pattern&gt; ... &lt;ellipsis&gt; &lt;pattern&gt; ...)
+#(&lt;pattern&gt; ... &lt;ellipsis&gt; &lt;pattern&gt; ...)</code></pre>
+</blockquote>
+
+<p>And the following clauses are added to the semantics of <code>syntax-rules</code>'
+pattern matching:</p>
+
+<ul>
+  <li><i>P</i> is of the form <code>(<em>P<sub>1</sub></em> ... <em>P<sub>x-1</sub></em> <em>P<sub>x</sub></em> &lt;ellipsis&gt; <em>P<sub>x+1</sub></em> ... <em>P<sub>y</sub></em>)</code> where
+    <code>&lt;ellipsis&gt;</code> is the identifier <code>...</code> and <i>F</i> is a proper list of <i>M</i> forms
+    such that <i>M</i> &gt;= <i>Y</i>, the first <i>X-1</i> of which match <i>P<sub>1</sub></i> through <i>P<sub>x-1</sub></i>,
+    respectively, the forms <i>F<sub>x</sub></i> through <i>F<sub>m-(y-x)</sub></i>, where <i>F<sub>i</sub></i> is the <i>I<sup>th</sup></i>
+    element of the proper list <i>F</i>, all match <i>P<sub>x</sub></i>, and the forms
+    <i>F<sub>m-(y-x)</sub></i> through <i>F<sub>m</sub></i> match the patterns <i>P<sub>x+1</sub></i> through <i>P<sub>y</sub></i>.</li>
+  <li><i>P</i> is of the form <code>#(<em>P<sub>1</sub></em> ... <em>P<sub>x-1</sub></em> <em>P<sub>x</sub></em> &lt;ellipsis&gt; <em>P<sub>x+1</sub></em> ... <em>P<sub>y</sub></em>)</code>
+    where <code>&lt;ellipsis&gt;</code> is the identifier <code>...</code> and <i>F</i> is a vector of <i>M</i> forms
+    such that <i>M</i> &gt;= <i>Y</i>, the first <i>X-1</i> of which match <i>P<sub>1</sub></i> through <i>P<sub>x-1</sub></i>,
+    respectively, the forms <i>F<sub>x</sub></i> through <i>F<sub>m-(y-x)</sub></i>, where <i>F<sub>i</sub></i> is the <i>I<sup>th</sup></i>
+    element of the vector <i>F</i>, all match <i>P<sub>x</sub></i> and the forms <i>F<sub>m-(y-x)</sub></i>
+    through <i>F<sub>m</sub></i> all match <i>P<sub>x+1</sub></i> through <i>P<sub>y</sub></i>, respectively.</li>
+</ul>
+
+<H2>Examples</H2>
+
+<blockquote>
+<pre><code>;;; Examples of the user-specified ellipsis token extension
+
+;;; Utility macro for CPS macros
+(define-syntax apply-syntactic-continuation
+  (syntax-rules ()
+    ((apply-syntactic-continuation (?k ?env ...) . ?args)
+     (?k ?env ... . ?args))))
+
+;;; Generates a list of temporaries, for example to implement LETREC
+;;; (see below), and 'returns' it by CPS.
+(define-syntax generate-temporaries
+  (syntax-rules ()
+    ((generate-temporaries ?origs ?k)
+     (letrec-syntax
+         ((aux (syntax-rules ::: ()
+                 ;; We use a trick here: pass the continuation <em>again</em>
+                 ;; to AUX in case it contains ellipsis.  If we stuck
+                 ;; it right into AUX's template, AUX would process the
+                 ;; ellipsis in ?K as ellipsis for something in the AUX
+                 ;; macro.
+                 ((aux ?temps () ?k*)
+                  (apply-syntactic-continuation ?k* ?temps))
+                 ;; Be careful about the ellipsis!
+                 ((aux (?temp :::) (?x ?more :::) ?k*)
+                  (aux (?temp ::: new-temp)
+                       (?more :::)
+                       ?k*)))))
+       (aux () ?origs ?k)))))
+
+;;; Instead of having lots of auxiliary clauses in LETREC, like in the
+;;; R5RS sample implementation, we use GENERATE-TEMPORARIES.  Instead
+;;; of 'returning,' like an ordinary function, we create a continuation
+;;;  for GENERATE-TEMPORARIES with LET-SYNTAX.  Since this continuation
+;;; uses ellipsis, we must use the ellipsis token extension.
+(define-syntax letrec
+  (syntax-rules ()
+    ((letrec ((?var ?init) ...) ?body1 ?body2 ...)
+     (let-syntax
+         ((k (syntax-rules ::: ()
+               ;; Use the same trick as with the continuations in
+               ;; GENERATE-TEMPORARIES.  Be careful about the ellipsis!
+               ((k ((?var* ?init*) :::)
+                   (?body1* ?body2* :::)
+                   ;; Here are the actual arguments to the continuation
+                   ;; -- the previous bits of the pattern were just the
+                   ;; 'environment' of the continuation --:
+                   (?temp :::))
+                (let ((?var* (if #f #f)) ; Get an 'unspecific' value.
+                      :::)
+                  (let ((?temp ?init*) :::)
+                    (set! ?var* ?temp) :::
+                    (let () ?body1* ?body2* :::)))))))
+       (generate-temporaries (?var ...)
+         ;; Pass K the environment.  GENERATE-TEMPORARIES will add the
+         ;; temporary variable list argument.
+         (k ((?var ?init) ...) (?body1 ?body2 ...)))))))
+
+;;; The next example uses two other macros that we don't define here:
+;;; SYNTACTIC-SYMBOL? and UNION.  (SYNTACTIC-SYMBOL? &lt;x&gt; &lt;sk&gt; &lt;fk&gt;)
+;;; expands to SK if X is a symbol or FK otherwise.  (UNION &lt;s1&gt; &lt;s2&gt;
+;;; &lt;k&gt;) applies K with APPLY-SYNTACTIC-CONTINUATION to the union of
+;;; the syntactic lists S1 and S2.  Both of SYNTACTIC-SYMBOL? and UNION
+;;; are possible to implement here, but we sha'n't bother with them, as
+;;; we wish only to demonstrate an example of macros generating macro-
+;;; generating macros, and they provide no such examples.
+
+;;; ALL-SYMBOLS digs out all the symbols in a syntax.
+(define-syntax all-symbols
+  (syntax-rules ()
+    ((all-symbols (?x . ?y) ?k)
+     (let-syntax
+         ((k (syntax-rules :::0 ()
+               ((k ?y* ?k*  (?symbol :::0))
+                (let-syntax
+                    ((k* (syntax-rules :::1 ()
+                           ;; Doubly nested ellipsis: we use another
+                           ;; distinct ellipsis token.
+                           ((k* ?k** (?symbol* :::1))
+                            (union (?symbol  :::0)
+                                   (?symbol* :::1)
+                                   ?k**)))))
+                  (all-symbols ?y* (k* ?k*)))))))
+       (all-symbols ?x (k ?y ?k))))
+
+    ((all-symbols #(?x ...) ?k)
+     (all-symbols (?x ...) ?k))
+
+    ((all-symbols ?x ?k)
+     (syntax-symbol? ?x
+       (apply-syntactic-continuation ?k (?x))
+       (apply-syntactic-continuation ?k ())))))
+
+(all-symbols (foo 4 bar #(#t (baz (#f quux)) zot) (mumble #(frotz)))
+             (quote)) ; =&gt; (frotz mumble zot quux baz bar foo)
+
+;;; This example demonstrates the hygienic renaming of the ellipsis
+;;; identifiers.
+
+(let-syntax
+    ((f (syntax-rules ()
+          ((f ?e)
+           (let-syntax
+               ((g (syntax-rules ::: ()
+                     ((g (??x ?e) (??y :::))
+                      '((??x) ?e (??y) :::)))))
+             (g (1 2) (3 4)))))))
+  (f :::))
+    ; =&gt; ((1) 2 (3) (4)), if hygienic rules of ellipsis identifiers are
+    ;      correctly implemented, not ((1) (2) (3) (4))</code></pre>
+</blockquote>
+
+<blockquote>
+<pre><code>;;; --------------------
+;;; Examples of tail patterns
+
+;;; This example of the tail pattern extension is a crippled version of
+;;; R5RS's BEGIN special form.  (It is crippled because it does not
+;;; support internal definitions or commands within its body returning
+;;; fewer or more than one value.)
+
+(define-syntax fake-begin
+  (syntax-rules ()
+    ((fake-begin ?body ... ?tail)
+     (let* ((ignored ?body) ...) ?tail))))
+
+;;; For example,
+;;;   (FAKE-BEGIN
+;;;     (DISPLAY "Hello,")
+;;;     (WRITE-CHAR #\SPACE)
+;;;     (DISPLAY "world!")
+;;;     (NEWLINE))
+;;; would expand to
+;;;   (LET* ((IGNORED (DISPLAY "Hello,"))
+;;;          (IGNORED (WRITE-CHAR #\SPACE))
+;;;          (IGNORED (DISPLAY "world!")))
+;;;     (NEWLINE))
+
+(let-syntax
+    ((foo (syntax-rules ()
+            ((foo ?x ?y ... ?z)
+             (list ?x (list ?y ...) ?z)))))
+  (foo 1 2 3 4 5))
+    ; =&gt; (1 (2 3 4) 5)</code></pre>
+</blockquote>
+
+
+<H1>Implementation</H1>
+
+<p>There are two example macro expanders here provided that implement the
+proposed extensions, Alexpander &amp; EIOD.  Alexpander is a complete,
+sophisticated expander for the <code>syntax-rules</code> macro system; EIOD is an
+implementation of R5RS's <code>eval</code> that obviously requires a macro expander
+internally.  Both were written by Al* Petrofsky; see their source for
+copyright information &amp; licensing terms.  Alexpander is available at
+&lt;<a href="http://srfi.schemers.org/srfi-46/alexpander.scm">http://srfi.schemers.org/srfi-46/alexpander.scm</a>&gt; and EIOD is available
+at &lt;<a href="http://srfi.schemers.org/srfi-46/eiod.scm">http://srfi.schemers.org/srfi-46/eiod.scm</a>&gt;.</p>
+
+
+<H1>Acknowledgements</H1>
+
+<p>Al* Petrofsky provided much crucial input about the fundamental design
+of this SRFI's extensions on the mailing list that strongly influenced
+the final result; I thank him greatly for that input.</p>
+
+
+<H1>References</H1>
+
+<ol>
+  <li><a name="1"><!--[1]--></a>
+  Richard Kelsey, William Clinger, and Jonathon Rees (editors).<br>
+  <i>The Revised<sup>5</sup> Report on the Algorithmic Language Scheme</i><br>
+  Higher-Order and Symbolic Computation, Vol. 11, No. 1, September,
+    1998, and ACM SIGPLAN Notices, Vol. 33, No. 9, October, 1998.<br>
+  <a href="http://www.schemers.org/Documents/Standards/R5RS/">http://www.schemers.org/Documents/Standards/R5RS/</a></li>
+
+  <li><a name="2"><!--[2]--></a>
+  Erik Hilsdale and Daniel P. Friedman.<br>
+  <i>Writing Macros in Continuation-Passing Style</i><br>
+  Scheme and Functional Programming 2000, September, 2000.<br>
+  <a href="http://www.ccs.neu.edu/home/matthias/Scheme2000/hilsdale.ps">http://www.ccs.neu.edu/home/matthias/Scheme2000/hilsdale.ps</a></li>
+</ol>
+
+
+<H1>Copyright</H1>
+
+<p>Copyright (C) Taylor Campbell (2005). All Rights Reserved.</p>
+
+<p>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi minus editors at srfi dot schemers dot org">David Rush</a></address>
+<!-- hhmts start -->
+Last modified: Sun May 17 12:34:31 MST 2009
+<!-- hhmts end -->
+  </body>
+</html>

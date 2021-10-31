@@ -1,0 +1,482 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 167: Ordered Key Value Store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+
+    <H1><a name="lp-srfi-167">Title</a></H1>
+
+    <p>SRFI 167: Ordered Key Value Store</p>
+
+    <h1>Author</h1>
+
+    <p>Amirouche Boubekki</p>
+
+    <h1>Status</h1>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a
+    href="https://srfi.schemers.org/srfi-process.html">an
+    explanation</a> of each status that a SRFI can hold.  To provide
+    input on this SRFI, please send email to <code><a
+    href="mailto:srfi+minus+167+at+srfi+dotschemers+dot+org">srfi-167@<span
+    class="antispam">nospam</span>srfi.schemers.org</a></code>.  To
+    subscribe to the list, follow <a
+    href="https://srfi.schemers.org/srfi-list-subscribe.html">these
+    instructions</a>.  You can access previous messages via the
+    mailing list <a
+    href="https://srfi-email.schemers.org/srfi-167">archive</a>.</p>
+
+    <ul>
+      <li>Received: 2019/4/13</li>
+      <li>Draft #1 published: 2019/4/18</li>
+      <li>Draft #2 published: 2019/4/26</li>
+      <li>Draft #3 published: 2019/6/2</li>
+      <li>Draft #4 published: 2019/6/11</li>
+      <li>Draft #5 published: 2019/7/29</li>
+      <li>Draft #6 published: 2019/9/18</li>
+      <li>Draft #7 published: 2019/10/29</li>
+      <li>Finalized: 2019/11/8</li>
+    </ul>
+
+    <h1>Abstract</h1>
+
+    <p>This library describes an interface for an ordered key-value
+      store that is suitable for implementing a storage engine for the
+      generic tuple-store SRFI.  It maps cleanly to existing ordered
+      key-value databases that may or may not provide transactions.</p>
+
+    <h1>Rationale</h1>
+
+    <p>Ordered key-value stores offer a powerful set of simple and
+        elegant primitives to build database abstractions.  The
+        <a href="https://srfi.schemers.org/srfi-168/">SRFI 168: Generic Tuple Store</a>
+        is an example of such abstraction. Others are possible.  A
+        standard interface for such databases will allow more people
+        to experiment with databases in Scheme.</p>
+
+    <p>While it has not been Scheme's forte to power databases, the
+       recent appearance of several ordered key-value stores make the
+       idea of building databases with Scheme more applicable as the
+       performance concerns are solved by lower-level languages.</p>
+
+    <p>The author argues that getting started with data management
+       systems with ordered key-value stores is easier to the
+       mind and also reflects the modern industrial practice that
+       builds (distributed) databases systems possibly with SQL
+       support on top of ordered key-value stores. Otherwise said,
+       this SRFI should offer grounds for apprentices to learn
+       about data storage.  It will also offer a better story
+       (the best?) for data durability in Scheme implementations.</p>
+
+    <p>This SRFI does not overlap with existing SRFIs and complements
+        <a href="https://srfi.schemers.org/srfi-168/">SRFI 168: Generic Tuple
+            Store</a>.</p>
+
+    <h1>Specification</h1>
+
+    <p>The SRFI is composed of two library modules.  The first is the
+        <code>engine</code> library and the second is the
+        <code>okvs</code> library.</p>
+
+    <h2 id="engine"><code>engine</code></h2>
+
+    <p>To allow the user of an <code>okvs</code> abstraction (also
+        known as a layer) to swap implementations easily, it must be
+        written in terms of the procedures specified in this section.</p>
+
+    <p>The <code>engine</code> is a simple record of <code>okvs</code>
+        procedures that must be passed to the constructor of layers. It must
+        be shared between <code>okvs</code> implementations.</p>
+
+    <h3 id="make-engine"><code>(make-engine open close in-transaction ref set delete range-remove range prefix-range hook-on-transaction-begin hook-on-transaction-commit pack unpack)</code></h3>
+
+    <p>Return an <code>engine</code> record instance.</p>
+
+    <h3 id="engine-predicate"><code>(engine? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is an engine record
+        instance. Otherwise, it returns <code>#f</code>.</p>
+
+    <h3 id="engine-open"><code>(engine-open engine okvs [config])</code></h3>
+
+    <p>Call the procedure <code>okvs-open</code>.</p>
+
+    <h3 id="engine-close"><code>(engine-close engine okvs [config])</code></h3>
+
+    <p>Call the procedure <code>okvs-close</code>.</p>
+
+    <h3 id="engine-in-transaction"><code>(engine-in-transaction engine okvs proc [failure [success [make-state [config]]]])</code></h3>
+
+    <p>Call the procedure <code>okvs-in-transaction</code>.</p>
+
+    <h3 id="engine-ref"><code>(engine-ref engine okvs key)</code></h3>
+
+    <p>Call the procedure <code>okvs-ref</code>.</p>
+
+    <h3 id="engine-set"><code>(engine-set! engine okvs key value)</code></h3>
+
+    <p>Call the procedure <code>okvs-set!</code>.</p>
+
+    <h3 id="engine-delete"><code>(engine-delete! engine okvs key)</code></h3>
+
+    <p>Call the procedure <code>okvs-delete!</code></p>
+
+    <h3 id="engine-range-remove"><code>(engine-range-remove! engine okvs start-key start-include? end-key end-include?)</code></h3>
+
+    <p>Call the procedure <code>okvs-range-remove!</code></p>
+
+    <h3 id="engine-range"><code>(engine-range engine okvs start-key start-include? end-key end-include? [config])</code></h3>
+
+    <p>Call the procedure <code>okvs-range</code>.</p>
+
+    <h3 id="engine-prefix-range"><code>(engine-prefix-range engine okvs prefix [config])</code></h3>
+
+    <p>Call the procedure <code>okvs-prefix-range</code>.</p>
+
+    <h3 id="engine-hook-on-transaction-begin"><code>(engine-hook-on-transaction-begin engine okvs)</code></h3>
+
+    <p>Call the procedure <code>okvs-hook-on-transaction-begin</code>.</p>
+
+    <h3 id="engine-hook-on-transaction-commit"><code>(engine-hook-on-transaction-commit engine okvs)</code></h3>
+
+    <p>Call the procedure <code>okvs-hook-on-transaction-commit</code>.</p>
+
+    <h3 id="engine-pack"><code>(engine-pack engine okvs . key)</code></h3>
+
+    <p>Call a packing procedure that allows to encode some scheme types
+        into bytevectors preserving their natural order. The supported Scheme
+        types are implementation dependent.</p>
+
+    <h3 id="engine-unpack"><code>(engine-unpack engine bytevector)</code></h3>
+
+    <p>Call an unpacking procedure that will decode a bytevector
+        encoded with the above pack procedure into a Scheme object.</p>
+
+    <h2 id="okvs-and-transaction">Okvs and Transaction</h2>
+
+    <p>A okvs is a mapping that may or may not support
+      transactions.  Keys are lexicographically ordered bytevectors.
+      Values are bytevectors.</p>
+
+    <p>The following specification defines two disjoint types:</p>
+    <ul>
+      <li><code>okvs</code> is a handle to the data storage</li>
+      <li><code>transaction</code> is a handle to a currently running
+        transaction</li>
+    </ul>
+
+    <p>In the following, <code>CONFIG</code> is always an optional
+        parameter that is an association list.  Some configuration
+        options are specified to ease portability.  If an
+        implementation doesn't recognize an option, it is an
+        error. Default values are implementation dependent. It is an
+        error if this argument is not an association list.</p>
+
+    <h3 id="okvs-open"><code>(okvs-open home [config])</code></h3>
+
+    <p>Return an okvs object.</p>
+
+    <p><code>HOME</code> describes the the location of the database.  It can be
+        an address or a directory.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'cache</code></td>
+                <td>an integer describing cache size in bytes.</td>
+            </tr>
+            <tr>
+                <td><code>'create?</code></td>
+                <td>create the database if it does not exist.</td>
+            </tr>
+            <tr>
+                <td><code>'memory?</code></td>
+                <td>whether to keep data only in memory.</td>
+            </tr>
+            <tr>
+                <td><code>'wal?</code></td>
+                <td>whether to enable write-ahead-log.</td>
+            </tr>
+            <tr>
+                <td><code>'read-only?</code></td>
+                <td>whether to open the database in read-only mode.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 id="okvs-predicate"><code>(okvs? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code>,
+        and <code>#f</code> otherwise.</p>
+
+    <h3 id="okvs-close"><code>(okvs-close okvs [config])</code></h3>
+
+    <p>Close <code>OKVS</code>. <code>CONFIG</code> is optional.  In the
+        case where it is provided, it must be an association list. It is
+        implementation dependent.</p>
+
+    <h3 id="make-default-state"><code>(make-default-state)</code></h3>
+
+    <p>Return a <a href="https://srfi.schemers.org/srfi-125/">SRFI
+        125: Intermediate hash table</a>
+        with a comparator returned by the
+        <a href="https://srfi.schemers.org/srfi-128/srfi-128.html#Defaultcomparators">SRFI
+            128: Comparators</a> procedure
+        <code>(make-default-comparator)</code>.
+    </p>
+
+    <h3 id="okvs-transaction"><code>(okvs-transaction? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>OBJ</code> is a <code>okvs</code> transaction,
+        and <code>#f</code> otherwise.
+    </p>
+
+    <h3 id="okvs-transaction-state"><code>(okvs-transaction-state transaction)</code></h3>
+
+    <p>Return the state associated with <code>TRANSACTION</code>. See
+        <code>okvs-in-transaction</code> for a description of what is
+        the transaction state.
+    </p>
+
+    <h3 id="okvs-in-transaction"><code>(okvs-in-transaction okvs proc [failure [success [make-state [config]]]])</code></h3>
+
+    <p>Start a transaction against <code>OKVS</code> and pass the
+        transaction object as argument to <code>PROC</code>. When
+        <code>PROC</code> returns, the transaction is committed and
+        <code>okvs-in-transaction</code> passes whatever <code>PROC</code>
+        returned to the <code>SUCCESS</code> procedure. If <code>PROC</code>
+        raises an exception, the transaction is rolled back and <code>FAILURE</code>
+        is called with the exception condition. By default <code>FAILURE</code>
+        is <code>raise</code> and <code>SUCCESS</code> is <code>values</code>.
+        The transaction must be associated with a newly created state
+        object as returned by <code>MAKE-STATE</code>. The default value
+        of <code>MAKE-STATE</code> is <code>make-default-state</code>. The
+        transaction state can be retrieved during the transaction
+        using the procedure <code>transaction-state</code>.
+    </p>
+
+    <p>No <code>CONFIG</code> options are specified.  An
+        implementation may or may not support some implementation
+        specific options.</p>
+
+    <h3 id="okvs-ref"><code>(okvs-ref okvs-or-transaction key)</code></h3>
+
+    <p>Return the bytevector associated with <code>KEY</code>
+        bytevector using <code>OKVS-OR-TRANSACTION</code>.  If there is no such
+        key, return <code>#f</code>.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
+
+    <h3 id="okvs-set"><code>(okvs-set! okvs-or-transaction key value)</code></h3>
+
+    <p>Associate <code>KEY</code> bytevector with <code>VALUE</code>
+        bytevector using <code>OKVS-OR-TRANSACTION</code>.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
+
+    <h3 id="okvs-delete"><code>(okvs-delete! okvs-or-transaction key)</code></h3>
+
+    <p>Delete the pair associated with <code>KEY</code> bytevector
+        using <code>OKVS-OR-TRANSACTION</code>.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
+
+    <h3 id="okvs-range-remove"><code>(okvs-range-remove! okvs-or-transaction start-key start-include? end-key end-include?)</code></h3>
+
+    <p>Remove all pairs in the specified range.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
+
+    <h3 id="okvs-range"><code>(okvs-range okvs-or-transaction start-key start-include? end-key end-include? [config])</code></h3>
+
+    <p>Return a SRFI 158 generator of key-value pairs where keys
+        are between <code>START-KEY</code> bytevector and <code>END-KEY</code>,
+        possibly including the boundaries depending on <code>START-INCLUDE?</code>
+        and <code>END-INCLUDE?</code>.  The stream must be lexicographically
+        ordered. <code>CONFIG</code> is optional.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                    reverse lexicographical order beginning at the end
+                    of the range. It must be "applied" before the
+                    other options.</td>
+            </tr>
+            <tr>
+                <td><code>'offset</code></td>
+                <td>specify how many keys must be skipped. It must be
+                applied after <code>reverse?</code> but before <code>limit</code>.</td>
+            </tr>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to
+                return. It must be applied last.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 id="okvs-prefix-range"><code>(okvs-prefix-range okvs-or-transaction prefix [config])</code></h3>
+
+    <p>Return a SRFI 158 generator of key-value pairs where the keys
+        start with <code>PREFIX</code> bytevector.  The stream must be
+        lexicographically ordered.  <code>PREFIX</code> can be the empty
+        bytevector, in which case the all the pairs are included.</p>
+
+    <p><code>OKVS-OR-TRANSACTION</code> can be an <code>okvs</code> object or an <code>okvs-transaction</code>.
+        In the case where <code>OKVS-OR-TRANSACTION</code> is an <code>okvs</code> object,
+        the implementation should execute the operation, preferably
+        without starting a transaction. If the underlying engine doesn't
+        allow one to execute operations without a transaction, the operation should
+        handle starting and committing the transaction.</p>
+
+    <p><code>CONFIG</code> might contain the following options:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>key</th>
+                <th>description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>'limit</code></td>
+                <td>indicates the maximum number of key-value pairs to return.</td>
+            </tr>
+            <tr>
+                <td><code>'reverse?</code></td>
+                <td>whether key-value pairs will be returned in
+                    reverse lexicographical order beginning at the end of
+                    the range.</td>
+            </tr>
+            <tr>
+                <td><code>'offset</code></td>
+                <td>specify how many keys must be skipped.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 id="hooks">Hooks</h3>
+
+    <p><a href="https://srfi.schemers.org/srfi-173/">SRFI 173</a> hooks
+        are procedures that are executed at specific times during the
+        life of an <code>okvs</code>. They allow one to sneak into transaction life
+        cycles to validate mutations, keep indices synchronized, or
+        carry out other operations.</p>
+
+    <h4 id="okvs-hook-on-transaction-begin"><code>(okvs-hook-on-transaction-begin okvs)</code></h4>
+
+    <p>This procedure returns the hook object associated with the start
+        of a transaction.</p>
+
+    <p>The hook is run after the transaction is started inside
+        <code>okvs-in-transaction</code>. It takes the transaction
+        object as its first and only argument.</p>
+
+    <h4 id="okvs-hook-on-transaction-commit"><code>(okvs-hook-on-transaction-commit okvs)</code></h4>
+
+    <p>This procedure returns the hook object associated with the
+        commit of a transaction.</p>
+
+    <p>The hook is run before the transaction is committed inside
+        <code>okvs-in-transaction</code>. It takes the transaction
+        object as its first and only argument.</p>
+
+    <h3 id="make-default-engine"><code>(make-default-engine)</code></h3>
+
+    <p>Return an <code>engine</code> record for the current <code>okvs</code>
+        implementation.</p>
+
+    <h1>Implementation</h1>
+
+    <p>The <a href="https://srfi.schemers.org/srfi-167/srfi-167.tgz">sample
+        implementation</a> relies on scheme mappings (SRFI 146),
+        generators (SRFI 158) and hooks (SRFI 173).
+    </p>
+
+    <h1>Acknowledgements</h1>
+
+    <p>Credit goes to the authors of  <a href="http://www.wiredtiger.com/">WiredTiger</a>
+      and <a href="https://www.foundationdb.org/">FoundationDB</a> for
+      their work on their respective database engines.  The author
+      would like to thank Arthur A. Gleckler and Marc
+      Nieper-Wißkirchen for getting together SRFI 146 and Shiro Kawai,
+      John Cowan, and Thomas Gilray for their work on SRFI 158.</p>
+
+    <h1>Copyright</h1>
+
+    <p>Copyright (C) Amirouche Boubekki (2019).</p>
+
+    <p>Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation
+      files (the “Software”), to deal in the Software without
+      restriction, including without limitation the rights to use,
+      copy, modify, merge, publish, distribute, sublicense, and/or
+      sell copies of the Software, and to permit persons to whom the
+      Software is furnished to do so, subject to the following
+      conditions:</p>
+
+    <p>The above copyright notice and this permission notice
+      (including the next paragraph) shall be included in all copies
+      or substantial portions of the Software.</p>
+
+    <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+      OTHER DEALINGS IN THE SOFTWARE.</p>
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>
+

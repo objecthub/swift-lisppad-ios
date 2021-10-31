@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 161: Unifiable Boxes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+<body>
+
+<H1><a name="lp-srfi-161">Title</a></H1>
+
+Unifiable Boxes
+
+<h1>Author</h1>
+
+Marc Nieper Wi&szlig;kirchen
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+161+at+srfi+dotschemers+dot+org">srfi-161@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-161">archive</a>.</p>
+<ul>
+  <li>Received: 2018/9/3</li>
+  <li>Draft #1 published: 2018/9/6</li>
+  <li>Draft #2 published: 2018/11/11</li>
+  <li>Draft #3 published: 2019/1/8</li>
+  <li>Finalized: 2019/2/8</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+  Unifiable boxes are, like the boxes
+  of <a href="https://srfi.schemers.org/srfi-111/srfi-111.html">SRFI
+    111</a>, objects with a single mutable state.  A constructor,
+  predicate, accessor, and mutator are provided.
+</p>
+
+<p>
+In addition to this, an equality predicate and union operations (link,
+union, unify) are provided.  Applying a union operation to two
+unifiable boxes makes the two boxes equal (in the sense of the
+equality predicate).  As a consequence, their state will also become
+identical.  In the case of link and union, it will be the state of one
+of the two unioned boxes.  In the case of unify, the state is
+determined by a supplied unification procedure.
+</p>
+
+<p>
+  Unifiable boxes are
+  also known under the names <i>disjoint-set data
+    structure</i>, <i>union–find data structure</i> or <i>merge–find
+    set</i>.
+</p>
+
+<h1>Rationale</h1>
+
+<p>
+  The disjoint-set (or union-find) forest is a basic, well-known data
+  structure that tracks partitions of a set.  For example, it can be
+  used to keep track of the connected components of an undirected
+  graph.  It can also be used in implementations of unification or in
+  implementing Kruskal's algorithm to find the minimum spanning tree of
+  a graph.
+</p>
+
+<p>
+  The abstract data type defines the three
+  operations <em>make-set</em>, <em>find</em>,
+  and <em>union</em>.  <em>Make-set</em> creates a singleton
+  set, <em>union</em> merges two sets, and <em>find</em> returns a
+  canonical representative of a set.
+</p>
+
+<p>
+  There are implementations of the union-find data structure in
+  Haskell, SML/NJ, C++ (Boost), etc.  It is the aim of this SRFI to
+  provide an implementation for Scheme together with a
+  standardized interface.
+</p>
+
+<p>This SRFI defines the interface to a union-find data type with a
+  SRFI 111 boxes-like interface.  An implementation of this interface
+  consists of operations for creating new unifiable boxes, getting the
+  contents of a unifiable box, checking for equality of unifiable
+  boxes, and for joining two unifiable boxes.
+</p>
+
+<p>Unifiable boxes are analogous to boxes as expressed in the
+  following table:
+</p>
+
+<table style="text-align: left">
+  <thead>
+    <tr>
+      <th>Operation</th><th>Boxes</th><th>Unifiable boxes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Constructor</td><td><code>box</code></td><td><code>ubox</code></td>
+    </tr>
+    <tr>
+      <td>Predicate</td><td><code>box?</code></td><td><code>ubox?</code></td>
+    </tr>
+    <tr>
+      <td>Accessor</td><td><code>unbox</code></td><td><code>ubox-ref</code></td>
+    </tr>
+    <tr>
+      <td>Mutator</td><td><code>set-box!</code></td><td><code>ubox-set!</code></td>
+    </tr>
+    <tr>
+      <td>Equality</td><td><code>eq?</code></td><td><code>ubox=?</code></td>
+    </tr>
+    <tr>
+      <td>Union</td><td><i>n.a.</i></td><td><code>ubox-unify!</code>, <code>ubox-union!</code>, <code>ubox-link!</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><i> Note: Unifiable boxes use the standard naming pattern for
+    Scheme procedures.  As SRFI 111 deviates (for historical reasons)
+    from this naming pattern, the naming patterns for boxes and for
+    unifiable boxes differ.
+</i></p>
+
+<p>Using the procedures of this SRFI, the classical
+  operations <em>make-set</em>, <em>union</em>, and <em>find</em> can
+  be defined as follows:</p>
+
+<pre>
+  (define (make-set x) (ubox x))
+  (define (union x y) (ubox-link! y x))
+  (define (find x) (ubox-ref x))
+</pre>
+
+<p>
+  There is no comparator in the sense of <a href="https://srfi.schemers.org/srfi-128/srfi-128.html">SRFI 128</a> defined
+  for unifiable boxes as the equality predicate for unifiable boxes is
+  not stable.
+</p>
+
+<h1>Specification</h1>
+
+<p>
+<em>Unifiable boxes</em> form a new type as if created
+by <code>define-record-type</code>.  The effect of using record-type
+inspection or inheritance for the unifiable box type is unspecified.
+</p>
+
+<p>
+<em>Equality</em> of unifiable boxes is an equivalence relation not
+finer than <code>eqv?</code>.  The union
+operations <code>ubox-unify!</code>, <code>ubox-union!</code>,
+and <code>ubox-link!</code> coarsen this equivalence relation.
+</p>
+
+<p>
+Each unifiable box has a single mutable state, its <em>value</em>.
+Equal unifiable boxes have the same state.
+</p>
+
+<p>
+Each procedure below shall execute in (practically) constant time.
+(The theoretical bound is <i>O(&alpha;(n))</i>, where <i>&alpha;</i>
+is the inverse Ackermann function and <i>n</i> is the number of
+unifiable boxes that are pairwise not <code>eq?</code> to each other.)
+</p>
+
+<p>It is an error if two threads access the same equivalence class of
+  unifiable boxes at the same time.  It is no error if two threads
+  access distinct equivalence classes of unifiable boxes that remain
+  distinct during the accesses at the same time.
+</p>
+
+<h2>Procedures</h2>
+
+<p><code>(ubox <em>value</em>)</code></p>
+
+<p>
+  Constructor.  Returns a newly allocated unifiable box initialized
+  to <code><em>value</em></code>.  The new unifiable box is not equal
+  to any previously constructed unifiable box.
+</p>
+
+<p><code>(ubox? <em>object</em>)</code></p>
+
+<p>
+  Predicate.  Returns <code>#t</code> if <em>object</em> is a unifiable
+  box, and <code>#f</code> otherwise.
+</p>
+
+<p><code>(ubox-ref <em>ubox</em>)</code></p>
+
+<p>
+  Accessor.  Returns the current value of the unifiable
+  box <code><em>ubox</em></code>.
+</p>
+
+<p><code>(ubox-set! <em>ubox</em> <em>value</em>)</code></p>
+
+<p>
+  Mutator.  Changes the unifiable box <code><em>ubox</em></code> to hold
+  <code><em>value</em></code>.  The return value is unspecified.
+</p>
+
+<p><code>(ubox=? <em>ubox<sub>1</sub></em> <em>ubox<sub>2</sub></em>)</code></p>
+
+<p>
+  Equality predicate.  Returns <code>#t</code>
+  if <code><em>ubox<sub>1</sub></em>
+    and <em>ubox<sub>2</sub></em></code> are equal unifiable boxes,
+  and <code>#f</code> otherwise.
+</p>
+
+<p><code>(ubox-unify! <em>proc</em> <em>ubox<sub>1</sub></em> <em>ubox<sub>2</sub></em>)</code></p>
+
+<p>
+  Union operation.  Invokes <code><em>proc</em></code> on the values
+  of <code><em>ubox<sub>1</sub></em></code>
+  and <code><em>ubox<sub>2</sub></em></code>,
+  makes <code><em>ubox<sub>1</sub></em></code>
+  and <code><em>ubox<sub>2</sub></em></code> equal, and updates their
+  value to the result of the invocation of <code><em>proc</em></code>.
+  The return value is unspecified.
+</p>
+
+<p><code>(ubox-union! <em>ubox<sub>1</sub></em> <em>ubox<sub>2</sub></em>)</code></p>
+
+<p>
+  Union operation.  Makes the unifiable
+  boxes <code><em>ubox<sub>1</sub></em></code>
+  and <code><em>ubox<sub>2</sub></em></code> equal.  The value of the
+  unified box is the value of
+  either <code><em>ubox<sub>1</sub></em></code>
+  or <code><em>ubox<sub>2</sub></em></code> before the unification.
+  The return value is unspecified.
+</p>
+
+<p><code>(ubox-link! <em>ubox<sub>1</sub></em> <em>ubox<sub>2</sub></em>)</code></p>
+
+<p>
+  Union operation.  Makes the unifiable
+  boxes <code><em>ubox<sub>1</sub></em></code>
+  and <code><em>ubox<sub>2</sub></em></code> equal.  The value of the
+  unified box is the value of <code><em>ubox<sub>2</sub></em></code>
+  before the unification.  The return value is unspecified.
+</p>
+
+<h1>Implementation</h1>
+
+<p>The sample implementation comes in the form of the portable R7RS
+  library <code>(srfi 161)</code>.  It uses path compression and
+  union by rank.
+</p>
+
+<p>
+  <a href="https://srfi.schemers.org/srfi-161/srfi-161.tgz">Source for
+    the sample implementation.</a>
+</p>
+
+<h1>Acknowledgements</h1>
+
+<p>Disjoint-set forests were first described by Bernard A. Galler and
+  Michael J. Fischer in 1964 in their
+  paper <a href="https://doi.org/10.1145/364099.364331"><i>An improved
+  equivalence algorithm</i></a>.
+</p>
+
+<p>
+  The interface to a disjoint-set data structure that is described in
+  this SRFI has been modelled on
+  the <a href="https://www.smlnj.org/doc/smlnj-lib/Manual/uref.html"><code>UREF</code>
+  signature of SML/NJ</a>.
+</p>
+
+<p>
+  Olin Shivers has used the disjoint-set data structure, which is
+  implemented by this SRFI, in Scheme code that generates random
+  mazes.  The code and the description of the algorithm
+  is <a href="https://www.ccs.neu.edu/home/shivers/mazes.html">available
+  on Olin Shiver's web site</a>.  Thanks to Arthur A. Gleckler for
+  pointing this (practical) use of disjoint sets out to me.
+</p>
+
+<h1>Copyright</h1>
+Copyright (C) Marc Nieper-Wi&szlig;kirchen (2018).
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

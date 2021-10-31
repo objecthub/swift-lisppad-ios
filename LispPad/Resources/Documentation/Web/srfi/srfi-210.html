@@ -1,0 +1,699 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>SRFI 210: Procedures and Syntax for Multiple Values</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+
+    <body>
+
+        <H2><a name="lp-srfi-210">Title</a></H2>
+        Procedures and Syntax for Multiple Values
+
+        <h2>Author</h2>
+        <p>Marc Nieper-Wißkirchen</p>
+
+    <h2 id="status">Status</h2>
+    <p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+210+at+srfi+dotschemers+dot+org">srfi-210@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-210">archive</a>.</p>
+    <ul>
+      <li>Received: 2020-08-28</li>
+      <li>60-day deadline: 2020-10-28</li>
+      <li>Draft #1 published: 2020-08-29</li>
+      <li>Draft #2 published: 2020-08-31</li>
+      <li>Draft #3 published: 2020-09-09</li>
+      <li>Draft #4 published: 2020-11-27</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>
+      This SRFI extends the Scheme standard with a number of
+      procedures and syntax dealing with multiple values, including
+      syntax to create lists and vectors from expressions returning
+      multiple values and procedures returning the elements of a list
+      or vector as multiple values.
+    </p>
+
+    <h2 id="issues">Issues</h2>
+
+    <ol>
+      <li>
+        Shall the library described in this SRFI re-export, for
+        completeness, various syntax
+        (like <code>let-values</code>, <code>receive</code>) and
+        procedures
+        (like <code>values</code>, <code>call-with-values</code>)
+        dealing with multiple values from the standard libraries and
+        other established SRFIs?
+      </li>
+      <li>
+        More (fundamental or convenience) procedures and syntax dealing
+        with multiple values could always be added to this SRFI.
+      </li>
+    </ol>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>At its core, Scheme's evaluation semantics is multiple-value
+      based. Continuations can accept an arbitrary number of values and
+      expressions can yield an arbitrary number of values. This is
+      contrast to the functional languages ML and Haskell.
+    </p>
+
+    <p>
+      Despite this fact, programming with multiple values is more cumbersome
+      than programming with single values. This is mostly due to the fact
+      that Scheme's application syntax does not deal directly with operands
+      returning multiple values so that the programmer has to fall back on
+      things like call-with-values.
+    </p>
+
+    <p>
+      To make programming with multiple values appear more natural,
+      convenient and efficient, this SRFI defines a number of
+      procedures and syntax dealing with multiple values.
+    </p>
+
+    <p>
+      In
+      the <a href="https://schemers.org/Documents/Standards/R5RS/r5rs.ps">R5RS</a>,
+      there were basically two procedures dealing with multiple
+      values, <code>values</code>
+      and <code>call-with-values</code>.  <a href="https://srfi.schemers.org/srfi-8/srfi-8.html">SRFI
+      8</a> and
+      <a href="https://srfi.schemers.org/srfi-11/srfi-11.html">SRFI
+      11</a> added binding constructs for multiple values.  Yet, these
+      do not cover all most-used idioms when dealing with multiple
+      values.  Thus the need for this complementary SRFI.
+    </p>
+
+    <p>
+      Some of the syntax and procedures defined here also appear
+      in <a href="https://srfi.schemers.org/srfi-71/srfi-71.html">SRFI
+      71</a>, albeit under different names.  SRFI 71, however, is
+      mostly concerned with extending the <code>let</code> keyword.
+      To implement it, one needs a mechanism to change this keyword.
+    </p>
+
+    <h2 id="specification">Specification</h2>
+
+    <p>When this specification talks about <em>boxes</em>, it refers
+      to the disjoint Scheme type described by SRFI 111 (single valued)
+      and SRFI 195 (multiple-valued).</p>
+
+    <h3>Syntax</h3>
+
+    <p><code>(apply/mv <span class="token">operator</span> <span class="token">operand<sub>1</sub></span> &hellip; <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">Operator</span></code>,
+    each <code><span class="token">operand</span></code>, and <code><span class="token">producer</span></code> can be
+    any expression.</p>
+
+    <p><i>Semantics:</i> An <code>apply/mv</code> expression is
+    evaluated as follows: <code><span class="token">Operator</span></code>,
+    each <code><span class="token">operand</span></code>, and <code><span class="token">producer</span></code> are
+    evaluated in an unspecified order.  The procedure resulting from
+    evaluating <code><span class="token">operator</span></code> is then tail-called with the
+    single values of the <code><span class="token">operand</span></code>s and the multiple
+    values of <code><span class="token">producer</span></code> as the actual arguments.  The
+    values returned by the procedure are returned.
+    </p>
+
+    <p>The <code>apply/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax apply/mv
+      (syntax-rules ()
+        ((apply/mv operator operand1 ... producer)
+         (letrec-syntax
+             ((aux (syntax-rules ::: ()
+                     ((aux %operator () ((%operand1 arg1) :::) %producer)
+                      (let-values (((proc) %operator)
+                                   ((arg1) %operand1) :::
+                                   (args %producer))
+                        (apply proc arg1 ::: args)))
+                     ((aux %operator (%operand1 operand2 :::) (temp :::) %producer)
+                      (aux %operator (operand2 :::) (temp ::: (%operand1 arg1))
+                           %producer)))))
+           (aux operator (operand1 ...) () producer)))))</pre>
+
+    <p>A trick is used to generate the temporary names needed to avoid
+      specifying the order in which the values are evaluated.</p>
+
+    <pre>
+    (apply/mv string #\a (values #\b #\c))   &xrArr; "abc"</pre>
+
+    <p><code>(call/mv <span class="token">consumer</span> <span class="token">producer<sub>1</sub></span> &hellip;)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">Consumer</span></code> and each <code><span class="token">producer</span></code> can be
+    any expression.</p>
+
+    <p><i>Semantics:</i> An <code>call/mv</code> expression is
+    evaluated as follows: <code><span class="token">Consumer</span></code> and
+    each <code><span class="token">producer</span></code> are evaluated in an unspecified
+    order.  The procedure resulting from
+    evaluating <code><span class="token">consumer</span></code> is then tail-called with the
+    mutiple values of the <code><span class="token">producers</span></code>s in that order as
+    the actual arguments.  The values returned by the procedure are
+    returned.
+    </p>
+
+    <p><i>Note:</i> This syntax is equivalent to the Common Lisp function
+      <code>multiple-value-call</code>.</p>
+
+    <p>The <code>call/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax call/mv
+      (syntax-rules ()
+        ((call/mv consumer producer1 ...)
+         (letrec-syntax
+             ((aux (syntax-rules ::: ()
+                     ((aux %consumer () ((%producer1 args1) :::))
+                      (let-values (((proc) %consumer)
+                                   (args1 %producer1) :::)
+                        (apply proc (append args1 :::))))
+                     ((aux %consumer (%producer1 producer2 :::) (temp :::))
+                      (aux %consumer (producer2 :::) (temp ::: (%producer1 args1)))))))
+           (aux consumer (producer1 ...) ())))))</pre>
+
+    <pre>
+    (call/mv string (values #\a #\b) (values #\c #\d))   &xrArr; "abcd"</pre>
+
+    <p><code>(list/mv <span class="token">element<sub>1</sub></span> &hellip; <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> Each <code><span class="token">element</span></code> and <code>
+     <span class="token">producer</span></code> can be any expression.</p>
+
+    <p><i>Semantics:</i> A <code>list/mv</code> expression is
+      evaluated as follows: Each <code><span class="token">element</span></code>
+      and <code><span class="token">producer</span></code> are evaluated in an unspecified
+      order.  A list constructed from the
+      single values of the <code><span class="token">elements</span></code>s and the multiple
+      values of <code><span class="token">producer</span></code> is then returned.
+    </p>
+
+    <p>The <code>list/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax list/mv
+      (syntax-rules ()
+        ((list/mv element1 ... producer)
+         (apply/mv list element1 ... producer))))</pre>
+
+    <pre>
+    (list/mv 'a (values 'b 'c))   &xrArr; (a b c)</pre>
+
+    <p><code>(vector/mv <span class="token">element<sub>1</sub></span> &hellip; <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> Each <code><span class="token">element</span></code> and <code>
+     <span class="token">producer</span></code> can be any expression.</p>
+
+    <p><i>Semantics:</i> A <code>vector/mv</code> expression is
+      evaluated as follows: Each <code><span class="token">element</span></code>
+      and <code><span class="token">producer</span></code> are evaluated in an unspecified
+      order.  A vector constructed from the
+      single values of the <code><span class="token">elements</span></code>s and the multiple
+      values of <code><span class="token">producer</span></code> is then returned.
+    </p>
+
+    <p>The <code>vector/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax vector/mv
+      (syntax-rules ()
+        ((vector/mv element1 ... producer)
+         (apply/mv vector element1 ... producer))))</pre>
+
+    <pre>
+    (vector/mv 'a (values 'b 'c))   &xrArr; #(a b c)</pre>
+
+    <p><code>(box/mv <span class="token">element<sub>1</sub></span> &hellip; <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> Each <code><span class="token">element</span></code> and <code>
+     <span class="token">producer</span></code> can be any expression.</p>
+
+    <p><i>Semantics:</i> A <code>box/mv</code> expression is evaluated
+      as follows: Each <code><span class="token">element</span></code>
+      and <code><span class="token">producer</span></code> are evaluated in an unspecified
+      order.  A
+      (<a href="https://srfi.schemers.org/srfi-195/srfi-195.html">SRFI
+      195</a>) box is constructed from the single values of
+      the <code><span class="token">elements</span></code>s and the multiple values
+      of <code><span class="token">producer</span></code> is then returned.
+    </p>
+
+    <p>The <code>box/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax box/mv
+      (syntax-rules ()
+        ((box/mv element1 ... producer)
+         (apply/mv box element1 ... producer))))</pre>
+
+    <pre>
+    (unbox (box/mv 'a (values 'b 'c)))   &xrArr; a b c</pre>
+
+    <p><code>(value/mv <span class="token">index</span> <span class="token">operand<sub>1</sub></span> &hellip; <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">Index</span></code>,
+     each <code><span class="token">operand</span></code>, and <code> <span class="token">producer</span></code> can be
+     any expression.</p>
+
+    <p><i>Semantics:</i> A <code>value/mv</code> expression is
+      evaluated as follows: <code><span class="token">Index</span></code>,
+      each <code><span class="token">element</span></code> and <code><span class="token">producer</span></code> are
+      evaluated in an unspecified order.  It is an error if the
+      value <var>i</var> of <code><span class="token">index</span></code> is not an exact
+      non-negative index.  The <em>i</em>th element of the list
+      consisting of the single values of the <code><span class="token">operands</span></code>s
+      and the multiple values of <code><span class="token">producer</span></code> is then
+      returned.  It is an error if there is no such element.
+    </p>
+
+    <p>The <code>value/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax value/mv
+      (syntax-rules ()
+        ((value/mv index operand1 ... producer)
+         (apply/mv value index operand1 ... producer))))</pre>
+
+    <pre>
+    (value/mv 1 'a (values 'b 'c))   &xrArr; b</pre>
+
+    <p><code>(arity <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">Producer</span></code> can be any
+    expression.</p>
+
+    <p><i>Semantics:</i> An <code>arity</code> expression is
+    evaluated as follows: <code><span class="token">Producer</span></code> is evaluated and
+    then the number of resulting values is returned.</p>
+
+    <p>The <code>arity</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax arity
+      (syntax-rules ()
+        ((arity producer)
+         (let-values ((res producer))
+           (length res)))))</pre>
+
+    <pre>
+    (arity (values 'a 'b 'c))   &xrArr; 3</pre>
+
+    <p><code>(set!-values <span class="token">formals</span> <span class="token">producer</span>)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">formals</span></code> is a formal arguments list
+      and <code><span class="token">producer</span></code> can be any expression.</p>
+
+    <p><i>Semantics:</i> A <code>set!-values</code> expression is
+      evaluated as follows: <code><span class="token">Producer</span></code> is evaluated and the
+      resulting values are stored in the locations to which the
+      variables of the <code><span class="token">formals</span></code> are bound, where
+      the <code><span class="token">formals</span></code> are matched to the resulting values in
+      the same way that the <code><span class="token">formals</span></code> in
+      a <code>lambda</code> expression are matched to the arguments in
+      a procedure call.  The result of the <code>set!-values</code>
+      expression is unspecified.
+    </p>
+
+    <p>The <code>set!-values</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax set!-values
+      (syntax-rules ()
+        ((set!-values (var1 ...) producer)
+         (letrec-syntax
+             ((aux (syntax-rules ::: ()
+                     ((aux () ((%var1 temp1) :::) %producer)
+                      (let-values (((temp1 ::: . temp*) %producer))
+                        (set! %var1 temp1) :::))
+                     ((aux (%var1 var2 :::) (temp :::) %producer)
+                      (aux (var2 :::) (temp ::: (%var1 temp1)) %producer)))))
+           (aux (var1 ... ) () producer)))
+        ((set!-values (var1 ... . var*) producer)
+         (letrec-syntax
+             ((aux (syntax-rules ::: ()
+                     ((aux () ((%var1 temp1) ::: (%var* temp*)) %producer)
+                      (let-values (((temp1 ::: . temp*) %producer))
+                        (set! %var1 temp1) :::
+                        (set! %var* temp*)))
+                     ((aux (%var1 var2 :::) (temp :::) %producer)
+                      (aux (var2 :::) (temp ::: (%var1 temp1)) %producer)))))
+           (aux (var1 ... var*) () producer)))
+        ((set!-values var* producer)
+         (let-values ((temp*) producer)
+           (set! var* temp*)))))</pre>
+
+    <pre>
+    (let ((x #f) (y #f))
+      (set!-values (x . y) (values 'a 'b))
+      (list x y))                            &xrArr; (a (b))</pre>
+
+    <p><code>(with-values <span class="token">producer</span> <span class="token">consumer</span>)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">Producer</span></code>
+    and <code><span class="token">consumer</span></code> can be any expressions.</p>
+
+    <p><i>Semantics:</i> A <code>with-values</code> expression is
+    evaluated as follows: <code><span class="token">Producer</span></code>
+    and <code><span class="token">consumer</span></code> are evaluated in an unspecified order.
+    The procedure resulting from evaluating <code><span class="token">consumer</span></code> is
+    then tail-called with the multiple values
+    of <code><span class="token">producer</span></code> as the actual arguments, and its return
+    values are returned.</p>
+
+    <p>The <code>with-values</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax with-values
+      (syntax-rules ()
+        ((with-values producer consumer)
+         (apply/mv consumer producer))))</pre>
+
+    <pre>
+    (with-values (values 4 5)
+      (lambda (a b) b))         &xrArr; 5</pre>
+
+    <p><code>(case-receive <span class="token">producer</span> <span class="token">clause</span> &hellip;)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">producer</span></code> can be any expression
+      and each <code><span class="token">clause</span></code> is of the form <code>(<span class="token">formals</span>
+      <span class="token">body</span>)</code> as in a <code>case-lambda</code> expression.
+    </p>
+
+    <p><i>Semantics:</i> A <code>case-receive</code> expression is
+      evaluated as follows: <code><span class="token">Producer</span></code> is evaluated and
+      then the first clause for which the resulting values agree with
+      <code><span class="token">formals</span></code> is selected, where agreement is specified
+      as for the <code><span class="token">formals</span></code> of a <code>lambda</code>
+      expression.  The variables of <code><span class="token">formals</span></code> are bound
+      to fresh locations, the values are stored in those locations,
+      the <code><span class="token">body</span></code> is evaluated in the extended
+      environment, and the results of <code><span class="token">body</span></code> are returned
+      as the results of the <code>case-receive</code> expression.</p>
+
+    <p>The <code>case-receive</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax case-receive
+      (syntax-rules ()
+        ((case-receive producer clause ...)
+         (with-values producer
+           (case-lambda clause ...)))))</pre>
+
+    <pre>
+    (case-receive (values 'a 'b)
+      ((x) #f)
+      ((x . y) (list x y)))        &xrArr; (a (b))</pre>
+
+    <p><code>(bind/mv <span class="token">producer</span> <span class="token">transducer<sub>1</sub></span> &hellip;)</code></p>
+
+    <p><i>Syntax:</i> <code><span class="token">Producer</span></code> and
+      the <code><span class="token">transducers</span></code> can be any expressions.</p>
+
+    <p><i>Semantics:</i> A <code>bind/mv</code> expression is
+      evaluated as follows: <code><span class="token">Producer</span></code> and
+      the <code><span class="token">transducers</span></code> are evaluated in an unspecified
+      order.  The procedure resulting from
+      evaluating <code><span class="token">transducer<sub>1</sub></span></code>is then applied
+      to the values resulting from
+      evaluating <code><span class="token">producer</span></code>. The resulting values are
+      then applied to <code><span class="token">transducer<sub>2</sub></span></code>, and so on
+      until the final <code><span class="token">transducer</span></code> is tail-called and the
+      resulting values are returned as the result of
+      the <code>bind/mv</code> expression.</p>
+
+    <p>The <code>bind/mv</code> syntax could be defined by</p>
+
+    <pre>
+    (define-syntax bind/mv
+      (syntax-rules ()
+        ((bind/mv producer transducer ...)
+         (bind/list (list/mv producer) transducer ...))))</pre>
+
+    <pre>
+    (bind/mv (values 1 2 3)
+             (map-values (lambda (x) (* 2 x)))
+             (map-values (lambda (x) (+ 1 x))))   &xrArr; 3 5 7</pre>
+
+    <h3>Procedures</h3>
+
+    <p><code>(list-values <var>list</var>)</code></p>
+
+    <p>It is an error if <code><var>list</var></code> is not a list.</p>
+
+    <p>
+      The <code>list-values</code> procedure yields the elements
+      of <code><var>list</var></code> as multiple values.  It could be
+      defined by
+    </p>
+
+    <pre>
+    (define (list-values lis)
+      (apply values lis))</pre>
+
+    <pre>
+    (list-values '(a b c))   &xrArr; a b c</pre>
+
+    <p><code>(vector-values <var>vec</var>)</code></p>
+
+    <p>It is an error if <code><var>vec</var></code> is not a vector.</p>
+
+    <p>
+      The <code>vector-values</code> procedure yields the elements
+      of <code><var>vec</var></code> as multiple values. It could be
+      defined by
+    </p>
+
+    <pre>
+    (define (vector-values vec)
+      (list-values (vector-&gt;list vec)))</pre>
+
+    <pre>
+    (vector-values #(a b c))   &xrArr; a b c</pre>
+
+    <p><code>(box-values <var>box</var>)</code></p>
+
+    <p>It is an error if <code><var>box</var></code> is not a box.</p>
+
+    <p>
+      The <code>box-values</code> procedure yields the elements
+      of <code><var>box</var></code> as multiple values.  Equivalent to <code>unbox</code>.
+      It could be defined by
+    </p>
+
+    <pre>
+    (define box-values unbox)</pre>
+
+    <pre>
+    (box-values (box 'a 'b 'c))   &xrArr; a b c</pre>
+
+    <p><code>(value <var>index</var> <var>obj<sub>0</sub></var> &hellip; <var>obj<sub>n-1</sub></var>)</code></p>
+
+    <p>It is an error if <code><var>index</var></code> is not an exact non-negative
+      integer less than <code><var>n</var></code>.</p>
+
+    <p>The <code>value</code> procedure simply returns its
+    argument <code><var>obj<sub>index</sub></var></code>.  It could be defined by</p>
+
+    <pre>
+    (define (value k . objs)
+      (list-ref objs k))</pre>
+
+    <pre>
+    (value 1 'a 'b 'c)   &xrArr; b</pre>
+
+    <p><code>(identity <var>obj<sub>1</sub></var> &hellip;)</code></p>
+
+    <p>The <code>identity</code> procedure yields the
+      objects <code><var>objs</var></code> as multiple values.
+      Equivalent to <code>values</code>.  It could
+      be defined by</p>
+
+    <pre>
+      (define identity values)</pre>
+
+    <pre>
+    (identity 1 2 3)   &xrArr; 1 2 3</pre>
+
+    <p><code>(compose <var>transducer<sub>1</sub></var> &hellip;)</code></p>
+
+    <p>It is an error if the <code><var>transducers</var></code>
+    are not procedures.</p>
+
+    <p>The <code>compose</code> procedure yields the functional
+      composition of the <code><var>transducers</var></code>.  When
+      the resulting procedure is applied to arguments, these arguments
+      are passed to <code><var>transducer<sub>1</sub></var></code>,
+      whose results are passed
+      to <code><var>transducer<sub>2</sub></var></code>, and so on
+      until the final results are returned.  It could be defined by</p>
+
+    <pre>
+    (define compose
+      (case-lambda
+        (() identity)
+        ((transducer . transducers)
+         (let f ((transducer transducer) (transducers transducers))
+           (if (null? transducers)
+               transducer
+               (let ((composition (f (car transducers) (cdr transducers))))
+                 (lambda args
+                   (apply/mv composition (apply transducer args)))))))))</pre>
+
+    <pre>
+    (let ((f (map-values (lambda (x) (* 2 x))))
+          (g (map-values (lambda (x) (+ x 1)))))
+       ((compose f g) 1 2 3)))                     &xrArr; 3 5 7</pre>
+
+    <p><code>(map-values <var>proc</var>)</code></p>
+
+    <p>It is an error if <code><var>proc</var></code> is not a
+    procedure.</p>
+
+    <p>The <code>map-values</code> procedure returns a procedure that
+    accepts an arbitrary number of arguments,
+    applies <code><var>proc</var></code> to each of them in an
+    unspecified order and returns the resulting single values as
+    multiple values.  It could be defined by</p>
+
+    <pre>
+    (define (map-values proc)
+      (lambda args
+        (list-values (map proc args))))</pre>
+
+    <pre>
+    ((map-values odd?) 1 2 3))   &xrArr; #t #f #t</pre>
+
+    <p>(bind/list <var>list</var> <var>transducer<sub>1</sub></var> &hellip;)</p>
+
+    <p>It is an error if <code><var>list</var></code> is not a list
+      and the <code><var>transducers</var></code> are not
+      procedures.</p>
+
+    <p>The <code>bind</code> procedure applies
+      the elements of <code><var>list</var></code>
+      to <code><var>transducer<sub>1</sub></var></code>, whose results
+      are then applied
+      to <code><var>transducer<sub>2</sub></var></code>, and so on until
+      the final <code><var>transducer</var></code> is tail-called and the
+      resulting values are returned.  It could be defined by</p>
+
+    <pre>
+    (define (bind/list lis . transducers)
+      (list-values (fold (lambda (transducer lis)
+                           (list/mv (apply transducer lis)))
+                         lis transducers)))</pre>
+
+    <pre>
+    (bind/list '(1 2 3) (map-values (lambda (x) (* 3 x))))   &xrArr; 3 6 9</pre>
+
+    <p>(bind/box <var>box</var> <var>transducer<sub>1</sub></var> &hellip;)</p>
+
+    <p>It is an error if <code><var>box</var></code> is not a box
+      and the <code><var>transducers</var></code> are not
+      procedures.</p>
+
+    <p>The <code>bind</code> procedure applies the values of
+      <code><var>box</var></code>
+      to <code><var>transducer<sub>1</sub></var></code>, whose results
+      are then applied
+      to <code><var>transducer<sub>2</sub></var></code>, and so on until
+      the final <code><var>tranducer</var></code> is tail-called and the
+      resulting values are returned.  It could be defined by</p>
+
+    <pre>
+    (define (bind/box bx . transducers)
+      (apply bind/list (list/mv (unbox bx)) transducers))</pre>
+
+    <pre>
+    (bind/box (box 1 2 3) (map-values (lambda (x) (* 3 x))))   &xrArr; 3 6 9</pre>
+
+    <p>(bind <var>obj</var> <var>transducer<sub>1</sub></var> &hellip;)</p>
+
+    <p>It is an error if the <code><var>transducers</var></code> are
+      not procedures.</p>
+
+    <p>The <code>bind</code> procedure applies
+      the <code><var>obj</var></code>
+      to <code><var>transducer<sub>1</sub></var></code>, whose results
+      are then applied
+      to <code><var>transducer<sub>2</sub></var></code>, and so on until
+      the final <code><var>tranducer</var></code> is tail-called and the
+      resulting values are returned.  It could be defined by</p>
+
+    <pre>
+    (define (bind obj . transducers)
+      (apply bind/list (list obj) transducers))</pre>
+
+    <pre>
+    (bind 1 (lambda (x) (values (* 3 x) (+ 1 x))))   &xrArr; 3 2</pre>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>A
+    portable <a href="https://small.r7rs.org/attachment/r7rs.pdf">R7RS</a>
+    implementation can be found in the <a href="https://github.com/scheme-requests-for-implementation/srfi-210">official repository
+    of this SRFI</a> and can also be deduced from the complete
+    definitions of all syntax and procedures given above.</p>
+
+    <p>Implementers are highly encouraged to distribute specialized
+      implementations with their Schemes that implement the described
+      syntax and procedures in the most efficient way.</p>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>
+      A discussion on the <a href="https://srfi-email.schemers.org/srfi-195">SRFI 195</a> mailing list eventually led to
+      this SRFI.  I would like to thank all participants of this
+      discussion for their contributions.
+    </p>
+
+    <p>John Cowan suggested to add the equivalent of Common Lisp's
+      procedure <code>multiple-value-call</code>.
+    </p>
+
+    <p>Jim Rees read the example code in the first draft carefully.</p>
+
+    <p>Wolfgang Corcoran-Mathe made an extensive review and shared his
+    helpful comments on the mailing list.</p>
+
+    <p>The idea of the <code>with-values</code> form comes from the
+    paper <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.69.5878&rep=rep1&type=pdf"><cite>An Efficient Implementation of Multiple
+    Return Values in Scheme</cite></a> by J. Michael Ashley and
+    R. Kent Dybvig.</p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2020 Marc Nieper-Wißkirchen.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+  </body>
+</html>

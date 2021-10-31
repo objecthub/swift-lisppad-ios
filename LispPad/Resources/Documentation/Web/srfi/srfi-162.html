@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 162: Comparators sublibrary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="anchors" />
+    <link rel="start" href="../index.html" />
+    <link rel="stylesheet" href="/srfi.css" type="text/css" />
+  <div>
+
+<H1><a name="lp-srfi-162">Title</a></H1>
+Comparators sublibrary
+
+<h1>Author</h1>
+John Cowan
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+162+at+srfi+dotschemers+dot+org">srfi-162@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-162">archive</a>.</p>
+<ul>
+  <li>Received: 2018-09-12</li>
+  <li>Revised before first draft: 2018-10-15</li>
+  <li>Draft #1 published: 2018-10-15</li>
+  <li>Draft #2 published: 2019-02-27</li>
+  <li>Draft #3 published: 2019-06-20</li>
+  <li>Finalized: 2019-08-27</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+This SRFI provides a few extra procedures and comparators to go
+with SRFI 128, Comparators.  Implementers are urged to add them to
+their SRFI 128 libraries, for which reason they are not packaged
+as a separate library.
+</p>
+
+<h1>Rationale</h1>
+
+<p>The original specification for comparators was <a href="https://srfi.schemers.org/srfi-114/srfi-114.html">SRFI 114</a>.  This
+was a large and complex SRFI with many procedures and comparators;
+its sample implementation had many bugs.  I replaced it with <a href="https://srfi.schemers.org/srfi-128/srfi-128.html"> SRFI 128</a>,
+which is much simpler and cleaner.  However, I now believe that
+SRFI 114 was cut back too far.  In particular, there are no comparators
+(as opposed to comparator constructors) in SRFI 128.  This SRFI
+provides the comparators of SRFI 114 that seem generally useful, so as to have
+them generally available without needing to define them locally.</p>
+
+<p>The SRFI 114 procedures <code>comparator-max</code> and
+<code>comparator-min</code> have also been restored because they
+are equivalent to the <code>max</code> and <code>min</code> methods
+of the Haskell typeclass <code>Ord</code>.  Comparators are equivalent
+to the three typeclasses <code>Eq</code>, <code>Ord</code>, and
+<code>Hashable</code>, but the first and last typeclass do not
+provide any additional methods not already available in SRFI 128
+except inequality, which is normally not provided by Scheme
+libraries.  Equivalent procedures that accept a list have also been added.
+</p>
+
+<h1>Specification</h1>
+
+<h2 id="Procedures">Procedures</h2>
+<p><code>(comparator-max </code><em>comparator obj<sub>1</sub> obj<sub>2</sub></em> ...<code>)</code>
+</p>
+<p><code>(comparator-min </code><em>comparator obj<sub>1</sub> obj<sub>2</sub></em> ...<code>)</code>
+</p>
+<p><code>(comparator-max-in-list </code><em>comparator list</em><code>)</code>
+</p>
+<p><code>(comparator-min-in-list </code><em>comparator list</em><code>)</code>
+</p>
+<p>
+These procedures are analogous to <code>min</code> and <code>max</code> respectively,
+but may be applied to any orderable objects, not just to real numbers. They
+apply the ordering procedure of <i>comparator</i> to the <i>objects</i> to find
+and return a minimal (or maximal) object. The order in which the
+values are compared is unspecified.
+If two objects are equal in the sense of the comparator, either may be returned.
+</p>
+
+<p>The <code>-in-list</code> versions accept a single list argument.</p>
+
+<h2 id="Useful-comparators">Useful comparators</h2>
+<p>
+These comparators are useful for comparing standard Scheme types, and
+should be more efficient than default comparators.
+</p>
+
+<p>
+<code>default-comparator</code>
+</p>
+<p>
+A pre-created default comparator.
+It should behave exactly like a comparator returned by SRFI 128
+<code>make-default-comparator</code>.
+</p>
+
+<p>
+The following pre-created comparators must provide both ordering predicates and
+hash functions.  They behave exactly like comparators returned from the
+example calls on <code>make-comparator</code> shown in SRFI 128.
+</p>
+
+<p>
+<code>boolean-comparator</code>
+</p>
+<p>
+A comparator for booleans such that <code>#f</code> compares before <code>#t</code>.
+</p>
+
+<p>
+<code>real-comparator</code>
+</p>
+<p>
+A comparator for real numbers such that smaller numbers compare before larger numbers.
+</p>
+
+<p>
+<code>char-comparator</code>
+</p>
+<p>
+A comparator for characters using Unicode codepoint order.</p>
+
+<p>
+<code>char-ci-comparator</code>
+</p>
+<p>
+A comparator for characters using <code>char-ci&lt;?</code>.
+</p>
+
+<p>
+<code>string-comparator</code>
+</p>
+<p>
+A comparator for strings using the implementation-specific
+definition of <code>string&lt;?</code>.
+</p>
+
+<p>
+<code>string-ci-comparator</code>
+</p>
+<p>
+A comparator for strings using the implementation-specific
+definition of <code>string-ci&lt;?</code>.
+</p>
+
+<p>
+<code>pair-comparator</code>
+</p>
+<p>
+Compares pairs as if by the application of <code>make-pair-comparator</code>
+to pairs with <code>default-comparator</code> as the <code>car</code>
+and <code>cdr</code> comparators.
+</p><p>
+<code>list-comparator</code>
+</p>
+
+<p>
+Compares lists as if by the application of <code>make-list-comparator</code> to lists
+with <code>default-comparator</code> as the element comparator.
+</p>
+
+<p>
+<code>vector-comparator</code>
+</p>
+<p>
+Compares vectors as if by the application of <code>make-vector-comparator</code> to vectors
+with <code>default-comparator</code> as the element comparator.
+</p>
+
+<p>The following comparators behave exactly like the comparators
+returned by calls to <code>make-eq-comparator</code>,
+<code>make-eqv-comparator</code>,
+and <code>make-equal-comparator</code> respectively.
+</p>
+
+<p><code>(eq-comparator)</code></p>
+
+<p><code>(eqv-comparator)</code></p>
+
+<p><code>(equal-comparator)</code></p>
+
+<h1>Implementation</h1>
+
+<p>The sample implementation is found in a single file in the repository of this
+SRFI named <code>srfi/128/162-impl.scm</code>.  It should simply be included in
+whichever SRFI 128 library is in use by the implementation.  It is important
+to include it <i>after</i> all other files.  It is also of course necessary to
+extend the library exports to include the two new procedures and
+ten new comparators.</p>
+
+<p>Alternatively, there is a full implementation of the <code>(srfi 128)</code>
+library including all extensions from this SRFI.  The supported
+Schemes are Chicken 5 and Chibi.</p>
+
+<p>The following files are part of the implementation:</p>
+
+<ul>
+<li><code>srfi-128.scm</code> - Chicken 5 library for SRFI 128 + 162</li>
+
+<li><code>srfi/128.sld</code> - Chibi library for SRFI 128 + 162</li>
+
+<li><code>srfi/128/128-impl.scm</code> - SRFI 128 implementation</li>
+
+<li><code>srfi/128/162-impl.scm</code> - SRFI 162 implementation</li>
+
+<li><code>srfi/128/default.scm</code> - A portable implementation of
+<code>default-comparator</code>, which implementations should extend</li>
+
+<li><code>srfi/128/r7rs-shim.scm</code> - A shim for Chicken 5 providing
+the necessary R7RS-small procedures</li>
+
+<li><code>srfi/128/complex-shim.scm</code> - A shim for implementations
+that don't support complex numbers</li>
+
+<li><code>shared-tests.scm</code> - Shared tests depending on the
+Chicken and Chibi test libraries</li>
+
+<li><code>chicken-tests.scm</code> - A Chicken 5 wrapper for tests</li>
+
+<li><code>chibi-tests.scm</code> - A Chibi wrapper for tests</li>
+
+</ul>
+
+<h1>Copyright</h1>
+Copyright &copy; John Cowan (2018). All Rights Reserved.
+<p>
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+</p><p>
+The above copyright notice and this permission notice (including the
+next paragraph) shall be included in all copies or substantial
+portions of the Software.
+</p><p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.</p>
+<hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org" target="_blank">Arthur A. Gleckler</a></address></div>
+</body></html>
+
+

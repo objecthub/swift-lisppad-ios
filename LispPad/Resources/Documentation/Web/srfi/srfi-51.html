@@ -1,0 +1,572 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>SRFI 51: Handling rest list</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-51">Title</a></H1>
+
+Handling rest list
+
+<H1>Author</H1>
+
+Joo ChurlSoo
+
+<H1>Status</H1>
+This SRFI is currently in ``final'' status.  To see an explanation of each status that a SRFI can hold, see <A HREF="http://srfi.schemers.org/srfi-process.html">here</A>.
+You can access the discussion via <A HREF=mail-archive/maillist.html>the archive of the mailing list</A>.
+<P><UL>
+
+<LI>Received: <a href="http://srfi.schemers.org/srfi-51/srfi-51-1.1.txt">2004/01/09</a>
+<LI>Draft: 2004/01/18-2004/03/18
+<LI>Revised: <a href="http://srfi.schemers.org/srfi-51/srfi-51-1.2.txt">2004/01/28</a>
+<LI>Revised: <a href="http://srfi.schemers.org/srfi-51/srfi-51-1.3.txt">2004/02/08</a>
+<LI>Revised: <a href="http://srfi.schemers.org/srfi-51/srfi-51-1.4.txt">2004/03/24</a>
+<LI>Revised: <a
+href="http://srfi.schemers.org/srfi-51/srfi-51-1.5.txt">2004/05/06</a>
+<LI>Final: 2004/06/07
+</UL>
+
+<h1>Related SRFIs</h1>
+
+<p>
+The procedure and macros proposed in this SRFI make a strong
+combination with <code>receive</code> (<a href="../srfi-8/">SRFI
+8</a>) and <code>let-values</code> (<a href="../srfi-11/">SRFI 11</a>).
+</p>
+
+<h1>Abstract</h1>
+
+<p>
+This SRFI introduces the <code>rest-values</code> procedure which has three modes of
+operation:
+</p>
+
+<ol>
+<li>it processes a rest list after checking its elements with default values or
+   predicate procedures,</li>
+
+<li> it processes a rest list with default values without checking its elements,</li>
+
+<li> it processes a default list whose elements are lists or pairs, after
+   checking their elements that are default values or predicate procedures
+   with the elements of a rest list,</li>
+</ol>
+
+<p>
+and eight macros which additionally check the rest arguments that are returned
+by <code>rest-values</code>.
+</p>
+
+<h1>Rationale</h1>
+
+<p>
+When defining a procedure with a variable number of arguments, <code>rest-values</code>
+with or without the checking macros reduces the clutter of various
+conditionals and error conditions.
+</p>
+
+<h1>Specification</h1>
+
+<dl>
+<dt>
+
+<code>(rest-values [&lt;caller&gt;] &lt;rest-list&gt;
+[&lt;args-number-limit&gt; &lt;default&gt; ...])</code></dt>
+<dt>
+<dd> <code>&lt;caller&gt;</code> is any scheme expression.</dd>
+
+<dd> <code>&lt;args-number-limit&gt;</code> should be an integer, <code>+</code>, <code>-</code>, or a boolean.</dd>
+<dd>
+<dt>
+
+<ol>
+<li>When the <code>&lt;args-number-limit&gt;</code> is <code>+</code> or a positive integer,
+         each <code>&lt;default&gt;</code> should be a list that contains default value(s), or a
+    	 pair whose car is a default value and cdr is a predicate procedure.</li>
+<li>When the <code>&lt;args-number-limit&gt;</code> is <code>-</code> or a negative integer,
+	 each <code>&lt;default&gt;</code> is any scheme expression.</li>
+<li>When the <code>&lt;args-number-limit&gt;</code> is a boolean,
+	 each <code>&lt;default&gt;</code> is the same as 1.</li>
+</ol>
+
+<ol>
+<li>(first mode of operation)
+<p>
+   <code>Rest-values</code> checks whether each element of the <code>&lt;rest-list&gt;</code> is a member of
+   the corresponding <code>&lt;default&gt;</code> list, or satisfies the predicate procedure of
+   the corresponding <code>&lt;default&gt;</code> pair, and then returns the checked element(s).
+   If the element doesn't pass, <code>rest-values</code> signals an error.  when there are
+   no more elements in the <code>&lt;rest-list&gt;</code>, then <code>rest-values</code> additionally returns
+   the car values of the remaining <code>&lt;default&gt;</code>s.  On the other hand, when the
+   number of elements of the <code>&lt;rest-list&gt;</code> are more than the number of the
+   <code>&lt;default&gt;</code>s, the supernumerary elements are additionally returned if the
+   <code>&lt;args-number-limit&gt;</code> is <code>+</code>, or its value is not less than the number of
+   elements of the <code>&lt;rest-list&gt;</code>.
+</p>
+</li>
+<li>(second mode of operation)
+
+<p>
+   This is the same as the first except that <code>rest-values</code>
+   does not check each element of the <code>&lt;rest-list&gt;</code>, and it uses
+   <code>-</code> instead of <code>+</code>, and an absolute value
+   instead of a simple value as the value of
+   <code>&lt;args-number-limit&gt;</code>.
+</p>
+</li>
+
+<li>(third mode of operation)
+
+<p>
+   <code>Rest-values</code> checks whether any element of the <code>&lt;default&gt;</code> list is a member of
+   the <code>&lt;rest-list&gt;</code>, or any element of the <code>&lt;rest-list&gt;</code> satisfies the predicate
+   procedure of the <code>&lt;default&gt;</code> pair, and then returns the checked element.  If
+   the <code>&lt;default&gt;</code> doesn't pass, <code>rest-values</code> returns the car value of the
+   <code>&lt;default&gt;</code>.  when any elements of the <code>&lt;rest-list&gt;</code> are remained after the
+   above processing, <code>rest-values</code> either signals an error if the
+   <code>&lt;args-number-limit&gt;</code> is <code>#t</code>, or returns the remaining elements of the
+   <code>&lt;rest-list&gt;</code> if the <code>&lt;args-number-limit&gt;</code> is <code>#f</code>.
+</p>
+</ol>
+
+<dl>
+<dt><code>(arg-and [&lt;caller&gt;] &lt;variable&gt; &lt;expr&gt;
+...)</code> (syntax)</dt>
+<dt><code>(arg-ands [common &lt;caller&gt;] ([&lt;caller&gt;]
+&lt;variable&gt; &lt;expr&gt; ...) ...)</code> (syntax)</dt>
+<dt><code>(err-and &lt;caller&gt; &lt;expression&gt; ...)</code> (syntax)</dt>
+<dt><code>(err-ands (&lt;caller&gt; &lt;expression&gt; ...) ...)</code> (syntax)</dt>
+<dt><code>(arg-or [&lt;caller&gt;] &lt;variable&gt; &lt;expr&gt; ...)</code> (syntax)</dt>
+<dt><code>(arg-ors [common &lt;caller&gt;] ([&lt;caller&gt;] &lt;variable&gt; &lt;expr&gt; ...) ...)</code> (syntax)</dt>
+<dt><code>(err-or &lt;caller&gt; &lt;expression&gt; ...)</code> (syntax)</dt>
+<dt><code>(err-ors (&lt;caller&gt; &lt;expression&gt; ...) ...)</code>
+(syntax)</dt>
+<dd>Each <code>&lt;variable&gt;</code> should be an argument of a procedure.</dd>
+<dd>The <code>&lt;caller&gt;</code>, <code>&lt;expr&gt;</code>, and <code>&lt;expression&gt;</code> are any scheme expression, but
+      the <code>&lt;expr&gt;</code> should contain the corresponding <code>&lt;variable&gt;</code>.</dd>
+<dd>
+<code>Arg-and</code>, <code>arg-ands</code>, <code>err-and</code>, and <code>err-ands</code> are the same as <code>and</code> except that these
+signal an error in case <code>and</code> returns a false value.</dd>
+
+<dd>
+<code>Arg-or</code>, <code>arg-ors</code>, <code>err-or</code>, and <code>err-ors</code> are the same as <code>or</code> except that these
+signal an error in case <code>or</code> returns a true value.
+</dd>
+</dl>
+
+<p>
+Examples
+</p>
+<pre>caller    =&gt; &lt;procedure caller&gt;
+rest-list =&gt; (x 1)
+(rest-values rest-list)	                 =&gt; x 1
+(rest-values rest-list 2)	         =&gt; x 1
+(rest-values caller rest-list)           =&gt; x 1
+(rest-values caller rest-list -3)        =&gt; x 1
+(rest-values rest-list -2 'y 3 1)
+ =&gt; error too many defaults (y 3 1) default-list (&lt;= (length default-list) 2)
+(rest-values 'caller rest-list 1 '(x y z))
+ =&gt; error too many arguments (x 1) rest-list (&lt;= (length rest-list) 1) caller
+(rest-values caller rest-list 2 (list 'x 'y 'z) (cons "str" string?))
+ =&gt; error incorrect argument 1 arg (&lt;procedure string?&gt; arg) &lt;procedure caller&gt;
+(rest-values rest-list 2 '(y z) `(100 . ,number?))
+ =&gt; error unmatched argument x arg (member arg (y z))
+(rest-values "caller: bad argument" rest-list 2 '(y z) `(100 . ,number?))
+ =&gt; error caller: bad argument x arg (member arg (y z))
+(rest-values 'caller rest-list (list 'x 'y) (cons 1 number?))
+ =&gt; error bad optional argument (x y) option
+    (or (boolean? option) (integer? option) (memq option (list + -))) caller
+(rest-values rest-list - 'y 100 "str")
+ =&gt; x 1 "str"
+(rest-values rest-list + `(x y z) `(100 . ,number?) `("str" . ,string?))
+ =&gt; x 1 "str"
+(rest-values rest-list #t `(x y z) `(100 . ,number?) `("str" . ,string?))
+ =&gt; x 1 "str"
+(rest-values rest-list #t `(100 . ,number?) `("str" . ,string?) `(x y z))
+ =&gt; 1 "str" x
+(rest-values rest-list #t `(100 . ,number?) `("str" . ,string?) `(y z))
+ =&gt; error bad argument (x) rest-list (null? rest-list)
+(rest-values rest-list #f `(100 . ,number?) `("str" . ,string?) `(y z))
+ =&gt; 1 "str" y x
+
+recaller =&gt; &lt;procedure caller&gt;
+str    =&gt; "string"
+num    =&gt; 2
+(arg-and num (number? num) (&lt; num 2))
+       =&gt; error incorrect argument 2 num (&lt; num 2)
+(arg-and caller num (number? num) (&lt; num 2))
+       =&gt; error incorrect argument 2 num (&lt; num 2) &lt;procedure caller&gt;
+(arg-and 'caller num (number? num) (&lt; num 2))
+       =&gt; error incorrect argument 2 num (&lt; num 2) caller
+(arg-and "caller: bad argument" num (number? num) (&lt; num 2))
+       =&gt; error caller: bad argument 2 num (&lt; num 2)
+(arg-ands (str (string? str) (&lt; (string-length str) 7))
+	  ("caller: bad argument" num (number? num) (&lt; num 2)))
+       =&gt; error caller: bad argument 2 num (&lt; num 2)
+(arg-ands ("caller: bad argument" str (string? str) (&lt; (string-length str) 7))
+	  (num (number? num) (&lt; num 2)))
+       =&gt; error incorrect argument 2 num (&lt; num 2)
+(arg-ands common 'caller
+	  (str (string? str) (&lt; (string-length str) 7))
+	  (num (number? num) (&lt; num 2)))
+       =&gt; error incorrect argument 2 num (&lt; num 2) caller
+(arg-ands common "caller: bad argument"
+	  (str (string? str) (&lt; (string-length str) 7))
+	  ("caller: incorrect argument" num (number? num) (&lt; num 2)))
+       =&gt; error caller: incorrect argument 2 num (&lt; num 2)
+(err-and 'caller
+	 (string? str) (&lt; (string-length str) 7) (number? num) (&lt; num 2))
+       =&gt; error false expression (&lt; num 2) caller
+(err-ands (caller (string? str) (&lt; (string-length str) 7))
+	  ("num failed test in caller" (number? num) (&lt; num 2)))
+       =&gt; error num failed test in caller (&lt; num 2)
+
+(define (read-line . p-d)
+  ;; p-d should be (&lt;input-port&gt; &lt;symbol&gt;).
+  (receive (p d) (rest-values p-d 2
+			      (cons (current-input-port) input-port?)
+			      (list 'trim 'concat 'split...))
+    ...))
+(define (read-line . p-d)
+  (receive (p d) (rest-values p-d -2 (current-input-port) 'trim)
+    (arg-ands (p (input-port? p))
+	      (d (memq d '(trim concat split...))))
+    ...))
+(define (read-line . p-d)
+  ;; p-d can be (&lt;input-port&gt; &lt;symbol&gt;) or (&lt;symbol&gt; &lt;input-port&gt;).
+  (receive (p d) (rest-values p-d #t
+			      (cons (current-input-port) input-port?)
+			      (list 'trim 'concat 'split...))
+    ...))
+
+(define (delete x ls . predicate)
+  (let ((pred (rest-values 'delete predicate 1 (list equal? eqv? eq?))))
+    ...))
+(define (delete x ls . predicate)
+  (let ((pred (rest-values 'delete predicate -1 equal?)))
+    (err-and 'delete (list? ls) (memq pred (list equal? eqv? eq?)))
+    ...))
+
+(define (substring str . start-end)
+  (let ((str-len (arg-and substring str (string? str) (string-length str))))
+    (receive (start end) (rest-values substring start-end -2 0 str-len)
+      (arg-ands common substring
+		(start (integer? start) (&lt;= 0 start str-len))
+		(end (integer? end) (&lt;= start end str-len)))
+      ...)))
+
+(define (procedure-with-sequential-binding-arguments . a-b-c)
+  (receive (a b c) (rest-values a-b-c -3 10 #f #f)
+    (let* ((b (or b (+ a 10)))
+	   (c (or c (+ a b))))
+      ...)))
+</pre>
+
+<H1>Implementation</H1>
+
+The implementation below requires <a href="../srfi-1/">SRFI 1</a>
+(List library) and <a href="../srfi-23/">SRFI 23</a> (Error
+reporting mechanism).
+
+<pre>
+(define (rest-values rest . default)
+  (let* ((caller (if (or (null? default)
+			 (boolean? (car default))
+			 (integer? (car default))
+			 (memq (car default) (list + -)))
+		     '()
+		     (if (string? rest) rest (list rest))))
+	 (rest-list (if (null? caller) rest (car default)))
+	 (rest-length (if (list? rest-list)
+			  (length rest-list)
+			  (if (string? caller)
+			      (error caller rest-list 'rest-list
+				     '(list? rest-list))
+			      (apply error "bad rest list" rest-list 'rest-list
+				     '(list? rest-list) caller))))
+	 (default (if (null? caller) default (cdr default)))
+	 (default-list (if (null? default) default (cdr default)))
+	 (default-length (length default-list))
+	 (number
+	  (and (not (null? default))
+	       (let ((option (car default)))
+		 (or (and (integer? option)
+			  (or (and (&gt; rest-length (abs option))
+				   (if (string? caller)
+				       (error caller rest-list 'rest-list
+					      `(&lt;= (length rest-list)
+						   ,(abs option)))
+				       (apply error "too many arguments"
+					      rest-list 'rest-list
+					      `(&lt;= (length rest-list)
+						   ,(abs option))
+					      caller)))
+			      (and (&gt; default-length (abs option))
+				   (if (string? caller)
+				       (error caller default-list
+					      'default-list
+					      `(&lt;= (length default-list)
+						   ,(abs option)))
+				       (apply error "too many defaults"
+					      default-list 'default-list
+					      `(&lt;= (length default-list)
+						   ,(abs option))
+					      caller)))
+			      option))
+		     (eq? option #t)
+		     (and (not option) 'false)
+		     (and (eq? option +) +)
+		     (and (eq? option -) -)
+		     (if (string? caller)
+			 (error caller option 'option
+				'(or (boolean? option)
+				     (integer? option)
+				     (memq option (list + -))))
+			 (apply error "bad optional argument" option 'option
+				'(or (boolean? option)
+				     (integer? option)
+				     (memq option (list + -)))
+				caller)))))))
+    (cond
+     ((or (eq? #t number) (eq? 'false number))
+      (and (not (every pair? default-list))
+	   (if (string? caller)
+	       (error caller default-list 'default-list
+		      '(every pair? default-list))
+	       (apply error "bad default list" default-list 'default-list
+		      '(every pair? default-list) caller)))
+      (let loop ((rest-list rest-list)
+		 (default-list default-list)
+		 (result '()))
+	(if (null? default-list)
+	    (if (null? rest-list)
+		(apply values (reverse result))
+		(if (eq? #t number)
+		    (if (string? caller)
+			(error caller rest-list 'rest-list '(null? rest-list))
+			(apply error "bad argument" rest-list 'rest-list
+			       '(null? rest-list) caller))
+		    (apply values (append-reverse result rest-list))))
+	    (if (null? rest-list)
+		(apply values (append-reverse result (map car default-list)))
+		(let ((default (car default-list)))
+		  (let lp ((rest rest-list)
+			   (head '()))
+		    (if (null? rest)
+			(loop (reverse head)
+			      (cdr default-list)
+			      (cons (car default) result))
+			(if (list? default)
+			    (if (member (car rest) default)
+				(loop (append-reverse head (cdr rest))
+				      (cdr default-list)
+				      (cons (car rest) result))
+				(lp (cdr rest) (cons (car rest) head)))
+			    (if ((cdr default) (car rest))
+				(loop (append-reverse head (cdr rest))
+				      (cdr default-list)
+				      (cons (car rest) result))
+				(lp (cdr rest) (cons (car rest) head)))))))))))
+     ((or (and (integer? number) (&gt; number 0))
+	  (eq? number +))
+      (and (not (every pair? default-list))
+	   (if (string? caller)
+	       (error caller default-list 'default-list
+		      '(every pair? default-list))
+	       (apply error "bad default list" default-list 'default-list
+		      '(every pair? default-list) caller)))
+      (let loop ((rest rest-list)
+		 (default default-list))
+	(if (or (null? rest) (null? default))
+	    (apply values
+		   (if (&gt; default-length rest-length)
+		       (append rest-list
+			       (map car (list-tail default-list rest-length)))
+		       rest-list))
+	    (let ((arg (car rest))
+		  (par (car default)))
+	      (if (list? par)
+		  (if (member arg par)
+		      (loop (cdr rest) (cdr default))
+		      (if (string? caller)
+			  (error caller arg 'arg `(member arg ,par))
+			  (apply error "unmatched argument"
+				 arg 'arg `(member arg ,par) caller)))
+		  (if ((cdr par) arg)
+		      (loop (cdr rest) (cdr default))
+		      (if (string? caller)
+			  (error caller arg 'arg `(,(cdr par) arg))
+			  (apply error "incorrect argument"
+				 arg 'arg `(,(cdr par) arg) caller))))))))
+     (else
+      (apply values (if (&gt; default-length rest-length)
+			(append rest-list (list-tail default-list rest-length))
+			rest-list))))))
+
+(define-syntax arg-and
+  (syntax-rules()
+    ((arg-and arg (a1 a2 ...) ...)
+     (and (or (symbol? 'arg)
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(arg-and arg (a1 a2 ...) ...)))
+	  (or (a1 a2 ...)
+	      (error "incorrect argument" arg 'arg '(a1 a2 ...)))
+	  ...))
+    ((arg-and caller arg (a1 a2 ...) ...)
+     (and (or (symbol? 'arg)
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(arg-and caller arg (a1 a2 ...) ...)))
+	  (or (a1 a2 ...)
+	      (if (string? caller)
+		  (error caller arg 'arg '(a1 a2 ...))
+		  (error "incorrect argument" arg 'arg '(a1 a2 ...) caller)))
+	  ...))))
+
+;; accessory macro for arg-ands
+(define-syntax caller-arg-and
+  (syntax-rules()
+    ((caller-arg-and caller arg (a1 a2 ...) ...)
+     (and (or (symbol? 'arg)
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(caller-arg-and caller arg (a1 a2 ...) ...)))
+	  (or (a1 a2 ...)
+	      (if (string? caller)
+		  (error caller arg 'arg '(a1 a2 ...))
+		  (error "incorrect argument" arg 'arg '(a1 a2 ...) caller)))
+	  ...))
+    ((caller-arg-and null caller arg (a1 a2 ...) ...)
+     (and (or (symbol? 'arg)
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(caller-arg-and caller arg (a1 a2 ...) ...)))
+	  (or (a1 a2 ...)
+	      (if (string? caller)
+		  (error caller arg 'arg '(a1 a2 ...))
+		  (error "incorrect argument" arg 'arg '(a1 a2 ...) caller)))
+	  ...))))
+
+(define-syntax arg-ands
+  (syntax-rules (common)
+    ((arg-ands (a1 a2 ...) ...)
+     (and (arg-and a1 a2 ...) ...))
+    ((arg-ands common caller (a1 a2 ...) ...)
+     (and (caller-arg-and caller a1 a2 ...) ...))))
+
+(define-syntax arg-or
+  (syntax-rules()
+    ((arg-or arg (a1 a2 ...) ...)
+     (or (and (not (symbol? 'arg))
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(arg-or arg (a1 a2 ...) ...)))
+	 (and (a1 a2 ...)
+	      (error "incorrect argument" arg 'arg '(a1 a2 ...)))
+	 ...))
+    ((arg-or caller arg (a1 a2 ...) ...)
+     (or (and (not (symbol? 'arg))
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(arg-or caller arg (a1 a2 ...) ...)))
+	 (and (a1 a2 ...)
+	      (if (string? caller)
+		  (error caller arg 'arg '(a1 a2 ...))
+		  (error "incorrect argument" arg 'arg '(a1 a2 ...) caller)))
+	 ...))))
+
+;; accessory macro for arg-ors
+(define-syntax caller-arg-or
+  (syntax-rules()
+    ((caller-arg-or caller arg (a1 a2 ...) ...)
+     (or (and (not (symbol? 'arg))
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(caller-arg-or caller arg (a1 a2 ...) ...)))
+	 (and (a1 a2 ...)
+	      (if (string? caller)
+		  (error caller arg 'arg '(a1 a2 ...))
+		  (error "incorrect argument" arg 'arg '(a1 a2 ...) caller)))
+	 ...))
+    ((caller-arg-or null caller arg (a1 a2 ...) ...)
+     (or (and (not (symbol? 'arg))
+	      (error "bad syntax" 'arg '(symbol? 'arg)
+		     '(caller-arg-or caller arg (a1 a2 ...) ...)))
+	 (and (a1 a2 ...)
+	      (if (string? caller)
+		  (error caller arg 'arg '(a1 a2 ...))
+		  (error "incorrect argument" arg 'arg '(a1 a2 ...) caller)))
+	 ...))))
+
+(define-syntax arg-ors
+  (syntax-rules (common)
+    ((arg-ors (a1 a2 ...) ...)
+     (or (arg-or a1 a2 ...) ...))
+    ((arg-ors common caller (a1 a2 ...) ...)
+     (or (caller-arg-or caller a1 a2 ...) ...))))
+
+(define-syntax err-and
+  (syntax-rules ()
+    ((err-and err expression ...)
+     (and (or expression
+	      (if (string? err)
+		  (error err 'expression)
+		  (error "false expression" 'expression err)))
+	  ...))))
+
+(define-syntax err-ands
+  (syntax-rules ()
+    ((err-ands (err expression ...)  ...)
+     (and (err-and err expression ...)
+	  ...))))
+
+(define-syntax err-or
+  (syntax-rules ()
+    ((err-or err expression ...)
+     (or (and expression
+	      (if (string? err)
+		  (error err 'expression)
+		  (error "true expression" 'expression err)))
+	 ...))))
+
+(define-syntax err-ors
+  (syntax-rules ()
+    ((err-ors (err expression ...) ...)
+     (or (err-or err expression ...)
+	 ...))))
+</pre>
+
+<H1>Copyright</H1>
+
+<p>Copyright (C) Joo ChurlSoo (2004). All Rights Reserved.</p>
+
+<p>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi minus editors at srfi dot schemers dot org">Mike Sperber</a></address>
+<!-- Created: Mon Feb  3 14:53:23 MET 2003 -->
+<!-- hhmts start -->
+Last modified: Sun Jan 28 13:40:36 MET 2007
+<!-- hhmts end -->
+  </body>
+</html>

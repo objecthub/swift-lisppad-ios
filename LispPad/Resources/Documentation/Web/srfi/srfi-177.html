@@ -1,0 +1,443 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>SRFI 177: Portable keyword arguments</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+
+  <H1><a name="lp-srfi-177">Title</a></H1>
+  Portable keyword arguments
+
+  <h1>Author</h1>
+  Lassi Kortela
+
+  <h1>Status</h1>
+
+  <p>This SRFI is currently in <em>draft</em> status. Here is
+  <a href="https://srfi.schemers.org/srfi-process.html">an
+  explanation</a> of each status that a SRFI can hold. To provide
+  input on this SRFI, please send email to <code><a href=
+  "mailto:srfi+minus+177+at+srfi+dotschemers+dot+org">srfi-177@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.
+  To subscribe to the list, follow <a href=
+  "https://srfi.schemers.org/srfi-list-subscribe.html">these
+  instructions</a>. You can access previous messages via the
+  mailing list <a href=
+  "https://srfi-email.schemers.org/srfi-177">archive</a>.</p>
+  <ul>
+    <li>Received: 2019/10/16</li>
+    <li>60-day deadline: 2019/12/15</li>
+    <li>Draft #1 published: 2019/10/16</li>
+  </ul>
+
+  <h1>Abstract</h1>
+  <p>Many Scheme implementations have keyword arguments, but they
+  have not been widely standardized. This SRFI defines the macros
+  <code>keyword-lambda</code> and <code>keyword-call</code>. They
+  can be used identically in every major implementation currently
+  in use, making it safe to use keyword arguments in portable code.
+  The macros expand to native keyword arguments in Schemes that
+  have them, letting programmers mix portable code and
+  implementation-specific code.</p>
+  <h1>Table of contents</h1>
+  <ul>
+    <li>
+      <a href="#_rationale">Rationale</a>
+      <ul>
+        <li>
+          <a href="#_why_keywords">Why keywords?</a>
+        </li>
+        <li>
+          <a href="#_standardization">Standardization</a>
+        </li>
+        <li>
+          <a href=
+          "#_scheme_implementations_with_native_keywords">Scheme
+          implementations with native keywords</a>
+        </li>
+        <li>
+          <a href="#_a_portable_approach">A portable approach</a>
+          <ul>
+            <li>
+              <a href="#_procedure_calls">Procedure calls</a>
+            </li>
+            <li>
+              <a href="#_procedure_definitions">Procedure
+              definitions</a>
+            </li>
+            <li>
+              <a href=
+              "#_emulating_keywords_in_schemes_that_don_t_have_them">
+              Emulating keywords in Schemes that don’t have
+              them</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#_specification">Specification</a>
+      <ul>
+        <li>
+          <a href="#_summary">Summary</a>
+        </li>
+        <li>
+          <a href="#_details">Details</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#_implementation">Implementation</a>
+    </li>
+    <li>
+      <a href="#_acknowledgements">Acknowledgements</a>
+    </li>
+    <li>
+      <a href="#_copyright">Copyright</a>
+    </li>
+  </ul>
+
+  <h1 id="_rationale">Rationale</h1>
+  <h2 id="_why_keywords">Why keywords?</h2>
+  <p>Keyword arguments are a very useful tool for managing
+  complexity as programs grow. They are a natural solution to the
+  "no, wait, this procedure still needs another argument" problem
+  which is almost guaranteed to pop up many times over the lifetime
+  of any non-trivial program. Humans simply cannot plan years ahead
+  at this level of detail, and adding keyword arguments as an
+  afterthought is less objectionable than accumulating long lists
+  of optional positional arguments or refactoring central APIs
+  every few years when third-party code depends on them.</p>
+  <p>While the same information can be passed using records,
+  keyword arguments are more convenient for simple jobs since a
+  separate record type does not have to be defined for each
+  procedure taking them. They are also less verbose at the call
+  site since an extra <code>make-foo-record</code> call is not
+  needed.</p>
+
+  <h2 id="_standardization">Standardization</h2>
+  <ul>
+    <li>
+      <p>Common Lisp (1994) has standard keyword arguments defined
+      with <code>(lambda (foo &amp;key bar) ...)</code> and
+      supplied with <code>:bar</code> syntax. This has influenced
+      some Scheme implementations.</p>
+    </li>
+    <li>
+      <p>DSSSL (1996) is R<sup>4</sup>RS with some extensions, one
+      of them being keyword arguments defined with <code>(lambda
+      (foo #!key bar) ...​)</code> and supplied with
+      <code>bar:</code> syntax.</p>
+    </li>
+    <li>
+      <p>SRFI 88: <em>Keyword objects</em> (2007) is implemented in
+      Gambit Scheme and based on the DSSSL keyword syntax.</p>
+    </li>
+    <li>
+      <p>SRFI 89: <em>Optional positional and named parameters</em>
+      (2007) specifies <code>define*</code> and
+      <code>lambda*</code>, which can handle positional, optional,
+      rest and keyword arguments. The result approaches the
+      capabilities of Common Lisp function definitions, but also
+      their complexity. Keywords use SRFI 88 syntax.</p>
+    </li>
+  </ul>
+
+  <h2 id="_scheme_implementations_with_native_keywords">Scheme
+  implementations with native keywords</h2>
+  <p>These syntaxes work with the default settings of each Scheme
+  at the time of writing. A couple of them optionally support an
+  alternative read syntax for keywords.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Implementation</th>
+        <th>Defining keword arguments</th>
+        <th>Supplying them</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Chicken</td>
+        <td><code>(lambda (foo #!key bar) ...)</code></td>
+        <td><code>bar:</code></td>
+      </tr>
+      <tr>
+        <td>Gambit</td>
+        <td><code>(lambda (foo #!key bar) ...)</code></td>
+        <td><code>bar:</code></td>
+      </tr>
+      <tr>
+        <td>Kawa</td>
+        <td><code>(lambda (foo #!key bar) ...)</code></td>
+        <td><code>bar:</code></td>
+      </tr>
+      <tr>
+        <td>Bigloo</td>
+        <td><code>(lambda (foo #!key bar) ...)</code></td>
+        <td><code>:bar</code></td>
+      </tr>
+      <tr>
+        <td>Gauche</td>
+        <td><code>(lambda (foo :key (bar #f)) ...)</code></td>
+        <td><code>:bar</code></td>
+      </tr>
+      <tr>
+        <td>Sagittarius</td>
+        <td><code>(lambda (foo :key (bar #f)) ...)</code></td>
+        <td><code>:bar</code></td>
+      </tr>
+      <tr>
+        <td>STklos</td>
+        <td><code>(lambda (foo :key (bar #f)) ...)</code></td>
+        <td><code>:bar</code></td>
+      </tr>
+      <tr>
+        <td>S7</td>
+        <td><code>(lambda* (foo (bar #f)) ...)</code></td>
+        <td><code>:bar</code></td>
+      </tr>
+      <tr>
+        <td>Guile</td>
+        <td><code>(lambda* (foo #:key bar) ...)</code></td>
+        <td><code>#:bar</code></td>
+      </tr>
+      <tr>
+        <td>Racket</td>
+        <td><code>(lambda (foo #:bar (bar #f)) ...)</code></td>
+        <td><code>#:bar</code></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <h2 id="_a_portable_approach">A portable approach</h2>
+  <h3 id="_procedure_calls">Procedure calls</h3>
+  <p>From the above table it is clear that there is no portable
+  syntax to supply keyword arguments in a procedure call. While all
+  of the implementations support the syntax <code>(proc arg1 arg2
+  #:key3 arg3 #:key4 arg4)</code> with the keys in any order, the
+  keyword prefix or suffix <code>#:</code> varies. On the other
+  hand the implementations all have a low-level macro system, as
+  well as procedures to turn symbols into keywords. Hence the
+  easiest portable approach is to provide a macro that lets the
+  caller use ordinary symbols instead of keywords for the read
+  syntax. The symbols are then converted into the implementation’s
+  native keyword syntax by the macro. The <code>keyword-call</code>
+  procedure in this SRFI implements this pattern.</p>
+
+  <h3 id="_procedure_definitions">Procedure definitions</h3>
+  <p>The next problem is how to define procedures that take keyword
+  arguments. Portable code cannot use any syntax that requires
+  keyword objects in the lambda list, since as noted above there is
+  no portable representation. Here too we need to use symbols in
+  place of keywords. For most of the implementations with native
+  keywords, we need to insert the constant <code>#!key</code> or
+  <code>#:key</code> into the lambda list. This turns out to be
+  trivially easy in all of them. For a few implementations, we need
+  to turn each keyword symbol <code>bar</code> into <code>(bar
+  #f)</code> to ensure that the default value is <code>#f</code>
+  instead of undefined. Finally, Racket requires an exotic syntax
+  <code>#:bar (bar #f)</code> where the keyword’s name appears
+  twice (once as a keyword and again as a symbol). This is easy to
+  code as well.</p>
+
+  <h3 id="_emulating_keywords_in_schemes_that_don_t_have_them">
+  Emulating keywords in Schemes that don’t have them</h3>
+  <p>For Schemes that don’t have keyword arguments, the best
+  approach is to use a rest argument as in <code>(lambda (arg1 arg2
+  . kvs) ...​)</code>. This argument takes a property list of
+  keywords and their values. As above, the keywords can be
+  represented by standard Scheme symbols.</p>
+  <p>Another approach would be to pass the keywords first:
+  <code>(lambda (kvs arg1 arg2) ...​)</code>. This is not ideal
+  since it’s really nice to be able to call a keyword procedure
+  just like an ordinary procedure when you don’t supply any keyword
+  arguments (i.e. they get default values). Using a rest argument
+  preserves this property; using one or more preceding arguments
+  does not. Using the rest argument for keywords implies that users
+  cannot have their own rest argument or optional positional
+  arguments. That's fine; the interplay of keywords with optional
+  and rest arguments is somewhat confusing to most people anyway.
+  And our keyword arguments are all optional, so a keyword argument
+  can be used for any purpose an optional or rest argument
+  might.</p>
+  <p>The keyword arguments could be passed in a vector. We cannot
+  do this because it’s not portable to use a vector as the rest
+  argument to a procedure; it has to be a list.</p>
+  <p>R<sup>5</sup>RS has the venerable
+  <strong>syntax-rules</strong> pattern-matching hygienic macro
+  system. It turns out to be powerful enough to implement keyword
+  arguments without too much effort or duct tape. Since
+  <strong>syntax-rules</strong> pattern matching is based mainly on
+  list structure and we don’t have any portable keyword syntax, we
+  have to rely solely on list structure to separate positional
+  arguments from keyword arguments. With the ubiquitous <em>tail
+  patterns</em> from SRFI 46 (<em>Basic syntax-rules
+  extensions</em>) we can check whether the last element of a list
+  is another list. Consequently we can achieve the syntax
+  <code>(keyword-lambda (pos1 pos2 (key3 key4)) ...​)</code> and
+  <code>(keyword-call pos1 pos2 (key3 key4))</code>. This is
+  reasonably simple and unambiguous.</p>
+
+  <h1 id="_specification">Specification</h1>
+
+  <h2 id="_summary">Summary</h2>
+  <p>This SRFI provides <strong>keyword-lambda</strong> and
+  <strong>keyword-call</strong> which are used as follows:</p>
+  <pre><code>(define foo
+  (keyword-lambda (a b (c d e))
+    (list a b c d e)))
+
+(foo 1 2)                             ; =&gt; (1 2 #f #f #f)
+(apply foo 1 2 '())                   ; =&gt; (1 2 #f #f #f)
+(keyword-call foo 1 2 ())             ; =&gt; (1 2 #f #f #f)
+(keyword-call foo 1 2 (d 4))          ; =&gt; (1 2 #f 4 #f)
+(keyword-call foo 1 2 (d 4 e 5))      ; =&gt; (1 2 #f 4 5)
+(keyword-call foo 1 2 (e 5 c 3 d 4))  ; =&gt; (1 2 3 4 5)</code></pre>
+
+  <h2 id="_details">Details</h2>
+  <p>Syntax (<strong>keyword-lambda</strong> (<em>formals...​</em>
+  (<em>keywords...​</em>)) <em>body...​</em>)</p>
+  <p>Like <strong>lambda</strong>, but makes a procedure that can
+  take keyword arguments in addition to positional arguments.</p>
+  <p><em>formals</em> are zero or more symbols naming positional
+  arguments. <em>keywords</em> are zero or more symbols naming
+  keyword arguments. All positional arguments need to be supplied
+  by the caller on every call. There is no way to define optional
+  positional arguments or a rest argument. By contrast, all keyword
+  arguments are optional. Every keyword argument takes on the
+  default value <code>#f</code> when no value is supplied by the
+  caller. There is no support for user-defined default values; this
+  simplifies the syntax of keyword lambdas and makes it easier to
+  write wrapper procedures for them since the wrapper can always
+  pass <code>#f</code> to any keyword argument it does not use.</p>
+  <p><em>body</em> is evaluated as if in the context
+  (<strong>lambda</strong> (...​) <em>body...​</em>) so anything
+  that can go at the beginning of a lambda can go at the beginning
+  of <em>body</em>. But the lambda around <em>body</em> may be
+  wrapped inside another lambda depending on the implementation.
+  Within <em>body</em>, all of the arguments in <em>formals</em>
+  and <em>keywords</em> can be accessed as variables using the
+  symbols given by the user.</p>
+  <p>The returned procedure <em>p</em> can be called in any way
+  that an ordinary procedure can, e.g. (<em>p</em>
+  <em>formals...​</em>) or (<strong>apply</strong> <em>p</em>
+  <em>formals</em>). If the number of arguments given to the
+  procedure is equal to the number of <em>formals</em>, all keyword
+  arguments take on the default value <code>#f</code>. Giving more
+  arguments than that results in undefined behavior. To supply a
+  value for one or more keyword arguments in a well-defined and
+  portable way, call <em>p</em> via (<strong>keyword-call</strong>
+  <em>p</em> <em>formals</em> ...​ (<em>keyword1</em>
+  <em>value1</em> ...​)). There may be additional
+  implementation-defined ways to call <em>p</em>.</p>
+  <p>Syntax (<strong>keyword-call</strong> <em>kw-lambda</em>
+  <em>args</em>...​ (<em>kw-args</em>...​))</p>
+  <p>This macro expands to a call to <em>kw-lambda</em> with zero
+  or more positional arguments <em>args</em> and zero or more
+  keyword arguments <em>kw-args</em>. It is an error to pass a
+  different number of <em>args</em> than the number of positional
+  arguments expected by <em>kw-lambda</em>.</p>
+  <p>Keyword arguments may be passed in any combination, and in any
+  order. It is valid to supply no <em>kw-args</em> at all. It is an
+  error to have duplicate keywords in <em>kw-args</em>. As with
+  ordinary procedure calls in Scheme, nothing is guaranteed about
+  the evaluation order of <em>args</em> and <em>kw-args</em>. For a
+  guaranteed evaluation order, bind arguments with
+  <strong>let</strong>* before passing them in.</p>
+  <p>Each keyword argument in <em>kw-args</em> is written as two
+  forms: <em>keyword</em> <em>value</em>. Each <em>keyword</em> is
+  written as a standard Scheme symbol and is implicitly quoted
+  (i.e. it has to be a symbol at read time; cannot be some other
+  expression that evaluates to a symbol). The symbols are
+  internally converted to native keywords in implementations that
+  have them.</p>
+
+  <h1 id="_implementation">Implementation</h1>
+  <p>The sample implementation covers the following Scheme
+  implementations that each have their own kind of native
+  keywords:</p>
+  <ul>
+    <li>Bigloo</li>
+    <li>Chicken</li>
+    <li>Gambit</li>
+    <li>Gauche</li>
+    <li>Guile</li>
+    <li>Kawa</li>
+    <li>Racket</li>
+    <li>S7</li>
+    <li>Sagittarius</li>
+    <li>STklos</li>
+  </ul>
+  <p>There is also a generic R<sup>5</sup>RS implementation
+  (relying on SRFI 46 tail patterns). This is used as the basis of
+  generic R<sup>6</sup>RS and R<sup>7</sup>RS implementations for
+  Schemes that don’t have native keywords.</p>
+  <p>The generic R<sup>6</sup>RS implementation works on the
+  following Schemes:</p>
+  <ul>
+    <li>Chez Scheme</li>
+    <li>Ikarus</li>
+    <li>IronScheme</li>
+    <li>Larceny</li>
+    <li>Loko Scheme</li>
+    <li>Mosh</li>
+    <li>Vicare</li>
+    <li>Ypsilon</li>
+  </ul>
+  <p>The generic R<sup>7</sup>RS implementation works on the
+  following Schemes:</p>
+  <ul>
+    <li>Chibi-Scheme</li>
+    <li>Larceny</li>
+  </ul>
+
+  <h1 id="_acknowledgements">Acknowledgements</h1>
+  <p>Thanks to many Scheme implementors and standardization people
+  on the <em>srfi-discuss</em> mailing list for partaking in a big
+  discussion about keyword unification in July 2019. Although the
+  problem of unifying keyword syntax and semantics proved too
+  complex to solve in the near future, the discussion spurred this
+  SRFI to solve the most urgent problem of letting people write
+  portable code.</p>
+  <p>Special thanks to Robert Strandh, author of the SICL Common
+  Lisp implementation, for taking the time to explain compiler
+  optimization of keyword argument passing to us Schemers.</p>
+  <p>Thanks to John Cowan and Shiro Kawai for surveys of the native
+  keyword syntax and semantics of different Scheme
+  implementations.</p>
+  <p>Thanks to Göran Weinholt for collaborating on Docker
+  containers that make it easy to work with exotic Scheme
+  implementations.</p>
+
+  <h1 id="_copyright">Copyright</h1>
+  <p>Copyright © Lassi Kortela (2019)</p>
+  <p>Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:</p>
+  <p>The above copyright notice and this permission notice
+  (including the next paragraph) shall be included in all copies or
+  substantial portions of the Software.</p>
+  <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.</p>
+  <hr>
+  <address>
+    Editor: <a href=
+    "mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A.
+    Gleckler</a>
+  </address>
+</body>
+</html>

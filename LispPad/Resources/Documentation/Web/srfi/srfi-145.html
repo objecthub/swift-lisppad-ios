@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 145: Assumptions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-145">Title</a></H1>
+
+Assumptions
+
+<h1>Author</h1>
+
+Marc Nieper-Wi&szlig;kirchen
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="http://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+145+at+srfi+dotschemers+dot+org">srfi-145@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="http://srfi-email.schemers.org/srfi-145">archive</a>.</p>
+<ul>
+  <li>Received: 2016/12/17</li>
+  <li>60-day deadline: 2017/2/16</li>
+  <li>Draft #1 published: 2016/12/18</li>
+  <li>Draft #2 published: 2016/12/20</li>
+  <li>Draft #3 published: 2016/12/31</li>
+  <li>Draft #4 published: 2017/1/8</li>
+  <li>Finalized: 2017/3/31</li>
+  <li>Revised to fix errata:
+    <ul>
+      <li>2017/4/3 (Fixed example.)</li></ul></li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+A means to denote the invalidity of certain code paths in a Scheme
+program is proposed.  It allows Scheme code to turn the evaluation
+into a user-defined error that need not be signalled by the
+implementation.  Optimizing compilers may use these denotations to
+produce better code and to issue better warnings about dead code.
+</p>
+
+<h1>Issues</h1>
+
+<p>There are currently no issues.</p>
+
+<h1>Rationale</h1>
+
+<p>
+The R7RS requires some operations to signal an error when they fail.
+Signalling an error means, among other things, that a non-continuable
+exception is raised.  Such exceptions can be handled by exception
+handlers; in particular, signalling an error is observable behaviour in a Scheme program.
+</p>
+
+<p>
+In all other error situations, implementations &mdash; while not
+required &mdash; are encouraged to detect and report the error, but
+they do not have to signal the error as if <code>raise</code> was
+invoked.
+</p>
+
+<p>
+The <code>error</code> procedure of the R7RS gives a Scheme program a
+means to signal user-defined errors.  However, there is no canonical
+way to turn the evaluation of a piece of Scheme code into a
+user-defined error that is not signalled.  Consider the following definition:
+</p>
+
+<pre>
+(define (f x)
+  (unless (exact-integer? x)
+    (error "f: argument is not an integer" x))
+  (g (* x x)))
+</pre>
+
+<p>
+It is the intention to express that invoking the
+procedure <code>f</code> with any argument but an exact integer is an
+error.  However it is (usually) not important that such an error
+situation can be handled by an exception handler (in the Java
+programming language, one would probably use an <em>unchecked
+exception</em>).  So the above program is over-specifying.  While an
+optimizing compiler on which the definition is evaluated may assume
+that <code>x</code> is an exact integer after the first expression in
+the procedure body (and thus may emit specialised monomorphic code afterwards),
+it must not eliminate the first expression in the procedure body
+because calling <code>f</code> with a non-exact-integer argument has
+different observable behaviour than calling just <code>(g (* x
+x))</code>.
+</p>
+
+<p>Given that <code>f</code> is called a lot in the code and that
+performance is important, the programmer may thus decide that it is
+better to comment out the test at the beginning of the procedure body
+in non-debug situations:
+</p>
+
+<pre>
+(define (f x)
+  (cond-expand
+    (debug
+     (unless (exact-integer? x)
+       (error "f: argument is not an integer" x)))
+    (else #f))
+  (g (* x x)))
+</pre>
+
+<p>
+However, this code (when the feature identifier <code>debug</code> is
+not defined) may even be less performant than the first solution: An
+optimizing implementation now has no way (in case <code>g</code> is
+not well-known) to detect that <code>x</code> is always supposed to be
+an exact integer in the code path of the procedure body.  So the
+compiler has to emit slow, polymorphic code that works on either
+number type.
+</p>
+
+<p>
+To remedy these problems, this SRFI specifies a way to denote error
+situations that are not supposed to be recoverable and which is
+helpful for debugging and for the control and data flow analysis of
+optimizing compilers.  For implementations conforming to this SRFI,
+the procedure <code>f</code> can be rewritten as follows:
+</p>
+
+<pre>
+(define (f x)
+  (assume (exact-integer? x) "f takes integer arguments" x)
+  (g (* x x)))
+</pre>
+
+<p>
+  An optimizing compiler may deduce that <code>x</code> is an exact
+  integer after the first expression in the procedure body so may emit
+  specialised monomorphic code.  However, in non-debug mode, an
+  optimizing compiler may also remove the whole test at the beginning
+  of the procedure body because the test has only one branch that does
+  not lead into an error situation.
+</p>
+
+<p>Another interesting use case is the following, which employs an
+assumption that would fail unconditionally:
+</p>
+
+<pre>
+ (define (foo x a b)
+   (case x
+    ((plus) (+ a b))
+    ((minus) (- a b))
+    (else (assume #f "valid operators are plus/minus" x))))
+</pre>
+
+<p>
+This definition allows a compiler to treat <code>(foo 'times 3 5)</code> as a compile-time error.
+</p>
+
+<p>
+  One should note that error situations in which implementations are
+  not required to signal an error (and the R7RS is full of those and
+  this specification adds user defined version on top of that) are
+  analogous to what is called <em>undefined behaviour</em>, for
+  example, in the C programming language, including its boon and bane.
+  In order to reduce a potential source of software bugs, an
+  optimizing compiler that makes use of code elimination through
+  undefined behaviour should warn the user about dead or meaningless
+  code:
+</p>
+
+<pre>
+(define (f x)
+  (unless (exact-integer? x)
+    (frob x)
+    (assume #f))
+  (when (inexact? x)
+    (twiddle x))
+  (g (* x x)))
+</pre>
+
+<p>
+Assuming the compiler can prove that <code>(frob x)</code> returns, it
+is encouraged issue a warning that the evaluation of <code>frob</code>
+is meaningless because the code path in which it appears is invalid.
+Likewise, the compiler is encouraged to
+issue a warning that <code>(twiddle x)</code> is likewise dead code,
+never evaluated.
+</p>
+
+<p><i>Note: A program that, for some input, would eventually evaluate
+<code>(assume #f)</code> is invalid and execution of it is an error
+itself, so anything may happen.  In particular <code>frob</code> may never be
+called in the above example.  An optimizing compiler may assume that a program presented to it is
+valid, so it may assume that the branch including the call to frob is
+never taken. Thus any expression in this path is simply superfluous.</i></p>
+
+<h1>Specification</h1>
+
+<h2>Syntax</h2>
+
+<p>
+  <code>(assume <em>obj</em> <em>message</em> ...)</code>
+</p>
+
+<p>
+  This special form is an expression that evaluates to the value
+  of <em>obj</em> if <em>obj</em> evaluates to a true value.  It
+  is an error if <em>obj</em> evaluates to a false value.  In this case,
+  implementations are encouraged to report this error together with
+  the <code><em>message</em></code>s to the user, at least when the
+  implementation is in debug or non-optimizing mode.  In case of
+  reporting the error, an implementation is also encouraged to report
+  the source location of the source of the error.
+</p>
+
+<h1>Implementation</h1>
+
+<p>
+A simple implementation for R7RS can be given as follows:
+</p>
+
+<pre>
+(define-library (srfi 145)
+  (export assume)
+  (import (scheme base))
+  (begin
+    (define-syntax assume
+      (syntax-rules ()
+        ((assume expression message ...)
+         (unless expression
+           (fatal-error "invalid assumption" (quote expression) (list message ...))))
+        ((assume . _)
+         (syntax-error "invalid assume syntax"))))
+  (cond-expand
+    (debug
+     (begin
+       (define fatal-error error)))
+    (else
+     (begin
+       (define (fatal-error message . objs)
+         (car 0)))))))
+</pre>
+
+<p>
+This sample implementation meets all the requirements.  If the feature
+identifier <code>debug</code> is set, <code>assume</code> uses
+<code>error</code> to signal an invalid assumption.  If the feature
+identifier <code>debug</code> is not set,
+invoking <code>assume</code> with a false argument causes a subsequent error
+when <code>(car 0)</code> is evaluated, thus rendering the whole code
+path leading to the invocation of that <code>assume</code> invalid.
+</p>
+
+<p>
+One should note that there is also a trivial R7RS implementation for
+the specification given in this SRFI, namely:
+</p>
+
+<pre>
+(define-library (srfi 145)
+  (export assume)
+  (import (scheme base))
+  (begin
+    (define-syntax assume
+      (syntax-rules ()
+        ((assume obj . _) obj)))))
+</pre>
+
+<p>The reason why this is a faithful implementation is that
+whenever <code>(assume #f)</code> is invoked, it is an error anyway,
+so that implementations are allowed to fail catastrophically (in the
+words of the R7RS), including that they simply return <code>#f</code>.
+
+<h1>Acknowledgements</h1>
+
+<p>
+I would like to thank all the persons who have been involved in discussing
+the topic of this SRFI and helping to bring it in final shape, in
+particular John Cowan and Jim Rees.
+</p>
+
+<h1>Copyright</h1>
+Copyright (C) Marc Nieper-Wi&szlig;kirchen (2016).  All Rights Reserved. 
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>

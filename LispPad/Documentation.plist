@@ -97,5 +97,168 @@
 		<key>lispkit debug</key>
 		<string>(lispkit debug).md</string>
 	</dict>
+	<key>web</key>
+	<dict>
+		<key>srfi 1</key>
+		<string>srfi/srfi-1.html</string>
+		<key>srfi 2</key>
+		<string>srfi/srfi-2.html</string>
+		<key>srfi 6</key>
+		<string>srfi/srfi-6.html</string>
+		<key>srfi 8</key>
+		<string>srfi/srfi-8.html</string>
+		<key>srfi 9</key>
+		<string>srfi/srfi-9.html</string>
+		<key>srfi 11</key>
+		<string>srfi/srfi-11.html</string>
+		<key>srfi 14</key>
+		<string>srfi/srfi-14.html</string>
+		<key>srfi 16</key>
+		<string>srfi/srfi-16.html</string>
+		<key>srfi 17</key>
+		<string>srfi/srfi-17.html</string>
+		<key>srfi 19</key>
+		<string>srfi/srfi-19.html</string>
+		<key>srfi 23</key>
+		<string>srfi/srfi-23.html</string>
+		<key>srfi 26</key>
+		<string>srfi/srfi-26.html</string>
+		<key>srfi 27</key>
+		<string>srfi/srfi-27.html</string>
+		<key>srfi 28</key>
+		<string>srfi/srfi-28.html</string>
+		<key>srfi 31</key>
+		<string>srfi/srfi-31.html</string>
+		<key>srfi 33</key>
+		<string>srfi/srfi-33.html</string>
+		<key>srfi 34</key>
+		<string>srfi/srfi-34.html</string>
+		<key>srfi 35</key>
+		<string>srfi/srfi-35.html</string>
+		<key>srfi 39</key>
+		<string>srfi/srfi-39.html</string>
+		<key>srfi 41</key>
+		<string>srfi/srfi-41.html</string>
+		<key>srfi 46</key>
+		<string>srfi/srfi-46.html</string>
+		<key>srfi 48</key>
+		<string>srfi/srfi-48.html</string>
+		<key>srfi 51</key>
+		<string>srfi/srfi-51.html</string>
+		<key>srfi 54</key>
+		<string>srfi/srfi-54.html</string>
+		<key>srfi 55</key>
+		<string>srfi/srfi-55.html</string>
+		<key>srfi 63</key>
+		<string>srfi/srfi-63.html</string>
+		<key>srfi 64</key>
+		<string>srfi/srfi-64.html</string>
+		<key>srfi 69</key>
+		<string>srfi/srfi-69.html</string>
+		<key>srfi 87</key>
+		<string>srfi/srfi-87.html</string>
+		<key>srfi 95</key>
+		<string>srfi/srfi-95.html</string>
+		<key>srfi 98</key>
+		<string>srfi/srfi-98.html</string>
+		<key>srfi 101</key>
+		<string>srfi/srfi-101.html</string>
+		<key>srfi 102</key>
+		<string>srfi/srfi-102.html</string>
+		<key>srfi 111</key>
+		<string>srfi/srfi-111.html</string>
+		<key>srfi 112</key>
+		<string>srfi/srfi-112.html</string>
+		<key>srfi 113</key>
+		<string>srfi/srfi-113.html</string>
+		<key>srfi 121</key>
+		<string>srfi/srfi-121.html</string>
+		<key>srfi 125</key>
+		<string>srfi/srfi-125.html</string>
+		<key>srfi 128</key>
+		<string>srfi/srfi-128.html</string>
+		<key>srfi 129</key>
+		<string>srfi/srfi-129.html</string>
+		<key>srfi 132</key>
+		<string>srfi/srfi-132.html</string>
+		<key>srfi 133</key>
+		<string>srfi/srfi-133.html</string>
+		<key>srfi 134</key>
+		<string>srfi/srfi-134.html</string>
+		<key>srfi 135</key>
+		<string>srfi/srfi-135.html</string>
+		<key>srfi 137</key>
+		<string>srfi/srfi-137.html</string>
+		<key>srfi 142</key>
+		<string>srfi/srfi-142.html</string>
+		<key>srfi 143</key>
+		<string>srfi/srfi-143.html</string>
+		<key>srfi 145</key>
+		<string>srfi/srfi-145.html</string>
+		<key>srfi 146</key>
+		<string>srfi/srfi-146.html</string>
+		<key>srfi 151</key>
+		<string>srfi/srfi-151.html</string>
+		<key>srfi 152</key>
+		<string>srfi/srfi-152.html</string>
+		<key>srfi 154</key>
+		<string>srfi/srfi-154.html</string>
+		<key>srfi 155</key>
+		<string>srfi/srfi-155.html</string>
+		<key>srfi 158</key>
+		<string>srfi/srfi-158.html</string>
+		<key>srfi 161</key>
+		<string>srfi/srfi-161.html</string>
+		<key>srfi 162</key>
+		<string>srfi/srfi-162.html</string>
+		<key>srfi 165</key>
+		<string>srfi/srfi-165.html</string>
+		<key>srfi 167</key>
+		<string>srfi/srfi-167.html</string>
+		<key>srfi 173</key>
+		<string>srfi/srfi-173.html</string>
+		<key>srfi 174</key>
+		<string>srfi/srfi-174.html</string>
+		<key>srfi 175</key>
+		<string>srfi/srfi-175.html</string>
+		<key>srfi 177</key>
+		<string>srfi/srfi-177.html</string>
+		<key>srfi 180</key>
+		<string>srfi/srfi-180.html</string>
+		<key>srfi 189</key>
+		<string>srfi/srfi-189.html</string>
+		<key>srfi 194</key>
+		<string>srfi/srfi-194.html</string>
+		<key>srfi 195</key>
+		<string>srfi/srfi-195.html</string>
+		<key>srfi 196</key>
+		<string>srfi/srfi-196.html</string>
+		<key>srfi 204</key>
+		<string>srfi/srfi-204.html</string>
+		<key>srfi 209</key>
+		<string>srfi/srfi-209.html</string>
+		<key>srfi 210</key>
+		<string>srfi/srfi-210.html</string>
+		<key>srfi 214</key>
+		<string>srfi/srfi-214.html</string>
+		<key>srfi 215</key>
+		<string>srfi/srfi-215.html</string>
+		<key>srfi 216</key>
+		<string>srfi/srfi-216.html</string>
+		<key>srfi 217</key>
+		<string>srfi/srfi-217.html</string>
+		<key>srfi 219</key>
+		<string>srfi/srfi-219.html</string>
+		<key>srfi 221</key>
+		<string>srfi/srfi-221.html</string>
+		<key>srfi 222</key>
+		<string>srfi/srfi-222.html</string>
+		<key>srfi 223</key>
+		<string>srfi/srfi-223.html</string>
+		<key>srfi 224</key>
+		<string>srfi/srfi-224.html</string>
+		<key>srfi sicp</key>
+		<string>srfi/srfi-216.html</string>
+	</dict>
 </dict>
 </plist>

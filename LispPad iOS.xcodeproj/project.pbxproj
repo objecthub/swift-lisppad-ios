@@ -118,6 +118,8 @@
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
 		CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134C272B3AEA0046F474 /* LogFilterView.swift */; };
+		CCBE134F272DE1450046F474 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134E272DE1450046F474 /* WebView.swift */; };
+		CCBE1354272E10210046F474 /* srfi in Copy Documentation/Web/srfi */ = {isa = PBXBuildFile; fileRef = CCBE1351272E0F410046F474 /* srfi */; };
 		CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */; };
@@ -302,6 +304,17 @@
 			name = "Copy Root/Examples";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCBE1353272E0FF30046F474 /* Copy Documentation/Web/srfi */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Documentation/Web;
+			dstSubfolderSpec = 7;
+			files = (
+				CCBE1354272E10210046F474 /* srfi in Copy Documentation/Web/srfi */,
+			);
+			name = "Copy Documentation/Web/srfi";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCC8564B261995030080B96E /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -445,6 +458,8 @@
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
 		CCBE134C272B3AEA0046F474 /* LogFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFilterView.swift; sourceTree = "<group>"; };
+		CCBE134E272DE1450046F474 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		CCBE1351272E0F410046F474 /* srfi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = srfi; sourceTree = "<group>"; };
 		CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CCBF9E6926C890B400654D60 /* (lisppad location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad location).md"; sourceTree = "<group>"; };
 		CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBySideViewController.swift; sourceTree = "<group>"; };
@@ -637,6 +652,7 @@
 			children = (
 				CCE8E4252621A38C00E3DC6A /* Documents */,
 				CC8B952126079F2400830B4F /* Libraries */,
+				CCBE1350272E0E770046F474 /* Web */,
 			);
 			path = Documentation;
 			sourceTree = "<group>";
@@ -775,6 +791,14 @@
 			path = Audio;
 			sourceTree = "<group>";
 		};
+		CCBE1350272E0E770046F474 /* Web */ = {
+			isa = PBXGroup;
+			children = (
+				CCBE1351272E0F410046F474 /* srfi */,
+			);
+			path = Web;
+			sourceTree = "<group>";
+		};
 		CCC85639261677560080B96E /* Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -824,6 +848,7 @@
 				CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */,
 				CC302E5A2700828600835745 /* SlideOverCard.swift */,
 				CC6598DD272628A7004C9B89 /* CustomPopOver.swift */,
+				CCBE134E272DE1450046F474 /* WebView.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -911,6 +936,7 @@
 				CC84C24425FE59EE00758581 /* Resources */,
 				CCE8E4272621A48D00E3DC6A /* Copy Documentation/Documents */,
 				CC8B957E2607B44200830B4F /* Copy Documentation/Libraries */,
+				CCBE1353272E0FF30046F474 /* Copy Documentation/Web/srfi */,
 				CC8B95B02607FC7F00830B4F /* Copy Root */,
 				CC8B95CC2608111200830B4F /* Copy Root/Examples */,
 				CC8B95BF26080EF400830B4F /* Copy Root/Assets/Audio */,
@@ -1032,6 +1058,7 @@
 				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
 				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
+				CCBE134F272DE1450046F474 /* WebView.swift in Sources */,
 				CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */,
 				CCEA5A0D263977C400D78C62 /* Move.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,

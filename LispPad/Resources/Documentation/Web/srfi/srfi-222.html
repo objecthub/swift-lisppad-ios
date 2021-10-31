@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 222: Compound Objects</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+    <H2><a name="lp-srfi-222">Title</a></H2>
+        Compound Objects
+
+        <h2>Author</h2>
+        <p>John Cowan (text), Arvydas Silanskas (implementation)</p>
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+222+at+srfi+dotschemers+dot+org">srfi-222@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-222">archive</a>.</p>
+<ul>
+  <li>Received: 2021-05-01</li>
+  <li>Draft #1 published: 2021-03-05</li>
+  <li>Draft #2 published: 2021-07-11</li>
+  <li>Finalized: 2021-07-20</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>Compound objects are analogous to R6RS compound conditions,
+and are suitable for use in creating and handling conditions
+on non-R6RS systems, among other purposes.
+They encapsulate an immutable sequence of subobjects, which can be
+any object except another compound object.
+It is possible to implement R6RS compound conditions on top of
+compound objects, but not vice versa.
+Note that this SRFI does not provide any analogue to R6RS
+<i>simple</i> conditions, which are just records.
+
+<h2 id="rationale">Rationale</h2>
+<p>Compound objects serve as a kind of poor man's multiple inheritance
+without the usual complications of multiple inheritance.
+A compound object can
+be used to represent multiple otherwise unrelated aspects of a value
+or situation.
+Because they are sequences, they can be used to
+represent priorities of interpretation from higher to lower.  Most
+of the operations described
+in this section treat a non-compound object identically to a compound
+object with the simple object as its sole component.</p>
+
+
+<h2 id="specification">Specification</h2>
+<blockquote><pre>
+;; The following definitions are referenced in later examples
+
+(define-record-type &lt;student&gt;
+  (student admission-year gpa)
+  student?
+  (admission-year admission-year)
+  (gpa gpa))       ; grade-point average
+
+(define-record-type &lt;teacher&gt;
+  (teacher hire-year salary)
+  teacher?
+  (hire-year hired)     ; integer year
+  (salary salary))  ; annualized
+
+(define alyssa (student 1986 4.0))
+
+(define guy (teacher 1981 25000))
+</pre></blockquote>
+
+<h3>Procedures</h3>
+<p><code>(make-compound </code> <em>obj</em> ...<code>)</code></p>
+<p>Create a compound object
+containing the objects in <em>obj...</em> in the specified order.
+If any object in <em>obj...</em> is itself a compound object,
+it is flattened into its subobjects,
+which are then added to the compound object in sequence.
+[R6RS analogue: <code>condition</code>]
+<blockquote><pre>
+;; These definitions are referenced in later examples
+
+(define george
+  (make-compound
+    'teaching-assistant
+    (student 1979 3.8)
+    (teacher 1983 1000)))
+
+(define (teaching-assistant? obj)
+  (eq? obj 'teaching-assistant))
+
+</pre></blockquote>
+<p><code>(compound? </code><em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>obj</em> is a compound object, and <code>#f</code> otherwise.
+[R6RS analogue: <code>condition?</code>]
+<blockquote><pre>(compound? alyssa) =&gt; #f
+(compound? george) =&gt; #t
+</pre></blockquote>
+<p><code>(compound-subobjects </code><em>obj</em><code>)</code></p>
+<p>If <em>obj</em> is a compound object, returns a list of its subobjects;
+otherwise, returns a list containing only <em>obj</em>.
+[R6RS analogue: <code>simple-conditions</code>]
+<blockquote><pre>(compound-subobjects alyssa) =&gt; (#&lt;student&gt;)
+(compound-subobjects george) =&gt; (teaching-assistant #&lt;student&gt; #&lt;teacher&gt;)
+</pre></blockquote>
+<p><code>(compound-length </code><em>obj</em><code>)</code></p>
+<p>If <em>obj</em> is a compound object, returns the number of its subobjects as an exact
+integer.  Otherwise, it returns 1.</p>
+<blockquote><pre>(compound-length alyssa) =&gt; 1
+(compound-length george) =&gt; 3
+</pre></blockquote>
+<p><code>(compound-ref </code><em>obj k</em><code>)</code></p>
+<p>If <em>obj</em> is a compound object, returns the <em>k</em>th subobject.
+Otherwise, <em>obj</em> is returned.
+In either case, it is an error if <em>k</em> is less than
+zero, or greater than or equal to <code>(compound-length </code><em>obj</em><code>)</code>.</p>
+<blockquote><pre>(compound-ref alyssa 0) =&gt; #&lt;student&gt;
+(compound-ref george 2) =&gt; #&lt;teacher&gt;
+</pre></blockquote>
+<p><code>(compound-map </code><em>mapper obj</em><code>)</code></p>
+<p>If <em>obj</em> is a compound object, returns a compound object
+whose subobjects result from invoking <em>mapper</em> on each subobject of <em>obj</em>.
+Although the subobjects of the result are in the same order as the subobjects of <em>obj</em>,
+the order in which <em>mapper</em> is applied to them is unspecified.
+If any resulting subobject is itself a compound object, it is flattened into its subobjects,
+which are then added to the result in sequence.</p>
+<p>If <em>obj</em> is not a compound object, returns a compound object
+whose only subobject is the result of applying <em>mapper</em> to <em>obj</em>.</p>
+<blockquote><pre>(compound-map - (compound 1 2 3 4 5)) =&gt; #&lt;compound: -1 -2 -3 -4 -5&gt;
+</pre></blockquote>
+<p><code>(compound-map-&gt;list </code><em>mapper obj</em><code>)</code></p>
+<p>If <em>obj</em> is a compound object, returns a list
+whose elements result from invoking <em>mapper</em> on each subobject of <em>obj</em>.
+Although the elements of the result are in the same order as the subobjects of <em>obj</em>,
+the order in which <em>mapper</em> is applied to them is unspecified.</p>
+<p>If <em>obj</em> is not a compound object, returns a list
+whose only element is the result of applying <em>mapper</em> to <em>obj</em>.</p>
+<blockquote><pre>(compound-map-&gt;list - (compound 1 2 3 4 5)) =&gt; (-1 -2 -3 -4 -5)
+</pre></blockquote>
+<p><code>(compound-filter </code><em>pred</em> <em>obj</em><code>)</code></p>
+<p>Returns a compound object
+It contains the subobjects of <em>obj</em> that satisfy <em>pred</em>.</p>
+<p>If <em>obj</em> is not a compound object, it returns a compound object.
+If <em>obj</em> satisfies <em>pred</em>, the only subobject of the result is <em>obj</em>.
+If <em>obj</em> does not satisfy <em>pred</em>, the result has no subobjects.</p>
+<blockquote><pre>(compound-filter teacher? alyssa) =&gt; #&lt;compound&gt;
+(compound-filter teacher? george) =&gt;
+  #&lt;compound: #&lt;teacher&gt;&gt;
+</pre></blockquote>
+<p><code>(compound-predicate </code><em>pred obj</em><code>)</code></p>
+<p>If <em>obj</em> satisfies <em>pred</em>,
+or is a compound object and
+at least one of its subobjects satisfies <em>pred</em>,
+then returns <code>#t</code>; otherwise returns <code>#f</code>.
+[R6RS analogue: <code>condition-predicate</code>]
+<blockquote><pre>
+(compound-predicate student? alyssa) =&gt; #t
+(compound-predicate student? george) =&gt; #t
+(compound-predicate teacher? george) =&gt; #t
+(compound-predicate teacher? guy) =&gt; #t
+(compound-predicate teaching-assistant? alyssa) =&gt; #f
+(compound-predicate teaching-assistant? guy) =&gt; #f
+(compound-predicate teaching-assistant? george) =&gt; #t
+</pre></blockquote>
+<p><code>(compound-access </code><em>predicate accessor default obj</em><code>)</code></p>
+<p>If <em>obj</em> satisfies <em>obj</em>, <em>accessor</em> is applied to
+<em>obj</em> and the result is returned.
+Otherwise, if <em>obj</em> is a compound object, <em>accessor</em> is applied to
+the first subobject that satisfies <em>obj</em>, and the result is returned.
+Otherwise, <em>default</em> is returned.
+[R6RS analogue: <code>condition-accessor</code>]
+<blockquote><pre>
+(define (uni-member-hire-year obj)
+  (compound-access teacher? hire-year #f obj))
+
+(uni-member-hire-year alyssa) =&gt; #f
+(uni-member-hire-year guy) =&gt; 1981
+(uni-member-hire-year george) =&gt; 1983
+(uni-member-hire-year (make-compound '(27 42 98) 'fire!)) =&gt; #f
+</pre></blockquote>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation is available in the <a href="https://github.com/scheme-requests-for-implementation/srfi-222">GitHub repository</a>.</p>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>Thanks to the participants on the mailing list.</p>
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2021 John Cowan, Arvydas Silanskas.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+
+

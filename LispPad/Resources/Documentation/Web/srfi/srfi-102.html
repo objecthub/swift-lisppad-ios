@@ -1,0 +1,583 @@
+<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- !DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html40/loose.dtd" -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>SRFI 102: Procedure Arity Inspection</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/srfi.css" type="text/css" />
+<style type="text/css">
+body { 
+   width: 7in;
+   margin: 30pt;
+}
+.proto {
+   font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+  <H1><a name="lp-srfi-102">Title</a></H1>
+
+  <p>Procedure Arity Inspection</p>
+
+  <h1>Author</h1>
+
+  <p>David Van Horn</p>
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>withdrawn</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+102+at+srfi+dotschemers+dot+org">srfi-102@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-102">archive</a>.</p>
+<ul>
+<li>Received: <a href="https://srfi.schemers.org/srfi-102/srfi-102-1.1.html">2009-09-13</a></li>
+<li>Draft: 2009-09-21--2009-11-21</li>
+<li>Withdrawn: 2013-02-24</li>
+</ul>
+
+<h1>Table of contents</h1>
+
+<ul>
+  <li><a href="#Abstract">Abstract</a></li>
+  <li><a href="#Issues">Issues</a></li>
+  <li><a href="#Rationale">Rationale</a></li>
+  <li><a href="#Specification">Specification</a></li>
+  <li><a href="#ReferenceImplementation">Reference Implementation</a></li>
+  <li><a href="#References">References</a></li>
+  <li><a href="#Acknowledgements">Acknowledgements</a></li>
+  <li><a href="#Copyright">Copyright</a></li>
+</ul>
+
+
+
+<h1><a name="Abstract">Abstract</a></h1>
+
+<p>
+Many Scheme systems provide mechanisms for inspecting the arity of a
+procedural value, making it a common feature, however there is no
+standard interface.  As a result there is no portable way to observe
+the arity of a procedure <em>without actually applying it</em>.  This
+SRFI proposes a simple interface that is consistent with existing
+Scheme systems' facilities and prior proposals.
+</p>
+
+<h1><a name="Issues">Issues</a></h1>
+
+<div>
+<ul>
+  <li>
+    Should arity normalization be specified?  I.e., there are an
+    infinite number of ways to represent the same arity information for
+    any given procedure (except for a procedure that accepts no arguments,
+    which has a unique representation).  Should some notion of arity
+    normal forms be defined?
+  </li>
+  <li>
+    Should keywords be considered in this SRFI?
+  </li>
+</ul>
+</div>
+
+<h1><a name="Rationale">Rationale</a></h1>
+
+<p>
+This proposal identifies a common, core set of operations that make it
+possible to inspect the arity of procedures and determine if a given
+procedure accepts a given number of arguments.  These operations are
+already supported in several Scheme systems and it should be easy to
+add support in many more systems.
+</p>
+
+<p>
+In preparing this proposal, the facilities available in Chez
+[<a href="#note-1">1</a>], Gauche [<a href="#note-2">2</a>],
+IronScheme [<a href="#note-3">3</a>], Larceny
+[<a href="#note-4">4</a>], MIT/GNU Scheme [<a href="#note-5">5</a>],
+PLT Scheme [<a href="#note-6">6</a>], and s7 [<a href="#note-7">7</a>]
+were reviewed.  Also relevant is William D Clinger's 1996 straw
+proposal sent to the RnRS Authors mailing list
+[<a href="#note-8">8</a>].  Although there is some overlap among these
+systems, there are also many differences, precluding portability of
+code that relies on arity inspection.  The most overlap occurs between
+Gauche, PLT Scheme, Larceny, and Clinger's proposal, and this forms
+the basis of this proposal.  In particular, PLT Scheme and Gauche
+already implement this SRFI.  Larceny implements a subset of this SRFI
+that makes it easy to portably define the remaining components and any
+Scheme that implements Clinger's proposal can likewise be easily and
+portably extended to implement this SRFI (such an extension is
+provided in the
+<a href="#ReferenceImplementation">reference implementation</a>
+section).  The remaining systems provide interfaces in which this
+proposal is easily implemented.
+</p>
+
+<p>
+A procedure to determine the arity of an arbitrary procedure's value
+was discussed briefly, without result, at the June 1992 RnRS Authors
+meeting [<a href="#note-9">9</a>].
+
+In October 1995, version 0.29 of MzScheme added the <code>arity</code>
+procedure for inspecting the arity of a procedure
+[<a href="#note-10">10</a>].  That interface, which is the first this
+SRFI author was able to locate that includes support for Dybvig and
+Hieb's <code>case-lambda</code> form [<a href="#note-11">11</a>], is
+still supported in the current version of PLT Scheme
+(renamed <code>procedure-arity</code>) and has also been adopted by
+Gauche.
+
+In May 1996, William D Clinger submitted a straw proposal to the RnRS
+Authors mailing list [<a href="#note-8">8</a>].  Shortly afterward
+[<a href="#note-12">12</a>], Shriram Krishnamurthi suggested the
+proposal take into account the possibility of extending Scheme
+with <code>case-lambda</code> (which came to pass with the
+finalization of SRFI 16 [<a href="#note-13">13</a>] and again with the
+ratification of R6RS Standard Libraries [<a href="#note-14">14</a>]),
+in which a procedure has multiple traditional arities.
+
+Clinger's 1996 proposal for inspecting arities largely overlaps with
+this SRFI.  The major differences are that Clinger's proposal:
+</p>
+
+<ol>
+  <li>
+    includes other procedure inspection facilities beyond the scope of
+    this proposal;
+  </li>
+  <li>
+    does not include support for procedures with disjoint arities,
+    i.e., procedures constructed with the <code>case-lambda</code>
+    syntax of Dybvig and Hieb, SRFI 16, and R6RS; and
+  </li>
+  <li>
+    specifies that the arity of procedures accepting <em>n</em> or
+    more arguments is represented by the inexact number <em>n</em>,
+    while this proposal allows for such a representation, but does not
+    require it.
+  </li>
+</ol>
+
+<p>
+Following Clinger's proposal, Scheme systems need not provide complete
+information for the arity of all procedures.  There will be
+implementations for which this kind of information can always be
+provided, but there will also be systems or modes of operation in
+which this kind of information is not appropriate.  Thus this SRFI
+specifies an interface only, and makes very few guarantees about what
+an implementation must produce when used.  Scheme implementations are
+encouraged to document the guarantees supported in their particular
+implementation beyond those described here, if any.  Portable programs
+should not depend on the behaviour of this feature beyond what is
+specified in this document.
+</p>
+
+<p>
+Many Scheme systems provide procedure inspection facilities beyond
+arity inspection.  For example, many Schemes provide mechanisms for
+recovering source code, source location, and documentation.  This SRFI
+focuses solely on the ability to retrieve arity information from
+procedural values; features for retrieving other kinds of information
+from procedures are considered beyond the scope of this proposal and
+left for future SRFIs to take up.
+</p>
+
+<p>
+Many Scheme systems provide a library of operations for procedural
+values.  For example, many Schemes provide library procedures for
+composing, currying, and iterating procedures.  A general library for
+procedures is considered beyond the scope of this proposal and left
+for future SRFIs.
+</p>
+
+<p>
+At least one Scheme system, PLT Scheme, provides operations for
+restricting the set of acceptable arities for a procedure.  These
+operations do not seem to be in wide use (outside of PLT) and are
+therefore not considered in this proposal.
+</p>
+
+<h2><em>Caveat Emptor</em></h2>
+
+<p>
+Inspecting procedure arity is not without its caveats and there are
+good reasons for <em>not</em> supporting such a feature.  This section
+outlines some of those reason.  The following analysis was developed
+during a conversation with R. Kent Dybvig and has been lightly edited.
+</p>
+
+<p>
+An arity-reporting procedure may be misleading because it appears to
+but does not actually guarantee that an arity error will not occur
+when a procedure is called with an arity it is reported to accept (in
+fact, all that is guaranteed is that if a procedure is applied to
+arguments it is reported <em>not</em> to accept, an arity error is
+guaranteed to occur).  It is common for a procedure to be a wrapper
+for one or more other procedures (for tracing, dispatch, or other
+reasons), to take an arbitrary number of arguments, and to apply one
+of the wrapped procedures to those arguments.  This occurs, for
+example, when using the reference implementation
+of <code>case-lambda</code> given in SRFI 16 or the implementation
+given in R6RS.  The effective number of arguments is that of the
+wrapped procedure that is actually called, but an arity-reporting
+procedure would report the number of arguments of the wrapping
+procedure.
+</p>
+
+<p>
+Before using a procedure, it is necessary to know how many arguments
+it takes, their types, the ranges of acceptable values, and of course
+what it will and will not do.  An arity-reporting procedure seems like
+a drop in the bucket and may not even be as useful as it seems at
+first blush.
+</p>
+
+<p>
+A more subtle issue is that the mere existence of an arity-reporting
+procedure and the like might discourage people from using wrappers
+such as described, insidiously reducing a language's expressiveness
+even as they seem to increase it.
+</p>
+
+<h1><a name="Specification">Specification</a></h1>
+
+<p>
+An <em>arity</em> object represents the arity of a procedure.  An
+arity object is either <code>#f</code>, an exact non-negative integer,
+an arity-at-least object, or a list of exact non-negative integers and
+arity-at-least objects.
+</p>
+
+<p>
+An <em>arity-at-least</em> object represents the arity (or one of the
+arities) of a procedure that accepts some number or more arguments.
+This proposal does not specify the representation of arity-at-least
+objects, other than to say that it must be disjoint from exact,
+non-negative integers; lists; and <code>#f</code>; and it must satisfy
+the requirements below.
+</p>
+
+<p class="proto">
+procedure: <code>(procedure-arity <em>proc</em>) &rarr; <em>arity</em></code>
+</p>
+
+<p>
+Produces an arity object representing the arity of <em>proc</em>.  If
+this procedure produces <code>#f</code>, no information is available
+for <em>proc</em>. 
+</p>
+
+<p>
+If this procedure produces an exact non-negative integer, <em>k</em>,
+then <em>proc</em> accepts exactly <em>k</em> arguments;
+applying <em>proc</em> to some number of arguments other
+than <em>k</em> will result in an arity error.
+</p>
+
+<p>
+If this procedure produces an arity-at-least object, <em>a</em>,
+then <em>proc</em>
+accepts <code>(arity-at-least-value <em>a</em>)</code> or more
+arguments; applying <em>proc</em> to some number of arguments less
+than <code>(arity-at-least-value <em>a</em>)</code> will result in an
+arity error.
+</p>
+
+<p>
+If this procedure produces a list, then <em>proc</em> accepts any of
+the arities described by the elements of the list;
+applying <em>proc</em> to some number of arguments not described by an
+element of the list will result in an arity error.
+</p>
+
+<p class="proto">
+procedure: <code>(arity-at-least? <em>obj</em>) &rarr; <em>bool</em></code>
+</p>
+
+<p>
+Returns <code>#t</code> if <em>obj</em> is an arity-at-least object
+and false otherwise.
+</p>
+
+<p class="proto">
+procedure: <code>(arity-at-least-value <em>arity-at-least</em>) &rarr;
+<em>k</em></code>
+</p>
+
+<p>
+Returns the exact non-negative integer denoting the minimum number of
+arguments required by the given <em>arity-at-least</em> object.
+</p>
+
+<p class="proto">
+procedure: <code>(procedure-arity-includes? <em>proc</em> <em>k</em>)
+&rarr; <em>bool</em></code>
+</p>
+
+<p>
+Returns <code>#t</code> if the <em>proc</em> can accept <em>k</em>
+arguments and <code>#f</code> otherwise.  If this procedure
+returns <code>#f</code>, applying <em>proc</em> to <em>k</em>
+arguments will result in an arity error.
+</p>
+
+<h1>
+<a name="ReferenceImplementation">Reference Implementation</a>
+</h1>
+
+<p>
+A portable reference implementation of this SRFI that provides useful
+information is not possible.  In its place we offer a portable
+implementation that does not provide useful information and
+implementation-specific implementations that do for PLT Scheme (a
+trivial wrapper for its native implementation of this interface) and
+Larceny (a trivial extension for its native implementation, which is
+sufficient for any Scheme that implements Clinger's 1996 proposal).
+Like PLT Scheme, Gauche natively supports this SRFI.
+</p>
+
+<h2>Portable "Null" implementation</h2>
+
+<pre>
+#!r6rs
+;; A portable, non-informative implementation of SRFI 102.
+(library (srfi :102 procedure-arity)
+  (export procedure-arity
+          arity-at-least?
+          arity-at-least-value
+          procedure-arity-includes?)
+  (import (rnrs base))
+  (define (procedure-arity proc)
+    (assert (procedure? proc))
+    #f)
+  (define (arity-at-least? obj)
+    #f)
+  (define (arity-at-least-value arity-at-least)
+    (assert (arity-at-least? arity-at-least))
+    #f)
+  (define (procedure-arity-includes? proc k)
+    (assert (procedure? proc))
+    (assert (and (integer? k)
+           (exact? k)   
+                 (not (negative? k))))
+    #f))
+</pre>
+
+<h2>PLT Scheme implementation</h2>
+
+<pre>
+#!r6rs
+;; PLT Scheme specific implementation of SRFI 102.
+(library (srfi :102 procedure-arity)
+  (export procedure-arity
+          arity-at-least?
+          arity-at-least-value
+          procedure-arity-includes?)
+  (import (only (scheme base) require only-in))
+  (require (only-in scheme/base 
+                    procedure-arity
+                    arity-at-least?
+                    arity-at-least-value
+                    procedure-arity-includes?)))
+</pre>
+
+<h2>Larceny/Clinger 1996 proposal implementation</h2>
+
+<pre>
+#!r6rs
+;; Larceny specific implementation of SRFI 102.
+;; This implementation should be sufficient to extend any
+;; implementation of Clinger's 1996 arity proposal to implement SRFI 102.
+(library (srfi :102 procedure-arity)
+  (export procedure-arity
+          arity-at-least?
+          arity-at-least-value
+          procedure-arity-includes?)
+  (import (rnrs base)
+          (primitives procedure-arity))
+
+  (define (arity-at-least? obj)
+    (and (integer? obj)
+         (inexact? obj)   
+         (not (negative? obj))))
+
+  (define (arity-at-least-value arity-at-least)
+    (assert (arity-at-least? arity-at-least))
+    (inexact->exact arity-at-least))
+
+  (define (procedure-arity-includes proc k)
+    (assert (procedure? proc))
+    (assert (and (integer? k)
+                 (exact? k)
+                 (not (negative? k))))
+    (let ((a (procedure-arity proc)))
+      (and a
+           (if (exact? a)
+               (= k a)
+               (&lt; k a))))))
+</pre>
+
+<h1>
+<a name="References">References</a>
+</h1>
+
+
+<dl>
+  <dt class="ref"><a name="note-1">[1]</a> Chez Scheme, Section
+  3.4. The Object Inspector</dt>
+  <dd>
+    <a href="http://www.scheme.com/csug8/debug.html#./debug:h4">http://www.scheme.com/csug8/debug.html#./debug:h4</a>
+  </dd> 
+
+  <dt class="ref"><a name="note-2">[2]</a> Gauche Users' Reference:
+    6.16 Control features</dt>
+  <dd>
+    <a href="http://practical-scheme.net/gauche/man/gauche-refe_54.html#SEC96">http://practical-scheme.net/gauche/man/gauche-refe_54.html#SEC96</a>
+  </dd>
+
+  <dt class="ref"><a name="note-3">[3]</a> IronScheme, Procedures
+  exported from the (ironscheme) library</dt>
+  <dd>
+    <a href="http://ironscheme.codeplex.com/Wiki/View.aspx?title=Procedures">http://ironscheme.codeplex.com/Wiki/View.aspx?title=Procedures</a>
+  </dd>
+
+  <dt class="ref"><a name="note-4">[4]</a> Larceny User Manual,
+  Section 10.4. Procedures</dt>
+  <dd>
+    <a href="http://larceny.ccs.neu.edu/doc/user-manual.html#id2536543">http://larceny.ccs.neu.edu/doc/user-manual.html#id2536543</a>
+  </dd>
+
+  <dt class="ref"><a name="note-5">[5]</a> MIT/GNU Scheme 7.7.90+,
+  Section 12.2 Arity</dt>
+  <dd>
+    <a href="http://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Arity.html">http://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/Arity.html</a>
+  </dd>
+
+  <dt class="ref"><a name="note-6">[6]</a> PLT Scheme, Reference,
+  Section 3.16 Procedures</dt>
+  <dd>
+    <a href="http://docs.plt-scheme.org/reference/procedures.html">http://docs.plt-scheme.org/reference/procedures.html</a>
+  </dd>
+
+  <dt class="ref"><a name="note-7">[7]</a> s7</dt>
+  <dd>
+    <a href="http://ccrma.stanford.edu/software/snd/snd/s7.html">http://ccrma.stanford.edu/software/snd/snd/s7.html</a>
+  </dd>
+
+  <dt class="ref"><a name="note-8">[8]</a> Extracting heuristic
+    information from procedures.</dt>
+  <dd>
+    William D Clinger, RnRS Authors mailing list<br />
+    <a href="http://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1996/msg00148.html">http://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1996/msg00148.html</a>
+  </dd>
+
+  <dt class="ref"><a name="note-9">[9]</a> Draft Minutes of the RnRS
+    Authors meeting.</dt>
+  <dd>
+    Recorded and edited by William D Clinger, RnRS Authors mailing list<br />
+    <a href="http://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1992/msg00199.html">http://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1992/msg00199.html</a>
+  </dd>
+
+  <dt class="ref"><a name="note-10">[10]</a> Release notes for
+    MzScheme, Version 0.29, October 18, 1995</dt>
+  <dd>
+    PLT Scheme Inc.<br />
+    <a href="http://docs.plt-scheme.org/release-notes/mzscheme/HISTORY.txt">http://docs.plt-scheme.org/release-notes/mzscheme/HISTORY.txt</a>
+  </dd>
+
+  <dt class="ref"><a name="note-11">[11]</a> A New Approach to
+    Procedures with Variable Arity</dt>
+  <dd>
+    R. Kent Dybvig and Robert Hieb<br />
+    Lisp and Symbolic Computation, 3(3):229-244, September 1990.<br />
+    <a href="http://www.cs.indiana.edu/~dyb/pubs/LaSC-3-3-pp229-244.pdf">http://www.cs.indiana.edu/~dyb/pubs/LaSC-3-3-pp229-244.pdf</a>
+  </dd>
+
+  <dt class="ref"><a name="note-12">[12]</a> RE: Extracting heuristic
+    information from procedures.</dt>
+  <dd>
+    Shriram Krishnamurthi, RnRS Authors mailing list<br />
+    <a href="http://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1996/msg00151.html">http://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1996/msg00151.html</a>
+  </dd>
+
+  <dt class="ref"><a name="note-13">[13]</a> SRFI 16: Syntax for
+    procedures of variable arity</dt>
+  <dd>
+    Lars T Hansen<br />
+    <a href="https://srfi.schemers.org/srfi-16/">http://srfi.schemers.org/srfi-16/</a>
+  </dd>
+
+  <dt class="ref"><a name="note-14">[14]</a> Revised<sup>6</sup>
+    Report on the Algorithmic Language Scheme, Standard Libraries</dt>
+  <dd>
+    Chapter 5, Control Structures<br />
+    Michael Sperber, et al. (Editors)<br />
+    <a href="http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-6.html#node_idx_262">http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-6.html#node_idx_262</a>
+  </dd>    
+</dl>
+
+<h1>
+<a name="Acknowledgements">Acknowledgments</a>
+</h1>
+
+<p>
+I would like to thank Eli Barzilay, R. Kent Dybvig, Matthias
+Felleisen, Daniel P. Friedman, and Shriram Krishnamurthi for answering
+questions on the history of arity inspection in Scheme.  In
+particular, I would like to further thank R. Kent Dybvig for providing
+the analysis of why <em>not</em> to support arity inspection.  I would
+like to thank Aaron W. Hsu for providing information on Chez Scheme's
+procedure inspection facilities.  I am grateful to Michael Sperber for
+serving as SRFI editor.  Support was provided by the National Science
+Foundation under Grant #0937060 to the Computing Research Association
+for the CIFellow Project.
+</p>
+
+
+<h1>
+<a name="Copyright">Copyright</a>
+</h1>
+
+<p>
+Copyright (C) David Van Horn 2009. All Rights Reserved.
+</p>
+<p>
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+
+<hr />
+
+<address>Editor: <a href="mailto:srfi minus editors at srfi dot
+schemers dot org">Michael Sperber</a></address>
+
+<p>
+    <a href="http://validator.w3.org/check/referer"><img
+       style="border:0;width:88px;height:31px"
+       src="http://www.w3.org/Icons/valid-xhtml10-blue"
+       alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+</p>
+
+</body></html>
+

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 189: Maybe and Either: optional container types</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>.big { font-size: xx-large; }</style>
+  </head>
+
+  <body>
+    
+    <H2><a name="lp-srfi-189">Title</a></H2>
+    Maybe and Either: optional container types
+
+    <h2>Author</h2>
+    <p>John Cowan (text), Wolfgang Corcoran-Mathe (sample implementation)</p>
+
+<h2>Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+189+at+srfi+dotschemers+dot+org">srfi-189@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-189">archive</a>.</p>
+<ul>
+  <li>Received: 2020-03-29</li>
+  <li>Draft #1 published: 2020-03-29</li>
+  <li>Draft #2 published: 2020-03-31</li>
+  <li>Draft #3 published: 2020-04-20</li>
+  <li>Draft #4 published: 2020-05-12</li>
+  <li>Draft #5 published: 2020-06-02</li>
+  <li>Draft #6 published: 2020-06-05</li>
+  <li>Draft #7 published: 2020-06-14</li>
+  <li>Draft #8 published: 2020-07-01</li>
+  <li>Finalized: 2020-07-14</li>
+  <li>Revised to fix errata:
+    <ul>
+      <li>2020-12-02 (Fix typo in specification of <a href="#accessors"><code>either-ref/default</code></a>.)</li></ul></li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+<p>This SRFI defines two disjoint immutable container types
+known as Maybe and Either,
+both of which can contain objects collectively known as their payload.
+A Maybe object is either a Just object or the unique object Nothing
+(which has no payload); an Either object is either
+a Right object or a Left object.  Maybe represents the concept of
+optional values; Either represents the concept of values which are
+either correct (Right) or errors (Left).</p>
+<p>Note that the terms Maybe, Just, Nothing, Either, Right, and Left
+are capitalized in this SRFI so as not to be confused with their
+ordinary use as English words.  Thus &quot;returns Nothing&quot; means
+&quot;returns the unique Nothing object&quot;; &quot;returns nothing&quot; could be
+interpreted as &quot;returns no values&quot;
+or &quot;returns an unspecified value&quot;.</p>
+<h2 id="rationale">Rationale</h2>
+<p>It is common for Scheme procedures that can either succeed or fail
+to return a true value on success and <code>#f</code> on failure.  However, if
+the procedure is able to return any value on success, there is no
+way to distinguish between a successful return of <code>#f</code> and failure.
+For example, the SRFI 1 procedure <code>find</code> returns <code>#f</code>
+when it fails, but that makes using
+it to search for <code>#f</code> in a list impossible.
+What is more, it is easy for the programmer to write code in which
+success is assumed and the special case of <code>#f</code> is not handled
+correctly; thus when using a procedure which returns a number or <code>#f</code>, like
+<code>string-&gt;number</code>, the programmer may assume it will always return a number,
+thus causing a dynamic type error when it does not.</p>
+<p>By returning a Maybe instead, a procedure can unambiguously distinguish
+between success, which returns a Just object, and failure, which
+returns Nothing.  Furthermore, the returned value cannot be further
+processed without removing it from its Just container except by
+procedures that are Maybe-aware; a number wrapped in a Just is not
+a number and has to be unwrapped to be used as a number.</p>
+<p>Either is closely related to Maybe, and Right is closely related to Just.
+However, a Left is a container for an object which indicates
+<em>why</em> a procedure returning an Either failed, whereas Nothing indicates
+only a failure.
+Some of the Either-accepting procedures in this SRFI treat Left and Right asymmetrically;
+specifically, a Left is considered empty by the join, bind, and sequence
+procedures, and the <code>either-ref</code> procedure by default unwraps a Right
+but raises the payload of a Left as an exception.
+It is also possible to use Left and Right simply as two
+distinguishable types of container for a single value,
+or to interchange the roles of Left and
+Right with the special constructor <code>either-swap</code>.</p>
+<p>Because the procedures of Scheme, unlike the functions of ML and Haskell,
+accept multiple arguments and return multiple values, this SRFI allows
+a Just, Left, or Right container to hold more than one object,
+or indeed no objects at all.  In particular, a Just containing no objects
+is not the same as a Nothing: it represents success when there are
+no actual values to return, as in a procedure called solely for effect.
+The specification presented here, therefore, differs in several ways
+from its analogues in other languages.</p>
+<h2 id="specification">Specification</h2>
+<p>The four types Just, Nothing, Left, and Right are disjoint from each
+other and from all other Scheme types.</p>
+<p>We speak of unwrapping a container when we extract its payload, and wrapping
+values in a container when we create the container with the values as its
+payload.</p>
+<p>The following names are used for the arguments:</p>
+<p><em>obj, default</em>: Any Scheme object.</p>
+<p><em>maybe</em>: A Maybe object.</p>
+<p><em>either</em>: An Either object.</p>
+<p><em>failure</em>: A procedure that accepts zero arguments (unless specified otherwise).</p>
+<p><em>success</em>: A procedure that accepts one or more arguments.</p>
+<p><em>pred</em>: A predicate that accepts zero or more arguments.</p>
+<p><em>equal</em>: A predicate that accepts two arguments
+and returns a boolean value.  It is not necessarily an equivalence relation.</p>
+<p><em>proc</em>: A procedure that accepts zero or more arguments and returns
+zero or more values.</p>
+<p><em>mproc</em>: A procedure that accepts zero or more arguments
+and returns zero or more values wrapped in a single Maybe or Either container.</p>
+<p><em>list</em>: A Scheme list.</p>
+<p><em>producer</em>: A procedure that accepts no arguments and returns
+some number of values.</p>
+<p>It is an error (unless otherwise noted) if the procedures are passed arguments
+that do not have the type implied by the argument names.</p>
+<h3 id="constructors">Constructors</h3>
+<p><code>(just</code> <em>obj</em> ...<code>)</code></p>
+<p>Monadic pure.  Returns the <em>objs</em> wrapped in a Just.</p>
+<p><code>(nothing)</code></p>
+<p>Returns the unique Nothing object.</p>
+<p><code>(right</code> <em>obj</em> ...<code>)</code></p>
+<p>Monadic pure.  Returns the <em>objs</em> wrapped in a Right.</p>
+<p><code>(left</code> <em>obj</em> ...<code>)</code></p>
+<p>Returns the <em>objs</em> wrapped in a Left.</p>
+<p><code>(list-&gt;just</code> <em>list</em><code>)</code><br>
+<code>(list-&gt;left</code> <em>list</em><code>)</code><br>
+<code>(list-&gt;right</code> <em>list</em><code>)</code></p>
+<p>Returns a Just / Left / Right whose values are the elements
+of <em>list</em>.  Note that these procedures are not monadic;
+they are equivalent to <code>just/left/right</code> but accept
+a list rather than multiple arguments.
+There is no need for <code>list-&gt;nothing</code> distinct
+from <code>nothing</code>.</p>
+<p><code>(maybe-&gt;either</code> <em>maybe obj</em> ...<code>)</code></p>
+<p>If <em>maybe</em> is a Just, returns a Right with the same payload objects
+in the sense of <code>eqv?</code>; otherwise returns a Left of <em>objs</em>.</p>
+<p><code>(either-&gt;maybe</code> <em>either</em><code>)</code></p>
+<p>If <em>either</em> is a Right, returns a Just with the same payload objects
+in the sense of <code>eqv?</code>; otherwise returns Nothing.</p>
+<p><code>(either-swap</code> <em>either</em><code>)</code>
+<p>If <em>either</em> is a Left, return a Right with the same payload objects
+(in the sense of <code>eqv?</code>), and vice versa.
+<h3 id="predicates">Predicates</h3>
+<p><code>(just?</code> <em>obj</em><code>)</code><br>
+<code>(nothing?</code> <em>obj</em><code>)</code><br>
+<code>(right?</code> <em>obj</em><code>)</code><br>
+<code>(left?</code> <em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>obj</em> is a Just, Nothing, Left, or Right
+respectively, and <code>#f</code> otherwise.</p>
+<p><code>(maybe?</code> <em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>obj</em> is a Maybe (that is, either a Just or Nothing)
+and <code>#f</code> otherwise.</p>
+<p><code>(either?</code> <em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> if <em>obj</em> is an Either (that is, either a Right or a Left)
+and <code>#f</code> otherwise.</p>
+<p><code>(maybe=</code> <em>equal maybe1 maybe2 ...</em><code>)</code></p>
+<p>Returns <code>#t</code> if all <em>maybes</em> are Nothing, or if they all
+are Justs and their respective payload objects
+are the same in the sense of <em>equal</em>,
+and <code>#f</code> otherwise.</p>
+<p><code>(either=</code> <em>equal either1 either2 ...</em><code>)</code></p>
+<p>Returns <code>#t</code> if all <em>eithers</em> are all Lefts or all Rights
+and their respective payload objects are the same in the sense of <em>equal</em>,
+and <code>#f</code> otherwise.</p>
+<h3 id="accessors">Accessors</h3>
+<p><code>(maybe-ref</code> <em>maybe</em> <em>failure</em> [<em>success</em>]<code>)</code></p>
+<p>If <em>maybe</em> is a Just, tail-calls the procedure <em>success</em>
+on the values of its payload and returns the result.  Otherwise, it
+tail-calls the procedure <em>failure</em> on no arguments and
+returns the result.
+The default value of <em>success</em> is <code>values</code>.</p>
+<p><code>(either-ref</code> <em>either</em> <em>failure</em> [<em>success</em>]<code>)</code></p>
+<p>If <em>either</em> is a Right, tail-calls the procedure <em>success</em>
+on the values of its payload and returns the result.  Otherwise, it
+tail-calls the procedure <em>failure</em>
+on the values of its payload and returns the result.
+The default value of <em>success</em> is <em>values</em>.</p>
+<p><code>(maybe-ref/default</code> <em>maybe default</em> ...<code>)</code><br>
+<code>(either-ref/default</code> <em>either default</em> ...<code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, returns the values of its payload; otherwise
+returns the <em>defaults</em> as multiple values.</p>
+<h3 id="join-and-bind">Join and bind</h3>
+<p><code>(maybe-join</code> <em>maybe</em><code>)</code><br>
+<code>(either-join</code> <em>either</em><code>)</code></p>
+<p>Monadic join.  If <em>maybe/either</em> is a Just/Right whose single payload object is a Maybe/Either,
+returns that payload; if it is a Nothing/Left, returns <em>maybe/either</em>.
+In all other cases (including a Just/Right with multiple values) it is an error.  Thus
+<code>(maybe-join (just (just</code> <em>x</em><code>))</code> returns Just <em>x</em> and
+<code>(maybe-join (just (nothing))</code> returns Nothing,
+and similarly for <code>either-join</code>.
+<p><code>(maybe-compose</code> <em>mproc1 mproc2</em> ...<code>)</code><br>
+<code>(either-compose</code> <em>mproc1 mproc2</em> ...<code>)</code>  </p>
+<p>Returns an mproc that accepts zero or more arguments and
+applies the following iterative algorithm to each <em>mproc</em>:</p>
+<p>The <em>mproc</em> is applied to the arguments and returns a Maybe/Either interim result.
+If the result is Nothing / a Left, it is returned as the final result.
+If it is a Just/Right, the next <em>mproc</em> is applied to the values of its payload,
+returning the next interim result.
+When no more <em>mprocs</em> are available,
+the interim result is returned as the final result.</p>
+<p>It is an error if one of the <em>mprocs</em> does not accept as arguments the
+number of values wrapped in the Just/Right produced by its predecessor.</p>
+<p><code>(maybe-bind</code> <em>maybe mproc1 mproc2</em> ...<code>)</code><br>
+<code>(either-bind</code> <em>either mproc1 mproc2</em> ...<code>)</code>  </p>
+<p>Monadic bind.  If <em>maybe/either</em> is a Just/Right,
+it behaves as if <code>maybe-compose/either-compose</code>
+were applied to <em>mprocs</em>, and the resulting mproc
+applied to the payload of <em>maybe/either</em>.
+But if <em>maybe/either</em> is a Nothing/Left, it
+is immediately returned.</p>
+<h3 id="sequence-operations">Sequence operations</h3>
+<p>These procedures treat Maybes (and in some cases Eithers)
+as sequences of length 0 or 1.  This length depends only on the type
+of the container and not on the number of objects it contains.</p>
+<p><code>(maybe-length</code> <em>maybe</em><code>)</code><br>
+<code>(either-length</code> <em>either</em><code>)</code></p>
+<p>Return 1 if <em>maybe/either</em> is a Just/Right, and 0 otherwise.</p>
+<p><code>(maybe-filter</code> <em>pred maybe</em><code>)</code><br>
+<code>(maybe-remove</code> <em>pred maybe</em><code>)</code><br>
+<code>(either-filter</code> <em>pred either obj</em> ...<code>)</code><br>
+<code>(either-remove</code> <em>pred either obj</em> ...<code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right and the values of its payload
+satisfy / do not satisfy <em>pred</em>, then
+return <em>maybe</em>; otherwise, returns Nothing / a Left of <em>objs</em>.</p>
+<p><code>(maybe-sequence</code> <em>mappable map [aggregator]</em><code>)</code><br>
+<code>(either-sequence</code> <em>mappable map [aggregator]</em><code>)</code></p>
+<p>The purpose of these procedures is to transform a
+collection of Maybes/Eithers of some particular type into a Maybe/Either
+of a collection, often of the same type.</p>
+<p>The <em>mappable</em> argument is the collection to be transformed,
+and the <em>map</em> argument is the appropriate procedure that can
+transform it, one element at a time.
+The signature of <em>map</em> is <code>(</code><em>map proc mappable</em><code>)</code>,
+where <em>proc</em> is supplied by the implementation.
+Typical mappables are lists and vectors, and <code>map</code> and <code>vector-map</code>
+are useful map functions, though not the only possible ones.</p>
+<p>Each element is processed as follows:  If it is a Just/Right, its values are
+unwrapped and the <em>aggregator</em> function (which defaults to <code>list</code>)
+is applied to them.
+But if it is a Left/Nothing, that object is immediately returned as the value of
+<code>maybe-sequence/either-sequence</code>.</p>
+<p>Assuming there are no Lefts/Nothings, the <em>map</em> function is then responsible
+for constructing the new mappable out of the results of the calls on <em>aggregator</em>.</p>
+<p>For example, a list of Justs becomes a Just list of lists if
+the map procedure is <code>map</code> and the aggregator is <code>list</code>.
+In the same way, a vector of Rights containing one value each becomes
+a Right vector if the map procedure is <code>vector-map</code>
+and the aggregator is <code>(lambda (x) x)</code>.</p>
+<h3 id="protocolconversion">Protocol Conversion</h3>
+<p>The use of <code>-&gt;</code> in a Scheme procedure name generally
+indicates that the procedure converts, sometimes lossily, between
+one type of object and another.  For example, <code>list-&gt;vector</code>
+accepts a list and returns a vector containing the same elements
+(in the sense of <code>eqv?</code>) in the same order.</p>
+<p>In this section, however, <code>-&gt;</code> is used
+in an extended sense.  As noted in the Rationale,
+the purpose of Maybe and Either is to provide first-class objects
+representing the distinction between success and failure in such a
+way that any number of success values (and, in the case of Either,
+any number of failure values) can be packaged up in a single object
+without reserving any values to indicate success or failure.
+A variety of <em>protocols</em> are already in use in Scheme and other Lisps
+to more or less perfectly represent the distinction.  Some reserve a value to
+represent failure which cannot be returned as a success value; some
+handle only one success value; some are not first-class.</p>
+<p>In order to facilitate communication between code using
+Maybe/Either and code using another protocol,
+these procedures convert between Maybe/Either objects
+and some of the most usual protocols.  Conversion in either direction
+is frequently lossy.</p>
+<p><span class="big">&#9758;</span> The following procedures interface between the Maybe protocol
+and the <em>list</em> protocol, which uses an empty list to represent failure
+and a non-empty list to represent success.</p>
+<p><code>(maybe-&gt;list</code> <em>maybe</em><code>)</code><br>
+<code>(either-&gt;list</code> <em>either</em><code>)</code></p>
+<p>Returns a list whose elements are the payload of <em>maybe/either</em>;
+if <em>maybe/either</em> is Nothing/Left, returns the empty list.
+It is an error to mutate the result of this procedure.</p>
+<p><code>(list-&gt;maybe</code> <em>list</em><code>)</code><br>
+<code>(list-&gt;either</code> <em>list obj</em> ...<code>)</code></p>
+<p>If <em>list</em> is empty,
+returns Nothing / wraps <em>objs</em> in a Left and returns it;
+otherwise, wraps the list elements in a Just/Right and returns that.</p>
+<p><span class="big">&#9758;</span> The following procedures interface between the Maybe and Either protocols and
+the <em>truth</em> protocol, which uses <code>#f</code> to represent failure
+and a single true value to represent success.</p>
+<p><code>(maybe-&gt;truth</code> <em>maybe</em><code>)</code><br>
+<code>(either-&gt;truth</code> <em>either</em><code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, returns its payload; otherwise returns <code>#f</code>.
+It is an error if the Just/Right does not have exactly one value.</p>
+<p><code>(truth-&gt;maybe</code> <em>obj</em><code>)</code><br>
+<code>(truth-&gt;either</code> <em>obj fail-obj</em> ...<code>)</code></p>
+<p>If <em>obj</em> is <code>#f</code>, return Nothing / a Left of <em>fail-objs</em>;
+otherwise, return a Just/Right whose payload is <em>obj</em>.
+<p><span class="big">&#9758;</span> The following procedures interface between the Maybe protocol
+and the <em>list-truth</em> protocol, which uses <code>#f</code> to represent failure
+and a list to represent success.</p>
+<p><code>(maybe-&gt;list-truth</code> <em>maybe</em><code>)</code><br>
+<code>(either-&gt;list-truth</code> <em>either</em><code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, returns a list whose elements are the payload;
+otherwise, returns <code>#f</code>.
+It is an error to mutate the result of this procedure.</p>
+<p><code>(list-truth-&gt;maybe</code> <em>list-or-false</em><code>)</code><br>
+<code>(list-truth-&gt;either</code> <em>list-or-false obj ...</em><code>)</code></p>
+<p>If <em>list-or-false</em> is <code>#f</code>,
+returns Nothing / a Left of <em>objs</em>;
+otherwise, wraps the list elements in a Just/Right and returns it.</p>
+<p><span class="big">&#9758;</span> The following procedures interface between the Maybe and Either protocols
+and the <em>generation</em> protocol, which uses an end-of-file object
+to represent failure and any other value to represent success.</p>
+<p><code>(maybe-&gt;generation</code> <em>maybe</em><code>)</code><br>
+<code>(either-&gt;generation</code> <em>either</em><code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, then its payload is returned.
+It is an error if the Just/Right does not have exactly one value.
+If <em>maybe/either</em> is Nothing / a Left,
+then an end-of-file object is returned.</p>
+<p><code>(generation-&gt;maybe</code> <em>obj</em><code>)</code><br>
+<code>(generation-&gt;either</code> <em>obj fail-objs</em> ...<code>)</code></p>
+If <em>obj</em> is an end-of-file object, return Nothing / a Left of <em>fail-objs</em>.
+Otherwise, return <em>obj</em> wrapped in a Just/Right.
+<p><span class="big">&#9758;</span> The following procedures interface between the Maybe and Either protocols
+and the <em>values</em> protocol, which returns one or more values to represent success
+and zero values to represent failure.</p>
+<p><code>(maybe-&gt;values</code> <em>maybe</em><code>)</code><br>
+<code>(either-&gt;values</code> <em>either</em><code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, returns the values of its payload;
+otherwise returns no values.</p>
+<p><code>(values-&gt;maybe</code> <em>producer</em><code>)</code><br>
+<code>(values-&gt;either</code> <em>producer fail-obj</em> ...<code>)</code></p>
+<p>These procedures invoke <em>producer</em> with no arguments.
+If no values are returned, Nothing / Left of <em>fail-objs</em> is returned.
+Otherwise the values are wrapped in a Just/Right and returned.</p>
+<p><span class="big">&#9758;</span> The following procedures interface between the Maybe protocol
+and the <em>two-values</em> protocol, which returns
+<code>#f</code> and <code>#f</code> to represent failure and
+a single value and <code>#t</code> to represent success.
+(This protocol is more often used in Common Lisp, where additional values are
+automatically discarded if the continuation expects only one.)</p>
+<p><code>(maybe-&gt;two-values</code> <em>maybe</em><code>)</code></p>
+<p>If <em>maybe</em> is a Just, returns the value of its payload and
+the additional value <code>#t</code>;
+otherwise returns two values, both <code>#f</code>.
+It is an error if <em>maybe</em> does not have exactly one value.
+<p><code>(two-values-&gt;maybe</code> <em>producer</em><code>)</code></p>
+<p>This procedure is the inverse of <code>maybe-&gt;two-values</code>.
+It invokes <em>producer</em> with no arguments.
+If the second value is true, the first value
+is wrapped in a Just and returned;
+otherwise, Nothing is returned.</p>
+<p><code>(exception-&gt;either</code> <em>pred thunk</em><code>)</code></p>
+<p>This procedure is in a sense the inverse of <code>maybe-ref</code>.
+A call to <em>thunk</em> is made, wrapped in an exception handler
+that examines any exception signaled during <em>thunk's</em> execution.
+If the condition object satisfies <em>pred</em>,
+it is wrapped in a Left which is then returned;
+if it does not, the exception is reraised.
+But if no exception is raised, the values returned by <code>thunk</code>
+are wrapped in a Right and the Right is returned.
+</p>
+<h3 id="map-fold-and-unfold">Map, fold and unfold</h3>
+<p><code>(maybe-map</code> <em>proc maybe</em><code>)</code><br>
+<code>(either-map</code> <em>proc either</em><code>)</code></p>
+<p>Monadic map.  If <em>maybe/either</em> is a Just/Right, applies
+<em>proc</em> to the payload values and wraps the returned values as a Just/Right; otherwise
+returns <em>maybe/either</em>.</p>
+<p><code>(maybe-for-each</code> <em>proc maybe</em><code>)</code><br>
+
+<code>(either-for-each</code> <em>proc either</em><code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, applies <em>proc</em>
+to the payload values and discards the result; otherwise does nothing.
+Returns an unspecified result.</p>
+<p><code>(maybe-fold</code> <em>kons nil maybe</em><code>)</code><br>
+<code>(either-fold</code> <em>kons nil either</em><code>)</code></p>
+<p>If <em>maybe/either</em> is a Just/Right, <em>kons</em> is invoked
+on the values of its payload and the additional value <em>nil</em>
+and the result is returned; otherwise, <em>nil</em> is returned.</p>
+<p><code>(maybe-unfold</code> <em>stop? mapper successor seed ...</em><code>)</code><br>
+<code>(either-unfold</code> <em>stop? mapper successor seed ...</em><code>)</code></p>
+<p>If <em>stop?</em> returns true on <em>seeds</em>,
+a Nothing / a Left of <em>seeds</em> is returned.
+Otherwise, <em>successor</em> is applied to <em>seeds</em>.
+If <em>stop?</em> returns false on the results
+of <em>successor</em>, it is an error.
+But if the second call to <em>stop?</em> returns true,
+<em>mapper</em> is applied to <em>seeds</em>
+and the results are wrapped in a Just/Right and returned.
+<h3 id="syntax">Syntax</h3>
+<p><code>(maybe-if</code> <em>maybe-expr just-expr nothing-expr</em><code>)</code>&nbsp;&nbsp;[syntax]</p>
+Equivalent to <code>(if (just? </code><em>maybe-expr</em><code>) </code><em>just-expr nothing-expr</em><code>)</code>,
+except that an error satisfying <code>error-object</code> is signaled
+if <em>maybe-expr</em> does not evaluate to a Maybe.
+<p><code>(maybe-and</code> <em>expr</em> ...<code>)</code>&nbsp;&nbsp;[syntax]<br>
+<code>(either-and</code> <em>expr</em> ...<code>)</code>&nbsp;&nbsp;[syntax]</p>
+The <em>exprs</em> are evaluated in order.
+If an <em>expr</em> evaluates to a Nothing / Left, it is returned
+without evaluating any more expressions.
+Otherwise, the last Just / Right is returned.
+If there are no <em>exprs</em>,
+then a Just/Right of an unspecified value is returned.
+If an <em>expr</em> does not evaluate to a Maybe/Either,
+an error satisfying <code>error-object</code> is signaled.
+<p><code>(maybe-or</code> <em>expr</em> ...<code>)</code>&nbsp;&nbsp;[syntax]<br>
+<code>(either-or</code> <em>expr</em> ...<code>)</code>&nbsp;&nbsp;[syntax]</p>
+The <em>exprs</em> are evaluated in order.
+If an <em>expr</em> evaluates to a Just/Right, it is returned
+without evaluating any more expressions.
+Otherwise, the last Nothing/Left is returned.
+If there are no <em>exprs</em>,
+then Nothing / a Left of an unspecified value is returned.
+If an <em>expr</em> does not evaluate to a Maybe/Either,
+an error satisfying <code>error-object</code> is signaled.
+<p><code>(maybe-let* (</code> <em>claw</em> ... <code>) .</code> <em>body</em><code>)</code>&nbsp;&nbsp;[syntax]<br>
+<code>(either-let* (</code> <em>claw</em> ... <code>) .</code> <em>body</em><code>)</code>&nbsp;&nbsp;[syntax]</p>
+<p>The Maybe/Either equivalent of <code>and-let*</code> from
+<a href="http://srfi.schemers.org/srfi-2/srfi-2.html">SRFI 2</a>.
+However, instead of testing whether a <em>claw</em> is true or false,
+it tests whether it is Just/Right or Nothing/Left.
+If a <em>claw</em> does not evaluate to a Maybe/Either,
+an error satisfying <code>error-object</code> is signaled.
+The same is true if a <em>claw</em> evaluates to a Just or Right
+that wraps zero values or more than one value.</p>
+<p>A <em>claw</em> is either a bound identifier,
+or a list of length 1, in which case it is an expression,
+or a list of length 2, in which case it is a variable and an expression.
+In either case, the value of the <em>claw</em> is the value of the
+bound variable or expression.
+If the value of a <em>claw</em> is Nothing / a Left, the expression immediately
+returns that value.
+But if the value of a <em>claw</em> is a Just/Right,
+then the variable (if any) is bound to its unwrapped value;
+the scope of this binding is any remaining <em>claws</em>
+and the <em>body</em>.
+<p>If the values of all the <em>claws</em> are Just/Right, then
+the <em>body</em> is evaluated
+as if it were in a <code>(let () ...)</code>,
+and its values are wrapped in a Just/Right and returned.</p>
+<p><code>(maybe-let*-values (</code> <em>claw</em> ... <code>) .</code> <em>body</em><code>)</code>&nbsp;&nbsp;[syntax]<br>
+<code>(either-let*-values (</code> <em>claw</em> ... <code>) .</code> <em>body</em><code>)</code>&nbsp;&nbsp;[syntax]<br>
+<p>The same as <code>maybe/either-let*</code>,
+except that the first element of a two-element claw
+is a &lt;formals&gt; from <code>lambda</code>,
+and the variables mentioned in it (if any)
+are bound to the values that result from unpacking a Just/Right.
+Note that a claw with a single variable in
+<code>maybe/either-let*</code> is bound to
+the sole value contained in the Just/Right,
+whereas in <code>maybe/either-let*-values</code>,
+it is bound to a list of all the values, just as
+in a <code>lambda</code> expression,
+a &lt;formals&gt; consisting of a single variable
+is bound to a list of all the procedure arguments.</p>
+<p><code>(either-guard </code> <em>pred-expr</em> <code>  . </code><em>body</em><code>)</code>&nbsp;&nbsp;[syntax]<br>
+<p>The syntactic analogue of <code>exception-&gt;either</code>.
+The <em>body</em> is evaluated,
+and the values it produces are wrapped in a Right
+and returned, unless an exception occurs.
+If the condition object that is raised satisfies
+the predicate that is the value of <em>pred-expr</em>,
+the condition object is wrapped in a Left and returned; otherwise
+the condition is reraised as if by <code>raise-continuable</code>.
+</p>
+<h3 id="trivalent-logic">Trivalent logic</h3>
+<p>These procedures provide trivalent logic in the style of SQL on
+Maybe objects containing a single value.  For the purposes of this section,
+an object counts as false if it is Just <code>#f</code>,
+true if it is Just anything else.
+It is an error if any argument is not a Maybe.</p>
+<p>Unlike <code>and</code> and <code>or</code>, <code>tri-and</code>
+and <code>tri-or</code> are procedures and not syntax, because
+determining their value requires that all the arguments be evaluated
+in order to provide correct SQL-style semantics.  For example,
+<code>(and #f (nothing))</code> will return <code>#f</code> immediately
+without evaluating its second argument, but <code>(tri-and (just
+#f) (nothing))</code> will return Nothing.</p>
+<p><code>(tri-not</code> <em>maybe</em><code>)</code></p>
+<p>Returns Just <code>#t</code> if <em>maybe</em> is false, Just <code>#f</code> if <em>maybe</em> is true, and Nothing
+if <em>maybe</em> is Nothing.</p>
+<p><code>(tri=?</code> <em>maybe1 maybe2</em> ...<code>)</code></p>
+<p>Similar to <code>boolean=?</code>, returning Just <code>#t</code> if all the <em>maybes</em> are true
+or if all are false.  Otherwise, if any <em>maybe</em> is Nothing or any two <em>maybes</em>
+have different (trivalent) truth values, returns Just <code>#f</code>.</p>
+<p>Note: this function is not transitive and therefore is not an equivalence relation.</p>
+<p><code>(tri-and</code> <em>maybe</em> ...<code>)</code></p>
+<p>If all <em>maybes</em> are true, Just <code>#t</code> is returned.
+If any <em>maybe</em> is false or Nothing, then
+the first such <em>maybe</em> is returned.
+If there are no arguments, Just <code>#t</code> is returned.</p>
+<p><code>(tri-or</code> <em>maybe</em> ...<code>)</code></p>
+<p>If all <em>maybes</em> are false, Just <code>#f</code> is returned.
+If any <em>maybe</em> is true or Nothing, then
+the first such <em>maybe</em> is returned.
+If there are no arguments, Just <code>#f</code> is returned.</p>
+<p><code>(tri-merge</code> <em>maybe</em> ...<code>)</code></p>
+<p>If any <em>maybes</em> are true or false,
+then the first such <em>maybe</em> is returned.
+If all <em>maybes</em> are Nothing, then
+Nothing is returned.
+If there are no arguments, Nothing is returned.</p>
+<h2 id="examples">Examples</h2>
+<p>Here is a variant of SRFI 1 <code>find</code> that returns a Maybe,
+and so can be safely used to search for <code>#f</code> in a list,
+just like any other value:<p>
+
+<pre>
+(define (maybe-find pred list)
+  (cond
+    ((null? list) (nothing))
+    ((pred (car list)) (just (car list)))
+    (else (maybe-find pred (cdr list)))))
+</pre>
+
+<p>The following examples show how <code>find</code>
+and <code>maybe-find</code> differ in their results:</p>
+
+<pre>
+(define (atom? obj) (not (pair? obj)))
+(define with-t '((1) #t (3) 4 5))
+(define with-f '((1) #f (3) 4 5))
+(define without '((1) (2) (3) (4) (5)))
+
+(find atom? with-t) => #t
+(find atom? with-f) => #f
+(find atom? without) => #f
+
+(maybe-find atom? with-t) => Just #t
+(maybe-find atom? with-f) => Just #f
+(maybe-find atom? without) => Nothing
+</pre>
+<p>And here is <code>head</code>, which is more general than <code>car</code>
+because it lets the caller figure out what happens if its argument is not a pair
+and can handle an argument that is either an actual pair or Just a pair.
+<pre>
+(define (head x)
+  (cond
+    ((pair? x) (just (car x)))
+    ((and (just? x) (pair? (maybe-ref x))) (just (car (maybe-ref x))))
+    (else (nothing))))
+</pre>
+<p>In other words, if the argument to <code>head</code> is a pair,
+whether wrapped in a Just or not,
+the result is the car of that pair wrapped in a Just;
+in all other cases, the result is Nothing.
+(There are simpler ways to do this using more advanced procedures.)</p>
+<h2 id="implementation">Implementation</h2>
+<p>The sample implementation is found in <a href="https://github.com/scheme-requests-for-implementation/srfi-189/">the repository</a> of this SRFI.</p>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>The Maybe and Either types and their procedures are based on Scala&#39;s Option
+and Either types, though the name &quot;Maybe&quot; comes from Haskell.
+(I think &quot;Maybe&quot; is catchier than &quot;Option&quot;, which ultimately comes from ML.)
+The trivalent logic is loosely based on Chicken&#39;s <code>sql-null</code> egg.</p>
+<p>Great thanks to Marc Nieper-Wißkirchen, whose insistence that Scheme's
+multiple arguments and multiple values required an extension of this SRFI
+to handle them correctly.
+Thanks also to Shiro Kawai and the other participants on the SRFI 189 mailing list.</p>
+
+<h2>Copyright</h2>
+Copyright &copy; John Cowan, Wolfgang Corcoran-Mathe (2020).
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+
+<address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+

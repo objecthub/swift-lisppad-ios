@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 216: SICP Prerequisites (Portable)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+    <H2><a name="lp-srfi-216">Title</a></H2>
+    SICP Prerequisites
+
+        <h2>Author</h2>
+        <p>Vladimir Nikishkin</p>
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+216+at+srfi+dotschemers+dot+org">srfi-216@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-216">archive</a>.</p>
+<ul>
+  <li>Received: 2020-11-03</li>
+  <li>Draft #1 published: 2020-11-04</li>
+  <li>Draft #2 published: 2020-12-02</li>
+  <li>Draft #3 published: 2021-01-07</li>
+  <li>Finalized: 2021-01-21</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>
+   This SRFI follows
+    <a href="https://srfi.schemers.org/srfi-203/">
+     SRFI 203
+    </a>
+   in providing "out-of-the-box" support for hosting the exercises suggested by
+    <a href="https://mitpress.mit.edu/sites/default/files/sicp/index.html">
+     Structure and Interpretation of Computer Programs
+    </a>
+   in portable Scheme.
+</p>
+
+<p>
+Whereas SRFI 203 focused on the necessarily non-portable aspects of the problem set (the graphics), this SRFI aims to provide support for the rest of the features, which are far more widespread, often already provided, and in reality mostly need just a common vocabulary.
+</p>
+
+<p>
+This SRFI provides procedures for working with time data, multi-threading, and streams, as well as SICP names for <code>true</code> and <code>false</code>.
+</p>
+
+<p>
+None of these procedures is fit for production use.  They are only designed for pedagogical purposes.
+</p>
+
+<p>
+Students, however, are expected to be able to just write</p>
+ <pre>
+ (include (srfi sicp))</pre>
+ <p>and have the code from the book run without problems (apart from those intended by the book authors).
+</p>
+
+<h2 id="rationale">Rationale</h2>
+
+
+<p>
+<cite>Structure and Interpretation of Computer Programs (SICP)</cite>
+, by Harold Abelson and Gerald Jay Sussman with Julie Sussman, is one of the world's most famous programming textbooks.
+The code examples in the book are given in Scheme, and the exercises are mostly expected to be done in Scheme.
+The examples and exercises are best executed with a Scheme system that implements a reasonable subset of the Scheme language.
+Furthermore, the textbook assumes the existence of several primitives not included in any of the Scheme reports.
+Most of these primitives are already either covered by other relevant SRFIs, or can be implemented on top of those.
+
+This SRFI aims at doing precisely this.
+The sample implementation uses the features provided by SRFIs 18 and 27, as well as several features provided by the R7RS report, in order to implement the procedures that SICP code examples assume to exist.
+
+The picture language of Section 2.2.4 is out of scope for this SRFI.
+Users are encouraged to refer to the SRFI 203, or any SRFI that supersedes it, for the missing procedures.
+
+This SRFI, combined with SRFI 203, can be compared to <a href="https://srfi.schemers.org/srfi-96/srfi-96.html">SRFI 96</a>, which is to SLIB as these SRFIs are to the SICP. SRFI 96 makes no attempt to document SLIB (which has over 200 modules), much less to extend it. Instead, it documents the constants, variables, procedures, and syntax forms that a Scheme must provide in order to fully host SLIB, which amount to fewer than forty.
+</p>
+
+<p>
+This SRFI provides four constants, five procedures, and one syntactic construction.
+</p>
+
+<h2 id="specification">Specification</h2>
+
+<h3>Booleans</h3>
+<DL>
+<DT><U>Constant:</U> <code>false</code></DT>
+<DD>
+<p>
+ Must have a value that would make the <code>if</code> construct choose the second path. On systems that provide <code>#f</code> as a distinct value, it must be <code>#f</code>.
+</p>
+<p>
+ Even though Scheme reports as early as R4RS (Sections 3.2, 6.1) already have <code>#f</code> as a distinct false value, SICP continues to refer to <code>false</code>.  See Section 1.1.6, footnote 17.
+</p>
+</DD>
+
+<DT><U>Constant:</U> <code>true</code></DT>
+<DD>
+<p>
+Must have a value that would make the <code>if</code> construct choose the first path. On systems that provide <code>#t</code> as a distinct value, it must be <code>#t</code>.
+</p>
+<p>
+Even though Scheme reports as early as R4RS (Sections 3.2, 6.1) already have <code>#t</code> as a distinct true value, SICP continues to refer to <code>true</code>.  See Section 1.1.6, footnote 17.
+</p>
+</DD>
+</DL>
+
+<h3>The empty list</h3>
+<dl>
+<dt><u>Constant:</u> <code>nil</code></dt>
+<dd>
+Must have a value that represents the empty list in the Scheme implementation hosting this SRFI.
+<br>
+<u>Remark:</u> even though many modern Scheme implementations only use <code>'()</code> to represent the empty list, SICP follows the Lisp tradition in this respect.
+</dd>
+</dl>
+<h3>Time data</h3>
+
+<dl>
+<dt><u>Procedure:</u> <code>(runtime)</code></dt>
+<dd>
+
+Returns an integer that specifies the amount of time the system has been running (measured, for example, in microseconds).
+
+The sample implementation measures the running time in microseconds.
+
+See Section 1.2.6 of the SICP, Subsection "Probabilistic Methods", Exercise 1.22.
+<br>
+<u>Example:</u><br>
+<pre>
+(display (runtime))
+;; prints 1604464095599.357
+</pre>
+<br>
+<u>Remark:</u> it is not clear which "system" was running, and in fact, the absolute value returned by this procedure is never used by itself. The author of this SRFI, therefore, opted into assuming that the "system" is the UNIX<sup>TM</sup> operating system, and it "has been running" since the Epoch, Midnight on January 1, 1970 TAI.
+</dd>
+</dl>
+
+<h3>Random numbers</h3>
+
+<dl>
+<dt><u>Procedure:</u> <code>(random x)</code>
+</dt>
+<dd>
+Returns a nonnegative number less than its input.
+If random is given an exact integer, it returns an exact integer,
+but if it is given a decimal value, it returns a decimal value.
+If <code>x</code> is less than 0, the behaviour is unspecified.
+
+See Section 1.2.6 of the SICP, Subsection "Fermat Test", and Exercise 3.5, footnote 8.
+
+<br>
+<u>Example:</u><br>
+<pre>
+(random 11)
+;; prints 1
+</pre>
+</dd>
+</dl>
+
+The sample implementation uses <a href="https://srfi.schemers.org/srfi-27/">SRFI 27</a>.
+
+<h3>Multi-threading</h3>
+
+<dl>
+<dt><u>Procedure:</u> <code>
+(parallel-execute p1 p2 ...)
+</code>
+<dd>
+  <p>Each <var>p<sub>i</sub></var> must be a procedure of no arguments.  <code>parallel-execute</code> creates a separate process for each <var>p<sub>i</sub></var>, and that process applies <var>p<sub>i</sub></var> to no arguments.
+These processes all run concurrently.</p>
+<br>
+See SICP Section 3.4.2, Subsection "Serializers in Scheme".
+<br>
+<u>Example:</u>
+<pre>
+(define x 10)
+(parallel-execute
+  (lambda () (set! x (* x x))) ; P1
+  (lambda () (set! x (+ x 1)))) ; P2
+;; May assign to x any of the following:
+;; 101 - P1 sets x to 100 and then P2 increments x to 101.
+;; 121 - P2 increments x to 11 and then P1 sets x to x * x.
+;; 110 - P2 changes x from 10 to 11 between the two times that P1 accesses the value of x during the evaluation of (* x x).
+;; 11 - P2 accesses x, then P1 sets x to 100, then P2 sets x.
+;; 100 - P1 accesses x (twice), then P2 sets x to 11, then P 1 sets x.</pre>
+</dd>
+
+<dt><u>Procedure:</u> <code>(test-and-set! cell)</code></dt>
+<dd>
+Tests the cell and returns the result of the test. In addition, if the test was false, <code>test-and-set!</code>  sets the cell contents to true before returning false.<br>
+The <code>test-and-set!</code> operation must be performed atomically. That is, the implementation must guarantee that, once a process has tested the cell and found it to be false, the cell contents will actually be set to true before any other process can test the cell.
+
+See Section 3.4.2, Subsection "Implementing Serializers".
+</dd>
+</dl>
+
+The sample implementation uses <a href="https://srfi.schemers.org/srfi-18/">SRFI 18</a>.
+
+<h3>Streams</h3>
+
+<dl>
+<dt><u>Syntax:</u> <code>(cons-stream a b)</code>
+<dd>
+Is equivalent to <code>(cons a (delay b))</code>.
+See SICP Section 3.5.1.
+<br>
+<u>Remark:</u>
+The necessity to include <code>cons-stream</code> is due to  the fact that SICP does not introduce any syntax-altering constructs beyond writing your own metacircular interpreter.
+Please note that the <code>stream-cons</code> procedure from <a href="https://srfi.schemers.org/srfi-41/srfi-41.html">SRFI 41</a> (implementing "even" streams) would not be a drop-in replacement for <code>cons-stream</code>.
+</dd>
+
+<dt><u>Constant:</u> <code>the-empty-stream</code></dt>
+<dd>A distinguishable object that cannot be the result of any <code>cons-stream</code> operation.
+See SICP Section 3.5.1, footnote 54.
+<br>
+<u>Remark:</u>
+The implementations are encouraged to implement <code>the-empty-stream</code> as an empty list.
+</dd>
+
+<dt><u>Procedure:</u> <code>(stream-null? x)</code></dt>
+<dd>
+Returns the value of <code>true</code> if <code>x</code> is <code>the-empty-stream</code>, and the value of <code>false</code> otherwise.
+See SICP Section 3.5.1, footnote 54.
+<br>
+<u>Example:</u><br>
+<pre>
+(stream-null? the-empty-stream)
+;; => #t
+(stream-null? (cons-stream 'a 'b))
+;; => #f
+</pre>
+The implementations are encouraged to implement <code>stream-empty?</code> as <code>null?</code>.
+
+</dd>
+</dl>
+
+<p>
+As mentioned in <a href="https://srfi.schemers.org/srfi-41/srfi-41.html">SRFI 41</a>
+, Philip Wadler, Walid Taha and David MacQueen describe such streams as odd because, regardless of their length, the parity of the number of constructors <code>(delay, cons, '())</code> in the stream is odd.</p>
+
+<p>These streams are similar to, but not equivalent to, the "even" streams of the aforementioned SRFI.</p>
+
+
+<h2 id="implementation">Implementation</h2>
+
+The sample implementation has been tested on Chibi Scheme.  It consists of three files attached to this document.
+<a href="srfi/216/216.scm">srfi/216/216.scm</a>
+provides the code that can be <code>load</code>-ed in a Scheme REPL, provided that SRFI 18 and SRFI 27 are available.
+
+<a href="srfi/216.sld">srfi/216.sld</a>
+is an R7RS library that can be <code>import</code>-ed in an R7RS Scheme,
+provided that SRFI 18 and SRFI 27 are available.
+
+<a href="srfi-216-tests.scm">srfi-216-tests.scm</a> contains a simple conformance test, and uses <a href="https://srfi.schemers.org/srfi-78/">SRFI 78</a>.
+
+<h2>References:</h2>
+
+<ol>
+<LI> Structure and Interpretation of Computer Programs
+    (<A HREF="https://mitpress.mit.edu/sites/default/files/sicp/index.html">companion web site</A>)
+</LI>
+<LI> <A HREF="https://web.mit.edu/alexmv/6.037/sicp.pdf">Unofficial PDF</A> of SICP, second edition
+     (<A HREF="https://github.com/jrincayc/sicp-pdf">source</A>)
+</LI>
+<LI>
+     <A HREF="https://srfi.schemers.org/srfi-27/"> SRFI 27: Sources of Random Bits</A>
+</LI>
+<LI>
+     <A HREF="https://srfi.schemers.org/srfi-18/"> SRFI 18: Multithreading support</A>
+</LI>
+<LI> Revised<sup>7</sup> Report on Algorithmic Language Scheme
+     (<A HREF="https://small.r7rs.org/">companion web site</A>,
+     <A HREF="https://small.r7rs.org/attachment/r7rs.pdf">PDF</A>)
+</LI>
+<LI> Revised<sup>4</sup> Report on Algorithmic Language Scheme
+     (<A HREF="http://people.csail.mit.edu/jaffer/r4rs.pdf">PDF</A>)
+</LI>
+
+<LI>
+<A HREF=" https://groups.csail.mit.edu/mac/ftpdir/scheme-mail/HTML/rrrs-1986/msg00034.html">
+An internal discussion in an MIT mailing list
+</A>, dedicated to solving the same problem.
+</LI>
+
+<li>
+<a href="https://www.gnu.org/software/mit-scheme/documentation/stable/mit-scheme-ref/Random-Numbers.html#Random-Numbers">MIT Scheme Reference on <code>(random x)</code></a>
+</li>
+</ol>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+<ol>
+<li>
+Arthur A. Gleckler, for helping with the SRFI process.
+</li>
+<li>
+Jason Hemann, for suggesting additional references.
+</li>
+<li>
+Shiro Kawai, for spotting important missing definitions in the first draft.
+</li>
+</ol>
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2020 Vladimir Nikishkin.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+
+

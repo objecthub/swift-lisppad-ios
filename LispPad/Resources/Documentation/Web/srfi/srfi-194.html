@@ -1,0 +1,421 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SRFI 194: Random data generators</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+
+    <H2><a name="lp-srfi-194">Title</a></H2>
+        Random data generators
+
+    <h2>Author</h2>
+    <p>Shiro Kawai (design), Arvydas Silanskas (implementation), Linas Vepštas (implementation), and John Cowan (editor and shepherd)</p>
+
+<h2>Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+194+at+srfi+dotschemers+dot+org">srfi-194@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-194">archive</a>.</p>
+<ul>
+  <li>Received: 2020-05-03</li>
+  <li>Draft #1 published: 2020-05-14</li>
+  <li>Draft #2 published: 2020-06-16</li>
+  <li>Draft #3 published: 2020-08-06</li>
+  <li>Draft #4 published: 2020-08-22</li>
+  <li>Finalized: 2020-08-26</li>
+</ul>
+
+<h2>Abstract</h2>
+
+<p>This SRFI defines a set of
+<a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158</a>
+generators and generator makers that yield random data of specific
+ranges and distributions.  It is intended to be implemented on top of
+<a href="https://srfi.schemers.org/srfi-27/srfi-27.html">SRFI 27</a>,
+which provides the underlying source of random integers and floats.</p>
+
+<h2>Rationale</h2>
+
+<p>Most of SRFI 27 is involved with creating and managing random
+sources; there are only two generators for getting random numbers,
+namely <code>random-integer</code> to get a random but bounded
+non-negative exact integer, and <code>random-real</code> to get a
+random inexact real number in the unit interval.
+(When making use of a non-default random number source, the otherwise
+equivalent procedures <code>random-source-make-integers</code>
+and <code>random-source-make-reals</code> can be used instead.)
+
+<p>However, it's very often useful to loosen these limitations, to
+provide random exact integers or real numbers within any desired
+range.  In order to make them easy to use, they are exposed as
+generators: choose your bounds and you get a procedure which can
+be called without any arguments.  This allows them to participate
+freely in the SRFI 158 infrastructure.  In the same way, random
+booleans, random characters chosen from a seed string, and strings
+of random lengths up to a limit and with characters drawn from the
+same kind of seed string are all available.</p>
+
+<p>All these use a uniform distribution of random numbers, but
+normal, exponential, geometric, and Poisson distributions also have
+their uses.  Finally, if multiple generators are available, uniform
+and weighted choices can be made from them to produce a unified
+output stream.</p>
+
+<h2>Specification</h2>
+
+<h3 id="Current-random-source" class="subheading">Current random source</h3>
+
+<dl>
+<dt id="current_random_source"><code>current-random-source</code></dt>
+<dd>
+<p>An R7RS or <a href="https://srfi.schemers.org/srfi-39/srfi-39.html">SRFI 39</a>
+parameter that provides the random source
+for all the procedures in this SRFI.
+Its initial value is <code>default-random-source</code>
+from SRFI 27.
+Use <code>parameterize</code> to specify a dynamic scope
+in which a different SRFI 27 random source is used
+when creating new generators.
+The behavior of existing generators is
+not affected by changes to this parameter.
+</p>
+
+<dt id="with_random_source"><code>(with-random-source</code><var> random-source thunk</var><code>)</code></dt>
+
+<dd><p>Binds <code>current-random-source</code> to <var>random-source</var>
+and then invokes <var>thunk</var>.</dd>
+
+<dt id="make_random_source_generator"><code>(make-random-source-generator</code><var> i</var><code>)</code></dt>
+<dd><p>Returns a generator of random sources.
+Each invocation of the generator returns the random source
+returned by passing the value of <code>(current-random-source)</code>,
+<var>i</var>, and successive integers <var>j</var>
+(starting with 0) to the SRFI 27 procedure
+<code>random-source-pseudo-randomize!</code>.</p>
+<p>The random sources are guaranteed to be distinct as long as
+<var>i</var> and <var>j</var> are not too large
+and the generator is not called too many times.
+What counts as "too large/many" depends on the SRFI 27 implementation;
+the sample implementation works correctly
+if <var>i</var> &lt; 2<sup>63</sup> and <var>j</var> &lt; 2<sup>51</sup>
+and no more than 2<sup>76</sup> values are generated.
+</p>
+</dd></dl>
+<h3 id="Uniform-distributions" class="subheading">Uniform distributions</h3>
+
+<p>These generators generate uniformly distributed values
+of various simple Scheme types.</p>
+<p>In the following examples, we use the <code>generator-&gt;list</code> procedure to show
+some concrete data from the generators.
+</p>
+<dl>
+<dt id="index-integers_002dbetween_0024"><code>(make-random-integer-generator</code><var> lower-bound  upper-bound</var><code>)</code></dt>
+<dd><p>Returns a generator of exact integers between
+<var>lower-bound</var> (inclusive) and <var>upper-bound</var> (exclusive) uniformly.
+It is an error if the bounds are not exact integers
+or if the specified interval is empty.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">;; A die roller
+(define die (make-random-integer-generator 1 7))
+
+;; Roll the die 10 times
+(generator-&gt;list die 10)
+ &rArr; (6 6 2 4 2 5 5 1 2 2)
+</pre></td></tr></table>
+</dd></dl>
+
+<dl>
+<dt id="index-int1s"><code>(make-random-u1-generator</code><code>)</code></dt>
+<dt id="index-int8s"><code>(make-random-u8-generator</code><code>)</code></dt>
+<dt id="index-uint8s"><code>(make-random-s8-generator</code><code>)</code></dt>
+<dt id="index-int16s"><code>(make-random-u16-generator</code><code>)</code></dt>
+<dt id="index-uint16s"><code>(make-random-s16-generator</code><code>)</code></dt>
+<dt id="index-int32s"><code>(make-random-u32-generator</code><code>)</code></dt>
+<dt id="index-uint32s"><code>(make-random-s32-generator</code><code>)</code></dt>
+<dt id="index-int64s"><code>(make-random-u64-generator</code><code>)</code></dt>
+<dt id="index-uint64s"><code>(make-random-s64-generator</code><code>)</code></dt>
+<dd><p>These procedures return generators of exact integers in the ranges of
+1-bit unsigned and
+8, 16, 32, and 64-bit signed and unsigned values respectively.
+These values can be stored in the corresponding
+homogeneous vectors of
+<a href="https://srfi.schemers.org/srfi-160/srfi-160.html">SRFI 160</a> and
+<a href="https://srfi.schemers.org/srfi-178/srfi-178.html">SRFI 178</a>.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-random-s8-generator) 10)
+ &rArr; (20 -101 50 -99 -111 -28 -19 -61 39 110)
+</pre></td></tr></table>
+</dd>
+
+<dt id="clamp"><code>(clamp-real-number</code><var> lower-bound upper-bound value</var><code>)</code></dt>
+<dd><p>Returns <var>value</var> clamped to be between
+<em>lower-bound</em> and <em>upper-bound</em>, inclusive.
+Note that this procedure works with either exact or inexact numbers,
+but will produce strange results with a mixture of the two.
+It is an error if the specified interval is empty.
+</dd>
+<dt id="index-reals_002dbetween_0024"><code>(make-random-real-generator</code><var> lower-bound upper-bound</var><code>)</code></dt>
+<dd><p>Returns a generator that generates inexact real numbers uniformly.
+(Note that this is not the same as returning all possible IEEE
+floats within the stated range uniformly.)
+The procedure returns reals between
+<var>lower-bound</var> and <var>upper-bound</var>, both inclusive.
+The similar procedure <code>random-real</code> in SRFI 27
+uses the exclusive bounds 0.0 and 1.0.
+It is an error if the specified interval is empty.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">(define uniform-100 (make-random-real-generator 0 100))
+
+(generator-&gt;list uniform-100 3)
+ &rArr; (81.67965004942268 81.84927577572596 53.02443813660833)
+</pre></td></tr></table>
+
+<table><tr><td>&nbsp;</td><td><pre class="example">(define generate-from-0-below-1
+  (gfilter (lambda (r) (not (= r 1.0))) (make-random-real-generator 0.0 1.0)))
+</pre></td></tr></table>
+</dd>
+
+<dt id="index-rectangular-complexs_002dbetween_0024"><code>(make-random-rectangular-generator</code><var> real-lower-bound  real-upper-bound imaginary-lower-bound imag-upper-bound</var><code>)</code></dt>
+<dd><p>Returns a generator that generates inexact complex numbers uniformly.
+The procedure returns complex numbers in a rectangle whose real part is between
+<var>real-lower-bound</var> and <var>real-upper-bound</var> (both inclusive),
+and whose imaginary part is between
+<var>imag-lower-bound</var> and <var>imag-upper-bound</var> (both inclusive).
+It is an error if either of the specified intervals is empty.
+</p>
+</dd>
+
+<dt id="index-polar-complexs_002dbetween_0024"><code>(make-random-polar-generator</code><var> </var>[<var> origin ] magnitude-lower-bound magnitude-upper-bound  </var>[<var> angle-lower-bound  angle-upper-bound ]</var><code>)</code></dt>
+<dd><p>Returns a generator that generates inexact complex numbers uniformly.
+The procedure returns complex numbers in
+a sector of an annulus whose origin point is <var>origin</var>,
+whose magnitude is between
+<var>magnitude-lower-bound</var> and <var>magnitude-upper-bound</var> (both inclusive),
+and whose angle is between
+<var>angle-lower-bound</var> and <var>angle-upper-bound</var> (both inclusive).
+It is an error if either of the specified intervals is empty.
+The default value of <var>origin</var> is 0+0<var>i</var>,
+the default value of <var>angle-lower-bound</var> is 0,
+and the default value of <var>angle-upper-bound</var> is 2<var>&pi;</var>.
+If all three are defaulted, the resulting shape
+is a disk centered on the origin.
+</p>
+</dd>
+
+<dt id="index-booleans"><code>(make-random-boolean-generator)</code></dt>
+<dd><p>Generates boolean values (<code>#f</code> and <code>#t</code>) with equal probability.
+</p>
+<table><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-random-boolean-generator) 10)
+ &rArr; (#f #f #t #f #f #t #f #f #f #f)
+</pre></td></tr></table>
+</dd>
+
+<dt id="index-chars_0024"><code>(make-random-char-generator</code><var> string</var><code>)</code></dt>
+<dd><p>Returns a generator that generates characters in <var>string</var> uniformly.
+Note that the characters in <var>string</var> need not be distinct, which allows simple weighting.
+It is an error if <var>string</var> is empty.
+</p>
+<table><tr><td>&nbsp;</td>
+<td><pre class="example">
+(define alphanumerics "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+(define alphanumeric-chars (make-random-char-generator alphanumerics))
+
+(generator-&gt;list alphanumeric-chars 10)
+ &rArr; (#\f #\m #\3 #\S #\z #\m #\x #\S #\l #\y)
+</pre></td></tr></table>
+</dd>
+
+<dt id="index-chars_0024b"><code>(make-random-string-generator</code><var> k string<code>)</code></var></dt>
+<dd><p>Returns a generator that generates random strings whose characters are in <var>string</var>.
+Note that the characters in <var>string</var> need not be distinct, which allows simple weighting.
+The length of the strings is uniformly distributed between 0 (inclusive) and
+the length of <var>string</var> (exclusive).
+It is an error if <var>string</var> is empty.
+</p>
+</dd></dl>
+
+<h3 id="Nonuniform-distributions" class="subheading">Nonuniform distributions</h3>
+
+<dl>
+<dt id="index-bernoulli"><code>(make-bernoulli-generator</code><var> p</var><code>)</code></dt>
+<dd><p>Returns a generator that yields 1 with probability <var>p</var>
+and 0 with probability 1 - <var>p</var>.
+</p></dd>
+
+<dt id="index-binomial"><code>(make-binomial-generator <var>n p</var>)</code></dt>
+<dd><p>Returns a binomial random variate generator, which conceptually is the sum of <code><var>n</var></code> Bernoulli-<code><var>p</var></code> random variables.
+
+<dt id="index-categorical"><code>(make-categorical-generator</code><var> weight-vec</var><code>)</code></dt>
+<dd><p>Returns a generator that yields
+an exact integer <var>n</var> between 0 (inclusive)
+and the length of <var>weight-vec</var> (inclusive)
+with probability equal to the <var>n</var>th element of <var>weight-vec</var>
+divided by the sum of its elements.
+It is an error if any element of <var>weight-vec</var> is negative
+or their sum is zero.
+</p></dd>
+
+<dt id="index-reals_002dnormal_0024"><code>(make-normal-generator</code><var> [ mean [ deviation ] ]</var><code>)</code></dt>
+<dd><p>Returns a generator that yields real numbers from a normal distribution
+with the specified <var>mean</var> and <var>deviation</var>.  The default value of <var>mean</var> is 0.0
+and <var>deviation</var> is 1.0.
+</p></dd></dl>
+
+<dl>
+<dt id="index-reals_002dexponential_0024"><code>(make-exponential-generator</code><var> mean</var><code>)</code></dt>
+<dd><p>Returns a generator that yields real numbers from an exponential distribution
+with the specified <var>mean</var>.
+</p></dd></dl>
+
+<dl>
+<dt id="index-integers_002dgeometric_0024"><code>(make-geometric-generator</code><var> p</var><code>)</code></dt>
+<dd><p>Returns a generator that yields integers from the geometric distribution
+with success probability <var>p</var> (0 &lt;= p &lt;= 1).  The mean is <code>1/p</code> and
+variance is <code>(1-p)/p^2</code>.
+</p></dd></dl>
+
+<dl>
+<dt id="index-integers_002dpoisson_0024"><code>(make-poisson-generator</code><var> L</var><code>)</code></dt>
+<dd><p>Returns a generator that yields integers from the Poisson distribution with
+mean <var>L</var>, variance <var>L</var>.
+</p></dd></dl>
+
+<dl>
+<dt id="index-integers_002dzipf_0024"><code>(make-zipf-generator</code><var>
+N [ s [ q ] ]</var><code>)</code></dt>
+<dd><p>Returns a generator that yields exact integers <var>k</var> from the
+generalized Zipf distribution 1<var>/(k+q<sup>s</sup></var> such that 1 &le; k &le; <var>N</var>).
+The default value of <var>s</var> is 1.0 and the default value of
+<var>q</var> is 0.0.  Parameters outside the following ranges are likely
+to result in overflows or loss of precision:
+-10 &lt; <var>s</var> &lt; 100,
+-0.5 &lt; <var>q</var> &lt; 2<sup>8</sup>, and
+1 &le; <var>N</var>.
+</p></dd></dl>
+
+<p>The following three procedures generate points of real <var>k</var>-dimensional Euclidean space.
+These points are modeled as Scheme vectors of real numbers of length <var>k</var>.</p>
+
+
+<dl>
+    <dt id="index-reals_sphere"><code>(make-sphere-generator <var>n</var>)</code></dt>
+    <dd>
+        Returns a generator that generates points
+        in real (<var>n</var> + 1)-dimensional Euclidean space
+        that are randomly, independently distributed on the surface of an
+        <var>n</var>-sphere. That is, the vectors are of unit length.
+    </dd>
+</dl>
+
+<dl>
+    <dt id="index-reals_ellipsoid"><code>(make-ellipsoid-generator <var>axes</var>)</code></dt>
+    <dd>
+        Returns a generator that generates points
+        in real (<var>n</var> + 1)-dimensional Euclidean space
+        that are randomly, independently distributed
+        on the surface of an <var>n</var>-ellipsoid.  The ellipsoid is specified
+        by the <var>axes</var> argument, which must be a vector of
+        real numbers giving the lengths of the axes.
+        Given <var>axes = (a, b, ...)</var>,
+        then the generated vectors <var>v =(x, y, ...)</var> obey
+        1 = <var>x</var><sup>2</sup>/<var>a</var><sup>2</sup> + <var>y</var><sup>2</sup>/<var>b</var><sup>2</sup> + ... .
+    </dd>
+</dl>
+
+<dl>
+    <dt id="index-reals_ball"><code>(make-ball-generator <var>dimensions</var>)</code></dt>
+    <dd>
+        Returns a generator that generates points
+        in real <var>n</var>-dimensional Euclidean space
+        corresponding to the inside of an <var>n</var>-ball.
+        The <var>dimensions</var> argument can be either a vector
+        of <var>n</var> real numbers, in which case they are taken as the axes
+        of an ellipsoid, or it can be an integer, in which case it's
+        treated as the dimension <var>n</var>, (i.e. the generated vectors
+        are inside a ball of radius 1.)
+    </dd>
+</dl>
+
+<h3 id="Generator-operations" class="subheading">Generator operations</h3>
+
+<dl>
+<dt id="index-samples_002dfrom"><code>(gsampling</code><var> generator</var> ...<code>)</code></dt>
+<dd><p>Takes the <var>generators</var>
+and returns a new generator.  Every time the resulting generator is called,
+it picks one of the input generators with equal probability, then
+calls it to get a value.
+When all the generators are exhausted or no generators are specified,
+the new generator returns an end-of-file object.
+</p></dd></dl>
+
+
+
+<h2>Implementation</h2>
+
+<p>The sample implementation is in the
+<a href="https://github.com/scheme-requests-for-implementation/srfi-194">repository</a>
+of this SRFI and in <a href="https://srfi.schemers.org/srfi-194/srfi-194.tgz">this
+<code>.tgz</code> file</a>.
+An R7RS library file and a separate file containing the actual
+implementation are provided, along with a test file that
+works with <a href="https://srfi.schemers.org/srfi-64/srfi-64.html">SRFI 64</a>.
+The library itself depends on either
+<a href="https://srfi.schemers.org/srfi-121/srfi-121.html">SRFI
+121</a> or <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI
+158</a>, and of course <a href="https://srfi.schemers.org/srfi-27/srfi-27.html">SRFI
+27</a>.</p>
+
+<h2>Acknowledgements</h2>
+
+<p>This SRFI began life as Shiro Kawai's  specification for
+<code>data.random</code>, a Gauche library.  Many of the names have
+been changed to fit in better with SRFI 158 names, but the essence
+is the same.  John Cowan made those and other revisions, and then
+put the SRFI on the back burner until he got around to implementing
+it.  Arvydas Silanskas began by asking why the next R7RS-large
+ballot was so delayed, and ended up volunteering to write code for
+the parts already specified.  This SRFI is his first such implementation,
+and in the process of writing it he found a number of errors in the specification
+as well, which John was very glad to be told about.</p>
+
+<p>During the SRFI review process,
+the following additional generators were added:
+the binomial and random-source generators written by Brad Lucier,
+and the Zipf, sphere, and ball generators written by Linas Vepstas.</p>
+
+<p>Thanks also to the Scheme community and especially the contributors
+to the SRFI 194 mailing list, including
+Shiro Kawai and Marc Nieper-Wißkirchen.</p>
+
+<h2>Copyright</h2>
+
+<p>&copy; 2020 John Cowan.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+
+

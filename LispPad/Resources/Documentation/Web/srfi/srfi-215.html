@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 215: Central Log Exchange</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+    
+    <H2><a name="lp-srfi-215">Title</a></H2>
+   Central Log Exchange
+
+    <h2>Author</h2>
+    <p>Göran Weinholt</p>
+    
+    <h2 id="status">Status</h2>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+215+at+srfi+dotschemers+dot+org">srfi-215@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-215">archive</a>.</p>
+    <ul>
+      <li>Received: 2020-11-02</li>
+      <li>Draft #1 published: 2020-11-03</li>
+      <li>Draft #2 published: 2020-12-31</li>
+      <li>Finalized: 2021-01-11</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>
+      This SRFI specifies a central log exchange for Scheme that
+      connects log producers with log consumers. It allows multiple
+      logging systems to interoperate and co-exist in the same
+      program. Library code can produce log messages without knowledge
+      of which log system is actually used. Simple applications can
+      easily get logs on standard output, while more advanced
+      applications can send them to a full logging system.
+    </p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>
+      Logging is important in many systems, such as large
+      Internet-connected services, where problems are often only
+      evident after the fact. A system designed with logging allows
+      evidence to be gathered and analyzed after an incident. Logs are
+      also used to predict imminent problems and alert operators so
+      that they can take action before an incident occurs.
+    </p>
+
+    <p>
+      Scheme lacks a standard logging system. There are some
+      precedents in the Scheme ecosystem, such
+      as <a href="https://docs.racket-lang.org/reference/logging.html">Racket's
+        logging system</a>,
+      <a href="https://github.com/rotty/spells/blob/master/spells/logging.sls">Andreas
+        Rottmann's spells package</a>
+      and
+      <a href="https://github.com/ashinn/chibi-scheme/blob/master/lib/chibi/log.scm">Chibi
+        Scheme's log library</a>.
+      These are examples of high-level logging systems which are intended
+      to be used directly by code that needs to generate log messages.
+      Another precedent is
+      <a href="https://www.s48.org/1.9.2/manual/manual-Z-H-10.html#node_sec_9.10">Scheme48's
+        access to the syslog facility</a>,
+      which is a low-level logging system that specifically sends logs
+      to the syslog service.
+    </p>
+
+    <p>
+      The logging system in this SRFI is designed to be inserted
+      in between a high-level and a low-level logging system. The main
+      concern is to have a central point that all Scheme code can use
+      to send log messages, and which an application can hook up to
+      whichever log systems it uses. Library code can also choose to
+      use another log system and application developers would then
+      hook up those log systems to the one specified here. By
+      providing a well-known central exchange point through which all
+      log messages are passed, it becomes possible to work generally
+      with log messages throughout the whole application, regardless
+      of which frameworks end up being used to generate and consume
+      log messages.
+    </p>
+
+    <p>
+      The API exported by this SRFI consists of one procedure, two
+      parameters and eight constants.
+      The <code>send-log</code> procedure is a convenient procedure
+      for constructing log messages. It can be used in code that just
+      needs to produce log messages and that does not need any
+      advanced log system features.
+      The <code>current-log-fields</code> parameter lets an
+      application set application-wide log fields, such as the syslog
+      facility, thread-local fields such as a subsystem name, or fields
+      that are local to just some smaller context such as a test suite.
+      The <code>current-log-callback</code> parameter is the actual
+      central point for exchanging log messages. Its definition as a
+      parameter object is analogous to the definition
+      of <code>current-output-port</code> (etc.) and allows some
+      advanced features to be built, such as capture of log messages
+      in test runners and custom filtering steps.
+    </p>
+
+    <p>
+      This SRFI bases some design elements on the syslog protocol
+      (<a href="https://www.ietf.org/rfc/rfc5424.html">RFC 5424</a>)
+      and others on the systemd journal. These are both suited as
+      targets for the logs produced by users of this SRFI, but nothing
+      in this SRFI requires the use of them. It is expected that
+      implementers and other users of this SRFI will construct and
+      adapt log messages to be appropriate for the systems they are
+      creating.
+    </p>
+
+    <h2 id="specification">Specification</h2>
+
+    <h3 id="api">API</h3>
+
+    <p>
+      <b>Procedure:</b> <code>(send-log <i>severity</i> <i>message</i> [<i>key</i> <i>value</i>] …)</code>
+    </p>
+
+    <p>
+      Constructs a log message that contains the arguments and the
+      current log fields. The resulting log message is passed as
+      an argument to the current log callback.
+    </p>
+
+    <p>
+      The <i>severity</i> is one of the constants in the table below.
+      Its numeric value is added to the log message with the key
+      <code>SEVERITY</code>.
+    </p>
+
+    <table>
+      <caption>Log message severities</caption>
+      <thead>
+        <tr>
+          <th>Constant</th>
+          <th>Numeric</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>EMERGENCY</td> <td>0</td> <td>system is unusable</td></tr>
+        <tr><td>ALERT</td>     <td>1</td> <td>action must be taken immediately</td></tr>
+        <tr><td>CRITICAL</td>  <td>2</td> <td>critical conditions</td></tr>
+        <tr><td>ERROR</td>     <td>3</td> <td>error conditions</td></tr>
+        <tr><td>WARNING</td>   <td>4</td> <td>warning conditions</td></tr>
+        <tr><td>NOTICE</td>    <td>5</td> <td>normal but significant condition</td></tr>
+        <tr><td>INFO</td>      <td>6</td> <td>informational messages</td></tr>
+        <tr><td>DEBUG</td>     <td>7</td> <td>debug-level messages</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      The optional arguments are grouped into pairs of <i>key</i>s
+      and <i>value</i>s and are added to the log message, as in an
+      association list. The value is first converted as described
+      below. The order in which fields appear in the log message is
+      unspecified.
+    </p>
+
+    <p>
+      An error is signaled if an odd number of arguments is passed. An
+      error is signaled if one of the <i>key</i>s is not a symbol.
+      Implementations MAY support other types of keys, e.g. keyword
+      arguments, but they MUST be converted to symbols before being
+      added to the log message.
+    </p>
+
+    <p>
+      To simplify the handling of values in log callbacks that need
+      to serialize values, every <i>value</i> satisfies at least one
+      of the type predicates listed under <a href="#keys">Log messages</a>.
+      All other objects are converted to strings as if they
+      had been printed to a string output port by the
+      <code>write</code> procedure.
+    </p>
+
+    <p>
+      Implementations MAY convert objects in some other way, but the
+      resulting value in the log message MUST satisfy one of the
+      predicates. A value MAY be converted into an arbitrary number of
+      fields. Implementations MAY append additional fields to the
+      message, such as internal process identifiers, timestamps and
+      other useful context. But it is expected that a high-level
+      logging system will take care of these aspects.
+    </p>
+
+    <p>
+      It is an error to mutate the <i>message</i> or one of
+      the <i>value</i>s after calling this procedure.
+    </p>
+
+    <p>
+      Example: <pre>
+(send-log 'INFO (string-append "User " username " logged in")
+          'USERNAME username 'REMOTE_IP remote-ip)
+</pre>
+
+    <p>
+      <b>Parameter:</b> <code>current-log-fields</code>
+    </p>
+
+    <p>
+      This parameter contains a list of additional keys and values
+      that are automatically appended to the fields passed
+      to <code>send-log</code>. The effect is as if that procedure was
+      always invoked as <code>(apply send-log severity message [key
+      value] ... (current-log-fields))</code>.
+    </p>
+
+    <p>
+      The default value for this parameter is <code>()</code>, the
+      empty list. Implementations MAY use another default value.
+    </p>
+
+    <p>
+      It is an error to mutate any part of the list.
+    </p>
+
+    <p>
+      <b>Parameter:</b> <code>current-log-callback</code>
+    </p>
+
+    <p>
+      This parameter is bound to the current <dfn>log callback</dfn>,
+      which is a procedure that takes a log message as its single
+      argument. Log messages are passed as association lists.
+    </p>
+
+    <p>
+      The default value for this parameter is a procedure that is
+      meant to handle log messages that are generated before the
+      application changes the callback. This default procedure buffers
+      an implementation-defined number of messages. When the callback
+      is changed, the new callback receives each message that had been
+      buffered. The buffer is then cleared, to handle the case where
+      the default callback is restored by <code>parameterize</code>.
+    </p>
+
+    <p>
+      It is an error to call a log callback with anything except a
+      proper association list that contains the
+      keys <code>SEVERITY</code> and <code>MESSAGE</code> as described
+      below.
+    </p>
+
+    <p>
+      Log callbacks MAY discard any field and MAY discard any message.
+      Log callbacks MUST ensure that all messages from the same thread
+      of control arrive in the same order in which they were passed to the
+      callback.
+    </p>
+
+    <p>
+      This parameter is meant to be controlled by the application.
+      Libraries MUST NOT change this parameter except as requested by
+      the application.
+    </p>
+
+    <h3 id="keys">Log messages</h3>
+
+    <p>
+      Log messages are association lists that are normally expected to
+      be constructed by <code>send-log</code>, but they can also be
+      passed directly to the log callback with some care.
+      All keys in a log message MUST be symbols and all values MUST satisfy
+      at least one of
+      <code>string?</code>,
+      <code>bytevector?</code>,
+      <code>exact-integer?</code>,
+      <code>error-object?</code> (R7RS) or
+      <code>condition?</code> (R6RS).
+    </p>
+
+    <p>
+      Here is a simple example message. The log message
+      <code>((MESSAGE . "Test message") (SEVERITY . 7))</code>
+      contains the message "Test message" and its severity
+      is DEBUG.
+    </p>
+
+    <p>
+      Applications and library developers are free to design their own
+      log message keys. For the sake of interoperability it is
+      desirable to standardize the names of certain keys, shown in the
+      table below.
+    </p>
+
+    <table>
+      <caption>Log message keys</caption>
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Mandatory</th>
+          <th>Meaning</th>
+          <th>Reference</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>SEVERITY<sup>‡</sup></td>   <td>yes</td> <td>severity as an exact integer in [0,7]</td>   <td>RFC 5424, 6.2.1</td></tr>
+        <tr><td>MSG</td>                    <td>yes</td> <td>free-form message as a string</td>                                         </tr>
+        <tr><td>FACILITY</td>               <td>no</td>  <td>facility as an exact integer</td>            <td>RFC 5424, 6.2.1</td></tr>
+        <tr><td>APP-NAME<sup>✻</sup></td>   <td>no</td>  <td>APP-NAME as a string</td>                    <td>RFC 5424, 6.2.5</td></tr>
+        <tr><td>PROCID<sup>✻</sup></td>     <td>no</td>  <td>PROCID as a string</td>                      <td>RFC 5424, 6.2.6</td></tr>
+        <tr><td>MSGID<sup>✻</sup></td>      <td>no</td>  <td>MSGID as a string</td>                       <td>RFC 5424, 6.2.7</td></tr>
+
+        <tr><td>MESSAGE_ID</td>             <td>no</td>  <td>128-bit message identifier</td>    <td>systemd.journal-fields(7)</td></tr>
+
+        <tr>
+          <td>TOPIC</td>
+          <td>no</td>
+          <td>topic (or equivalent) of the logger</td>
+          <td><a href="https://docs.racket-lang.org/reference/logging.html">Racket</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      <sup>‡</sup> = In the systemd journal this field is confusingly
+      called PRIORITY.<br>
+      <sup>✻</sup> = In the systemd journal these fields are part of
+      the SYSLOG_IDENTIFIER field, mirroring the
+      obsolete <a href="https://www.ietf.org/rfc/rfc3164">RFC
+      3164</a>.
+    </p>
+
+    <p>
+      An up-to-date list of log message keys will be found in the
+      <a href="https://registry.scheme.org/">Scheme registry</a>.
+      Additions to the list can be made directly in the registry
+      without updating this SRFI.
+    </p>
+
+    <h3 id="parameters">Parameter implementation</h3>
+
+    <p>
+      Implementations are free to use any reasonable implementation of
+      parameter objects, such as <a href="https://srfi.schemers.org/srfi-39/">SRFI 39</a>, but care should be taken
+      that <code>parameterize</code> does not affect the behavior of
+      other threads of control. If an implementation provides R7RS (or
+      a future standard/report with parameters) then it SHOULD use
+      parameters that are compatible with the ones in the base library.
+    </p>
+
+    <h2 id="library-name">Library name</h2>
+
+    <p>
+      Systems that
+      implement <a href="https://srfi.schemers.org/srfi-97/">SRFI
+      97</a> should make this library available under the names
+      <code>(srfi :215)</code> and <code>(srfi :215 logging)</code>.
+    </p>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>
+      A sample implementation is provided as an R7RS library. It has
+      no dependencies beyond R7RS Small. A test suite is also
+      provided.
+    </p>
+
+    <a href="srfi-215-sample.sld">Source for the sample implementation.</a>
+
+    <p>
+      Here is an example of a simple log callback. When a program
+      using this callback runs as a systemd unit, the output will be
+      translated to journal entries marked with severities. A more
+      complete integration with the systemd journal would also pass
+      along the fields given to <code>send-log</code> through the
+      appropriate API.
+    </p>
+
+<pre>
+(current-log-callback
+ (lambda (msg)
+   (let ((p (current-error-port)))
+     (display "&lt;" p)
+     (display (cdr (assq 'SEVERITY msg)) p)
+     (display "&gt;" p)
+     (display (cdr (assq 'MESSAGE msg)) p)
+     (newline p))))
+
+(send-log DEBUG "Log callback configured")
+</pre>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>
+      Thanks to everyone who participated in the discussion on the
+      mailing list.
+    </p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2020 Göran Weinholt.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+  </body>
+</html>
+
+

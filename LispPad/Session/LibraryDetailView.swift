@@ -23,14 +23,54 @@ import LispKit
 
 struct LibraryDetailView: View {
   @EnvironmentObject var docManager: DocumentationManager
-  
+  @StateObject var controller = WebViewController()
   let libProxy: LibraryManager.LibraryProxy
   
   var body: some View {
-    ScrollView(.vertical) {
-      MarkdownText(self.docManager.libraryDocumentation(for: self.libProxy.components))
-        .padding(12)
+    switch self.docManager.libraryDocumentation(for: self.libProxy.components) {
+      case .markdown(let block):
+        ScrollView(.vertical) {
+          MarkdownText(block)
+            .padding(12)
+        }
+        .navigationTitle(self.libProxy.name)
+      case .htmlFile(let url):
+        ZStack {
+          WebView(controller: self.controller, resource: .file(url, nil), action: {
+            notification in
+          })
+          if self.controller.isLoading {
+            ProgressView()
+              .progressViewStyle(CircularProgressViewStyle())
+          }
+        }
+        .ignoresSafeArea()
+        .navigationTitle(self.libProxy.name)
+        .navigationBarBackButtonHidden(false)
+        .toolbar {
+          ToolbarItemGroup(placement: .navigationBarTrailing) {
+            HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+              Button(action: {
+                self.controller.goBack = true
+              }) {
+                Image(systemName: "chevron.left")
+                  .font(LispPadUI.toolbarFont)
+              }
+              .disabled(!self.controller.canGoBack)
+              Button(action: {
+                self.controller.goForward = true
+              }) {
+                Image(systemName: "chevron.right")
+                  .font(LispPadUI.toolbarFont)
+              }
+              .disabled(!self.controller.canGoForward)
+            }
+          }
+        }
+      default:
+        Text("Documentation not available.")
+          .padding(12)
+          .navigationTitle(self.libProxy.name)
     }
-    .navigationTitle(self.libProxy.name)
   }
 }

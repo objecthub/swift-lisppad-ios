@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" /> 
+    <title>SRFI 137: Minimal Unique Types</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-137">Title</a></H1>
+
+Minimal Unique Types
+
+<h1>Author</h1>
+
+John Cowan, Marc Nieper-Wißkirchen
+
+<H1>Status</H1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="http://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+137+at+srfi+dotschemers+dot+org">srfi-137@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="http://srfi-email.schemers.org/srfi-137">archive</a>.</p>
+<ul>
+  <li>Received: 2016/6/27</li>
+  <li>60-day deadline: 2016/8/26</li>
+  <li>Draft #1 published: 2016/6/27</li>
+  <li>Draft #2 published: 2016/10/4</li>
+  <li>Finalized: 2016/10/4</li>
+  <li>Revised to fix errata:
+    <ul><li>2016/10/5 (Fixed text under <tt>make-reia-subtype</tt>.)</li></ul>
+    <ul><li>2016/11/7 (Fixed text under <tt>make-reia-subtype</tt> again.)</li></ul></li>
+</ul>
+
+<h1>Abstract</h1>
+
+This SRFI is intended to standardize a primitive run-time mechanism to
+create disjoint types.
+
+<h1>Rationale</h1>
+
+<p>
+This SRFI provides a simple hook to create new data types at run time
+that are disjoint from all existing types.  allowing portable libraries
+to implement SRFI 9, SRFI 99, SRFI 131, SRFI 135, R6RS records, Chicken
+records, CLOS, persistent databases, remote access to data on servers,
+and the like on top of it.  It is also portably implementable and usable
+entirely separately from any of these.
+</p>
+<p>
+Note that there is no concept of a type object here: a type
+is simply a name for a group of closely linked procedures that
+allow the creation and manipulation of type instances (which are
+objects) and subtypes.  This SRFI exposes no ambient authority,
+and relies entirely on module exports for access control.
+It is based on a less radical proposal by Alaric Snell-Pym, <a
+href="http://trac.sacrideo.us/wg/wiki/UniqueTypesSnellPym">UniqueTypesSnellPym</a>.
+</p>
+<p>John Cowan is the author and shepherd of this SRFI. Marc
+Nieper-Wißkirchen is the author of the sample implementation.</p>
+
+<h1>Specification</h1>
+
+<h3 id="Make-type">Make-type</h3>
+<p>
+<tt>(make-type </tt> <em>type-payload</em><tt>)</tt> &#x2192;
+<em>type-accessor constructor predicate accessor make-subtype</em>
+</p>
+<p>
+Calling <tt>make-type</tt> on <em>type-payload</em>, which can be
+any Scheme object, returns five values, all of which are procedures.
+They are distinct (in the sense of <tt>eqv?</tt>) from each other and
+from any other procedures returned by other calls to <tt>make-type</tt>.
+In brief, the five functions:
+</p>
+<ul><li>return <em>type-payload</em>
+</li></ul><ul><li>return newly allocated objects of a disjoint type known as
+<em>instances</em>, each associated with an <em>instance payload</em>
+</li></ul><ul><li>return <tt>#t</tt> iff an object is an instance of this type
+</li></ul><ul><li>return the instance payload
+</li></ul><ul><li>return five more procedures associated with a subtype of this type
+</li></ul><p>
+Details are given for a sample type in the next section.  The type
+payload might contain metadata (such as field names or class variables)
+associated with the type as a whole.
+</p>
+<h2 id="Sampleproceduresforatype">Sample procedures for a type</h2>
+<p>
+For the purposes of this section, we will suppose that</p>
+<pre>(define-values (reia-metadata make-reia reia? reia-ref make-reia-subtype) (make-type 'reia))</pre>
+<p>has been evaluated, and document each of the five variables that
+it binds.  "Reia" is an acronym for "remarkably 'evil' in appearance",
+and has no particular significance.  Fnord!
+</p>
+<p>
+<tt>(reia-metadata)</tt> &#x2192; <em>object</em>
+</p>
+<p>
+Returns the symbol <tt>reia</tt>. 
+</p>
+<p>
+<tt>(make-reia </tt><em>instance-payload</em><tt>)</tt>&#x2192; <em>reia</em>
+</p>
+<p>
+Returns a newly allocated instance associated with
+<em>instance-payload</em>.  This association is single and immutable,
+but it is possible to make use of an appropriate container payload in
+order to effectively associate the instance with more than one value.
+To make the association effectively mutable, use a mutable payload such
+as a box, list or vector.  Instances belong to a type that is disjoint
+from any existing Scheme type, including types created by other calls
+to <tt>make-type</tt>.
+</p>
+<p>
+<tt>(reia? </tt><em>object</em><tt>)</tt>&#x2192; <em>boolean</em>
+</p>
+<p>
+Returns <tt>#t</tt>  iff <em>object</em> was returned by a call to
+<tt>make-reia</tt> or any constructor created as part of a direct or
+indirect subtype of the <tt>reia</tt> type.
+</p>
+<p>
+<tt>(reia-ref </tt><em>reia</em><tt>)</tt>&#x2192; <em>object</em>
+</p>
+<p>
+Returns the instance payload of <em>reia</em>.  It is an error if
+<em>reia</em> does not satisfy <tt>reia?</tt>.
+</p>
+<p>
+<tt>(make-reia-subtype </tt><em>type-payload</em><tt>)</tt>&#x2192; <em>type-accessor constructor predicate accessor make-subtype</em>
+</p>
+<p>
+Returns five new procedures with the same semantics as <tt>make-type</tt>,
+such that the objects returned by <em>constructor</em> satisfy <tt>reia?</tt>
+and their payload can be accessed using <tt>reia-ref</tt>.
+</p>
+
+<h1>Implementation</h1>
+
+The sample implementation of this SRFI is in the associated repository.
+Note that the predicate functions are O(k) where k is the depth of the
+type tree.  An O(1) implementation is possible at the expense of making
+the creation of subtypes O(k).
+
+
+<h1>Copyright</h1>
+Copyright (C) John Cowan, Marc Nieper-Wißkirchen (2016).  All Rights Reserved. 
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.</p>
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr />
+  <address>Editor: <a href="mailto:srfi-editors at srfi dot schemers dot org">Arthur A. Gleckler</a></address></body></html>

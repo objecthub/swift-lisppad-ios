@@ -1,0 +1,390 @@
+<html>
+  <head>
+    <title>SRFI 134: Immutable Deques</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-134">Title</a></H1>
+
+Immutable Deques
+
+<h1>Author</h1>
+
+Kevin Wortman, John Cowan
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status. Here is <a href="http://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+134+at+srfi+dotschemers+dot+org">srfi-134@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="http://srfi-email.schemers.org/srfi-134">archive</a>.</p>
+<ul>
+  <li>Received: 2015/12/9</li>
+  <li>60-day deadline: 2016/2/7</li>
+  <li>Draft #1 published: 2015/12/9</li>
+  <li>Draft #2 published: 2016/1/20</li>
+  <li>Draft #3 published: 2016/1/31</li>
+  <li>Draft #4 published: 2016/2/6</li>
+  <li>Draft #5 published: 2016/2/9 (mostly code changes)</li>
+  <li>Draft #6 published: 2016/4/7</li>
+  <li>Draft #7 published: 2016/4/12</li>
+  <li>Draft #8 published: 2016/5/9</li>
+  <li>Draft #9 published: 2016/5/28</li>
+  <li>Finalized: 2016/7/1</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+This SRFI defines immutable deques. A deque is a double-ended queue, a sequence which allows elements to be added or removed efficiently from either end.  A structure is immutable when all its operations leave the structure unchanged. Note that none of the procedures specified here ends with an exclamation point.</p>
+
+<h1>Rationale</h1>
+
+<p>
+A double-ended queue, or <em>deque</em> (pronounced "deck") is a sequential data structure which allows elements to be added or removed from either end in amortized O(1) time.  It is a generalization of both a queue and a stack, and can be used as either by disregarding the irrelevant procedures.  
+</p>
+<p>
+This SRFI describes immutable deques, or <em>ideques</em>.  Immutable structures are sometimes called <em>persistent</em> and are closely related to <em>pure functional</em> (a.k.a. <em>pure</em>) structures. The availability of immutable data structures facilitates writing efficient programs in the pure-functional style.
+Immutable deques can also be seen as a bidirectional generalization of immutable lists, and some of the procedures documented below are most useful in that context.
+Unlike the immutable lists of <a href="http://srfi.schemers.org/srfi-116/srfi-116.html">SRFI 116</a>, it is efficient to produce modified versions of an ideque; unlike the list queues of <a class="ext-link" href="http://srfi.schemers.org/srfi-117/srfi-117.html">SRFI 117</a>, it is possible to efficiently return an updated version of an ideque without mutating any earlier versions of it.
+</p>
+<p>
+The specification was designed jointly by Kevin Wortman and John Cowan.  John Cowan is the editor and shepherd.  The two-list implementation was written by John Cowan.</p>
+
+<h1>Procedure index</h1>
+
+<p><a href="#Constructors">Constructors</a>:
+<code>ideque, ideque-tabulate, ideque-unfold, ideque-unfold-right</code></p>
+<p><a href="#Predicates">Predicates</a>:
+<code>ideque?, ideque-empty?, ideque=, ideque-any, ideque-every</code></p>
+<p><a href="#Queueoperations">Queue operations</a>:
+<code>ideque-front, ideque-back, ideque-remove-front, ideque-remove-back,
+ideque-add-front, ideque-add-back</code></p>
+<p><a href="#Otheraccessors">Other accessors</a>:
+<code>ideque-ref, ideque-take, ideque-take-right, ideque-drop, ideque-drop-right,
+ideque-split-at</code></p>
+<p><a href="#Thewholedeque">The whole ideque</a>:
+<code>ideque-length, ideque-append, ideque-reverse, ideque-count, ideque-zip</code></p>
+<p><a href="#Mapping">Mapping</a>:
+<code>ideque-map, ideque-filter-map, ideque-for-each, ideque-for-each-right,
+ideque-fold, ideque-fold-right, ideque-append-map</code></p>
+<p><a href="#Filtering">Filtering</a>:
+<code>ideque-filter, ideque-remove, ideque-partition</code></p>
+<p><a href="#Searching">Searching</a>:
+<code>ideque-find, ideque-find-right, ideque-take-while, ideque-take-while-right,
+ideque-drop-while, ideque-drop-while-right, ideque-span, ideque-break</code></p>
+<p><a href="#Conversion">Conversion</a>:
+<code>list->ideque, ideque->list, generator->ideque, ideque->generator</code></p>
+
+<h1>Specification</h1>
+
+<p>
+We specify required time efficiency upper bounds using big-O notation. We note when, in some cases, there is "slack" between the required bound and the theoretically optimal bound for an operation. Implementations may use data structures with amortized time bounds, but should document which bounds hold in only an amortized sense. 
+</p>
+<p>
+Deques are disjoint from all other Scheme types.
+</p>
+<h2 id="Constructors">Constructors</h2>
+<p>
+<tt>(ideque </tt> <em>element</em> ...<tt>)</tt>
+</p>
+<p>
+Returns an ideque containing the <em>elements</em>. The first element (if any) will be at the front of the ideque and the last element (if any) will be at the back. Takes O(n) time, where <em>n</em> is the number of elements.
+</p>
+<p>
+<tt>(ideque-tabulate </tt><em>n proc</em><tt>)</tt>
+</p>
+<p>
+Invokes the predicate <em>proc</em> on every exact integer from 0 (inclusive) to <em>n</em> (exclusive).  Returns an ideque containing the results in order of generation.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-unfold </tt><em>stop? mapper successor seed</em><tt>)</tt>
+</p>
+<p>
+Invokes the predicate <em>stop?</em> on <em>seed</em>.  If it returns false, generate the next result by applying <em>mapper</em> to <em>seed</em>, generate the next seed by applying <em>successor</em> to <em>seed</em>, and repeat this algorithm with the new seed.  If <em>stop?</em> returns true, return an ideque containing the results in order of accumulation.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-unfold-right </tt><em>stop? mapper successor seed</em><tt>)</tt>
+</p>
+<p>
+Invokes the predicate <em>stop?</em> on <em>seed</em>.  If it returns false, generate the next result by applying <em>mapper</em> to <em>seed</em>, generate the next seed by applying <em>successor</em> to <em>seed</em>, and repeat the algorithm with the new seed.  If <em>stop?</em> returns true, return an ideque containing the results in reverse order of accumulation.  Takes O(n) time.
+</p>
+<h2 id="Predicates">Predicates</h2>
+<p>
+<tt>(ideque? </tt><em>x</em><tt>)</tt>
+</p>
+<p>
+Returns <tt>#t</tt> if <em>x</em> is an ideque, and <tt>#f</tt> otherwise.  Takes O(1) time.
+</p>
+<p>
+<tt>(ideque-empty? </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Returns <tt>#t</tt> if <em>ideque</em> contains zero elements, and <tt>#f</tt> otherwise.  Takes O(1) time.
+</p>
+<p>
+<tt>(ideque= </tt><em>elt= ideque ...</em><tt>)</tt>
+</p>
+<p>
+Determines ideque equality, given an element-equality procedure. Ideque A equals ideque B if they are of the same length, and their corresponding elements are equal, as determined by <i>elt=</i>. If the element-comparison procedure's first argument is from <em>ideque<sub>i</sub></em>, then its second argument is from <em>ideque<sub>i+1</sub></em>, i.e. it is always called as <code>(</code><em>elt= a b</em><code>)</code> for <em>a</em> an element of ideque A, and <em>b</em> an element of ideque B.</p>
+<p>
+In the n-ary case, every <em>ideque<sub>i</sub></em> is compared to <em>ideque<sub>i+1</sub></em> (as opposed, for example, to comparing <em>ideque<sub>1</sub></em> to every <em>ideque<sub>i</sub></em>, for i > 1). If there are zero or one ideque arguments, <code>ideque=</code> simply returns true. 
+The name does not end in a question mark for compatibility with the SRFI-1 procedure <code>list=</code>. 
+</p>
+<p>
+Note that the dynamic order in which the <em>elt=</em> procedure is applied to pairs of elements is not specified. For example, if <code>ideque=</code> is applied to three ideques, A, B, and C, it may first completely compare A to B, then compare B to C, or it may compare the first elements of A and B, then the first elements of B and C, then the second elements of A and B, and so forth. 
+</p>
+<p>
+The equality procedure must be consistent with <code>eq?</code>. 
+Note that this implies that two ideques which are <code>eq?</code> are always <code>ideque=</code>, as well; implementations may exploit this fact to "short-cut" the element-by-element comparisons. 
+</p>
+<p>
+<tt>(ideque-any </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-every </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+Invokes <em>pred</em> on the elements of the <em>ideque</em> in order until one call returns a true/false value, which is then returned.  If there are no elements, returns <tt>#f</tt>/<tt>#t</tt>.  Takes O(n) time.
+</p>
+<h2 id="Queueoperations">Queue operations</h2>
+<p>
+<tt>(ideque-front </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-back </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Returns the front/back element of <em>ideque</em>. It is an error for <em>ideque</em> to be empty. Takes O(1) time.
+</p>
+<p>
+<tt>(ideque-remove-front </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-remove-back </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque with the front/back element of <em>ideque</em> removed. It is an error for <em>ideque</em> to be empty. Takes O(1) time.
+</p>
+<p>
+<tt>(ideque-add-front </tt><em>ideque obj</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-add-back </tt><em>ideque obj</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque with <em>obj</em> pushed to the front/back of <em>ideque</em>. Takes O(1) time.
+</p>
+<h2 id="Otheraccessors">Other accessors</h2>
+<p>
+<tt>(ideque-ref </tt><em>ideque n</em><tt>)</tt>
+</p>
+<p>
+Returns the <em>nth</em> element of <em>ideque</em>.  It is an error unless <em>n</em> is less than the length of <em>ideque</em>.  Takes O(n) time.
+</p>
+<tt>(ideque-take </tt><em>ideque n</em><tt>)</tt>
+<p>
+<tt>(ideque-take-right </tt><em>ideque n</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque containing the first/last <em>n</em> elements of <em>ideque</em>.  It is an error if <em>n</em> is greater than the length of <em>ideque</em>.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-drop </tt><em>ideque n</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-drop-right </tt><em>ideque n</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque containing all but the first/last <em>n</em> elements of <em>ideque</em>.  It is an error if <em>n</em> is greater than the length of <em>ideque</em>.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-split-at </tt><em>ideque n</em><tt>)</tt>
+</p>
+<p>
+Returns two values, the results of <tt>(ideque-take </tt><em>ideque n</em><tt>)</tt> and <tt>(ideque-drop </tt><em>ideque n</em><tt>)</tt> respectively, but may be more efficient.  Takes O(n) time.
+</p>
+<h2 id="Thewholedeque">The whole ideque</h2>
+<p>
+<tt>(ideque-length </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Returns the length of <em>ideque</em> as an exact integer.  May take O(n) time, though O(1) is optimal.
+</p>
+<p>
+<tt>(ideque-append </tt><em>ideque</em> ...<tt>)</tt>
+</p>
+<p>
+Returns an ideque with the contents of the <em>ideque</em> followed by the others, or an empty ideque if there are none. Takes O(kn) time, where k is the number of ideques and n is the number of elements involved, though O(k log n) is possible.
+</p>
+<p>
+<tt>(ideque-reverse </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque containing the elements of <em>ideque</em> in reverse order.  Takes O(1) time.
+</p>
+<p>
+<tt>(ideque-count </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+<em>Pred</em> is a procedure taking a single value and returning a single value. It is applied element-wise to the elements of <var>ideque</var>, and a count is tallied of the number of elements that produce a true value. This count is returned.  Takes O(n) time.  The dynamic order of calls to <var>pred</var> is unspecified.
+</p>
+<p>
+<tt>(ideque-zip </tt><em>ideque<sub>1</sub> ideque<sub>2</sub></em> ...<tt>)</tt>
+</p>
+<p>
+Returns an ideque of lists (not ideques) each of which contains the corresponding elements of <var>ideques</var> in the order specified.  Terminates when all the elements of any of the ideques have been processed. Takes O(kn) time, where <em>k</em> is the number of ideques and <em>n</em> is the number of elements in the shortest ideque.
+</p>
+<h2 id="Mapping">Mapping</h2>
+<p>
+<tt>(ideque-map </tt><em>proc ideque</em><tt>)</tt>
+</p>
+<p>
+Applies <em>proc</em> to the elements of <em>ideque</em> and returns an ideque containing the results in order.  The dynamic order of calls to <em>proc</em> is unspecified.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-filter-map </tt><em>proc ideque</em><tt>)</tt>
+</p>
+<p>
+Applies <em>proc</em> to the elements of <em>ideque</em> and returns an ideque containing the true (i.e. non-<code>#f</code>) results in order.  The dynamic order of calls to <em>proc</em> is unspecified.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-for-each </tt><em>proc ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-for-each-right </tt><em>proc ideque</em><tt>)</tt>
+</p>
+<p>
+Applies <em>proc</em> to the elements of <em>ideque</em> in forward/reverse order and returns an unspecified result.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-fold </tt><em>proc nil ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-fold-right </tt><em>proc nil ideque</em><tt>)</tt>
+</p>
+<p>
+Invokes <em>proc</em> on the elements of <em>ideque</em> in forward/reverse order, passing the result of the previous invocation as a second argument. For the first invocation, <em>nil</em> is used as the second argument. Returns the result of the last invocation, or <em>nil</em> if there was no invocation.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-append-map </tt><em>proc ideque</em><tt>)</tt>
+</p>
+<p>
+Applies <em>proc</em> to the elements of <em>ideque</em>.  It is an error if the result is not a list.  Returns an ideque containing the elements of the lists in order.  Takes O(n) time, where n is the number of elements in all the lists returned.
+</p>
+<h2 id="Filtering">Filtering</h2>
+<p>
+<tt>(ideque-filter </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-remove </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque containing the elements of <em>ideque</em> that do/do not satisfy <em>pred</em>.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-partition </tt><em>proc ideque</em><tt>)</tt>
+</p>
+<p>
+Returns two values, the results of <tt>(ideque-filter </tt><em>pred ideque</em><tt>)</tt> and <tt>(ideque-remove </tt><em>pred ideque</em><tt>)</tt> respectively, but may be more efficient.  Takes O(n) time.
+</p>
+<h2 id="Searching">Searching</h2>
+<p>
+<tt>(ideque-find </tt><em>pred ideque</em> [ <em>failure</em> ]<tt>)</tt>
+</p>
+<p>
+<tt>(ideque-find-right </tt><em>pred ideque</em> [ <em>failure</em> ]<tt>)</tt>
+</p>
+<p>
+Returns the first/last element of <em>ideque</em> that satisfies <em>pred</em>.  If there is no such element, returns the result of invoking the thunk <em>failure</em>; the default thunk is <code>(lambda () #f)</code>.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-take-while </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-take-while-right </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque containing the longest initial/final prefix of elements in <em>ideque</em> all of which satisfy <em>pred</em>.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-drop-while </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-drop-while-right </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+Returns an ideque which omits the longest initial/final prefix of elements in <em>ideque</em> all of which satisfy <em>pred</em>, but includes all other elements of <em>ideque</em>.  Takes O(n) time.
+</p>
+<p>
+<tt>(ideque-span </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-break </tt><em>pred ideque</em><tt>)</tt>
+</p>
+<p>
+Returns two values, the initial prefix of the elements of <em>ideque</em> which do/do not satisfy <em>pred</em>, and the remaining elements.  Takes O(n) time.
+</p>
+<h2 id="Conversion">Conversion</h2>
+<p>
+<tt>(list-&gt;ideque </tt><em>list</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-&gt;list </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Conversion between ideque and list structures. FIFO order is preserved, so the front of a list corresponds to the front of an ideque. Each operation takes O(n) time.
+</p>
+<p>
+<tt>(generator-&gt;ideque </tt><em>generator</em><tt>)</tt>
+</p>
+<p>
+<tt>(ideque-&gt;generator </tt><em>ideque</em><tt>)</tt>
+</p>
+<p>
+Conversion between
+<a href="http://srfi.schemers.org/srfi-121/srfi-121.html">SRFI 121</a>
+generators and ideques.  Each operation takes O(n) time.  A generator
+is a procedure that is called repeatedly with no arguments to generate
+consecutive values, and returns an end-of-file object when it has no
+more values to return.
+</p>
+
+<h1>Implementation</h1>
+
+<p>The sample implementation is in the in the <code>ideque-2list</code> subdirectory of the repository for
+this SRFI.  It is an implementation based on two Scheme lists, one
+for the front and another (in reverse element order) for the back.
+The cost of <code>ideque-front</code>, <code>ideque-back</code>,
+<code>ideque-remove-front</code>, and <code>ideque-remove-back</code>
+are amortized O(1).  An implementation based on finger trees may be
+added later.</p>
+
+<h1>Copyright</h1>
+Copyright (C) John Cowan, Kevin Wortman (2015).  All Rights Reserved. 
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.</p>
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr />
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>

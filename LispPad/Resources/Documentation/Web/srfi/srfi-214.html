@@ -1,0 +1,3503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SRFI 214: Flexvectors</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style data-critical="true">
+    * {
+        border-color:inherit
+    }
+
+    *, ::after, ::before {
+        box-sizing:inherit
+    }
+
+    html {
+        box-sizing:border-box
+    }
+
+    *, ::after, ::before {
+        flex-shrink:1
+    }
+
+    a, area, button, input, label, select, summary, textarea {
+        touch-action:manipulation
+    }
+
+    html {
+        font-family: sans-serif;
+        line-height: 1.15;
+        text-size-adjust:100%
+    }
+
+    body {
+        margin:0px
+    }
+
+    h1 {
+        font-size: 2em;
+        margin:0.67em 0px
+    }
+
+    pre {
+        font-family: monospace, monospace;
+        font-size:1em
+    }
+
+    a {
+        background-color:transparent
+    }
+
+    a:active, a:hover {
+        outline-width:0px
+    }
+
+    b, strong {
+        font-weight:bolder
+    }
+
+    code, kbd, samp {
+        font-family: monospace, monospace;
+        font-size:1em
+    }
+
+    html {
+        font-size: 16px;
+        -webkit-tap-highlight-color:transparent
+    }
+
+    body, html {
+        height:100%
+    }
+
+    body {
+        font-size: 1rem;
+        line-height: 1.375;
+        user-select:none !important
+    }
+
+    body, input, textarea {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+        font-size:16px
+    }
+
+    .button, .card, .card-block:not(.multiple), .card-footer:not(.multiple), .card-header:not(.multiple), .centerer, .container, .infobar, .label, .select, .spacer, .tagbox, .widget, address, dl, fieldset, footer, form, h1, h2, h3, h4, h5, h6, header, i.icon, img, input, label, ol, p, pre, textarea, ul {
+        position: relative;
+        margin:0px 0px 0.625rem
+    }
+
+    .button:last-child, .card-block:last-child:not(.multiple), .card-footer:last-child:not(.multiple), .card-header:last-child:not(.multiple), .card:last-child, .centerer:last-child, .container:last-child, .infobar:last-child, .label:last-child, .select:last-child, .spacer:last-child, .tagbox:last-child, .widget:last-child, address:last-child, dl:last-child, fieldset:last-child, footer:last-child, form:last-child, h1:last-child, h2:last-child, h3:last-child, h4:last-child, h5:last-child, h6:last-child, header:last-child, i.icon:last-child, img:last-child, input:last-child, label:last-child, ol:last-child, p:last-child, pre:last-child, textarea:last-child, ul:last-child {
+        margin-bottom:0px
+    }
+
+    * {
+        transition:opacity 0.15s ease 0s
+    }
+
+    .small, h5 {
+        font-size:0.840901em
+    }
+
+    .medium, h4 {
+        font-size:1em
+    }
+
+    .infobar-title:not(.xxxxsmall):not(.xxxsmall):not(.xxsmall):not(.xsmall):not(.small):not(.medium):not(.large):not(.xlarge):not(.xxlarge):not(.xxxlarge):not(.xxxxlarge), .large, h3 {
+        font-size:1.1892em
+    }
+
+    .xlarge, h2 {
+        font-size:1.5em
+    }
+
+    .xxlarge, h1 {
+        font-size:1.68176em
+    }
+
+    .button:target, .card:target, .container:target, .infobar:target, .label:target, .target, input:target, pre:target, textarea:target {
+        animation:0.9s ease-in-out 0s 1 normal none running
+    }
+
+    .select select + label::after, i.icon {
+        display: inline-block;
+        vertical-align: middle;
+        font-family: "Material Icons";
+        font-weight: 400;
+        font-style: normal;
+        font-size: 1.5em;
+        width: 1em;
+        height: 1em;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        overflow-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+        font-feature-settings: "liga";
+        flex:0 0 auto !important
+    }
+
+    i.small.icon {
+        font-size:1.26135em
+    }
+
+    code {
+        font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        background-color: rgba(0, 0, 0, 0.075);
+        padding: 0.09em 0.18em;
+        border-radius:0.375em
+    }
+
+    pre > code {
+        padding: 0px;
+        border: 0px;
+        background:transparent
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: inherit;
+        font-weight:500
+    }
+
+    a {
+        touch-action: manipulation;
+        cursor: pointer;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        color: inherit;
+        text-decoration:none
+    }
+
+    address a:hover, li a:hover, p a:hover, td a:hover, th a:hover {
+        text-decoration:underline
+    }
+
+    dd, dl, ol, ul {
+        padding-left:1.25rem
+    }
+
+    p {
+        word-break: break-word;
+        max-width: 100%;
+        overflow-wrap:break-word
+    }
+
+    p > * {
+        margin-bottom:0px !important
+    }
+
+    pre {
+        display: flex;
+        padding:0.625rem
+    }
+
+    span > * {
+        margin-bottom:0px !important
+    }
+
+    .theme-light pre {
+        background-color: rgb(246, 248, 250);
+        color:rgb(31, 31, 31)
+    }
+
+    .theme-light .preview {
+        background-color: rgb(255, 255, 255);
+        border-color: rgb(230, 229, 229);
+        color:rgb(31, 31, 31)
+    }
+
+    .theme-light .preview h1, .theme-light .preview h2, .theme-light .preview h3, .theme-light .preview h4, .theme-light .preview h5, .theme-light .preview h6 {
+        border-color:rgb(234, 236, 239)
+    }
+
+    .theme-light .preview h1, .theme-light .preview h2, .theme-light .preview h3, .theme-light .preview h4, .theme-light .preview h5 {
+        color:inherit
+    }
+
+    .theme-light .preview code, .theme-light .preview li code, .theme-light .preview p code, .theme-light .preview table code {
+        background-color: rgba(27, 31, 35, 0.05) !important;
+        color:inherit !important
+    }
+
+    .theme-light .preview pre code {
+        background-color:transparent !important
+    }
+
+    .theme-light .preview address a, .theme-light .preview dd a, .theme-light .preview dt a, .theme-light .preview h1 a, .theme-light .preview h2 a, .theme-light .preview h3 a, .theme-light .preview h4 a, .theme-light .preview h5 a, .theme-light .preview h6 a, .theme-light .preview li a, .theme-light .preview p a, .theme-light .preview td a, .theme-light .preview th a {
+        color:rgb(3, 102, 214)
+    }
+
+    .theme-light .preview address a:hover, .theme-light .preview dd a:hover, .theme-light .preview dt a:hover, .theme-light .preview h1 a:hover, .theme-light .preview h2 a:hover, .theme-light .preview h3 a:hover, .theme-light .preview h4 a:hover, .theme-light .preview h5 a:hover, .theme-light .preview h6 a:hover, .theme-light .preview li a:hover, .theme-light .preview p a:hover, .theme-light .preview td a:hover, .theme-light .preview th a:hover {
+        color:rgb(3, 95, 199)
+    }
+
+    .theme-light .preview address a:active, .theme-light .preview dd a:active, .theme-light .preview dt a:active, .theme-light .preview h1 a:active, .theme-light .preview h2 a:active, .theme-light .preview h3 a:active, .theme-light .preview h4 a:active, .theme-light .preview h5 a:active, .theme-light .preview h6 a:active, .theme-light .preview li a:active, .theme-light .preview p a:active, .theme-light .preview td a:active, .theme-light .preview th a:active {
+        color:rgb(3, 88, 184)
+    }
+
+    .preview .copy-wrapper {
+        position: relative;
+        margin-bottom:16px
+    }
+
+    .preview .copy-wrapper:last-child {
+        margin-bottom:0px
+    }
+
+    .preview .copy-wrapper .copy {
+        position: absolute;
+        top: 0.625rem;
+        right: 0.625rem;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.15s ease 0s;
+        z-index:1
+    }
+
+    .preview .copy-wrapper:hover .copy {
+        opacity:0.5
+    }
+
+    .preview .copy-wrapper:hover .copy:hover {
+        opacity:0.75
+    }
+
+    .preview .copy-wrapper:hover .copy:active {
+        opacity:1
+    }
+
+    .preview .copy-wrapper > pre {
+        margin-bottom:0px !important
+    }
+
+    .preview code, .preview pre {
+        direction: ltr;
+        font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        hyphens: none;
+        line-height: 1.4;
+        margin: 1em 0px;
+        overflow: auto;
+        padding: 1.2em;
+        tab-size: 2;
+        text-align: left;
+        white-space: pre;
+        word-spacing:normal
+    }
+
+    .preview li code, .preview p code, .preview table code {
+        font-size:85%
+    }
+
+    .preview {
+        font-size: 16px;
+        line-height: inherit;
+        user-select: text !important;
+        padding:1.25rem !important
+    }
+
+    .preview > :first-child {
+        margin-top:0px !important
+    }
+
+    .preview > :last-child {
+        margin-bottom:0px !important
+    }
+
+    .preview blockquote, .preview dl, .preview ol, .preview p, .preview pre, .preview table, .preview ul {
+        margin-top: 0px;
+        margin-bottom:16px
+    }
+
+    .preview blockquote:last-child, .preview dl:last-child, .preview ol:last-child, .preview p:last-child, .preview pre:last-child, .preview table:last-child, .preview ul:last-child {
+        margin-bottom:0px
+    }
+
+    .preview h1, .preview h2, .preview h3, .preview h4, .preview h5, .preview h6 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height:1.25
+    }
+
+    .preview h1:last-child, .preview h2:last-child, .preview h3:last-child, .preview h4:last-child, .preview h5:last-child, .preview h6:last-child {
+        margin-bottom:0px
+    }
+
+    .preview h1 code, .preview h2 code, .preview h3 code, .preview h4 code, .preview h5 code, .preview h6 code {
+        font-size:inherit
+    }
+
+    .preview h1 {
+        font-size:2em
+    }
+
+    .preview h1, .preview h2 {
+        padding-bottom: 0.3em;
+        border-bottom-width: 1px;
+        border-bottom-style:solid
+    }
+
+    .preview h2 {
+        font-size:1.5em
+    }
+
+    .preview h3 {
+        font-size:1.25em
+    }
+
+    .preview h4 {
+        font-size:1em
+    }
+
+    .preview ol, .preview ul {
+        padding-left:2em
+    }
+
+    .preview ol ol, .preview ol ul, .preview ul ol, .preview ul ul {
+        margin-top: 0px;
+        margin-bottom:0px
+    }
+
+    .preview li > p {
+        margin-top:16px
+    }
+
+    .preview li + li {
+        margin-top:0.25em
+    }
+
+    .preview a:not([href]) {
+        color: inherit;
+        text-decoration:none
+    }
+
+    .preview pre {
+        display: block;
+        overflow-wrap: normal;
+        padding: 16px;
+        overflow: auto;
+        line-height:1.45
+    }
+
+    .preview code, .preview pre {
+        font-size: 85%;
+        border-radius:3px
+    }
+
+    .preview code {
+        padding: 0.2em 0.4em;
+        margin:0px
+    }
+
+    .preview pre > code {
+        padding: 0px;
+        margin: 0px;
+        font-size: 100%;
+        word-break: normal;
+        white-space: pre;
+        border: 0px;
+        background:transparent !important
+    }
+
+    .preview pre code {
+        display: inline;
+        padding: 0px;
+        margin: 0px;
+        overflow: visible;
+        line-height: inherit;
+        overflow-wrap: normal;
+        background-color: transparent;
+        border:0px
+    }
+
+    .preview b, .preview strong {
+        font-weight:600
+    }
+
+    .mtk1 {
+        color:rgb(31, 31, 31)
+    }
+
+    .mtk4 {
+        color:rgb(106, 115, 125)
+    }
+
+    .mtk12 {
+        color:rgb(215, 58, 73)
+    }
+
+    .mtk21 {
+        color: rgb(224, 0, 0)
+    }
+    </style>
+</head>
+<body class="theme-light">
+  
+    <div class="preview">
+        <H2><a name="lp-srfi-214">Title</a></H2>
+        Flexvectors
+
+        <h2>Author</h2>
+        <p>Adam Nelson</p>
+
+        <h2 id="status">Status</h2>
+
+        <p>
+            This SRFI is currently in 
+            <em>final</em>
+             status.  Here is 
+            <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a>
+             of each status that a SRFI can hold.  To provide input on this SRFI, please send email to 
+            <code>
+                <a href="mailto:srfi+minus+214+at+srfi+dotschemers+dot+org">
+                    srfi-214@
+                    <span class="antispam">nospam</span>
+                    srfi.schemers.org
+                </a>
+            </code>
+            .  To subscribe to the list, follow 
+            <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>
+            .  You can access previous messages via the mailing list 
+            <a href="https://srfi-email.schemers.org/srfi-214">archive</a>
+            .
+        </p>
+        <ul>
+            <li>Received: 2020-10-06</li>
+            <li>Draft #1 published: 2020-10-07</li>
+            <li>Draft #2 published: 2021-01-13</li>
+            <li>Draft #3 published: 2021-03-11</li>
+            <li>Finalized: 2021-03-18</li>
+        </ul>
+        <h2 id="abstract">Abstract</h2>
+        <p>
+            A 
+            <em>flexvector</em>
+            , also known as a dynamic array or an arraylist, is a mutable vector-like data structure with an adjustable size. Flexvectors allow fast random access and fast insertion/removal at the end. This SRFI defines a suite of operations on flexvectors, modeled after 
+            <a href="https://srfi.schemers.org/srfi-133/srfi-133.html">SRFI 133</a>
+            's vector operations.
+        </p>
+        <h2 id="rationale">Rationale</h2>
+        <p>
+            Unlike the default vector data type of many other languages, Scheme vectors have a fixed length. This makes vectors unusable as mutable stacks or queues, and is the reason that 
+            <a href="https://srfi.schemers.org/srfi-133/srfi-133.html">SRFI 133</a>
+             lacks common collection operations like 
+            <code>filter</code>
+            .
+        </p>
+        <p>
+            In fact, no Scheme standard defines a mutable data type that is suitable for this very common purpose, analogous to a Java 
+            <code>ArrayList</code>
+             or to the default list data structure in JavaScript or Python. 
+            <a href="https://srfi.schemers.org/srfi-117/srfi-117.html">SRFI 117</a>
+             defines the commonly-used "tconc" mutable queue, but it is a linked list. And 
+            <a href="https://srfi.schemers.org/srfi-134/srfi-134.html">SRFI 134</a>
+             defines a deque data type, but that data type is immutable. Neither data structure has the (often useful) properties of being a mutable, contiguous, random-access sequence.
+        </p>
+        <p>This SRFI does not define a comparator or any sorting procedures, in order to ensure that it has no dependencies. These may be defined in future SRFIs.</p>
+        <h3 id="terminology">Terminology</h3>
+        <p>
+            What this SRFI calls a 
+            <em>flexvector</em>
+             is better known as a 
+            <a href="https://en.wikipedia.org/wiki/Dynamic_array">
+                <em>dynamic array</em>
+            </a>
+            . This data structure has a wide variety of names in different languages:
+        </p>
+        <ul>
+            <li>
+                JavaScript and Ruby call it an 
+                <em>array</em>
+            </li>
+            <li>
+                Python calls it a 
+                <em>list</em>
+            </li>
+            <li>
+                Java calls it an 
+                <code>ArrayList</code>
+                 (and, before that, it was called a 
+                <code>Vector</code>
+                )
+            </li>
+        </ul>
+        <p>
+            Scheme literature already uses the terms 
+            <em>list</em>
+             (for 
+            <code>cons</code>
+             lists), 
+            <em>vector</em>
+             (for fixed-length vectors), and 
+            <em>array</em>
+             (for fixed-length numeric arrays), so a new term is needed. Because 
+            <em>array</em>
+             in Scheme refers to a numeric array, the term 
+            <em>dynamic array</em>
+             is not ideal. 
+            <em>Dynamic vector</em>
+             is a possibility, but 
+            <code>dynamic-vector</code>
+             would be an unwieldy prefix due to its length. The newly-minted term 
+            <em>flexvector</em>
+             communicates this data structure's flexible size and its relationship to Scheme vectors, while being only as long as an existing Scheme data type name (
+            <code>bytevector</code>
+            ).
+        </p>
+        <h3 id="procedure-inclusion-and-naming">Procedure inclusion and naming</h3>
+        <p>
+            This SRFI is primarily modeled on 
+            <a href="https://srfi.schemers.org/srfi-133/srfi-133.html">SRFI 133</a>
+            . It includes flexvector equivalents of all SRFI 133 procedures, most with the same names and argument order. There are three notable exceptions:
+        </p>
+        <ol>
+            <li>
+                <code>flexvector-unfold</code>
+                 mimics the API of 
+                <a href="https://srfi.schemers.org/srfi-1/srfi-1.html">SRFI 1</a>
+                's 
+                <code>unfold</code>
+                , not SRFI 133's 
+                <code>vector-unfold</code>
+                . 
+                <code>vector-unfold</code>
+                 is limited by the necessity of a fixed vector length, while 
+                <code>flexvector-unfold</code>
+                 may generate a flexvector of any length, and so the 
+                <code>unfold</code>
+                 API is more useful.
+            </li>
+            <li>
+                There is no flexvector equivalent of 
+                <code>vector-unfold!</code>
+                 because flexvectors use the list version of 
+                <code>unfold</code>
+                , which has no 
+                <code>unfold!</code>
+                 equivalent with a similar API.
+            </li>
+            <li>
+                The flexvector equivalent of 
+                <code>vector=</code>
+                 is 
+                <code>flexvector=?</code>
+                . It is conventional for Scheme equality predicates to end in 
+                <code>=?</code>
+                 (e.g., 
+                <code>symbol=?</code>
+                , 
+                <code>string=?</code>
+                ), and most data structure SRFIs follow this convention (see 
+                <a href="https://srfi.schemers.org/srfi-113/srfi-113.html">SRFI 113</a>
+                , 
+                <a href="https://srfi.schemers.org/srfi-125/srfi-125.html">125</a>
+                , 
+                <a href="https://srfi.schemers.org/srfi-146/srfi-146.html">146</a>
+                ). This SRFI follows established convention, even when it does not match SRFI 133's procedure names.
+            </li>
+        </ol>
+        <p>
+            Additionally, this SRFI includes deque-like operations that reference, add to, and remove from both ends of a flexvector. The naming convention for these operations is taken from 
+            <a href="https://srfi.schemers.org/srfi-134/srfi-134.html">SRFI 134</a>
+            , which uses the terms 
+            <em>front</em>
+             and 
+            <em>back</em>
+            . 
+            <em>Front</em>
+             refers to the start of the flexvector (index 0), while 
+            <em>back</em>
+             refers to the end (index 
+            <code>(- (flexvector-length x) 1)</code>
+            ).
+        </p>
+        <h2 id="specification">Specification</h2>
+        <p>Flexvectors have the same random-access performance guarantees as ordinary vectors. In particular, if a given Scheme implements vectors with contiguous memory locations and O(1) random access and mutation, flexvectors must also have these performance characteristics. Additionally, appending to the back of a flexvector has the same (amortized) performance as setting an existing location in the same flexvector.</p>
+        <p>In this section, the following notation is used to specify parameters and examples:</p>
+        <ul>
+            <li>
+                <p>
+                    Parameters named 
+                    <code>fv</code>
+                     are always flexvectors.
+                </p>
+            </li>
+            <li>
+                <p>
+                    <code>x ...</code>
+                     indicates that zero or more of the parameter 
+                    <code>x</code>
+                     are allowed.
+                </p>
+            </li>
+            <li>
+                <p>
+                    <code>[x]</code>
+                     indicates that the parameter 
+                    <code>x</code>
+                     is optional. Multiple optional parameters may be written 
+                    <code>[x [y]]</code>
+                    .
+                </p>
+            </li>
+            <li>
+                <p>
+                    <code>;=&gt;</code>
+                     separates an example expression from its expected result.
+                </p>
+            </li>
+            <li>
+                <p>
+                    <code>λ</code>
+                     is a shorthand alias for 
+                    <code>lambda</code>
+                    .
+                </p>
+            </li>
+        </ul>
+        <p>
+            Additionally, examples include literal flexvector values written in pseudo-lexical syntax: 
+            <code>#&lt;flexvector a b c&gt;</code>
+             is a flexvector of length 3 containing the symbol values 
+            <code>a</code>
+            , 
+            <code>b</code>
+            , and 
+            <code>c</code>
+            . 
+            <strong>This syntax is only used for example purposes.</strong>
+             This SRFI does not define the 
+            <code>#&lt;flexvector ...&gt;</code>
+             syntax for actual use.
+        </p>
+        <h3 id="api">API</h3>
+        <ul>
+            <li>
+                Constructors
+                <ul>
+                    <li>
+                        <a href="#make-flexvector">
+                            <code>make-flexvector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector">
+                            <code>flexvector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-unfold-flexvector-unfold-right">
+                            <code>flexvector-unfold</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-unfold-flexvector-unfold-right">
+                            <code>flexvector-unfold-right</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-copy-flexvector-reverse-copy">
+                            <code>flexvector-copy</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-copy-flexvector-reverse-copy">
+                            <code>flexvector-reverse-copy</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-append">
+                            <code>flexvector-append</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-concatenate">
+                            <code>flexvector-concatenate</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-append-subvectors">
+                            <code>flexvector-append-subvectors</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Predicates
+                <ul>
+                    <li>
+                        <a href="#flexvector-1">
+                            <code>flexvector?</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-empty">
+                            <code>flexvector-empty?</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-2">
+                            <code>flexvector=?</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Selectors
+                <ul>
+                    <li>
+                        <a href="#flexvector-ref">
+                            <code>flexvector-ref</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-front">
+                            <code>flexvector-front</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-back">
+                            <code>flexvector-back</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-length">
+                            <code>flexvector-length</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Mutators
+                <ul>
+                    <li>
+                        <a href="#flexvector-add">
+                            <code>flexvector-add!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-add-front-flexvector-add-back">
+                            <code>flexvector-add-front!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-add-front-flexvector-add-back">
+                            <code>flexvector-add-back!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-add-all">
+                            <code>flexvector-add-all!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-append-1">
+                            <code>flexvector-append!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-remove">
+                            <code>flexvector-remove!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-remove-front-flexvector-remove-back">
+                            <code>flexvector-remove-front!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-remove-front-flexvector-remove-back">
+                            <code>flexvector-remove-back!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-remove-range">
+                            <code>flexvector-remove-range!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-clear">
+                            <code>flexvector-clear!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-set">
+                            <code>flexvector-set!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-swap">
+                            <code>flexvector-swap!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-fill">
+                            <code>flexvector-fill!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-reverse">
+                            <code>flexvector-reverse!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-copy-flexvector-reverse-copy-1">
+                            <code>flexvector-copy!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-copy-flexvector-reverse-copy-1">
+                            <code>flexvector-reverse-copy!</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Iteration
+                <ul>
+                    <li>
+                        <a href="#flexvector-fold-flexvector-fold-right">
+                            <code>flexvector-fold</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-fold-flexvector-fold-right">
+                            <code>flexvector-fold-right</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-map-flexvector-mapindex">
+                            <code>flexvector-map</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-map-flexvector-mapindex">
+                            <code>flexvector-map/index</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-map-flexvector-mapindex-1">
+                            <code>flexvector-map!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-map-flexvector-mapindex-1">
+                            <code>flexvector-map/index!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-append-map-flexvector-append-mapindex">
+                            <code>flexvector-append-map</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-append-map-flexvector-append-mapindex">
+                            <code>flexvector-append-map/index</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-filter-flexvector-filterindex">
+                            <code>flexvector-filter</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-filter-flexvector-filterindex">
+                            <code>flexvector-filter/index</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-filter-flexvector-filterindex-1">
+                            <code>flexvector-filter!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-filter-flexvector-filterindex-1">
+                            <code>flexvector-filter/index!</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-for-each-flexvector-for-eachindex">
+                            <code>flexvector-for-each</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-for-each-flexvector-for-eachindex">
+                            <code>flexvector-for-each/index</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-count">
+                            <code>flexvector-count</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-cumulate">
+                            <code>flexvector-cumulate</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Searching
+                <ul>
+                    <li>
+                        <a href="#flexvector-index-flexvector-index-right">
+                            <code>flexvector-index</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-index-flexvector-index-right">
+                            <code>flexvector-index-right</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-skip-flexvector-skip-right">
+                            <code>flexvector-skip</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-skip-flexvector-skip-right">
+                            <code>flexvector-skip-right</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-binary-search">
+                            <code>flexvector-binary-search</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-any">
+                            <code>flexvector-any</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-every">
+                            <code>flexvector-every</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-partition">
+                            <code>flexvector-partition</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Conversion
+                <ul>
+                    <li>
+                        <a href="#flexvector-vector">
+                            <code>flexvector-&gt;vector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#vector-flexvector">
+                            <code>vector-&gt;flexvector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-list-reverse-flexvector-list">
+                            <code>flexvector-&gt;list</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-list-reverse-flexvector-list">
+                            <code>reverse-flexvector-&gt;list</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-flexvector-reverse-list-flexvector">
+                            <code>list-&gt;flexvector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-flexvector-reverse-list-flexvector">
+                            <code>reverse-list-&gt;flexvector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-string">
+                            <code>flexvector-&gt;string</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#string-flexvector">
+                            <code>string-&gt;flexvector</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#flexvector-generator">
+                            <code>flexvector-&gt;generator</code>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#generator-flexvector">
+                            <code>generator-&gt;flexvector</code>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <h3 id="constructors">Constructors</h3>
+        <h4 id="make-flexvector">
+            <code>make-flexvector</code>
+        </h4>
+        <p>
+            <code>(make-flexvector size [fill])</code>
+        </p>
+        <p>
+            Creates and returns a flexvector of size 
+            <code>size</code>
+            . If 
+            <code>fill</code>
+             is specified, all of the elements of the vector are initialized to 
+            <code>fill</code>
+            . Otherwise, their contents are indeterminate.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(make-flexvector&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;3&nbsp;3&nbsp;3&nbsp;3&nbsp;3&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector">
+            <code>flexvector</code>
+        </h4>
+        <p>
+            <code>(flexvector x ...)</code>
+        </p>
+        <p>
+            Creates and returns a flexvector whose elements are 
+            <code>x ...</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector&nbsp;</span>
+                        <span class="mtk21">0</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;0&nbsp;1&nbsp;2&nbsp;3&nbsp;4&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-unfold-flexvector-unfold-right">
+            <code>flexvector-unfold</code>
+            , 
+            <code>flexvector-unfold-right</code>
+        </h4>
+        <p>
+            <code>(flexvector-unfold p f g initial-seed ...)</code>
+        </p>
+        <p>
+            The fundamental flexvector constructor. 
+            <code>flexvector-unfold</code>
+             is modeled on SRFI 1 
+            <code>unfold</code>
+             instead of SRFI 133 
+            <code>vector-unfold</code>
+             because flexvectors are not limited to a predetermined length.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk4">;;&nbsp;List&nbsp;of&nbsp;squares:&nbsp;1^2&nbsp;...&nbsp;10^2</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-unfold&nbsp;(λ&nbsp;(x)&nbsp;(&gt;&nbsp;x&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">))&nbsp;(λ&nbsp;(x)&nbsp;(*&nbsp;x&nbsp;x))&nbsp;(λ&nbsp;(x)&nbsp;(+&nbsp;x&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">))&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;1&nbsp;4&nbsp;9&nbsp;16&nbsp;25&nbsp;36&nbsp;49&nbsp;64&nbsp;81&nbsp;100&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>
+            For each step, 
+            <code>flexvector-unfold</code>
+             evaluates 
+            <code>p</code>
+             on the seed value(s) to determine whether it should stop unfolding. If 
+            <code>p</code>
+             returns 
+            <code>#f</code>
+            , it then evaluates 
+            <code>f</code>
+             on the seed value(s) to produce the next element, then evaluates 
+            <code>g</code>
+             on the seed value(s) to produce the seed value(s) for the next step. The recursion can be described with this algorithm:
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(</span>
+                        <span class="mtk12">let</span>
+                        <span class="mtk1">&nbsp;recur&nbsp;((seeds&nbsp;initial-seed)&nbsp;(fv&nbsp;(flexvector)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;(</span>
+                        <span class="mtk12">if</span>
+                        <span class="mtk1">&nbsp;(apply&nbsp;p&nbsp;seeds)&nbsp;fv</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(let-values&nbsp;((next-seeds&nbsp;(apply&nbsp;g&nbsp;seeds)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(recur&nbsp;next-seeds&nbsp;(flexvector-add-back!&nbsp;fv</span>
+                        <span class="mtk1">&nbsp;(apply&nbsp;f&nbsp;seeds))))))</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>
+            This is guaranteed to build a flexvector in O(n) if 
+            <code>flexvector-add-back!</code>
+             is O(1). 
+            <code>flexvector-unfold-right</code>
+             is a variant that constructs a flexvector right-to-left, and uses 
+            <code>flexvector-add-front!</code>
+             instead, which may be slower than O(n).
+        </p>
+        <h4 id="flexvector-copy-flexvector-reverse-copy">
+            <code>flexvector-copy</code>
+            , 
+            <code>flexvector-reverse-copy</code>
+        </h4>
+        <p>
+            <code>(flexvector-copy fv [start [end]])</code>
+        </p>
+        <p>
+            Allocates a new flexvector whose length is 
+            <code>(- end start)</code>
+             and fills it with elements from 
+            <code>fv</code>
+            , taking elements from 
+            <code>fv</code>
+             starting at index 
+            <code>start</code>
+             and stopping at index 
+            <code>end</code>
+            . 
+            <code>start</code>
+             defaults to 
+            <code>0</code>
+             and 
+            <code>end</code>
+             defaults to the value of 
+            <code>(flexvector-length fv)</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-copy&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-copy&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c)&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;b&nbsp;c&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-copy&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c)&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;b&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>
+            <code>flexvector-reverse-copy</code>
+             is the same, but copies the elements in reverse order from 
+            <code>fv</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-reverse-copy&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c&nbsp;'d)&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;d&nbsp;c&nbsp;b&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <p>
+            <code>flexvector-copy</code>
+             shares the performance characteristics of 
+            <code>vector-copy</code>
+             &mdash; in particular, if a given Scheme's 
+            <code>vector-copy</code>
+             uses a fast 
+            <code>memcpy</code>
+             operation instead of an element-by-element loop, 
+            <code>flexvector-copy</code>
+             should also use this operation.
+        </p>
+        <h4 id="flexvector-append">
+            <code>flexvector-append</code>
+        </h4>
+        <p>
+            <code>(flexvector-append fv ...)</code>
+        </p>
+        <p>
+            Returns a newly allocated flexvector that contains all elements in order from the subsequent locations in 
+            <code>fv ...</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-append&nbsp;(flexvector&nbsp;'x)&nbsp;(flexvector&nbsp;'y)</span>
+                        <span class="mtk1">)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;x&nbsp;y&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-append&nbsp;(flexvector&nbsp;'a)&nbsp;(flexvector&nbsp;'b&nbsp;</span>
+                        <span class="mtk1">'c&nbsp;'d))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&nbsp;d&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-append&nbsp;(flexvector&nbsp;'a&nbsp;(flexvector&nbsp;'b))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(flexvector&nbsp;(flexvector&nbsp;'c)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;#&lt;flexvector&nbsp;b&gt;&nbsp;#&lt;flexvector&nbsp;c&gt;</span>
+                        <span class="mtk4">&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-concatenate">
+            <code>flexvector-concatenate</code>
+        </h4>
+        <p>
+            <code>(flexvector-concatenate list-of-flexvectors)</code>
+        </p>
+        <p>
+            Equivalent to 
+            <code>(apply flexvector-append list-of-flexvectors)</code>
+            , but may be implemented more efficiently.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-concatenate&nbsp;(</span>
+                        <span class="mtk12">list</span>
+                        <span class="mtk1">&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;(flexvector&nbsp;'c&nbsp;'d)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&nbsp;d&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-append-subvectors">
+            <code>flexvector-append-subvectors</code>
+        </h4>
+        <p>
+            <code>(flexvector-append-subvectors [fv start end] ...)</code>
+        </p>
+        <p>
+            Returns a vector that contains every element of each 
+            <code>fv</code>
+             from 
+            <code>start</code>
+             to 
+            <code>end</code>
+             in the specified order. This procedure is a generalization of 
+            <code>flexvector-append</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-append-subvectors&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c</span>
+                        <span class="mtk1">&nbsp;'d&nbsp;'e)&nbsp;</span>
+                        <span class="mtk21">0</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(flexvector&nbsp;'f&nbsp;'g&nbsp;'h</span>
+                        <span class="mtk1">&nbsp;'i&nbsp;'j)&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;h&nbsp;i&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h3 id="predicates">Predicates</h3>
+        <h4 id="flexvector-1">
+            <code>flexvector?</code>
+        </h4>
+        <p>
+            <code>(flexvector? x)</code>
+        </p>
+        <p>
+            Disjoint type predicate for flexvectors: this returns 
+            <code>#t</code>
+             if 
+            <code>x</code>
+             is a flexvector, and 
+            <code>#f</code>
+             otherwise.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector?&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#t</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector?&nbsp;(vector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#f</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-empty">
+            <code>flexvector-empty?</code>
+        </h4>
+        <p>
+            <code>(flexvector-empty? fv)</code>
+        </p>
+        <p>
+            Returns 
+            <code>#t</code>
+             if 
+            <code>fv</code>
+             is empty (i.e., its length is 
+            <code>0</code>
+            ), and 
+            <code>#f</code>
+             if not.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-empty?&nbsp;(flexvector))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#t</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-empty?&nbsp;(flexvector&nbsp;'a))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#f</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-empty?&nbsp;(flexvector&nbsp;(flexvector)))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#f</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-2">
+            <code>flexvector=?</code>
+        </h4>
+        <p>
+            <code>(flexvector=? elt=? fv ...)</code>
+        </p>
+        <p>
+            Flexvector structural equality predicate, generalized across user-specified element equality predicates. Flexvectors 
+            <code>a</code>
+             and 
+            <code>b</code>
+             are considered equal by 
+            <code>flexvector=?</code>
+             iff their lengths are the same and, for each index 
+            <code>i</code>
+             less than 
+            <code>(flexvector-length a)</code>
+            , 
+            <code>(elt=? (flexvector-ref a i) (flexvector-ref b i))</code>
+             is true. 
+            <code>elt=?</code>
+             is always applied to two arguments.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector=?&nbsp;eq?&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;(flexvector&nbsp;'</span>
+                        <span class="mtk1">a&nbsp;'b))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#t</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector=?&nbsp;eq?&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;(flexvector&nbsp;'</span>
+                        <span class="mtk1">b&nbsp;'a))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#f</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector=?&nbsp;=&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#f</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector=?&nbsp;=&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#t</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>
+            <code>flexvector=?</code>
+             returns 
+            <code>#t</code>
+             if it is passed zero or one 
+            <code>fv</code>
+             arguments. The execution order of comparisons is intentionally left unspecified.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector=?&nbsp;eq?)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#t</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector=?&nbsp;eq?&nbsp;(flexvector&nbsp;'a))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#t</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h3 id="selectors">Selectors</h3>
+        <h4 id="flexvector-ref">
+            <code>flexvector-ref</code>
+        </h4>
+        <p>
+            <code>(flexvector-ref fv i)</code>
+        </p>
+        <p>
+            Flexvector element dereferencing: returns the value at location 
+            <code>i</code>
+             in 
+            <code>fv</code>
+            . Indexing is zero-based. It is an error if 
+            <code>i</code>
+             is outside the range [0, 
+            <code>(flexvector-length fv)</code>
+            ).
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-ref&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c&nbsp;'d)&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;c</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>
+            <code>flexvector-ref</code>
+             has the same computational complexity as 
+            <code>vector-ref</code>
+            . In most Schemes, it will be O(1).
+        </p>
+        <h4 id="flexvector-front">
+            <code>flexvector-front</code>
+        </h4>
+        <p>
+            <code>(flexvector-front fv)</code>
+        </p>
+        <p>
+            Returns the first element in 
+            <code>fv</code>
+            . It is an error if 
+            <code>fv</code>
+             is empty. Alias for 
+            <code>(flexvector-ref fv 0)</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-front&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c&nbsp;'d))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;a</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-back">
+            <code>flexvector-back</code>
+        </h4>
+        <p>
+            <code>(flexvector-back fv)</code>
+        </p>
+        <p>
+            Returns the last element in 
+            <code>fv</code>
+            . It is an error if 
+            <code>fv</code>
+             is empty. Alias for 
+            <code>(flexvector-ref fv (- (flexvector-length fv) 1))</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-back&nbsp;(flexvector&nbsp;'a&nbsp;'b&nbsp;'c&nbsp;'d))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;d</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-length">
+            <code>flexvector-length</code>
+        </h4>
+        <p>
+            <code>(flexvector-length fv)</code>
+        </p>
+        <p>
+            Returns the length of 
+            <code>fv</code>
+            , which is the number of elements contained in 
+            <code>fv</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code>(flexvector-length (flexvector 'a 'b 'c)) ;=&gt; 3
+                </code>
+            </pre>
+        </div>
+        <p>
+            <code>flexvector-length</code>
+             has the same computational complexity as 
+            <code>vector-length</code>
+            . In most Schemes, it will be O(1).
+        </p>
+        <h3 id="mutators">Mutators</h3>
+        <h4 id="flexvector-add">
+            <code>flexvector-add!</code>
+        </h4>
+        <p>
+            <code>(flexvector-add! fv i x ...)</code>
+        </p>
+        <p>
+            Inserts the elements 
+            <code>x ...</code>
+             into 
+            <code>fv</code>
+             at the location 
+            <code>i</code>
+            , preserving their order and shifting all elements after 
+            <code>i</code>
+             backward to make room. This increases the length of 
+            <code>fv</code>
+             by the number of elements inserted.
+        </p>
+        <p>
+            It is an error if 
+            <code>i</code>
+             is outside the range [0, 
+            <code>(flexvector-length fv)</code>
+            ].
+        </p>
+        <p>
+            <code>flexvector-add!</code>
+             returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-add!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;'c)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;c&nbsp;b&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-add!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;'c&nbsp;'d&nbsp;'e)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&nbsp;d&nbsp;e&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-add-front-flexvector-add-back">
+            <code>flexvector-add-front!</code>
+            , 
+            <code>flexvector-add-back!</code>
+        </h4>
+        <p>
+            <code>(flexvector-add-front! fv x ...)</code>
+        </p>
+        <p>
+            Inserts the elements 
+            <code>x ...</code>
+             into the front or back of 
+            <code>fv</code>
+            , preserving their order. This increases the length of 
+            <code>fv</code>
+             by the number of elements inserted.
+        </p>
+        <p>
+            <code>flexvector-add-back!</code>
+             of one element has the same computational complexity as 
+            <code>vector-set!</code>
+            , amortized. In most Schemes, this will be amortized O(1).
+        </p>
+        <p>
+            These procedures return 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-add-front!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;'c)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;c&nbsp;a&nbsp;b&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-add-front!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;'c&nbsp;'d)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;c&nbsp;d&nbsp;a&nbsp;b&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-add-back!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;'c)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-add-back!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;'c&nbsp;'d)&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&nbsp;d&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-add-all">
+            <code>flexvector-add-all!</code>
+        </h4>
+        <p>
+            <code>(flexvector-add-all! fv i xs)</code>
+        </p>
+        <p>
+            Inserts the elements of the list 
+            <code>xs</code>
+             into 
+            <code>fv</code>
+             at location 
+            <code>i</code>
+            . Equivalent to 
+            <code>(apply flexvector-add! fv i xs)</code>
+            . Returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-add-all!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;'(c&nbsp;d&nbsp;e))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&nbsp;d&nbsp;e&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-append-1">
+            <code>flexvector-append!</code>
+        </h4>
+        <p>
+            <code>(flexvector-append! fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Inserts the elements of the flexvectors 
+            <code>fv2 ...</code>
+             at the end of the flexvector 
+            <code>fv1</code>
+            , in order. Returns 
+            <code>fv1</code>
+             after mutating it.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-append!&nbsp;(flexvector&nbsp;'a&nbsp;'b)&nbsp;(flexvector</span>
+                        <span class="mtk1">&nbsp;'c&nbsp;'d)&nbsp;(flexvector&nbsp;'e))&nbsp;</span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;a&nbsp;b&nbsp;c&nbsp;d&nbsp;e&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-remove">
+            <code>flexvector-remove!</code>
+        </h4>
+        <p>
+            <code>(flexvector-remove! fv i)</code>
+        </p>
+        <p>
+            Removes and returns the element at 
+            <code>i</code>
+             in 
+            <code>fv</code>
+            , then shifts all subsequent elements forward, reducing the length of 
+            <code>fv</code>
+             by 1.
+        </p>
+        <p>
+            It is an error if 
+            <code>i</code>
+             is outside the range [0, 
+            <code>(flexvector-length fv)</code>
+            ).
+        </p>
+        <h4 id="flexvector-remove-front-flexvector-remove-back">
+            <code>flexvector-remove-front!</code>
+            , 
+            <code>flexvector-remove-back!</code>
+        </h4>
+        <p>
+            <code>(flexvector-remove-front! fv)</code>
+        </p>
+        <p>
+            Removes and returns the first element from 
+            <code>fv</code>
+            , then shifts all other elements forward. 
+            <code>flexvector-remove-back!</code>
+             instead removes the last element, without moving any other elements, and has the same performance guarantees as 
+            <code>flexvector-add-back!</code>
+            .
+        </p>
+        <p>
+            It is an error if 
+            <code>fv</code>
+             is empty.
+        </p>
+        <h4 id="flexvector-remove-range">
+            <code>flexvector-remove-range!</code>
+        </h4>
+        <p>
+            <code>(flexvector-remove-range! fv start [end])</code>
+        </p>
+        <p>
+            Removes all elements from 
+            <code>fv</code>
+             between 
+            <code>start</code>
+             and 
+            <code>end</code>
+            , shifting all elements after 
+            <code>end</code>
+             forward by 
+            <code>(- end start)</code>
+            . If 
+            <code>end</code>
+             is not present, it defaults to 
+            <code>(flexvector-length fv)</code>
+            .
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <p>
+            <code>flexvector-remove-range!</code>
+             returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <h4 id="flexvector-clear">
+            <code>flexvector-clear!</code>
+        </h4>
+        <p>
+            <code>(flexvector-clear! fv)</code>
+        </p>
+        <p>
+            Removes all items from 
+            <code>fv</code>
+            , setting its length to 0. Returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <h4 id="flexvector-set">
+            <code>flexvector-set!</code>
+        </h4>
+        <p>
+            <code>(flexvector-set! fv i x)</code>
+        </p>
+        <p>
+            Assigns the value of 
+            <code>x</code>
+             to the location 
+            <code>i</code>
+             in 
+            <code>fv</code>
+            . It is an error if 
+            <code>i</code>
+             is outside the range [0, 
+            <code>(flexvector-length fv)</code>
+            ]. If 
+            <code>i</code>
+             is equal to 
+            <code>(flexvector-length fv)</code>
+            , 
+            <code>x</code>
+             is appended after the last element in 
+            <code>fv</code>
+            ; this is equivalent to 
+            <code>flexvector-add-back!</code>
+            .
+        </p>
+        <p>
+            Returns the previous value at location 
+            <code>i</code>
+             in 
+            <code>fv</code>
+            , or an unspecified value if 
+            <code>i</code>
+             is equal to 
+            <code>(flexvector-length fv)</code>
+            .
+        </p>
+        <p>
+            <code>flexvector-set!</code>
+             has the same computational complexity as 
+            <code>vector-set!</code>
+            . In most Schemes, it will be O(1).
+        </p>
+        <h4 id="flexvector-swap">
+            <code>flexvector-swap!</code>
+        </h4>
+        <p>
+            <code>(flexvector-swap! fv i j)</code>
+        </p>
+        <p>
+            Swaps or exchanges the values of the locations in 
+            <code>fv</code>
+             at indexes 
+            <code>i</code>
+             and 
+            <code>j</code>
+            . It is an error if either 
+            <code>i</code>
+             or 
+            <code>j</code>
+             is outside the range [0, 
+            <code>(flexvector-length fv)</code>
+            ). Returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <h4 id="flexvector-fill">
+            <code>flexvector-fill!</code>
+        </h4>
+        <p>
+            <code>(flexvector-fill! fv fill [start [end]])</code>
+        </p>
+        <p>
+            Assigns the value of every location in 
+            <code>fv</code>
+             between 
+            <code>start</code>
+            , which defaults to 0 and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>fv</code>
+            , to 
+            <code>fill</code>
+            . Returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ]. It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <h4 id="flexvector-reverse">
+            <code>flexvector-reverse!</code>
+        </h4>
+        <p>
+            <code>(flexvector-reverse! fv)</code>
+        </p>
+        <p>
+            Destructively reverses 
+            <code>fv</code>
+             in-place. Returns 
+            <code>fv</code>
+             after mutating it.
+        </p>
+        <h4 id="flexvector-copy-flexvector-reverse-copy-1">
+            <code>flexvector-copy!</code>
+            , 
+            <code>flexvector-reverse-copy!</code>
+        </h4>
+        <p>
+            <code>(flexvector-copy! to at from [start [end]])</code>
+        </p>
+        <p>
+            Copies the elements of flexvector 
+            <code>from</code>
+             between 
+            <code>start</code>
+             and 
+            <code>end</code>
+             to flexvector 
+            <code>to</code>
+            , starting at 
+            <code>at</code>
+            . The order in which elements are copied is unspecified, except that if the source and destination overlap, copying takes place as if the source is first copied into a temporary vector and then into the destination. This can be achieved without allocating storage by making sure to copy in the correct direction in such circumstances.
+        </p>
+        <p>
+            <code>flexvector-reverse-copy!</code>
+             is the same, but copies elements in reverse order.
+        </p>
+        <p>
+            <code>start</code>
+             and 
+            <code>end</code>
+             default to 0 and 
+            <code>(flexvector-length from)</code>
+             if not present. Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length from)</code>
+            ]. It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <p>
+            Unlike 
+            <code>vector-copy!</code>
+            , 
+            <code>flexvector-copy!</code>
+             may copy elements past the end of 
+            <code>to</code>
+            , which will increase the length of 
+            <code>to</code>
+            .
+        </p>
+        <p>
+            <code>flexvector-copy!</code>
+             shares the performance characteristics of 
+            <code>vector-copy!</code>
+             &mdash; in particular, if a given Scheme's 
+            <code>vector-copy!</code>
+             uses a fast 
+            <code>memcpy</code>
+             operation instead of an element-by-element loop, 
+            <code>flexvector-copy!</code>
+             should also use this operation.
+        </p>
+        <p>
+            Both procedures return 
+            <code>to</code>
+             after mutating it.
+        </p>
+        <h3 id="iteration">Iteration</h3>
+        <h4 id="flexvector-fold-flexvector-fold-right">
+            <code>flexvector-fold</code>
+            , 
+            <code>flexvector-fold-right</code>
+        </h4>
+        <p>
+            <code>(flexvector-fold kons knil fv1 fv2 ...)</code>
+        </p>
+        <p>
+            The fundamental flexvector iterator. 
+            <code>kons</code>
+             is iterated over each value in all of the vectors, stopping at the end of the shortest; 
+            <code>kons</code>
+             is applied as 
+            <code>(kons state (flexvector-ref fv1 i) (flexvector-ref fv2 i) ...)</code>
+             where 
+            <code>state</code>
+             is the current state value—the current state value begins with 
+            <code>knil</code>
+            , and becomes whatever 
+            <code>kons</code>
+             returned on the previous iteration—and 
+            <code>i</code>
+             is the current index.
+        </p>
+        <p>
+            The iteration of 
+            <code>flexvector-fold</code>
+             is strictly left-to-right. The iteration of 
+            <code>flexvector-fold-right</code>
+             is strictly right-to-left.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-fold&nbsp;(λ&nbsp;(len&nbsp;str)&nbsp;(max&nbsp;(string-length&nbsp;</span>
+                        <span class="mtk1">str)&nbsp;len))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="mtk21">0</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk1">"baz"</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk1">"qux"</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk1">"quux"</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;4</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-fold-right&nbsp;(λ&nbsp;(tail&nbsp;elt)&nbsp;(</span>
+                        <span class="mtk12">cons</span>
+                        <span class="mtk1">&nbsp;elt&nbsp;tail))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'()</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;(1&nbsp;2&nbsp;3)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-fold&nbsp;(λ&nbsp;(counter&nbsp;n)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(</span>
+                        <span class="mtk12">if</span>
+                        <span class="mtk1">&nbsp;(even?&nbsp;n)&nbsp;(+&nbsp;counter&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">)&nbsp;counter))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        <span class="mtk21">0</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">7</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;3</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-map-flexvector-mapindex">
+            <code>flexvector-map</code>
+            , 
+            <code>flexvector-map/index</code>
+        </h4>
+        <p>
+            <code>(flexvector-map f fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Constructs a new flexvector of the shortest size of the flexvector arguments. Each element at index 
+            <code>i</code>
+             of the new flexvector is mapped from the old flexvectors by 
+            <code>(f (flexvector-ref fv1 i) (flexvector-ref fv2 i) ...)</code>
+            . The dynamic order of application of 
+            <code>f</code>
+             is unspecified.
+        </p>
+        <p>
+            <code>flexvector-map/index</code>
+             is a variant that passes 
+            <code>i</code>
+             as the first argument to 
+            <code>f</code>
+             for each element.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-map&nbsp;(λ&nbsp;(x)&nbsp;(*&nbsp;x&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">))&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">20</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">30</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;100&nbsp;200&nbsp;300&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-map/index&nbsp;(λ&nbsp;(i&nbsp;x)&nbsp;(+&nbsp;x&nbsp;(*&nbsp;i&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">)))&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">20</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">30</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;10&nbsp;22&nbsp;34&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-map-flexvector-mapindex-1">
+            <code>flexvector-map!</code>
+            , 
+            <code>flexvector-map/index!</code>
+        </h4>
+        <p>
+            <code>(flexvector-map! f fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Similar to 
+            <code>flexvector-map</code>
+            , but rather than mapping the new elements into a new flexvector, the new mapped elements are destructively inserted into 
+            <code>fv1</code>
+            . Again, the dynamic order of application of 
+            <code>f</code>
+             is unspecified, so it is dangerous for 
+            <code>f</code>
+             to apply either 
+            <code>flexvector-ref</code>
+             or 
+            <code>flexvector-set!</code>
+             to 
+            <code>fv1</code>
+             in 
+            <code>f</code>
+            .
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(</span>
+                        <span class="mtk12">let</span>
+                        <span class="mtk1">&nbsp;((fv&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">20</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">30</span>
+                        <span class="mtk1">)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;(flexvector-map!&nbsp;(λ&nbsp;(x)&nbsp;(*&nbsp;x&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">))&nbsp;fv)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;fv)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;100&nbsp;200&nbsp;300&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(</span>
+                        <span class="mtk12">let</span>
+                        <span class="mtk1">&nbsp;((fv&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">20</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">30</span>
+                        <span class="mtk1">)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;(flexvector-map/index&nbsp;(λ&nbsp;(i&nbsp;x)&nbsp;(+&nbsp;x&nbsp;(*&nbsp;i&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">)))&nbsp;fv)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;fv)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;10&nbsp;22&nbsp;34&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-append-map-flexvector-append-mapindex">
+            <code>flexvector-append-map</code>
+            , 
+            <code>flexvector-append-map/index</code>
+        </h4>
+        <p>
+            <code>(flexvector-append-map f fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Constructs a new flexvector by appending the results of each call to 
+            <code>f</code>
+             on the elements of the flexvectors 
+            <code>fv1</code>
+            , 
+            <code>fv2</code>
+            , etc., in order. Each call is of the form 
+            <code>(f (flexvector-ref fv1 i) (flexvector-ref fv2 i) ...)</code>
+            . Iteration stops when the end of the shortest flexvector argument is reached. The dynamic order of application of 
+            <code>f</code>
+             is unspecified.
+        </p>
+        <p>
+            <code>f</code>
+             must return a flexvector. It is an error if 
+            <code>f</code>
+             returns anything else.
+        </p>
+        <p>
+            <code>flexvector-append-map/index</code>
+             is a variant that passes the index 
+            <code>i</code>
+             as the first argument to 
+            <code>f</code>
+             for each element.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-append-map&nbsp;(λ&nbsp;(x)&nbsp;(flexvector&nbsp;(*&nbsp;x&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">)&nbsp;(*&nbsp;x&nbsp;</span>
+                        <span class="mtk21">100</span>
+                        <span class="mtk1">)))&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">20</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">30</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;100&nbsp;1000&nbsp;200&nbsp;2000&nbsp;300&nbsp;3000&gt;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-append-map/index&nbsp;(λ&nbsp;(i&nbsp;x)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk1">x&nbsp;i))&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">20</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">30</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;10&nbsp;0&nbsp;20&nbsp;1&nbsp;30&nbsp;2&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-filter-flexvector-filterindex">
+            <code>flexvector-filter</code>
+            , 
+            <code>flexvector-filter/index</code>
+        </h4>
+        <p>
+            <code>(flexvector-filter pred? fv)</code>
+        </p>
+        <p>
+            Constructs a new flexvector consisting of only the elements of 
+            <code>fv</code>
+             for which 
+            <code>pred?</code>
+             returns a non-
+            <code>#f</code>
+             value. 
+            <code>flexvector-filter/index</code>
+             passes the index of each element as the first argument to 
+            <code>pred?</code>
+            , and the element itself as the second argument.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-filter&nbsp;even?&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">7</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">8</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;2&nbsp;4&nbsp;6&nbsp;8&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-filter-flexvector-filterindex-1">
+            <code>flexvector-filter!</code>
+            , 
+            <code>flexvector-filter/index!</code>
+        </h4>
+        <p>
+            <code>(flexvector-filter! pred? fv)</code>
+        </p>
+        <p>
+            Similar to 
+            <code>flexvector-filter</code>
+            , but destructively updates 
+            <code>fv</code>
+             by removing all elements for which 
+            <code>pred?</code>
+             returns 
+            <code>#f</code>
+            . 
+            <code>flexvector-filter/index!</code>
+             passes the index of each element as the first argument to 
+            <code>pred?</code>
+            , and the element itself as the second argument.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(</span>
+                        <span class="mtk12">let</span>
+                        <span class="mtk1">&nbsp;((fv&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">7</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">8</span>
+                        <span class="mtk1">)))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;(flexvector-filter!&nbsp;odd?&nbsp;fv)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;fv)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;1&nbsp;3&nbsp;5&nbsp;7&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-for-each-flexvector-for-eachindex">
+            <code>flexvector-for-each</code>
+            , 
+            <code>flexvector-for-each/index</code>
+        </h4>
+        <p>
+            <code>(flexvector-for-each f fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Simple flexvector iterator: applies 
+            <code>f</code>
+             to the corresponding list of parallel elements from 
+            <code>fv1 fv2 ...</code>
+             in the range [0, 
+            <code>length</code>
+            ), where 
+            <code>length</code>
+             is the length of the smallest flexvector argument passed. In contrast with 
+            <code>flexvector-map</code>
+            , 
+            <code>f</code>
+             is reliably applied in left-to-right order, starting at index 0, in the flexvectors.
+        </p>
+        <p>
+            <code>flexvector-for-each/index</code>
+             is a variant that passes the index as the first argument to 
+            <code>f</code>
+             for each element.
+        </p>
+        <p>Example:</p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-for-each&nbsp;(λ&nbsp;(x)&nbsp;(display&nbsp;x)&nbsp;(newline))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk1">"foo"</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk1">"bar"</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk1">"baz"</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk1">"quux"</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk1">"zot"</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <p>Displays:</p>
+        <div class="copy-wrapper">
+            <pre>
+                <code>foo
+                bar
+                baz
+                quux
+                zot
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-count">
+            <code>flexvector-count</code>
+        </h4>
+        <p>
+            <code>(flexvector-count pred? fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Counts the number of parallel elements in the flexvectors that satisfy 
+            <code>pred?</code>
+            , which is applied, for each index 
+            <code>i</code>
+             in the range [0, 
+            <em>length</em>
+            ) where 
+            <em>length</em>
+             is the length of the smallest flexvector argument, to each parallel element in the flexvectors, in order.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-count&nbsp;even?&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">9</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;3</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-count&nbsp;&lt;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">9</span>
+                        <span class="mtk1">)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">8</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">10</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">12</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;2</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-cumulate">
+            <code>flexvector-cumulate</code>
+        </h4>
+        <p>
+            <code>(flexvector-cumulate f knil fv)</code>
+        </p>
+        <p>
+            Returns a newly-allocated flexvector 
+            <code>new</code>
+             with the same length as 
+            <code>fv</code>
+            . Each element 
+            <code>i</code>
+             of 
+            <code>new</code>
+             is set to the result of 
+            <code>(f (flexvector-ref new (- i 1)) (flexvector-ref fv i))</code>
+            , except that, for the first call on 
+            <code>f</code>
+            , the first argument is 
+            <code>knil</code>
+            . The 
+            <code>new</code>
+             flexvector is returned.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-cumulate&nbsp;+&nbsp;</span>
+                        <span class="mtk21">0</span>
+                        <span class="mtk1">&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">9</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#&lt;flexvector&nbsp;3&nbsp;4&nbsp;8&nbsp;9&nbsp;14&nbsp;23&nbsp;25&nbsp;30&nbsp;36&gt;</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h3 id="searching">Searching</h3>
+        <h4 id="flexvector-index-flexvector-index-right">
+            <code>flexvector-index</code>
+            , 
+            <code>flexvector-index-right</code>
+        </h4>
+        <p>
+            <code>(flexvector-index pred? fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Finds and returns the index of the first elements in 
+            <code>fv1 fv2 ...</code>
+             that satisfy 
+            <code>pred?</code>
+            . If no matching element is found by the end of the shortest flexvector, 
+            <code>#f</code>
+             is returned.
+        </p>
+        <p>
+            <code>flexvector-index-right</code>
+             is similar, but returns the index of the 
+            <em>last</em>
+             elements that satisfy 
+            <code>pred?</code>
+            , and requires all flexvector arguments to have the same length.
+        </p>
+        <p>
+            Given 
+            <em>n</em>
+             arguments 
+            <code>fv1 fv2...</code>
+            , 
+            <code>pred?</code>
+             should be a function that takes 
+            <em>n</em>
+             arguments and returns a single value, interpreted as a boolean.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-index&nbsp;even?&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">9</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;2</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-index&nbsp;&lt;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">9</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">7</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">8</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;1</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-index&nbsp;=&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">9</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">6</span>
+                        <span class="mtk1">)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">7</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">8</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;#f</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-index-right&nbsp;&lt;&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">5</span>
+                        <span class="mtk1">)&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">7</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">8</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;3</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-skip-flexvector-skip-right">
+            <code>flexvector-skip</code>
+            , 
+            <code>flexvector-skip-right</code>
+        </h4>
+        <p>
+            <code>(flexvector-skip pred? fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Finds and returns the index of the first elements in 
+            <code>fv1 fv2 ...</code>
+             that do 
+            <em>not</em>
+             satisfy 
+            <code>pred?</code>
+            . If all the values in the flexvectors satisfy 
+            <code>pred?</code>
+             until the end of the shortest flexvector, this returns 
+            <code>#f</code>
+            .
+        </p>
+        <p>
+            <code>flexvector-skip-right</code>
+             is similar, but returns the index of the 
+            <em>last</em>
+             elements that do not satisfy 
+            <code>pred?</code>
+            , and requires all flexvector arguments to have the same length.
+        </p>
+        <p>
+            Given 
+            <em>n</em>
+             arguments 
+            <code>fv1 fv2...</code>
+            , 
+            <code>pred?</code>
+             should be a function that takes 
+            <em>n</em>
+             arguments and returns a single value, interpreted as a boolean.
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(flexvector-skip&nbsp;number?&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;'a&nbsp;'b&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;'c&nbsp;'d))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;2</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span>&nbsp;</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">(flexvector-skip-right&nbsp;number?&nbsp;(flexvector&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">2</span>
+                        <span class="mtk1">&nbsp;'a&nbsp;'b&nbsp;</span>
+                        <span class="mtk21">3</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">4</span>
+                        <span class="mtk1">&nbsp;'c&nbsp;'d))</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk4">;=&gt;&nbsp;4</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-binary-search">
+            <code>flexvector-binary-search</code>
+        </h4>
+        <p>
+            <code>(flexvector-binary-search fv value cmp [start [end]])</code>
+        </p>
+        <p>
+            Similar to 
+            <code>flexvector-index</code>
+             and 
+            <code>flexvector-index-right</code>
+            , but, instead of searching left-to-right or right-to-left, this performs a binary search. If there is more than one element of 
+            <code>fv</code>
+             that matches 
+            <code>value</code>
+             in the sense of 
+            <code>cmp</code>
+            , 
+            <code>flexvector-binary-search</code>
+             may return the index of any of them.
+        </p>
+        <p>
+            The search is performed on only the indexes of 
+            <code>fv</code>
+             between 
+            <code>start</code>
+            , which defaults to 0, and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>fv</code>
+            . Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ]. It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <p>
+            <code>cmp</code>
+             should be a procedure of two arguments that returns either a negative integer, which indicates that its first argument is less than its second; zero, which indicates that they are equal; or a positive integer, which indicates that the first argument is greater than the second argument. An example 
+            <code>cmp</code>
+             might be:
+        </p>
+        <div class="copy-wrapper">
+            <pre>
+                <code class="language-scheme">
+                    <span>
+                        <span class="mtk1">(λ&nbsp;(char1&nbsp;char2)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;(</span>
+                        <span class="mtk12">cond</span>
+                        <span class="mtk1">&nbsp;((char&lt;?&nbsp;char1&nbsp;char2)&nbsp;</span>
+                        <span class="mtk21">-1</span>
+                        <span class="mtk1">)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((char=?&nbsp;char1&nbsp;char2)&nbsp;</span>
+                        <span class="mtk21">0</span>
+                        <span class="mtk1">)</span>
+                    </span>
+                    <br>
+                    <span>
+                        <span class="mtk1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(</span>
+                        <span class="mtk12">else</span>
+                        <span class="mtk1">&nbsp;</span>
+                        <span class="mtk21">1</span>
+                        <span class="mtk1">)))</span>
+                    </span>
+                    <br>
+                </code>
+            </pre>
+        </div>
+        <h4 id="flexvector-any">
+            <code>flexvector-any</code>
+        </h4>
+        <p>
+            <code>(flexvector-any pred? fv1 fv2 ...)</code>
+        </p>
+        <p>
+            Finds the first set of elements in parallel from 
+            <code>fv1 fv2 ...</code>
+             for which 
+            <code>pred?</code>
+             returns a true value. If such a parallel set of elements exists, 
+            <code>flexvector-any</code>
+             returns the value that 
+            <code>pred?</code>
+             returned for that set of elements. The iteration is strictly left-to-right.
+        </p>
+        <h4 id="flexvector-every">
+            <code>flexvector-every</code>
+        </h4>
+        <p>
+            <code>(flexvector-every pred? fv1 fv2 ...)</code>
+        </p>
+        <p>
+            If, for every index 
+            <code>i</code>
+             between 0 and the length of the shortest flexvector argument, the set of elements 
+            <code>(flexvector-ref fv1 i) (flexvector-ref fv2 i) ...</code>
+             satisfies 
+            <code>pred?</code>
+            , 
+            <code>flexvector-every</code>
+             returns the value that 
+            <code>pred?</code>
+             returned for the last set of elements, at the last index of the shortest flexvector. The iteration is strictly left-to-right.
+        </p>
+        <h4 id="flexvector-partition">
+            <code>flexvector-partition</code>
+        </h4>
+        <p>
+            <code>(flexvector-partition pred? fv)</code>
+        </p>
+        <p>
+            Returns two values: a flexvector containing all elements of 
+            <code>fv</code>
+             that satisfy 
+            <code>pred?</code>
+            , and a flexvector containing all elements of 
+            <code>fv</code>
+             that do not satisfy 
+            <code>pred?</code>
+            . Elements remain in their original order.
+        </p>
+        <h3 id="conversion">Conversion</h3>
+        <h4 id="flexvector-vector">
+            <code>flexvector-&gt;vector</code>
+        </h4>
+        <p>
+            <code>(flexvector-&gt;vector fv [start [end]])</code>
+        </p>
+        <p>
+            Creates a vector containing the elements in 
+            <code>fv</code>
+             between 
+            <code>start</code>
+            , which defaults to 0, and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>fv</code>
+            .
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <h4 id="vector-flexvector">
+            <code>vector-&gt;flexvector</code>
+        </h4>
+        <p>
+            <code>(vector-&gt;flexvector vec [start [end]])</code>
+        </p>
+        <p>
+            Creates a flexvector containing the elements in 
+            <code>vec</code>
+             between 
+            <code>start</code>
+            , which defaults to 0, and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>vec</code>
+            .
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(vector-length vec)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <h4 id="flexvector-list-reverse-flexvector-list">
+            <code>flexvector-&gt;list</code>
+            , 
+            <code>reverse-flexvector-&gt;list</code>
+        </h4>
+        <p>
+            <code>(flexvector-&gt;list fv [start [end]])</code>
+        </p>
+        <p>
+            Creates a list containing the elements in 
+            <code>fv</code>
+             between 
+            <code>start</code>
+            , which defaults to 0, and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>fv</code>
+            .
+        </p>
+        <p>
+            <code>reverse-flexvector-&gt;list</code>
+             is similar, but creates a list with elements in reverse order of 
+            <code>fv</code>
+            .
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <h4 id="list-flexvector-reverse-list-flexvector">
+            <code>list-&gt;flexvector</code>
+            , 
+            <code>reverse-list-&gt;flexvector</code>
+        </h4>
+        <p>
+            <code>(list-&gt;flexvector proper-list)</code>
+        </p>
+        <p>
+            Creates a flexvector of elements from 
+            <code>proper-list</code>
+            .
+        </p>
+        <p>
+            <code>reverse-list-&gt;flexvector</code>
+             is similar, but creates a flexvector with elements in reverse order of 
+            <code>proper-list</code>
+            .
+        </p>
+        <h4 id="flexvector-string">
+            <code>flexvector-&gt;string</code>
+        </h4>
+        <p>
+            <code>(flexvector-&gt;string fv [start [end]])</code>
+        </p>
+        <p>
+            Creates a string containing the elements in 
+            <code>fv</code>
+             between 
+            <code>start</code>
+            , which defaults to 0, and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>fv</code>
+            . It is an error if the elements are not characters.
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(flexvector-length fv)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <h4 id="string-flexvector">
+            <code>string-&gt;flexvector</code>
+        </h4>
+        <p>
+            <code>(string-&gt;flexvector string [start [end]])</code>
+        </p>
+        <p>
+            Creates a flexvector containing the elements in 
+            <code>string</code>
+             between 
+            <code>start</code>
+            , which defaults to 0, and 
+            <code>end</code>
+            , which defaults to the length of 
+            <code>string</code>
+            .
+        </p>
+        <p>
+            Both 
+            <code>start</code>
+             and 
+            <code>end</code>
+             are clamped to the range [0, 
+            <code>(string-length string)</code>
+            ). It is an error if 
+            <code>end</code>
+             is less than 
+            <code>start</code>
+            .
+        </p>
+        <h4 id="flexvector-generator">
+            <code>flexvector-&gt;generator</code>
+        </h4>
+        <p>
+            <code>(flexvector-&gt;generator fv)</code>
+        </p>
+        <p>
+            Returns a 
+            <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158</a>
+             generator that emits the elements of the flexvector 
+            <code>fv</code>
+            , in order. If 
+            <code>fv</code>
+             is mutated before the generator is exhausted, the generator's remaining return values are undefined.
+        </p>
+        <h4 id="generator-flexvector">
+            <code>generator-&gt;flexvector</code>
+        </h4>
+        <p>
+            <code>(generator-&gt;flexvector gen)</code>
+        </p>
+        <p>
+            Creates a flexvector containing all elements produced by the 
+            <a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158</a>
+             generator 
+            <code>gen</code>
+            .
+        </p>
+        <h2 id="implementation">Implementation</h2>
+        <p>
+            <a href="https://github.com/scheme-requests-for-implementation/srfi-214">A sample implementation is available on GitHub.</a>
+             The sample implementation supports Gauche, Sagittarius, and Chibi, and includes a test suite.
+        </p>
+        <h2 id="acknowledgements">Acknowledgements</h2>
+        <p>
+            Thanks to the authors of 
+            <a href="https://srfi.schemers.org/srfi-133/srfi-133.html">SRFI 133</a>
+             (John Cowan, and, transitively, Taylor Campbell), on whose work this SRFI is based. Much of the language in this SRFI was copied directly from 133 with only minor changes.
+        </p>
+        <h2 id="copyright">Copyright</h2>
+        <p>© Adam Nelson 2020-2021.</p>
+        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+        <p>The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.</p>
+        <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+
+        <hr>
+        <address>
+            Editor: 
+            <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a>
+        </address>
+
+    </div>
+
+</body>
+</html>
+

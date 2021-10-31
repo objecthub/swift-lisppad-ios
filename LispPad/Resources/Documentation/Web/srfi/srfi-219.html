@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 219: Define higher-order lambda</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  
+  <H2><a name="lp-srfi-219">Title</a></H2>
+  Define higher-order lambda
+
+  <h2>Author</h2>
+  <p>Lassi Kortela</p>
+
+  <h2 id="status">Status</h2>
+  <p>This SRFI is currently in <em>final</em> status. Here is
+  <a href="https://srfi.schemers.org/srfi-process.html">an
+  explanation</a> of each status that a SRFI can hold. To provide
+  input on this SRFI, please send email to <code><a href=
+  "mailto:srfi+minus+219+at+srfi+dotschemers+dot+org">srfi-219@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.
+  To subscribe to the list, follow <a href=
+  "https://srfi.schemers.org/srfi-list-subscribe.html">these
+  instructions</a>. You can access previous messages via the
+  mailing list <a href=
+  "https://srfi-email.schemers.org/srfi-219">archive</a>.</p>
+  <ul>
+    <li>Received: 2021-02-02</li>
+    <li>Draft #1 published: 2021-02-03</li>
+    <li>Draft #2 published: 2021-02-03</li>
+    <li>Draft #3 published: 2021-02-05</li>
+    <li>Finalized: 2021-04-04</li>
+  </ul>
+  <h2 id="abstract">Abstract</h2>
+  <p>This SRFI codifies the following shorthand syntax, which some
+  Scheme implementations have had for a long time.</p>
+  <pre>(define ((outer-name outer-args ...) inner-args ...)
+  inner-body ...)</pre>
+  <h2 id="rationale">Rationale</h2>
+  <p>Procedures that make other procedures are commonly used in
+  Scheme. A shorthand syntax makes them easier to define, obviating
+  the need to write a <code>lambda</code> inside a
+  <code>lambda</code>.</p>
+  <p>Recall that <em>R<sup>n</sup>RS</em> defines a standard
+  shorthand whereby the code:</p>
+  <pre>(define foo
+  (lambda (a b c)
+    body ...))</pre>
+  <p>can be abbreviated as:</p>
+  <pre>(define (foo a b c)
+  body ...)</pre>
+  <p>This SRFI defines an additional shorthand which is an
+  extrapolation of the standard one. The code:</p>
+  <pre>(define (foo a b c)
+  (lambda (d e f)
+    body ...))</pre>
+  <p>can be abbreviated as:</p>
+  <pre>(define ((foo a b c) d e f)
+  body ...)</pre>
+  <p>The syntax generalizes further: <code>lambda</code>s can be
+  nested arbitrarily deep by adding more nested lists. The key is
+  that each nested list always be at the <b>head position</b> of
+  the containing list. Each inner list adds one outer
+  <code>lambda</code>; this order is intuitive when reading the
+  S-expression left-to-right. The identifier at the head position
+  of the innermost list becomes the name of the definition.</p>
+  <p>Apart from helping define higher-order functions, the
+  additional shorthand syntax partially applies to the task of
+  making partially applied functions in Scheme.</p>
+  <h3 id="origin">Origin</h3>
+  <p>The shorthand has been in MIT Scheme since at least 1990, and
+  may have originated in that implementation.</p>
+  <h3 id="survey-of-prior-art">Survey of prior art</h3>
+  <p>The following Scheme implementations have the shorthand syntax
+  built in:</p>
+  <ul>
+    <li>Chicken</li>
+    <li>Gauche</li>
+    <li>Guile <code>(ice-9 curried-definitions)</code> library</li>
+    <li>Larceny</li>
+    <li>MIT Scheme</li>
+    <li>Racket</li>
+    <li>Sagittarius</li>
+    <li>Scheme 9 from Empty Space</li>
+  </ul>
+  <p>The following implementations don't have it: Bigloo,
+  BiwaScheme, Chez Scheme, Chibi-Scheme, Cyclone, Gambit, Gerbil,
+  Ikarus, IronScheme, Kawa, Loko, Mosh, s7, Scheme 48, SigScheme,
+  STklos, TinyScheme, Vicare, Ypsilon.</p>
+  <p><a href="https://srfi.schemers.org/srfi-201/">SRFI 201:
+  Syntactic Extensions to the Core Scheme Bindings</a> standardizes
+  this shorthand among several others.</p>
+  <h3 id="exporting-the-shorthand-from-a-library">Exporting the
+  shorthand from a library</h3>
+  <p>Since the shorthand is non-standard (i.e. not defined in
+  <em>R<sup>n</sup>RS</em>), it can be controversial or confusing
+  to the uninitiated programmer.</p>
+  <p>This SRFI handles the conflict by storing the shorthand
+  version of <code>define</code> in a library that does not have to
+  be imported by default. Then programmers can choose whether to
+  import it or not. In portable code the <code>import</code> serves
+  to document the dependency on this SRFI.</p>
+  <h2 id="specification">Specification</h2>
+  <p>The shorthand version of <code>define</code> behaves as
+  follows:</p>
+  <blockquote>
+    <p><code>(define symbol expr)</code><br>
+    defines <var>symbol</var> with the value<br>
+    <code>expr</code></p>
+    <p><code>(define (symbol . args) expr ...)</code><br>
+    defines <var>symbol</var> with the value<br>
+    <code>(lambda args expr ...)</code></p>
+    <p><code>(define ((symbol . args1) . args) expr ...)</code><br>
+    defines <var>symbol</var> with the value<br>
+    <code>(lambda args1 (lambda args expr ...))</code></p>
+    <p><code>(define (((symbol . args2) . args1) . args) expr
+    ...)</code><br>
+    defines <var>symbol</var> with the value<br>
+    <code>(lambda args2 (lambda args1 (lambda args expr
+    ...)))</code></p>
+    <p>and so on.</p>
+  </blockquote>
+  <h3 id="declarations">Declarations</h3>
+  <p>If the Scheme implementation supports attaching declarations
+  such as documentation strings or optimization settings to
+  procedures, any such declarations appearing in <code>expr
+  ...</code> can apply to the outer and/or inner
+  <code>lambda</code>s at the discretion of the implementation.</p>
+  <h3 id="importing-in-r6rs-and-r7rs">Importing in R<sup>6</sup>RS
+  and R<sup>7</sup>RS</h3>
+  <p>In R<sup>6</sup>RS Scheme implementations, the shorthand
+  version of <code>define</code> is exported from the library
+  <code>(srfi :219)</code>. In R<sup>7</sup>RS Scheme
+  implementations, it is exported from the library <code>(srfi
+  219)</code>.</p>
+  <p>The shorthand is exported under the name <code>define</code>,
+  which means that it shadows <em>R<sup>n</sup>RS</em>
+  <code>define</code>.</p>
+  <h3 id="importing-from-other-libraries">Importing from other
+  libraries</h3>
+  <p>The shorthand may also be imported from other libraries,
+  possibly under names other than <code>define</code>.</p>
+  <h3 id="importing-by-default">Importing by default</h3>
+  <p>This SRFI does not say whether or not the shorthand is
+  imported into the default interaction environment.</p>
+  <h2 id="examples">Examples</h2>
+  <p>Simplest example:</p>
+  <pre>(define ((greet-with-prefix prefix) suffix)
+  (string-append prefix " " suffix))
+
+(define greet (greet-with-prefix "Hello"))
+
+(greet "there!") =&gt; "Hello there!"</pre>
+  <p>With a dotted list to take a variable number of arguments:</p>
+  <pre>(define ((append-to . a) . b)
+  (apply append (append a b)))
+
+((append-to)) =&gt; ()
+((append-to '(1 2) '(3 4)) '(5 6) '(7 8)) =&gt; (1 2 3 4 5 6 7 8)</pre>
+  <h3>Avoiding the name clash</h3>
+  <p>To avoid the name conflict between <em>R<sup>n</sup>RS</em>
+  <code>define</code> and this SRFI's <code>define</code>, a
+  program using this SRFI should import the
+  <em>R<sup>n</sup>RS</em> base library as:</p>
+  <ul>
+    <li>R<sup>6</sup>RS: <code>(import (except (rnrs)
+    define))</code></li>
+    <li>R<sup>7</sup>RS: <code>(import (except (scheme base)
+    define))</code></li>
+  </ul>
+  <p>Alternatively, Scheme's import renaming can be used to import
+  the shorthand <code>define</code> under a different name, in
+  which case the same program can alternate between using the
+  shorthand <code>define</code> and <em>R<sup>n</sup>RS</em>
+  <code>define</code>. For example:</p>
+  <ul>
+    <li>R<sup>6</sup>RS: <code>(import (rename (srfi :219) (define
+    define/higher)))</code></li>
+    <li>R<sup>7</sup>RS: <code>(import (rename (srfi 219) (define
+    define/higher)))</code></li>
+  </ul>
+  <h2 id="implementation">Implementation</h2>
+  <p>R<sup>6</sup>RS and R<sup>7</sup>RS libraries using
+  <code>syntax-rules</code> are attached.</p>
+  <h2 id="acknowledgements">Acknowledgements</h2>
+  <p>Thanks to Arthur Gleckler and Taylor Campbell from MIT Scheme
+  for explaining the syntax and its history.</p>
+  <p>Thanks to by Panicz Maciej Godek for writing SRFI 201. At the
+  time of writing this SRFI, I was unaware that it contained the
+  same shorthand.</p>
+  <p>Thanks to Marc Nieper-Wißkirchen and Panicz for hints on
+  <code>syntax-rules</code> simplification.</p>
+  <p>Thanks to Göran Weinholt for collaborating on Docker
+  containers that made it easy to do the survey.</p>
+  <h2 id="copyright">Copyright</h2>
+  <p>© 2021 Lassi Kortela.</p>
+  <p>Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the "Software"), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:</p>
+  <p>The above copyright notice and this permission notice
+  (including the next paragraph) shall be included in all copies or
+  substantial portions of the Software.</p>
+  <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.</p>
+  <hr>
+  <address>
+    Editor: <a href=
+    "mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A.
+    Gleckler</a>
+  </address>
+</body>
+</html>
+

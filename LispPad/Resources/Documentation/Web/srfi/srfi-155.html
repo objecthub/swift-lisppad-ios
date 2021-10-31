@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 155: Promises</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-155">Title</a></H1>
+
+Promises
+
+<h1>Author</h1>
+
+Marc Nieper-Wi&szlig;kirchen
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here
+is <a href="https://srfi.schemers.org/srfi-process.html">an
+explanation</a> of each status that a SRFI can hold.  To provide input
+on this SRFI, please send email
+to <code><a href="mailto:srfi+minus+155+at+srfi+dotschemers+dot+org">srfi-155@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.
+To subscribe to the list,
+follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these
+instructions</a>.  You can access previous messages via the mailing
+list <a href="https://srfi-email.schemers.org/srfi-155">archive</a>.</p>
+<ul>
+  <li>Received: 2017-07-04</li>
+  <li>Draft #1 published: 2017-07-04</li>
+  <li>Draft #2 published: 2017-07-06</li>
+  <li>Draft #3 published: 2017-07-28</li>
+  <li>Draft #4 published: 2018-09-04</li>
+  <li>Finalized: 2018-09-15</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+Scheme, like ML, is a programming language with strict evaluation
+while others, like Haskell, use lazy evaluation.  Scheme, however,
+possesses the primitives <code>delay</code> and <code>force</code>
+that make it possible to express lazy algorithms.
+</p>
+
+<p>
+Lazy evaluation does not go well in conjunction with imperative,
+non-functional, side-effecting code.  It should, however, be
+applicable in a purely functional setting.  This is the case for the
+delayed evaluation model as described in the R7RS as long as no
+dynamically bound variables, also known as parameter objects, are
+present.  It is the purpose of this SRFI to rework the specification
+in the R7RS so that lazy evaluation works with purely functional code
+that makes use of dynamic environments or, more generally, the dynamic
+extent.  This is done by remembering the dynamic extent in effect when
+the <code>delay</code> expression is evaluated.
+</p>
+
+<p>
+  Another perceived misfeature of the R7RS model of delayed evaluation
+  is the apparent need of the <code>delay-force</code> special form to
+  express iterative lazy algorithms.  It is shown that
+  the <code>delay-force</code> special form is unneeded and that the
+  implementation can (and should) handle iterative lazy algorithms
+  without space leaks.
+</p>
+
+<h1>Rationale</h1>
+
+<h2>Promises and the dynamic extent</h2>
+
+<p>
+In ticket #397 of
+the Scheme Working Group 1, the question was raised how promises shall
+interact with the dynamic extent, namely
+whether <code>force</code> shall evaluate a promise in the dynamic
+extent of the call to <code>force</code> which first requested its value.  An
+opposing choice would be that <code>force</code> shall evaluate a
+promise in the dynamic extent of the site where the promise was
+created.
+</p>
+
+<p>
+  The ticket was resolved apparently without any ballot or public
+  discussion, and the former semantics was chosen for
+  the <a href="http://r7rs.org">R7RS</a>.
+  Accordingly, the description of <code>force</code> in the R7RS
+  says: <q>Consequently, a delayed expression is evaluated using the
+  parameter values and exception handler of the call
+  to <code>force</code> which first requested its value.</q>
+</p>
+
+<p>It is the main thesis of this SRFI that the choice made by the
+  editors of the R7RS
+  was <a href="https://groups.google.com/forum/#!topic/scheme-reports-wg2/CQslZcWTXHM">the
+  wrong one</a>, so this SRFI proposes a correction to
+  the <code>(scheme lazy)</code> library in form of the <code>(scheme
+  promise)</code> library.
+</p>
+
+<p>Lazy algorithms should work well together with purely functional
+  code.  The use of parameter objects (for example functioning as
+  implicit arguments to procedure calls), or more generally
+  calls to <code>dynamic-wind</code> with a pair of <em>before</em> and <em>after</em>
+  thunks that, abstractly, has a clear functional semantics is
+  orthogonal to the question of whether code is purely functional or
+  not.  However, with the semantics of <code>force</code> as currently
+  in the R7RS, the order of evaluation of arguments in otherwise purely
+  functional code suddenly matters:
+</p>
+
+<pre>
+  (let ()
+    (define x (make-parameter 1))
+    (define p (delay (x)))
+    (define (g p) (parameterize ((x 2)) (force p)))
+    (+ (force p) (g p)))
+</pre>
+
+<p>
+  Depending on the order of evaluation, this expression either
+  evaluates to <code>2</code> or <code>4</code>.  Obviously, we don't
+  expect that purely functional code exhibits such a behaviour.
+  (Folks from the Haskell camp would have good reasons to shake their
+  heads in astonishment.)  Reasoning about such code would be very hard.
+</p>
+
+<p>
+  A more realistic example could be provided by a combination of an
+  object system together with some lazy algorithm.  Such an object
+  system may want to refer to the current instance
+  by <code>this</code>.  One choice would be to explicitly
+  thread <code>this</code> in the code (as Python does with
+  explicitly mentioning <em>self</em> at each method definition) or
+  to realize <code>this</code> as a syntax parameter (see
+  <a href="https://srfi.schemers.org/srfi-139/srfi-139.html">SRFI
+  139</a>, a way C++ and Java chose.)  A third way, more along
+  Python's semantics but without explicitly
+  mentioning <code>this</code> (or <em>self</em>) at every method
+  definition site would be to define <code>this</code> as a parameter
+  object (in the sense of the R7RS), which is parameterized at each
+  call site of a method.  Now, if the lazy algorithm
+  references <code>this</code>, most certainly the parameter value
+  of <code>this</code> when initially referred to and not when firstly
+  forced is the correct one.
+</p>
+
+<p>
+  Unfortunately, the semantics of R7RS would get it wrong.  Does this
+  sound familiar?  Of course!  ECMAScript's functions suffer from the
+  same problem, namely that the value of <code>this</code> is not remembered
+  as part of the closure.  (In ECMAScript 2015 this problem was
+  remedied in form of &ldquo;arrow functions&rdquo;.)
+</p>
+
+<p>
+  However, there might be legitimate reasons to access the dynamic extent at the
+  site of the first invocation to <code>force</code>, for example for
+  debugging purposes.  Therefore, this SRFI defines an optional
+  procedure <code>forcing-extent</code>, which returns the dynamic extent (in the sense
+  of <a href="https://srfi.schemers.org/srfi-154/srfi-154.html">SRFI
+    154</a>) of the most recent call to <code>force</code>.
+  The procedure is optional because its presence complicates the
+  semantic model of lazy evaluation again.
+  Using <code>(forcing-extent)</code> makes code as the following possible:
+</p>
+
+<pre>
+  (import (scheme base)
+          (scheme write)
+          (srfi 154)
+          (srfi 155))
+  (define current-logger (make-parameter #f))
+  (define (log msg) ((current-logger) msg))
+  (define (default-logger msg)
+    (display msg (current-error-port))
+    (newline (current-error-port)))
+  (define-syntax logged-delay
+    (syntax-rules ()
+      ((delay/logged expression)
+       (delay (begin (with-dynamic-environment (forcing-environment)
+                      (lambda ()
+                        (log "promised value calculated just now")))
+                     expression)))))
+  (let ((p (delay 1)))
+    (parameterize ((current-logger default-logger))
+      (display "The answer is: ")
+      (display (+ (force p) 41))
+      (newline)))
+</pre>
+
+<p>In particular, it is possible to implement the semantic model of
+  the R7RS in terms of the model of this SRFI when the
+  procedure <code>forcing-environment</code> is included.
+</p>
+
+<h2>Iterative lazy algorithms</h2>
+
+<p>
+The R5RS and the R7RS make no guarantee that expressing iterative lazy
+algorithms just with <code>delay</code> and <code>force</code> will
+run in bounded space.  Instead, they provide a special
+form <code>delay-force</code> such that <code>(delay-force
+&lt;expression&gt;)</code> is equivalent to <code>(delay (force
+&lt;expression&gt;))</code> except that forcing the resulting promise
+guarantees to evaluate <code>(force &lt;expression&gt;)</code> in tail
+position.  The R7RS gives an example in form of
+the <code>stream-filter</code> procedure that makes use of
+the <code>delay-force</code> form.
+</p>
+
+<p>
+From a user's perspective, the need for this third primitive is not
+optimal, and one may think that a Scheme system properly supporting
+delayed evaluation should handle <code>(delay (force
+&lt;expression&gt;))</code> as gracefully as it does handle calls in
+tail position (as described in section 3.5 of the R7RS).
+</p>
+
+<p>
+As an improvement, it was suggested by Alex Shinn on the mailing list
+of this SRFI that <code>delay</code> should be redefined along
+the following lines:
+</p>
+
+<pre>
+  (define-syntax delay
+    (syntax-rules (force)
+      ((delay (force expression))
+       (delay-force expression)
+      ((delay expression)
+       ...)))</pre>
+
+<p>
+  With this definition, during expansion of <code>delay</code> the system
+  statically detects whether the expression to be delayed is of the
+  form <code>(force &lt;expression&gt;)</code>. This means
+  that <code>delay-force</code> does not have to be exposed anymore
+  and that a Scheme user can write <code>(delay (force
+  &lt;expression&gt;))</code> instead of <code>(delay-force
+  &lt;expression&gt;)</code>.
+</p>
+
+<p>
+  Besides probably being more user-friendly, this redefinition of <code>delay</code>
+  makes the delayed evaluation model also more composable, hence more
+  powerful:  Consider, for example, the following code (making use of
+  <a href="https://srfi.schemers.org/srfi-111/srfi-111.html">SRFI 111:
+  Boxes</a>):
+</p>
+
+<pre>
+  (define-syntax lazy-box
+    (syntax-rules ()
+      ((lazy-box expression)
+       (box (delay expression)))))
+
+  (define-syntax lazy-unbox
+    (syntax-rules ()
+      ((lazy-unbox box)
+       (force (unbox box)))))</pre>
+
+<p>
+The lazy boxes defined by these two keywords wrap a promise in a box.
+The pair of <code>lazy-box</code> and <code>lazy-unbox</code> provides
+the same primitives for lazy boxes as do <code>delay</code>
+and <code>force</code> for non-boxed promises.  Using the suggested
+semantics that <code>(delay (force &lt;expression&gt;))</code> is
+equivalent to <code>(delay-force &lt;expression&gt;)</code>, the
+composition <code>(lazy-box (lazy-unbox &lt;expression&gt;))</code>
+reduces correctly and makes expressing iterative lazy algorithms with
+lazy boxes possible.
+</p>
+
+<p>
+In order to make this work, <code>lazy-unbox</code> has to be defined as
+syntax and not as a procedure.  Had we defined <code>lazy-unbox</code>
+as a procedure, the call to <code>force</code> in tail position would
+have remained hidden from the syntax expander.
+</p>
+
+<p>
+  While the automatic syntactic reduction of <code>(delay (force
+    &lt;expression&gt;))</code> to <code>(delay-force
+    &lt;expression&gt;)</code> is, as this example shows, better than
+  exposing <code>delay-force</code> directly, this necessity of having to
+  define <code>lazy-unbox</code> as syntax also shows that the proposed
+  semantics is still a suboptimal choice.  Furthermore, the model
+  breaks down in more complicated cases:
+</p>
+
+<pre>
+  (delay (if flag? (force x) (force y)))</pre>
+
+<p>Forcing the result of this expression won't guarantee
+  that <code>(force x)</code> or <code>(force y)</code> is evaluated
+  in a tail position although both calls appear in tail context inside
+  the <code>delay</code> form.
+</p>
+
+<p>
+So again, from a user's perspective, this handling of <code>(delay
+(force &lt;expression&gt;))</code> is still not as graceful as it
+should be. The problem is that the previous solution is based on
+detecting the presence of <code>force</code> syntactically.
+</p>
+
+<p>Instead, what is needed is the following: If
+  evaluating <code>&lt;expression&gt;</code> results in a tail call of
+  the form <code>(force <em>promise</em>)</code>, forcing the result
+  of <code>(delay &lt;expression&gt;)</code> will also result in a
+  tail call to <code>(force <em>promise</em>)</code>.
+</p>
+
+<p>It is not possible to achieve this syntactically.  It is, however,
+  possible to implement this requirement using the continuation marks
+  of <a href="https://srfi.schemers.org/srfi-157/srfi-157.html">SRFI
+    157</a>, which is demonstrated by the sample implementation
+  accompanying this SRFI.
+</p>
+
+<h1>Specification</h1>
+
+<p>We use the term <em>dynamic extent</em> for reified dynamic extents
+  as in <a href="https://srfi.schemers.org/srfi-154/srfi-154.html">SRFI
+  154</a>.
+</p>
+
+<p>The mandatory identifiers defined by this specification are
+exported by the library <code>(srfi 155)</code>.  The optional
+identifiers are exported by the library <code>(srfi 155
+reflection)</code>.  If an implementation provides the
+library <code>(srfi 155 reflection)</code>, it has to provide all
+optional identifiers.
+</p>
+
+<p>
+  The author of this SRFI recommends that the interface described in
+  this SRFI be made available under the namespace <code>(scheme
+  promise)</code> (and <code>(scheme promise reflection)</code>) in
+  future revisions of the Scheme programming language that build upon
+  the R7RS.  When this happens, <code>(scheme lazy)</code> might
+  become deprecated and remain solely for backward-compatibility with
+  the R7RS.  It is further recommended that <code>(scheme
+  stream)</code> of the R7RS-large uses the same semantics with
+  respect to the dynamic extent as this SRFI.
+</p>
+
+<h2>Syntax</h2>
+
+<p><code>(delay &lt;expression&gt;)</code></p>
+
+<p>
+  <code>(delay &lt;expression&gt;)</code> returns an object called
+  a <em>promise</em> which at some point in the future can be asked
+  (by the <code>force</code> procedure) to
+  evaluate <code>&lt;expression&gt;</code> in the dynamic extent
+  in effect when the <code>delay</code> expression was evaluated, and
+  deliver the resulting value.  The effect
+  of <code>&lt;expression&gt;</code> returning multiple values is
+  unspecified.
+</p>
+
+<p>
+  If forcing the result of <code>(delay &lt;expression&gt;)</code>
+  results in a tail call of the form <code>(force
+    <em>promise</em>)</code>,  forcing of the result is required to
+  also result in a tail call to <code>(force <em>promise</em>)</code>.
+</p>
+
+<p><i>Rationale:</i> This makes iterative lazy algorithms without
+  space leaks possible; see
+  also <a href="https://srfi.schemers.org/srfi-45/srfi-45.html">SRFI
+  45</a>.
+</p>
+
+<p><code>(delay-force &lt;expression&gt;)</code></p>
+
+<p>
+  Equivalent to <code>(delay (force &lt;expression&gt;))</code>.  This
+  form is provided only for backward compatibility, and its use is
+  deprecated.
+</p>
+
+<h2>Procedures</h2>
+
+<p><code>(force <em>promise</em>)</code></p>
+
+<p>The <code>force</code> procedure forces the value of
+  a <em>promise</em> created
+  by <code>delay</code>, <code>delay-force</code>,
+  or <code>make-promise</code>.  If no value has been computed for the
+  promise, the value is computed in the dynamic extent in
+  effect when the <code>delay</code>, <code>delay-force</code>,
+  or <code>make-promise</code> expression was evaluated, and
+  returned.  The value of the promise must be cached (or
+  &ldquo;memoized&rdquo;) so that if it is forced a second time, the
+  previously computed value is returned.  If <em>promise</em> is not a
+  promise, it may be returned unchanged.
+</p>
+
+<p><code>(promise? <em>obj</em>)</code></p>
+
+<p>The <code>promise?</code> procedure returns <code>#t</code> if its argument
+  is a promise, and <code>#f</code> otherwise.  Note that promises are
+  not necessarily disjoint from other Scheme types such as procedures.
+</p>
+
+<p><code>(make-promise <em>obj</em>)</code></p>
+
+<p>The <code>make-promise</code> procedure returns a promise which,
+  when forced, will return <em>obj</em>.  It is similar
+  to <code>delay</code>, but does not delay its argument; it is a
+  procedure rather than syntax.  If <code>obj</code> is already a
+  promise, it is returned.
+</p>
+
+<h3>Optional procedures</h3>
+
+<p><code>(forcing-extent)</code></p>
+
+<p>When the value of a promise <code>(delay &lt;expression&gt;)</code>
+  is asked for the first time and <code>&lt;expression&gt;</code> is
+  evaluated, an invocation of <code>(forcing-extent)</code> in the
+  dynamic extent of that evaluation returns the dynamic extent (as
+  defined
+  by <a href="https://srfi.schemers.org/srfi-154/srfi-154.html">SRFI
+  154</a>) of the call to <code>force</code> that initially forced the
+  promise.  If forcing a promise yields a chain of <code>delay</code>
+  and <code>force</code>, the dynamic extent returned
+  by <code>(forcing-extent)</code> is the dynamic extent of the
+  outermost call to <code>force</code> in this chain.  It is an error
+  to invoke <code>forcing-environment</code> outside the dynamic
+  extent of <code>&lt;expression&gt;</code>.
+</p>
+
+<p><code>(dynamic-environment? <em>obj</em>)</code></p>
+
+<p>Type predicate for dynamic extent as exported by <code>(srfi 154)</code>.</p>
+
+<h1>Implementation</h1>
+
+<p>The provided <a href="https://srfi.schemers.org/srfi-155/srfi-155.tgz">sample implementation</a> for
+  an R7RS system builds upon the sample implementation
+  of <a href="https://srfi.schemers.org/srfi-154/srfi-154.html">SRFI
+    154</a>.
+</p>
+
+<p>
+  It is a faithful implementation if the presence of the
+  library <code>(srfi 157)</code>
+  of <a href="https://srfi.schemers.org/srfi-157/srfi-157.html">SRFI
+    157: Continuation marks</a> is detected on the host system.
+</p>
+
+<p>
+  Otherwise, the requirement that <code>(force (delay
+    &lt;expression&gt;))</code> results in a tail call to <code>(force
+    <em>promise</em>)</code> whenever
+  evaluating <code>&lt;expression&gt;</code> results in a tail call
+  to <code>(force <em>promise</em>)</code> is only met
+  when <code>&lt;expression&gt;</code> expands into the
+  form <code>(force <em>promise</em>)</code>.
+</p>
+
+<p>
+  Their is also an interface to the implementation as
+  a <a href="srfi/155.rkt">Racket module</a>.
+</p>
+
+<p>
+  The sample implementation provides the optional procedures.
+</p>
+
+<p>The portable R7RS implementation can cause unwanted space leaks
+  because it does not use shallow keys for continuation marks (see the
+  addendum to SRFI 157 in SRFI 154).  A full implementation of this
+  specification without any space leaks is provided in the form of a
+  meta-circular interpreter written in R7RS dubbed <a href="https://gitlab.com/nieper/inferior-scheme/">Inferior Scheme</a>,
+  which is a REPL for the Scheme IEEE 1178-1990 standard. Outside of
+  the standard syntax and procedures, Inferior Scheme provides the
+  syntax and the procedures of SRFIs 154, 155, and 157,
+  the <code>load</code> procedure of the
+  R4RS, <code>dynamic-wind</code> of R5RS,
+  and <code>parameterize</code> and <code>make-parameter</code> of
+  R7RS.
+</p>
+
+<h1>Acknowledgements</h1>
+
+<p>
+  Credit goes to the authors of the R7RS and to Andr&eacute; van
+  Tonder for his
+  <a href="https://srfi.schemers.org/srfi-41/srfi-41.html">SRFI 45</a>
+  from where most of this SRFI's description of promises and delayed
+  evaluation was taken.
+</p>
+
+<p>
+  Credit also goes to Philip L. Bewig for his fantastic and standard
+  setting <a href="https://srfi.schemers.org/srfi-41/srfi-41.html">SRFI
+  41</a>, which provides an important use case for promises.
+</p>
+
+<p>Special thanks go to Jim Rees for playing with and testing this
+  proposed specification.  Fruitful discussions with him led to the
+  definition of shallow keys in SRFI 154 to prevent space leaks in
+  implementations of this SRFI building upon SRFI 154.
+</p>
+
+<h1>Copyright</h1>
+Copyright (C) Marc Nieper-Wi&szlig;kirchen (2017).  All Rights Reserved.
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+</p>
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+</p>
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+</p>
+
+<hr>
+<address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body></html>
+

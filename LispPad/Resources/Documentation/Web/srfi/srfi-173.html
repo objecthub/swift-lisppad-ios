@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 173: Hooks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    
+    <h1 id="title"><a name="lp-srfi-173">Title</a></h1>
+
+    Hooks
+
+    <h1 id="author">Author</h1>
+
+    Amirouche Boubekki
+
+    <h1>Status</h1>
+
+    <p>This SRFI is currently in <em>draft</em> status. Here is
+    <a href="https://srfi.schemers.org/srfi-process.html">an
+      explanation</a> of each status that a SRFI can hold. To provide
+    input on this SRFI, please send email to
+    <code><a href="mailto:srfi+minus+173+at+srfi+dotschemers+dot+org">srfi-173@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.
+    To subscribe to the list, follow <a href= "https://srfi.schemers.org/srfi-list-subscribe.html">these
+      instructions</a>. You can access previous messages via the
+    mailing list <a href="https://srfi-email.schemers.org/srfi-173">archive</a>.</p>
+    <ul>
+      <li>Received: 2019/8/11</li>
+      <li>60-day deadline: 2019/10/12</li>
+      <li>Draft #1 published: 2019/8/14</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>This library describes a mechanism known as hooks. Hooks are a
+    certain kind of extension point in a program that allows
+    interleaving the execution of arbitrary code with the execution
+    of the program without introducing any coupling between the
+    two.</p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>The use of hooks is pervasive in GNU Emacs and many other
+    programs that offer some “plugin” mechanism that is built on top
+    a facility similar to what this library offers.</p>
+
+    <p>While building programs, there is a need to offer extension
+    points to allow the user to extend and customize the execution of
+    the program in way that avoids coupling. This library wants to
+    help with that.</p>
+
+    <h2 id="specification">Specification</h2>
+
+    <p>This specification describes one disjoint type called
+    <code>hook</code>.</p>
+
+    <h3 id="make-hook-arity"><code>(make-hook arity)</code></h3>
+
+    <p>Create a <code>hook</code> object for storing procedures of
+    <code>ARITY</code>. The returned value is a <code>hook</code>
+    object.</p>
+
+    <h3 id="hook-obj"><code>(hook? obj)</code></h3>
+
+    <p>Return <code>#t</code> if <code>obj</code> is a hook.
+    Otherwise, it returns <code>#f</code>.</p>
+
+    <h3 id="hook-add-hook-proc"><code>(hook-add! hook proc)</code></h3>
+
+    <p>Add the procedure <code>PROC</code> to the <code>HOOK</code>
+    object. The return value is not specified. An implementation may
+    check that the arity of <code>PROC</code> is equal to the arity
+    of the <code>HOOK</code>.</p>
+
+    <h3 id="hook-delete-hook-proc"><code>(hook-delete! hook proc)</code></h3>
+
+    <p>Delete the procedure <code>PROC</code> from the
+    <code>HOOK</code> object. The return value is not specified.</p>
+
+    <h3 id="hook-reset-hook"><code>(hook-reset! hook)</code></h3>
+
+    <p>Remove all procedures from the <code>HOOK</code> object. The
+    return value is not specified.</p>
+
+    <h3 id="hook-list-hook"><code>(hook-&gt;list hook)</code></h3>
+
+    <p>Convert the list of procedures of <code>HOOK</code> object to
+    a list.</p>
+
+    <h3 id="hook-run-hook-.-args"><code>(hook-run hook . args)</code></h3>
+
+    <p>Apply all procedures from <code>HOOK</code> to the arguments
+    <code>ARGS</code>. The order of the procedure application is not
+    specified. The return value is not specified. The length of
+    <code>ARGS</code> must be equal to the arity of the
+    <code>HOOK</code> object.</p>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>A portable <a href= "https://srfi.schemers.org/srfi-173/srfi-173.tgz">sample
+      implementation is provided.</a></p>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>This specification is based on the GNU Guile module called
+    <a href="https://www.gnu.org/software/guile/manual/html_node/Hooks.html#Hooks">
+      hook</a>.</p>
+
+    <h2 id="copyright">Copyright</h2>
+
+    <p>Copyright © Amirouche Boubekki (2019).</p>
+    <p>Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation
+    files (the “Software”), to deal in the Software without
+    restriction, including without limitation the rights to use,
+    copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following
+    conditions:</p>
+    <p>The above copyright notice and this permission notice
+    (including the next paragraph) shall be included in all copies or
+    substantial portions of the Software.</p>
+    <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
+    KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+    WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+    AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+    OTHER DEALINGS IN THE SOFTWARE.</p>
+    <hr />
+    <address>
+      Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A.
+        Gleckler</a>
+    </address>
+  </body>
+</html>

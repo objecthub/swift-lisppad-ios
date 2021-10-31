@@ -26,8 +26,15 @@ import UIKit
 
 final class DocumentationManager: ObservableObject {
 
+  enum Content {
+    case markdown(Block)
+    case html(String)
+    case htmlFile(URL)
+    case webpage(URL)
+  }
+  
   private class LibraryDocumentation {
-    fileprivate var content: Block? = nil
+    fileprivate var content: Content? = nil
     private(set) fileprivate var symbolDocs: [String : (String, Blocks)] = [:]
     
     func enter(for sym: String, ofType type: String, doc: Blocks) {
@@ -67,12 +74,19 @@ final class DocumentationManager: ObservableObject {
   init() {
     DispatchQueue.global(qos: .userInitiated).async {
       if let url = Bundle.main.url(forResource: "Documentation", withExtension: "plist"),
-         let docConfig = NSDictionary(contentsOf: url),
-         let builtinDocs = docConfig.value(forKey: "builtin") as? [String : Any],
-         let baseUrl = Bundle.main.url(forResource: "Libraries",
-                                       withExtension: nil,
-                                       subdirectory: "Documentation") {
-        self.loadMarkdownFiles(builtinDocs, baseUrl: baseUrl)
+         let docConfig = NSDictionary(contentsOf: url) {
+        if let builtinDocs = docConfig.value(forKey: "builtin") as? [String : Any],
+           let baseUrl = Bundle.main.url(forResource: "Libraries",
+                                         withExtension: nil,
+                                         subdirectory: "Documentation") {
+          self.loadMarkdownFiles(builtinDocs, baseUrl: baseUrl)
+        }
+        if let webDocs = docConfig.value(forKey: "web") as? [String : Any],
+           let baseUrl = Bundle.main.url(forResource: "Web",
+                                         withExtension: nil,
+                                         subdirectory: "Documentation") {
+          self.loadHtmlFiles(webDocs, baseUrl: baseUrl)
+        }
       }
       for libDocs in self.documentation.values {
         for symbol in libDocs.symbolDocs.keys {
@@ -87,7 +101,7 @@ final class DocumentationManager: ObservableObject {
   }
   
   /// Returns the documentation for the given library name
-  func libraryDocumentation(for components: [String]) -> Block? {
+  func libraryDocumentation(for components: [String]) -> Content? {
     return self.documentation[components]?.content
   }
   
@@ -137,6 +151,28 @@ final class DocumentationManager: ObservableObject {
   }
   
   // Helper functions for Documentations
+  
+  private func loadHtmlFiles(_ docPlist: [String : Any], baseUrl: URL) {
+    for (lib, path) in docPlist {
+      if let path = path as? String {
+        self.loadHtmlFile(baseUrl.appendingPathComponent(path), for: lib)
+      }
+    }
+  }
+  
+  private func loadHtmlFile(_ url: URL, for lib: String) {
+    let libName = lib.components(separatedBy: " ")
+    let libDocs: LibraryDocumentation
+    if let docs = self.documentation[libName] {
+      libDocs = docs
+    } else {
+      libDocs = LibraryDocumentation()
+      self.documentation[libName] = libDocs
+    }
+    if libDocs.content == nil {
+      libDocs.content = .htmlFile(url)
+    }
+  }
 
   private func loadMarkdownFiles(_ docPlist: [String : Any], baseUrl: URL) {
     for (lib, path) in docPlist {
@@ -166,7 +202,7 @@ final class DocumentationManager: ObservableObject {
     guard case .document(_) = markdown else {
       return
     }
-    libDocs.content = markdown
+    libDocs.content = .markdown(markdown)
     self.insertDefinitionDocs(MarkdownParser.standard.parse(content), into: libDocs)
   }
 

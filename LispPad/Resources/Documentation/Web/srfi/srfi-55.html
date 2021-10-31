@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>SRFI 55: require-extension</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+<body>
+
+<H1><a name="lp-srfi-55">Title</a></H1>
+
+<p> <tt>require-extension</tt>
+
+<H1>Authors</H1>
+
+<p> Felix L. Winkelmann and D.C. Frost
+
+<H1>Status</H1>
+This SRFI is currently in ``final'' status.  To see an explanation of each status that a SRFI can hold, see <A HREF="http://srfi.schemers.org/srfi-process.html">here</A>.
+You can access the discussion via <A HREF=mail-archive/maillist.html>the archive of the mailing list</A>.
+<P><UL>
+<LI>Received: <a href="http://srfi.schemers.org/srfi-55/srfi-55-1.2.html">2004/05/03</a>
+<LI>Draft: 2004/06/07-2004/08/05
+<LI>Revised: <a href="http://srfi.schemers.org/srfi-55/srfi-55-1.3.html">2004/06/16</a>
+<LI>Fianlized: 2004/11/05
+</UL>
+
+<H1>Abstract</H1>
+
+<p> This SRFI specifies an extremely simple facility for making an extension
+or library available to a Scheme toplevel environment.
+
+<H1>Rationale</H1>
+
+<p> The <tt>(requires ...)</tt> clause of SRFI 7 (<i>Feature-based
+program configuration language</i>) is one possible way for a program to
+declare that it requires certain features or extensions in order to run.
+There are two limitations with this facility: first, an implementation
+of SRFI 7 is not actually required to do anything as the result of
+encountering a <tt>(requires ...)</tt> clause.  At the time of this
+writing, some implementations do in fact load and make available the
+specified extension in this case, but some do not.  Second, the SRFI 7
+language is most appropriate as an annotation to program text.  It is
+not designed for interactive use.</p>
+
+<p> This SRFI therefore defines a simple mechanism specifically for
+requiring that extensions be made immediately available to subsequent
+code at compile-time or runtime, as appropriate.  In particular, the
+intent is that a trivial, portable means exist for loading SRFI
+functionality within a program or interactive session; but the mechanism
+described here is general enough to be used for other types of
+extensions, at the implementation's discretion.</p>
+
+<p>Most implementations of Scheme include a form very similar to
+<tt>require-extension</tt>.  This SRFI can therefore be viewed, in the
+context of those Schemes, as merely a standard naming convention.</p>
+
+<p>It is possible for an implementation's design, contrary to common
+practice, to conflict with the semantics of
+<tt>require-extension</tt>. Such an implementation would provide an
+alternative means of specifying requirements. This SRFI does not aim to be
+ubiquitous, only to capture current idiom.</p>
+
+
+<H1>Specification</H1>
+
+<p> The <tt>require-extension</tt> form is used to make an extension
+available in the toplevel scope in which it appears.  The definition of
+a "toplevel scope" and the exact meaning of what it means to make an
+extension available in one is implementation-defined, but we expect
+likely scopes will include the default scope in which program
+expressions are evaluated; the scope in which program expressions within
+a module are evaluated, as defined by a module system; and the
+interactive REPL ("read-eval-print loop").
+When <tt>require-extension</tt> is used to make an
+extension available in a non-interactive context, it is
+implementation-defined whether the extension will be available to code
+lexically preceding the <tt>require-extension</tt> form in the same
+scope, but it should be available to code in the same scope lexically
+succeeding the <tt>require-extension</tt> form.  An implementation
+should default to signalling a warning or an error in the event that a
+requested extension cannot be made available. An implementation is encouraged
+but not required to signal a warning or an error if the user attempts
+to access incompatible extensions simultaneously.
+
+</p><p> An implementation claiming to support this SRFI must support
+<tt>require-extension</tt> in at least one scope.
+
+</p><p> The syntax of <tt>require-extension</tt> is as follows:
+
+</p><p> <tt>(require-extension &lt;clause&gt; ...)</tt>
+
+</p><p> A clause has the form:
+
+</p><p> <tt>(&lt;extension-identifier&gt; &lt;extension-argument&gt; ...)</tt>
+
+</p><p> where <tt>&lt;extension-identifier&gt;</tt> is a symbol and the zero or
+more <tt>&lt;extension-argument&gt;</tt>s may be any Scheme values.
+
+</p><p> This SRFI defines only one <tt>extension-identifier</tt>, the identifier
+<tt>srfi</tt>, which implementations purporting to conform to this SRFI must
+support.  The <tt>extension-argument</tt>s of a <tt>srfi</tt> clause may be
+any Scheme values, at an implementation's discretion, but an implementation
+must support nonnegative integer <tt>extension-argument</tt>s and should
+treat them as a directive to make the functionality of the indicated SRFIs
+available in the context in which the <tt>require-extension</tt> form
+appears.  For example:
+
+</p><pre>(require-extension (srfi 1))              ; Make the SRFI 1 List Library available
+(require-extension (srfi 1 13 14))        ; Make the SRFI 1, 13 and 14 libraries available
+</pre>
+
+<H1>Implementation</H1>
+
+<p> The implementation of <tt>require-extension</tt> is necessarily
+implementation-specific.
+<br>Here is a (very simple) example implementation
+that is based on the optional
+<a href="http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_sec_6.6.4">R5RS</a>
+<tt>load</tt> procedure:
+
+</p><pre>;;;; Reference implementation for SRFI-55
+;
+; Requirements: SRFI-23 (error reporting)
+
+(define available-extensions '())
+
+(define (register-extension id action . compare)
+  (set! available-extensions
+    (cons (list (if (pair? compare) (car compare) equal?)
+		id
+		action)
+	  available-extensions)) )
+
+(define (find-extension id)
+  (define (lookup exts)
+    (if (null? exts)
+	(error "extension not found - please contact your vendor" id)
+	(let ((ext (car exts)))
+	  (if ((car ext) (cadr ext) id)
+	      ((caddr ext))
+	      (lookup (cdr exts)) ) ) ) )
+  (lookup available-extensions) )
+
+(define-syntax require-extension
+  (syntax-rules (srfi)
+    ((_ "internal" (srfi id ...))
+     (begin (find-extension '(srfi id) ...)) )
+    ((_ "internal" id)
+     (find-extension 'id) )
+    ((_ clause ...)
+     (begin (require-extension "internal" clause) ...)) ) )
+
+; Example of registering extensions:
+;
+;   (register-extension '(srfi 1) (lambda () (load "/usr/local/lib/scheme/srfi-1.scm")))
+</pre>
+
+
+<H1>Copyright</H1>
+
+<p>Copyright (c) Felix L. Winkelmann and D.C. Frost (2004). All Rights
+Reserved.</p>
+
+<p>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+
+    <hr>
+    <address>Editor: <a
+    href="mailto:srfi minus editors at srfi dot schemers dot org">Mike Sperber</a></address>
+<!-- Created: Tue Sep 29 19:20:08 EDT 1998 -->
+<!-- hhmts start -->
+Last modified: Sun Jan 28 13:40:37 MET 2007
+<!-- hhmts end -->
+  </body>
+</html>
+

@@ -1,0 +1,1032 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SRFI 204: Wright-Cartwright-Shinn Pattern Matcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+
+    <H2><a name="lp-srfi-204">Title</a></H2>
+    Wright-Cartwright-Shinn Pattern Matcher
+
+    <h2>Author</h2>
+    Felix Thibault
+
+<h2>Status</h2>
+
+<p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+204+at+srfi+dotschemers+dot+org">srfi-204@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-204">archive</a>.</p>
+<ul>
+  <li>Received: 2020-07-15</li>
+  <li>60-day deadline: 2020-09-13</li>
+  <li>Draft #1 published: 2020-07-15</li>
+  <li>Draft #2 published: 2020-07-18</li>
+  <li>Draft #3 published: 2020-07-26</li>
+  <li>Draft #4 published: 2020-08-02</li>
+  <li>Draft #5 published: 2020-08-16</li>
+  <li>Draft #6 published: 2020-08-24</li>
+  <li>Draft #7 published: 2020-09-04</li>
+  <li>Draft #8 published: 2020-09-10</li>
+</ul>
+<h2 id="toc">Table of Contents</h2>
+<ul>
+  <li><a href="#Abstract">Abstract</a></li>
+  <li><a href="#Rationale">Rationale</a></li>
+  <li><a href="#Specification">Specification</a>
+  <ul>
+    <li><a href="#Intro">Introduction</a></li>
+    <li><a href="#Patterns">Patterns</a>
+    <ul>
+    <li><a href="#Literals">Literal Patterns</a></li>
+    <li><a href="#Variables">Pattern Variables</a></li>
+    <li><a href="#Repitition">Nonlinear Patterns: Repitition</a></li>
+    <li><a href="#Ellipsis">Ellipsis and Tail Patterns</a></li>
+    <li><a href="#Tree">Tree Patterns</a></li>
+    <li><a href="#Boolean">Boolean Patterns</a></li>
+    <li><a href="#Pred">Predicates and Fields</a></li>
+    <li><a href="#g-and-s">Getters and Setters</a></li>
+    <li><a href="#records">Record Patterns</a></li>
+    </ul></li>
+    <li><a href="#Grammar">Pattern Grammar</a></li>
+    <li><a href="#Syntax">Syntax</a>
+    <ul>
+    <li><a href="#match">match</a></li>
+    <li><a href="#match-lambda">match-lambda</a></li>
+    <li><a href="#match-lambda*">match-lambda*</a></li>
+    <li><a href="#match-let">match-let</a></li>
+    <li><a href="#match-let*">match-let*</a></li>
+    <li><a href="#match-letrec">match-letrec</a></li>
+    </ul></li>
+    <li><a href="#TailContexts">Tail Contexts</a></li>
+    <li><a href="#Side-Effects">Side Effects</a></li>
+    <li><a href="#Errors">Errors</a></li>
+                <li><a href="#Macros">Using in Other Macros</a></li>
+  </ul></li>
+
+    <li><a href="#Implementation">Implementation</a></li>
+    <li><a href="#References">References</a></li>
+    <li><a href="#Acknowledgements">Acknowledgements</a></li>
+    <li><a href="#Copyright">Copyright</a></li>
+</ul>
+<h2 id="Abstract">Abstract</h2>
+
+<p>Pattern matching decomposes a compound data structure
+into parts and assigns those parts to variables. This
+SRFI describes a pattern-matching library already in use by
+several scheme implementations which can match many common
+compound data structures.</p>
+
+<h2 id="Issues">Issues</h2>
+<ul>
+  <li>get all SRFI-64 tests on same runner</li>
+  <li>integrate Chez into testing framework</li>
+  <li>clarify specification</li>
+  <li>refactor for SRFI-206</li>
+</ul>
+
+<h2 id="Rationale">Rationale</h2>
+
+<p>
+Scheme has come with its own pattern-matching language since R4RS, as
+part of <code>syntax-rules</code> [<a href="#SCG">Shinn, Cowan, Gleckler</a> pp. 23-24]. Many implementations add a pattern
+matcher that does not involve writing macros to make pattern matching
+available to all users. Before R4RS, there was only the <code>case</code> [<a href="#SCG">Shinn, Cowan, Gleckler</a> pp. 14-15]
+statement, which does match, but does not bind its key. Bigloo<sup><a href="#Bigloo">1</a></sup>, STklos<sup><a href="#STklos">2</a></sup>
+and s7<sup><a href="#s7">3</a></sup> all use extended <code>case</code> statements for pattern
+matching.
+</p>
+<p>
+Currently, the pattern-matching facilities that have been implemented
+  by SRFIs are procedures of variable arity (<a href="https://srfi.schemers.org/srfi-16/">SRFI 16</a>) and S-expressions
+(<a href="https://srfi.schemers.org/srfi-200/">SRFI 200</a>). The focus of SRFI 200 is both consensus and clarity. That is,
+it aims to provide a pattern syntax that is both widely shared and easily
+read without requiring knowledge of any notation that is not ordinary Scheme.
+SRFI 200 also aims to provide a portable, readable way of using
+the pattern matchers already available in many implementations.
+</p>
+<p>
+This SRFI aims to specify a matching syntax beyond
+S-expressions and provide a sample implementation, documentation, and
+tests.
+It is based on a pattern matcher originated by Andrew K. Wright and
+Robert Cartwright [<a href="#WC">Wright and Cartwright</a>, pp. 116-120], using procedures and defmacros.
+Using a technique developed by Oleg Kiselyov [<a href="#Oleg2003">Kiselyov, 2003</a>] Alex Shinn converted the pattern matcher to pure syntax-rules.
+This pattern-matching library (WCS) is already in
+use (at least in part) in several Scheme implementations. Aside from
+S-expressions, it also matches vectors and records. It has the
+ability to match based on predicates, to match "fields" (procedure
+applications), getters, and setters, and has syntax to match patterns zero
+or more, one or more, or exactly n times, or to walk down a tree
+with a pattern.
+</p>
+<p>
+WCS is already part of Chibi<sup><a href="#Chibi">4</a></sup>, Guile,<sup><a href="#Guile">5</a></sup> Cyclone<sup><a href="#Cyclone">6</a></sup>, Chicken<sup><a href="#Chicken:matchable">7</a></sup>,
+LispKit<sup><a href="#LispKit">8</a></sup>, Loko<sup><a href="#Loko">9</a></sup>, Mosh<sup><a href="#Mosh">10</a></sup>, and Sagittarius<sup><a href="#Sagittarius">11</a></sup>. There are other pattern-matching
+libraries that are part of Armpit Scheme<sup><a href="#Armpit">12</a></sup>, Gerbil<sup><a href="#Gerbil">13</a></sup>, Bigloo<sup><a href="#Bigloo">14</a></sup>, STklos<sup><a href="#STklos">15</a></sup>, Chicken<sup><a href="#Chicken:bindings">16</a></sup>, Kawa<sup><a href="#Kawa">17</a></sup>, Gambit<sup><a href="#Gambit">18</a></sup>, Gauche<sup><a href="#Gauche">19</a></sup>, Picrin<sup><a href="#Picrin">20</a></sup>, Racket<sup><a href="#Racket">21</a></sup>,
+Scheme 9 from Empty Space<sup><a href="#s9fes">22</a></sup>, and Scheje<sup><a href="#Scheje">23</a></sup>. These matchers vary from very similar to the WCS matcher to S-expression matchers, type-oriented matchers, and expert systems more like ELIZA [<a href="#Norvig">Norvig</a>, Chapter 5]. They also range from a wrapper around a library in the implementation language, part of the core in the implementation language, part of the core in Scheme, a Scheme library, and an example program.  In length, they range from about twenty lines to thousands of lines across several files. Links to documentation and implementation (as available) are in <a href="https://github.com/scheme-requests-for-implementation/srfi-204/blob/master/srfi/match-implementations.md">the repository</a>.
+</p>
+<p>
+Starting with the WCS matcher, a portable syntax can be developed and a broad basis for implementing pattern matchers laid down. Some features of the current matcher are specified as optional and alternate means to achieve the same ends are specified. The current implementation, along with tests, documentation, and implementation-dependent code are in the repository.
+</p>
+<h2 id="Specification">Specification</h2>
+<h3 id="Intro">Introduction</h3>
+  <p>Patterns are written to look like the printed representation of
+the objects they match.  The basic usage is
+<code>(match expr (pat body ...) ...)</code>
+where the result of <code>expr</code> is matched against each pattern in
+turn, and the corresponding body is evaluated for the first to
+succeed.  Thus, a list of three elements matches a list of three
+elements.
+</p><pre><code>(let ((ls (list 1 2 3)))
+  (match ls
+    ((1 2 3) #t)))</code></pre>
+<code>=&gt; #t</code><p>
+If no patterns match, an error is signalled. The forms <code>match</code>, <code>match-lambda</code>, and <code>match-lambda*</code> all can match their expression(s) against multiple patterns, but <code>match-let</code>, <code>match-let*</code>, and <code>match-letrec</code> match each expression against one pattern, so non-matching conditions have to be caught outside the match.
+The following terms will be used in describing pattern matching:
+<dl>
+  <dt>pattern</dt><dd>an expression that is supposed to match against the first argument to the <code>match</code> form.</dd>
+  <dt>body</dt><dd>the set of expressions that is evaluated when a pattern matches.</dd>
+  <dt>failure</dt><dd>a thunk that can be called in the body to signal that a match was not successful, and restart matching at the next pattern.</dd>
+  <dt>next, subsequent, etc.</dt><dd>patterns are matched in the order they are listed. Matching stops at the first match unless a call is made to failure.</dd>
+  <dt>pattern clause</dt><dd>a pattern and its body.</dd>
+  <dt>non-linear</dt><dd>matching which involves repetition either through a variable that is used more than once in a pattern, or a pattern which may match an indeterminate number of values.</dd>
+  <dt>variable</dt><dd>an identifier in a pattern which may be used in the body. May not be <code><b>_</b>, <b>quote</b>, <b>$</b>, <b>struct</b>, <b>@</b>, <b>object</b>, <b>=</b>, <b>and</b>, <b>or</b>, <b>not</b>, <b>?</b>, <b>set!</b>, <b>get!</b>, <b>quasiquote</b>, <b>...</b>, <b>___</b>, <b>**1</b>, <b>=..</b>, <b>*..</b> <b>unquote</b>, <b>unquote-splicing</b></code>.</dd>
+</dl>
+<h3 id="Patterns">Patterns</h3>
+<p>A pattern is an expression made up of pattern operators, literals, and identifiers, which are interpreted as pattern variables. A quasi-pattern is a type of pattern that is quasi-quoted so it is made up of literals, unquoted identifiers, and unquoted operator expressions. Both types of patterns can be used in the sub-forms below, with some caveats for quasi-patterns. </p>
+<h4 id="Literals">Literal Patterns</h4>
+<p>Literal patterns are patterns like the example above, where the content of the pattern is <code>equal?</code> to the content of the expression being matched. In this case, quasi-patterns and patterns are very similar (except symbols don't need quoting in quasi-patterns):</p>
+<pre><code>
+(let ((ls (list 'a "b" #f 2 '() #\c #(1))
+  (list (match ls (('a "b" #f 2 () #\c #(1)) 'ok))
+        (match ls (`(a "b" #f 2 () #\c #(1)) 'ok))
+=&gt; (ok ok)
+</code></pre>
+<p>Note also that the empty list does not need to be quoted in either type of pattern.
+At the time of this writing, cyclic literals seem irregularly implemented, at least in the repl, but this is one area where quasi-patterns and other literal patterns differ, since even those repls which handle cyclic literals [eg '0#=(1 . #0#)] with no trouble have stack overflow, segfaults, etc. with quasi-quoted cyclic literals [eg `0#=(1 . #0#)] due to the difference between quotation and quasi-quotation. So cyclic literals should be avoided inside quasi-patterns.
+</p>
+<h4 id="Variables">Pattern Variables</h4>
+<p>Identifiers in patterns that are not one of the operators (<code><b>_</b>, <b>quote</b>, <b>$</b>, <b>struct</b>, <b>@</b>, <b>object</b>, <b>=</b>, <b>and</b>, <b>or</b>, <b>not</b>, <b>?</b>, <b>set!</b>, <b>get!</b>, <b>quasiquote</b>, <b>...</b>, <b>___</b>, <b>**1</b>, <b>=..</b>, <b>*..</b> <b>unquote</b>, <b>unquote-splicing</b></code>) will match anything and their corresponding binding is available in the body. The special variable <b>_</b> matches anything and does not bind the result. It can be used to get rid of unintersting values or in a block of match expressions, <b>_</b> is often used like <code>else</code> if the result is not needed. Pattern variables have to be unquoted in quasi-patterns.</p>
+<pre><code>
+(match (list 1 2 3) ((a b c) b)) =&gt; 2
+(match (list 1 2 3) ((_ b _) b)) =&gt; 2
+(match (list 1 2 3) (`(a ,b c) b) (_ 'fail)) =&gt; fail
+(match (list 1 2 3) (`(1 ,b ,_) b) (_ 'fail)) =&gt; 2
+</code></pre>
+<h4 id="Repitition">Nonlinear Patterns: Repitition</h4>
+<p>A nonlinear pattern has repeated pattern variables:</p>
+<pre><code>
+(match (list A B A) ((a b a) a)) =&gt; A
+(match (list A B A) (`(,a b ,a) a) (_ 'fail)) =&gt; fail
+(match (list A B A) (`(,a B ,a) a) (_ 'fail)) =&gt; A
+(match (list A B A) (`(,a ,b ,a) a) (_ 'fail)) =&gt; A
+</code></pre>
+<p>After the first match, subsequent instances must match a value <code>equal?</code> to the first. Any nonlinear pattern clause that involves repetition can be converted into a linear pattern clause that uses failure to restart pattern matching at the next pattern:</p>
+<pre><code>
+(match (list 1 2 1) <b>((a b a) 'ok)</b> (_ 'fail))
+</code></pre>
+<p>converts to</p>
+<pre><code>
+(match (list 1 2 1) <b>((a b c) (=&gt; fail)
+                        (if (equal? a c) 'ok (fail)))</b>
+           (_ 'fail))
+</code></pre>
+<p>If an implementation chooses not to support repetition, only the second pattern is valid and the first (as well as those in the first part of this section) should cause a syntax error.
+</p>
+<h4 id="Ellipsis">Ellipsis and Tail Patterns</h4>
+<p>The first type of ellipsis pattern is just the ellipsis <code><b>...</b></code>, which is equivalent to the unquote-splicing in quasi-patterns. An ellipsis will match any number (zero or more) of a pattern (like a regex Kleene star):</p>
+<pre><code>
+(match (list 1 2) ((1 2 3 ...) #t)) =&gt; #t
+(match (list 1 2) (`(1 2 ,@3) #t)) =&gt; #t
+(match (list 1 2 3) ((1 2 3 ...) #t)) =&gt; #t
+(match (list 1 2 3) (`(1 2 ,@3) #t)) =&gt; #t
+(match (list 1 2 3 3 3) ((1 2 3 ...) #t)) =&gt; #t
+(match (list 1 2 3 3 3) (`(1 2 ,@3) #t)) =&gt; #t
+
+(match '((a time) (stitch saves) (in nine)) (((x y) ...) (list x y)))
+=&gt; ((a stitch in) (time saves nine))
+
+(match '((a b) (c d) (e f)) (`(,@(x y)) (list x y))) =&gt; ((a c e) (b d f))
+</code></pre>
+<p>There can be only one ellipsis or tail pattern per list, but there can be multiple ellipsis or tail patterns in a pattern:</p>
+<pre><code>
+;;;[List-of [List-of Any]] -> [List-of [List-of Any]]
+(define transpose
+  (match-lambda (((a b ...) ...) (cons a (transpose b))) (_ '())))
+
+(transpose '((1 2 3) (4 5 6))) =&gt; ((1 4) (2 5) (3 6))
+</code></pre>
+<p>Ellipsis patterns also do not have to be the last pattern in a list:</p>
+<pre><code>
+(define (palindrome? str)
+  (let loop ((chars (filter char-alphabetic?
+                            (string->list (string-foldcase str)))))
+    (match chars
+      (() #t)
+      ((a) #t)
+      ((a b ... a) (loop b))
+      (_ #f))))
+
+(palindrome? "Able was I, ere I saw Elba.") =&gt; #t
+(palindrome? "Napoleon") =&gt; #f
+</code></pre>
+<p>and they can be used with _ to throw away unimportant data:</p>
+<pre><code>
+(define first-column
+  (match-lambda (((a _ ...) ...) a)))
+
+(first-column '((1 2 3) (4 5 6) (7 8 9))) =&gt; (1 4 7)
+</code></pre>
+<p><code>___</code> is provided as an alias for <code>...</code> when it is
+inconvenient to use the ellipsis (as in a syntax-rules template).
+</p><p>
+The second kind of ellipsis is <code><b>**1</b></code>, which matches one or more of a pattern (like regex +)</p>
+<pre><code>
+(match (list 1 2) ((a b c **1) c))
+ERROR: match: "no matching pattern"
+
+(match (list 1 2 3) ((a b c **1) c)) =&gt; (3)
+</code></pre>
+<p>This pattern (and the remaining ellipsis patterns) has no quasi-pattern equivalent, so if it occurs in a quasi-pattern that quasi-pattern must be unquoted:</p>
+<pre><code>
+(define first-column-of-some
+  (match-lambda (`(,@(a _ **1)) a)))
+
+(first-column-of-some '((1) (2))
+ERROR: match: "no matching pattern"
+
+(first-column-of-some '((1 2) (3 4))) =&gt; (1 3)
+</code></pre>
+<p id="=..">
+The <code>=.. <var>k</var></code> syntax matches exactly <var>k</var> of a pattern:
+</p>
+<pre><code>
+(match '((a b) (c d) (e f))
+       (((x y) =.. 3) (list x y))
+       (_ 'fail))
+=&gt; ((a c e) (b d f))
+
+(match '((a b) (c d) (e f) (g h))
+       (((x y) =.. 3) (list x y))
+       (_ 'fail))
+=&gt; fail
+</code></pre>
+<p id="*..">
+The <code>*.. <var>k j</var></code> syntax matches between <var>k</var> and <var>j</var> of a pattern:
+</p>
+<pre><code>
+(match '((a b) (c d) (e f))
+        (((x y) *.. 2 4) (list x y))
+  (_ 'fail))
+=&gt; ((a c e) (b d f))
+
+(match '((a b) (c d) (e f) (g h))
+       (((x y) *.. 2 4) (list x y))
+       (_ 'fail))
+=&gt; ((a c e g) (b d f h))
+
+(match '((a b) (c d) (e f) (g h) (i j))
+       (((x y) *.. 2 4) (list x y))
+       (_ 'fail))
+=&gt; fail
+</code></pre>
+<p>Tail patterns are similar to ellipsis patterns in that they can take up several values, but they are different in a few respects:<br>
+Tail patterns will match dotted pairs, and ellipsis patterns won't:
+<pre><code>
+(define keys
+  (match-lambda (((a _ ...) ...)) (_ 'fail)))
+
+(keys '((a 1) (b 2) (c 3))) =&gt; (a b c)
+(keys '((a . 1) (b . 2) (c . 3))) =&gt; fail
+
+(define keys
+  (match-lambda (((a . _) ...)) (_ 'fail)))
+
+(keys '((a 1) (b 2) (c 3))) =&gt; (a b c)
+(keys '((a . 1) (b . 2) (c . 3))) =&gt; (a b c)
+</code></pre>
+<p>Tail patterns also don't require any special treatment in quasi-patterns</p>
+<pre><code>
+(define handle-arithmetic-sexpr
+ (match-lambda (`(+ . ,operands) (apply + (map eval-sexpr operands)))
+               (`(- . ,operands) (apply - (map eval-sexpr operands)))
+               (`(* . ,operands) (apply * (map eval-sexpr operands)))
+               (`(/ . ,operands) (apply / (map eval-sexpr operands)))))
+</code></pre>
+<h3 id="Tree">Tree Patterns</h3>
+<p>
+The new operator <code>***</code> can be used to search a tree for
+subpatterns.  A pattern of the form <code>(x *** y)</code> represents
+the subpattern <code>y</code> located somewhere in a tree where the path
+from the current object to <code>y</code> can be seen as a list of the
+form <code>(x ...)</code>.  <code>y</code> can immediately match the current
+object in which case the path is the empty list.  In a sense it's
+a 2-dimensional version of the <code>...</code> pattern.
+As a common case the pattern <code>(_ *** y)</code> can be used to
+search for <code>y</code> anywhere in a tree, regardless of the path
+used.</p>
+<pre><code>
+(match '(+ (* (+ 7 2) (/ 5 4)) (sqrt (+ (sqr x) (sqr y))))
+    ((a *** 7) a))
+=&gt; (+ * +)
+
+(match '(+ (* (+ 7 2) (/ 5 4)) (sqrt (+ (sqr x) (sqr y))))
+    ((_ *** `(sqrt . ,rest)) rest))
+=&gt; ((+ (sqr x) (sqr y)))
+</code></pre>
+<h4 id="Boolean">Boolean Patterns</h4>
+<p>
+The boolean operators <code>and</code>, <code>or</code> and <code>not</code>
+can be used to group and negate patterns analogously to their
+Scheme counterparts.
+The <code>and</code> operator ensures that all subpatterns match.
+This operator is often used with the idiom <code>(and x pat)</code> to
+bind <code>x</code> to the entire value that matches <code>pat</code>
+(c.f. "as-patterns" in ML or Haskell).  Another common use is in
+conjunction with <code>not</code> patterns to match a general case
+with certain exceptions.
+</p>
+<pre><code>(match 1 ((and) #t)) =&gt; #t</code></pre>
+<pre><code>(match 1 ((and x) x)) =&gt; 1</code></pre>
+<pre><code>(match 1 ((and x 1) x)) =&gt; 1</code></pre><p>
+An and pattern is different from its Scheme counter part in that matching,
+not truth, is what determines whether it succeeds:</p>
+
+<pre><code>
+(match #f ((and) #t) (_ #f)) =&gt; #t
+</code></pre>
+
+<p>Failure is one way to catch when a value has matched false</p>
+
+<pre><code>
+(match #f ((and x) (=&gt; fail) (if x #t (fail))) (_ #f)) =&gt; #f
+</code></pre>
+
+<p>
+The <code>or</code> operator ensures that at least one subpattern
+matches.  If the same identifier occurs in different subpatterns,
+it is matched independently.  All identifiers from all subpatterns
+are bound if the <code>or</code> operator matches, but the binding is
+only defined for identifiers from the subpattern which matched.
+</p><pre><code>(match 1 ((or) #t) (else #f)) =&gt; #f</code></pre>
+<pre><code>(match 1 ((or x) x)) =&gt; 1</code></pre>
+<pre><code>(match 1 ((or x 2) x)) =&gt; 1</code></pre>
+<p>If failure patterns are used as replacements for <code>or</code> repetition patterns, the <code>or</code> should be moved from the pattern to the body:</p>
+<pre><code>
+(define last-matches-one-of-first-three
+  (match-lambda ((a a) #t)
+                ((a b c ... (or a b)) #t)
+                ((a b c d ... c) #t)
+                (_ #f)))
+
+(define last-matches-one-of-first-three
+  (match-lambda ((a a) #t)
+                ((a b c ... d)
+                 (=&gt; fail)
+                 (if (or (equal? d a) (equal? d b))
+                     #t
+                     (fail)))
+                ((a b c d ... e) (equal? c e))
+                (_ #f)))
+</code></pre>
+<p>
+The <code>not</code> operator succeeds if the given pattern doesn't
+match.  None of the identifiers used are available in the body. This pattern also gives us a way to eliminate values (like false above) in a more streamlined way:
+</p><pre><code>
+(match 1 ((and x (not #f)) x) (_ 'fail)) =&gt; 1
+
+(match #f ((and x (not #f)) x) (_ 'fail)) =&gt; fail
+
+(match 1 ((not 2) #t)) =&gt; #t</code></pre>
+<h4 id="Pred">Predicates and Fields</h4>
+<p>The operator <code>?</code> can be used to provide a
+predicate.  The usage is <code>(? predicate pat ...)</code> where
+<code>predicate</code> is a Scheme expression evaluating to a predicate
+called on the value to match, and any optional patterns after the
+predicate are then matched as in an <code>and</code> pattern.
+</p><pre><code>(match 1 ((? odd? x) x)) =&gt; 1</code></pre>
+<p>Along with boolean patterns, the predicate pattern is enough to make the other half of the math expression evaluator started in the section on dotted pairs:</p>
+<pre><code>
+(define eval-sexpr
+  (match-lambda ((? number? n) n)
+                ((and pair ((or '+ '- '* '/) . rest))
+     (handle-arithmetic-sexpr pair))
+    (_ (error "not implemented yet"))))
+
+(eval-sexpr '(+ (* 3 4 5) (- 10 3))) =&gt; 67
+</code></pre>
+<p>A predicate may be called multiple times on matching and non-matching expressions and sub-expressions, in any order, so side effects should be avoided unless there is some overriding interest (debugging, logging, short-cutting, etc.). Predicates can also be written using references to pattern variables, if repetition is supported:</p>
+<pre><code>
+(define fibby?
+  (match-lambda ((a b (? (lambda (x) (= (+ a b) x)) c) . rest)
+      (fibby? (cons b (cons c rest))))
+                 ((a b) #t)
+                 ((a) #t)
+                 (() #t)
+     (_ #f)))
+
+;;;doesn't refer to pattern variables in predicate
+(define fibby?
+  (match-lambda ((a b c . rest)
+      (if (= (+ a b) c)
+          (fibby? (cons b (cons c rest)))
+          #f))
+                 ((a b) #t)
+                 ((a) #t)
+                 (() #t)
+     (_ #f)))
+
+(fibby? '(4 7 11 18 29 47)) =&gt; #t
+</code></pre>
+<p>
+The field operator <code>=</code> is used to extract an arbitrary
+field and match against it.  It is useful for more complex or
+conditional destructuring that can't be more directly expressed in
+the pattern syntax.  The usage is <code>(= field pat)</code>, where
+<code>field</code> can be any expression, and should result in a
+procedure of one argument, which is applied to the value to match
+to generate a new value to match against <code>pat</code>.
+Thus the pattern <code>(and (= car x) (= cdr y))</code> is equivalent
+to <code>(x . y)</code> except that it will result in an immediate error
+if the value isn't a pair. Like predicates, fields should avoid side effects when there is no overriding interest.
+In contrast to the predicate operator, the field operator succeeds
+when its value is false. Compare:</p>
+<pre><code>
+
+(match 1 ((and n (? even?)) n) (_ 'fail)) =&gt; fail
+
+(match 1 ((and n (= even? r)) (list n r)) (_ 'fail)) =&gt; (1 #f)
+
+(match '(a b c d) ((or (= (lambda (x) (memq 'f x)) r)
+                       (= (lambda (x) (memq 'g x)) r)
+                       (= (lambda (x) (memq 'b x)) r))
+       r)
+       (_ 'fail))
+=&gt; #f
+
+(match '(a b c d) ((or (= (lambda (x) (memq 'f x)) (and r (not #f)))
+                       (= (lambda (x) (memq 'g x)) (and r (not #f)))
+                       (= (lambda (x) (memq 'b x)) (and r (not #f))))
+       r)
+       (_ 'fail))
+=&gt; (b c d)
+</code></pre>
+<pre><code>(match '(1 . 2) ((= car x) x)) =&gt; 1</code></pre>
+<pre><code>(match 4 ((= square x) x)) =&gt; 16</code></pre>
+<h4 id="g-and-s">Getters and Setters</h4>
+<p>
+The <code>set!</code> and <code>get!</code> operators are used to bind an
+identifier to the setter and getter of a field, respectively.  The
+setter is a procedure of one argument, which mutates the field to
+that argument.  The getter is a procedure of no arguments which
+returns the current value of the field.
+</p><pre><code>(let ((x (cons 1 2)))
+  (match x
+    ((1 . (set! s)) (s 3) x)))</code></pre><code>=&gt; (1 . 3)</code>
+<pre><code>(match '(1 . 2) ((1 . (get! g)) (g))) =&gt; 2</code></pre>
+<pre><code>
+(define alist (list (cons 'a 1) (cons 'b 2) (cons 'c 3)))
+
+(define g (match alist ((= (lambda (al) (assv 'c al))
+                            (_ . (get! g)))
+       g)))
+(g) =&gt; 3
+
+(define s (match alist ((= (lambda (al) (assv 'c al))
+          (_ . (set! g)))
+       g)))
+(s 7)
+
+(g) =&gt; 7
+
+alist =&gt; ((a . 1) (b . 2) (c . 7))
+</code></pre>
+<h4 id="records">Record Patterns</h4>
+<p>
+<strong>Note:</strong><em> record introspection is not currently portable,
+  so record operators are an interface whose implementation will not be portable. This is an optional
+  part of the SRFI. See the implementation section for more information.</em></p><p>
+The record operator <code>$</code> is used as a concise way to match
+records defined by <a href="https://srfi.schemers.org/srfi-9/">SRFI 9</a> (or <a href="https://srfi.schemers.org/srfi-99/">SRFI 99</a>).  The usage is
+<code>($ rtd field ...)</code>, where <code>rtd</code> should be the record
+type descriptor specified as the first argument to
+<code>define-record-type</code>, and each <code>field</code> is a subpattern
+matched against the fields of the record in order.  Not all fields
+need be present. The operator <code>struct</code> can be used as a synonym for <code>$</code>.
+</p><pre><code>(let ()
+  (define-record-type employee
+    (make-employee name title)
+    employee?
+    (name get-name)
+    (title get-title))
+  (match (make-employee "Bob" "Doctor")
+    (($ employee n t) (list t n))))
+</code></pre><code>=&gt; ("Doctor" "Bob")</code><p id="object">
+For records with more fields it can be helpful to match them by
+name rather than position.  For this you can use the <code>object</code>
+operator, originally a Gauche extension:
+</p><pre><code>(let ()
+  (define-record-type employee
+    (make-employee name title)
+    employee?
+    (name get-name)
+    (title get-title))
+  (match (make-employee "Bob" "Doctor")
+    ((object employee (title t) (name n)) (list t n))))
+</code></pre><code>=&gt; ("Doctor" "Bob")</code>
+<p>Matching on records when this feature is not implemented can be done as follows:</p>
+<pre><code>
+(match (make-employee "Bob" "Doctor")
+       ((and (? employee?)
+             (= get-title t)
+       (= get-name n))
+  (list t n)))
+=&gt; ("Doctor" "Bob")
+</code></pre>
+<p>But this technique cannot be used to emulate setter patterns like:</p>
+<pre><code>
+(let () (define-record-type &lt;posn&gt;
+           (make-posn x y)
+     posn?
+     (x posn-x set-posn-x!)
+           (y posn-y set-posn-y!))
+   (match (make-posn 3 4)
+    ((and p ($ &lt;posn&gt; (set! set-x)))
+    (set-x 7)
+    (match p (($ &lt;posn&gt; x y) (list x y))))))
+=&gt; (7 4)
+</code></pre>
+<h3 id="Grammar">Pattern Grammar</h3>
+<p></p>
+<pre>pat : <var>patvar</var>                       ;; anything, and binds pattern var
+    | <b>_</b>                            ;; anything
+    | ()                           ;; the empty list
+    | #t                           ;; #t
+    | #f                           ;; #f
+    | <var>string</var>                       ;; a string
+    | <var>number</var>                       ;; a number
+    | <var>character</var>                    ;; a character
+    | '<var>sexp</var>                        ;; an s-expression
+    | '<var>symbol</var>                      ;; a symbol (special case of s-expr)
+    | (<var>pat1</var> ... <var>patN</var>)              ;; list of n elements
+    | (<var>pat1</var> ... <var>patN</var> . <var>patN+1</var>)     ;; list of n or more
+    | (<var>pat1</var> ... <var>patN</var> <var>patN+1</var> ooo)   ;; list of n or more, each element
+                                   ;;   of remainder must match <var>patN+1</var>
+    | (<var>pat1</var> ... <var>patN</var> <var>patN+1</var> ooo patN+2 ... patM)
+                                   ;; list of m or more, every element between the
+           ;; nth and the (m or more - n)th must match
+           ;; <var>patN+1</var>.
+    | #(<var>pat1</var> ... <var>patN</var>)             ;; vector of n elements
+    | #(<var>pat1</var> ... <var>patN</var> <var>patN+1</var> ooo)  ;; vector of n or more, each element
+                                   ;;   of remainder must match <var>patN+1</var>
+    | #(<var>pat1</var> ... <var>patN</var> <var>patN+1</var> ooo patN+2 ... patM)
+                                   ;; vector of m or more, every element between the
+           ;; nth and the (m or more - n)th must match
+           ;; <var>patN+1</var>.
+    | (<b>$</b> <var>record-type</var> <var>pat1</var> ... <var>patN</var>)      ;; a record (<var>patK</var> matches in slot
+                                         ;;    order) <b><em>optional</em></b>
+    | (<b>struct</b> <var>struct-type</var> <var>pat1</var> ... <var>patN</var>) ;; ditto (*) <b><em>optional</em></b>
+    | (<b>object</b> <var>struct-type</var> (<var>slot1</var> <var>pat1</var>) ...) ;; a record (using slot names) (*)
+                                         ;;    <b><em>optional</em></b>
+    | (<b>=</b> <var>proc</var> <var>pat</var>)                 ;; apply proc, match the result to pat
+    | (<b>and</b> <var>pat</var> ...)                ;; if all of pats match
+    | (<b>or</b> <var>pat</var> ...)                 ;; if any of pats match
+    | (<b>not</b> <var>pat</var> ...)                ;; if no pats match
+    | (<b>?</b> <var>predicate</var> <var>pat</var> ...)        ;; if predicate true and all pats match
+    | (<b>set!</b> <var>patvar</var>)                ;; anything, and binds setter
+    | (<b>get!</b> <var>patvar</var>)                ;; anything, and binds getter
+    | (<var>pat1</var> <b>***</b> <var>pat2</var>)              ;; tree subpattern (*)
+    | `qp                          ;; a quasi-pattern
+
+    (*) extended syntax not originally part of
+        Wright-Cartwright pattern matcher.
+
+patvar : an identifier except <b>_</b>, <b>quote</b>, <b>$</b>, <b>struct</b>, <b>@</b>, <b>object</b>, <b>=</b>, <b>and</b>, <b>or</b>,
+         <b>not</b>, <b>?</b>, <b>set!</b>, <b>get!</b>, <b>quasiquote</b>, <b>...</b>, <b>___</b>, <b>**1</b>, <b>=..</b>, <b>*..</b>
+   <b>unquote</b>, <b>unquote-splicing</b>.
+
+ooo : <b>...</b>                          ;; zero or more
+    | <b>___</b>                          ;; zero or more
+    | <b>**1</b>                          ;; one or more
+    | <b>=.. <i>k</i></b>                        ;; exactly <i>k</i> where <i>k</i> is an integer. (*)
+                                   ;;   Example: <b>=.. 1</b>, <b>=.. 2</b> ...
+    | <b>*.. <i>k j</i></b>                      ;; between <i>k</i> and <i>j</i>, where <i>k</i> and <i>j</i> are (*)
+                                   ;;   integers. Example: <b>*.. 3 4</b>, match 3
+                                   ;;   or 4 of a pattern <b>*.. 1 5</b> match from
+           ;;   1 to 5 of a pattern
+
+    (*) extended syntax not originally part of
+        Wright-Cartwright pattern matcher.
+    <b>Note: </b> a list can contain only one ellipsis pattern which includes the
+             patterns above, tail patterns and unquote-splicing patterns.
+
+qp  : ()                           ;; the empty list
+    | #t                           ;; #t
+    | #f                           ;; #f
+    | <var>string</var>                       ;; a string
+    | <var>number</var>                       ;; a number
+    | <var>character</var>                    ;; a character
+    | <var>identifier</var>                   ;; a symbol
+    | (<var>qp_1</var> ... <var>qp_n</var>)              ;; list of n elements
+    | (<var>qp_1</var> ... <var>qp_n</var> . <var>qp_{n+1}</var>)   ;; list of n or more
+    | (<var>qp_1</var> ... <var>qp_n</var> <var>qp_n+1</var> ooo)   ;; list of n or more, each element
+                                   ;;   of remainder must match qp_n+1
+    | #(<var>qp_1</var> ... <var>qp_n</var>)             ;; vector of n elements
+    | #(<var>qp_1</var> ... <var>qp_n</var> <var>qp_n+1</var> ooo)  ;; vector of n or more, each element
+                                   ;;   of remainder must match qp_n+1
+    | ,<var>pat</var>                         ;; a pattern
+    | <var>,@</var>pat                        ;; a pattern
+
+</pre>
+<h3 id="Syntax">Syntax</h3>
+<p></p>
+<h4 id="match"><code>(match expr (pattern . body) ...)<br>
+(match expr (pattern (=&gt; failure) . body) ...)</code></h4><p>
+The result of <code>expr</code> is matched against each <code>pattern</code> in
+turn, according to the pattern rules described in the previous
+section, until the the first <code>pattern</code> matches.  When a match is
+found, the corresponding <code>body</code>s are evaluated in order,
+and the result of the last expression is returned as the result
+of the entire <code>match</code>.  If a <code>failure</code> is provided,
+then it is bound to a procedure of no arguments which continues
+processing at the next <code>pattern</code>.  If no <code>pattern</code> matches,
+an error is signalled. If <a href="https://srfi.schemers.org/srfi-201/">SRFI 201</a> is used, this is the only procedure needed.</p>
+<pre><code>
+;;; a simple match pattern:
+
+(match '(1 1 1) ((a =.. 3) 'ok) (_ 'fail)) =&gt; ok
+
+;;; the same pattern with failure
+
+(match '(1 1 1)
+        ((a =.. 3) (=&gt; fail)
+   (if (= (car a) 1) (fail) 'ok))
+  (_ 'fail))
+=&gt; fail
+
+;;; a passing pattern
+
+(match '(2 1 1)
+        ((a =.. 3) (=&gt; fail)
+   (if (= (car a) 1) (fail) 'ok))
+  (_ 'fail))
+=&gt; ok
+
+</code></pre>
+<h4 id="match-lambda"><code>(match-lambda (pattern . body) ...)</code></h4><p>Shortcut for <code>lambda</code> + <code>match</code>.  Creates a
+procedure of one argument, and matches that argument against each
+clause.</p>
+<pre><code>
+(define-record-type &lt;checkable&gt;
+  (make-checkable pred value)
+  checkable?
+  (pred checkable-pred)
+  (value checkable-value))
+
+(define check
+  (match-lambda (($ &lt;checkable&gt; pred (? pred ok)) ok)
+                (($ &lt;checkable&gt;) 'bad-data)))
+</code></pre>
+<h4 id="match-lambda*"><code>(match-lambda* (pattern . body) ...)</code></h4><p>Similar to <code>match-lambda</code>.  <p>Creates a procedure of any
+number of arguments, and matches the argument list against each
+clause.</p>
+<pre><code>
+(define zero-to-three-cycle
+  (match-lambda ((and c (= car c)) 0)
+    ((and c (= cdr c)) 1)
+    ((and c (= cddr c)) 2)
+    ((and c (= cdddr c)) 3)
+    (_ 'fail)))
+
+(define l3 (list 1 2 3))
+(set-cdr! (cddr l3) l3)
+(zero-to-three-cycle l3) =&gt; 3
+
+(define multiples-of-seven?
+  (match-lambda* (((? (lambda (x) (zero? (modulo x 7)))) . rest)
+                  (apply multiples-of-seven? rest))
+     (() #t)
+     (_ #f)))
+
+(multiples-of-seven? 7 14 49 28 56 77) =&gt; #t
+</code></pre>
+<h4 id="match-let"><code>(match-let ((pattern value) ...) . body)<br>(match-let loop ((pattern init) ...) . body)</code></h4><p>Matches each pattern to the corresponding expression, and evaluates
+the body with all match variables in scope.  Raises an error if
+any of the expressions fail to match.  Syntax analogous to named
+let can also be used for recursive functions which match on their
+arguments as in <code>match-lambda*</code>.</p>
+<pre><code>
+(define (fact n)
+  (if (zero? n)
+      1
+      (match-let loop (((a . rest) (cdr (iota (+ n 1))))
+                       (out 1))
+          (if (null? rest) (* a out) (loop rest (* a out))))))
+</code></pre>
+<p><b>Note:</b> as this example shows, since each binding takes one pattern, if an init value may not match its pattern (as in <code>(cdr (iota (+ 0 1))) =&gt; ()</code>) that has to be handled some other way.</p>
+<h4 id="match-letrec"><code>(match-letrec ((pattern value) ...) . body)</code></h4><p>Similar to <code>match-let</code>, but analogously to <code>letrec</code>
+matches and binds the patterns with all match patterns in scope.</p>
+<h4 id="match-let*"><code>(match-let* ((pattern value) ...) body ...)</code></h4><p>
+Similar to <code>match-let</code>, but analogously to <code>let*</code>
+matches and binds the patterns in sequence, with preceding match
+patterns in scope.</p>
+<h3 id="TailContexts">Tail Contexts</h3>
+<p>
+If a pattern matcher is in tail context, expressions marked as tail-bodies below will be in tail context.</p>
+<pre><code>
+(match &lt;expression&gt; <b>&lt;match-clause&gt;</b>+)
+
+(match-lambda <b>&lt;match-clause&gt;</b>+)
+
+(match-lambda* <b>&lt;match-clause&gt;</b>+)
+
+(match-let ((&lt;pattern&gt; &lt;expression&gt;)) <b>&lt;tail-body&gt;</b>+)
+
+(match-letrec ((&lt;pattern&gt; &lt;expression&gt;)) <b>&lt;tail-body&gt;</b>+)
+
+(match-let &lt;variable&gt; ((&lt;pattern&gt; &lt;expression&gt;)) <b>&lt;tail-body&gt;</b>+)
+
+(match-let* ((&lt;pattern&gt; &lt;expression&gt;)) <b>&lt;tail-body&gt;</b>+)
+
+where:
+
+&lt;match-clause&gt; &rarr; (&lt;pattern&gt; <b>&lt;tail-body&gt;</b>+)
+</code></pre>
+
+<h3 id="Side-Effects">Side Effects</h3>
+<p>There are two types of patterns where the issue of side-effects is prominent:</p>
+<ul>
+  <li>predicate patterns and field patterns, which may be applied repeatedly and to non-matches,
+    so should not have side effects</li>
+  <li>set! patterns, which are intended have side effects when they are used
+  in the body, and get! patterns, which return the current value for values thare subject to change.</li>
+</ul>
+<h3 id="Errors">Errors</h3>
+<p>The following is a list of examples of the erroneous conditions, and the message given by the current implementation:</p>
+<ul>
+  <li><code>(match)                                  "missing match expression"</code></li>
+  <li><code>(match (list 1 2 3))                     "no match clauses"</code></li>
+  <li><code>(match (list 1 2 3) ((a b)))             "no matching pattern"</code></li>
+  <li><code>(match (list 1 2 3) ((a *** . 3) a))     "invalid use of ***"</code></li>
+  <li><code>(match '(1 1 1 2 2 2) ((a ... b ...) b)) "multiple ellipsis patterns not allowed at same level"</code></li>
+  <li><code>(match '(1 1 1 2 2 2) ((a =.. 3 b ...) b)) ditto</code></li>
+  <li><code>(match '(1 1 1 2 2 2) (`(,@a ,b ...) b)) ditto</code></li>
+  <li><code>(match '(1 1 1 2 2 2) (`(,@a . b) a)) "dotted tail not allowed after ellipsis"</code></li>
+  </ul>
+<p>A successful match with an empty body [ like <code>(match (list 1 2 3) ((a b c)))</code> ] has an unspecified return value, like <code>(if #f 1).</code>
+However if this occurs in a context where a body is required, it will cause an error:</p>
+<pre><code>
+(match-let (((a b) (list 1 2))))
+ERROR on line 1023 of file ../srfi-204/srfi-204.scm:
+no let body:
+    (#&lt;SC 136102368243328 let #&lt;procedure #f&gt;&gt; ())
+</code></pre>
+<h3 id="Macros">Using in Other Macros</h3>
+<p>Other macros that use the pattern matcher will be subject to the same constraints, in particular with respect to names. For example:
+<pre><code>
+(define-syntax make-chunker
+  (syntax-rules ()
+    ((_ s ...)
+     (lambda (l)
+       (let lp ((l l))
+   (match l (() '())
+      ((s ... . rest) (cons (list s ...) (lp rest)))
+      (end (list end))))))))
+
+((make-chunker a b c d) (iota 20))
+=&gt; ((0 1 2 3) (4 5 6 7) (8 9 10 11) (12 13 14 15) (16 17 18 19))
+
+((make-chunker a b c _) (iota 20))
+=&gt; ERROR on line 16: invalid use of syntax as value: _
+
+((make-chunker a b c ___) (iota 20))
+=&gt; ERROR on line 715 of file ./srfi-204/srfi-204.scm:
+     no expansion for:
+       (match-syntax-error "dotted tail not allowed after ellipsis" rest)
+</code></pre>
+<h2 id="Implementation">Implementation</h2>
+
+<p>
+A
+<a href="https://github.com/scheme-requests-for-implementation/srfi-204/tree/master/srfi">Sample implementation</a>
+is available on Github and in <a href="https://srfi.schemers.org/srfi-204/srfi-204.tgz">this .tgz file</a>.</p>
+<p>
+To use the <code><b>$,</b></code>  <code><b>struct</b></code>, and <code><b>object</b></code> syntax, an implementation needs to provide the forms <code>is-a?</code>, <code>slot-ref</code>, and <code>slot-set!</code>. These forms have the following syntax:</p>
+<pre><code>
+(is-a? <var>rec</var> <var>rtd</var>) =&gt; <var>#t if type of rec matches rtd, #f otherwise</var>
+
+(slot-ref <var>rtd</var> <var>rec</var> <var>slot</var>) =&gt; If slot is an integer, <var>value at position slot</var>,
+                    if slot is a symbol, <var>value named slot</var>
+
+(slot-set! <var>rtd</var> <var>rec</var> <var>slot</var> <var>new-value</var>) If slot is an integer, <var>set! the value at
+                            position slot to new-value</var>. If slot is a symbol,
+                            <var>set! the value named slot to new-value</var>
+</code></pre>
+<p>Since these forms rely on the underlying structure of records in a particular implementation, their definition will vary from one Scheme to another. This
+is an example from  Gauche, where records are implemented on top of native CLOS-like objects:</p>
+<pre><code>
+(import (only (gauche base) is-a? slot-definition-name class-slots)
+  (scheme base)
+  (rename (gauche base)
+    (slot-ref gb-slot-ref)
+    (slot-set! gb-slot-set!)))
+  (begin
+    (define-syntax slot-ref
+      (syntax-rules ()
+        ((_ class inst n)
+         (if (integer? n)
+           (gb-slot-ref inst
+                        (list-ref (map slot-definition-name
+                     (class-slots class))
+          n))
+           (gb-slot-ref inst n)))))
+    (define-syntax slot-set!
+      (syntax-rules ()
+        ((_ class inst n value)
+         (if (integer? n)
+             (gb-slot-set! inst
+                    (list-ref (map slot-definition-name
+                         (class-slots class))
+        n)
+                    value)
+             (gb-slot-set! inst n value))))))
+</code></pre>
+<p>this is an example from Larceny, which has SRFI 99:</p>
+<pre><code>
+(import (scheme base)
+  (srfi 99 records))
+(begin
+  (define-syntax is-a?
+    (syntax-rules ()
+      ((_ rec rtd)
+       ((rtd-predicate rtd) rec))))
+  (define-syntax slot-ref
+    (syntax-rules ()
+      ((_ rtd rec n)
+       (if (integer? n)
+           ((rtd-accessor rtd (vector-ref (rtd-all-field-names rtd) n)) rec)
+           ((rtd-accessor rtd n) rec)))))
+  (define-syntax slot-set!
+    (syntax-rules ()
+      ((_ rtd rec n value)
+       (if (integer? n)
+           ((rtd-mutator rtd (vector-ref (rtd-all-field-names rtd) n)) rec value)
+           ((rtd-mutator rtd n) rec value))))))
+</code></pre>
+<p>and this is an example from Loko and Chez, which use forms from
+<code><b>(rnrs records procedural)</b></code> and <code><b>(rnrs records inspection)</b></code>:</p>
+<pre><code>
+(define-syntax is-a?
+  (syntax-rules ()
+    ((_ rec rtd)
+     ((record-predicate (record-type-descriptor rtd)) rec))))
+(define-syntax slot-ref
+  (syntax-rules ()
+    ((_ rtd rec n)
+     (let ((rtd (record-type-descriptor rtd)))
+       (if (integer? n)
+     ((record-accessor rtd n) rec)
+     ((record-accessor rtd (name-&gt;idx rtd n)) rec))))))
+(define-syntax slot-set!
+  (syntax-rules ()
+    ((_ rtd rec n value)
+     (let ((rtd (record-type-descriptor rtd)))
+       (if (integer? n)
+     ((record-mutator rtd n) rec value)
+     ((record-mutator rtd (name-&gt;idx rtd n)) rec value))))))
+(define-syntax name-&gt;idx
+  (syntax-rules ()
+  ((_ rtd n)
+   (let* ((names (record-type-field-names rtd))
+    (len (vector-length names)))
+     (let lp ((i 0))
+       (cond
+         ((&gt; i len) (error "name not in record" n))
+         ((eq? n (vector-ref names i)) i)
+         (else (lp (+ i 1 )))))))))
+</code></pre>
+
+<code>match-letrec</code> uses the technique described in [<a href="#Oleg2013">Kiselyov, 2013</a>]. This form gets used the least by users, so it may be a useful exercise for for implementors to look for internal defines and other items that can be translated into match-letrec to build up a testing library.
+
+<h2 id="References">References</h2>
+<p id="SCG">
+Alex Shinn, John Cowan, Arthur A. Gleckler, et al. 2013 <cite>Revised<sup>7</sup> Report on the Algorithmic Language Scheme.</cite> Retrieved from <a href="https://small.r7rs.org/attachment/r7rs.pdf">https://small.r7rs.org/attachment/r7rs.pdf</a>.
+</p>
+<p id="s7">
+Bill Schottstaedt. 2020 <cite>s7 case.scm.</cite> Retrieved from <a href="https://ccrma.stanford.edu/software/snd/snd/s7.html#case">https://ccrma.stanford.edu/software/snd/snd/s7.html#case</a>.
+</p>
+<p id="WC">
+Andrew K. Wright & Robert Cartwright. <cite>ACM Transactions on Programming Languages and Systems.</cite> Vol. 19, No. 1. January 1997. Pages 87-152. Retrieved on July 15, 2020 from <a href="https://www.iro.umontreal.ca/~feeley/cours/ift6232/doc/pres2/practical-soft-type-system-for-scheme.pdf">https://www.iro.umontreal.ca/~feeley/cours/ift6232/doc/pres2/practical-soft-type-system-for-scheme.pdf</a>.
+</p>
+<p id="Oleg2003">
+Kiselyov, Oleg 2003 "How to write symbol? with syntax rules" comp.lang.scheme Retrieved from <a href="http://okmij.org/ftp/Scheme/macro-symbol-p.txt">http://okmij.org/ftp/Scheme/macro-symbol-p.txt</a>
+</p>
+<p id="Oleg2013">
+Kiselyov, Oleg 2013 "How to Write Seemingly Unhygenic and Referentially Opaque Macros with Syntax-rules*" Retrieved from <a href="http://okmij.org/ftp/Scheme/Dirty-Macros.pdf">http://okmij.org/ftp/Scheme/Dirty-Macros.pdf</a>
+<p id="Chibi">
+Alex Shinn. 2020. <cite>(chibi match).</cite> Retrieved from <a href="http://synthcode.com/scheme/chibi/lib/chibi/match.html">http://synthcode.com/scheme/chibi/lib/chibi/match.html</a>.
+</p>
+<p id="Cyclone">
+Justin Ethier. 2019. <cite>Match Library.</cite> Retrieved from <a href="http://justinethier.github.io/cyclone/docs/api/cyclone/match">http://justinethier.github.io/cyclone/docs/api/cyclone/match</a>.
+</p>
+<p id="Guile">
+Ludovic Cort&egrave;s, Bake Timmons, Arun Isaac, &amp; Paul Morris. 2019. <cite>Guile Reference Manual.</cite>. Sect. 7.8 "Pattern Matching." Retrieved from <a href="https://www.gnu.org/software/guile/manual/html_node/Pattern-Matching.html">https://www.gnu.org/software/guile/manual/html_node/Pattern-Matching.html</a>.
+</p>
+<p id="LispKit">
+Matthias Zenger. 2019. <cite>match.scm (source file).</cite> Retrieved from <a href="https://github.com/objecthub/swift-lispkit/blob/master/Sources/LispKit/Resources/Libraries/lispkit/match.sld">https://github.com/objecthub/swift-lispkit/blob/master/Sources/LispKit/Resources/Libraries/lispkit/match.sld</a>.
+</p>
+<p id="Loko">
+G&ouml;ran Weinholt. 2019. <cite>match.sls (source file).</cite> Retrived from <a href="https://gitlab.com/weinholt/loko/-/blob/master/lib/match.sls">https://gitlab.com/weinholt/loko/-/blob/master/lib/match.sls</a>.
+</p>
+<p id="Mosh">
+Higepon Taro Minowa, et. al. 2010 <cite>Pattern Match.</cite> Retrieved from <a href="http://mosh.monaos.org/files/lib/match-ss.html#Pattern_Match">http://mosh.monaos.org/files/lib/match-ss.html#Pattern_Match</a>.
+</p>
+<p id="Sagittarius">
+Takashi Kato. 2019. <cite>Sagittarius Users' Reference.</cite> Sect. 8.1 "(match) -- Pattern Matching" Retrieved from <a href="http://ktakashi.github.io/sagittarius-online-ref/section81.html">http://ktakashi.github.io/sagittarius-online-ref/section81.html</a>.
+</p>
+<p id="Armpit">
+Hubert Montas. 2018. <cite>A Scheme Interpreter for ARM Microcontrollers.</cite> Sect. "Program Examples for Version 080 - Expert System" Retrieved from <a href="http://armpit.sourceforge.net/v080/aps_080_common_examples.html#Expert">http://armpit.sourceforge.net/v080/aps_080_common_examples.html#Expert</a>.
+</p>
+<p id="Bigloo">
+Manuel Serrano &amp; Jean-Marie Geffroy. 2013. <cite>Bigloo/manual.</cite> Chapter 6. "Pattern Matching" Retrieved from <a href="http://www-sop.inria.fr/mimosa/fp/Bigloo/manual-chapter6.html">http://www-sop.inria.fr/mimosa/fp/Bigloo/manual-chapter6.html</a>.
+<p id="Chez">
+R. Kent Dybig. 2010. <cite>"Using Match."</cite> Retrieved from Indiana University Bloomington via archive.org: <a href="https://web.archive.org/web/20180718090106/https://www.cs.indiana.edu/chezscheme/match/">https://web.archive.org/web/20180718090106/https://www.cs.indiana.edu/chezscheme/match/</a>.
+<p id="Chicken:matchable">
+Alex Shinn. 2020. <cite>The Chicken Scheme Wiki.</cite> "matchable." Retrieved from <a href="http://wiki.call-cc.org/eggref/4/matchable">http://wiki.call-cc.org/eggref/4/matchable</a>.
+</p>
+<p id="Chicken:bindings">
+Juergen Lorenz. 2020. <cite>The Chicken Scheme Wiki.</cite> "bindings." Retrieved from <a href="http://wiki.call-cc.org/eggref/4/bindings">http://wiki.call-cc.org/eggref/4/bindings</a>.
+<p id="Gambit">
+Marc Feely &amp; Fr&eacute;d&eacute;ric Hamel. 2020. <cite>match-support.scm (source file).</cite> Retrieved from <a href="https://github.com/gambit/gambit/blob/master/lib/termite/match-support.scm">https://github.com/gambit/gambit/blob/master/lib/termite/match-support.scm</a>.
+</p>
+<p id="Gauche">
+Shiro Kawai. <cite>Gauche Users Reference.</cite> Sect. 12.68 "util.match - Pattern matching." Retrieved from <a href="http://practical-scheme.net/gauche/man/gauche-refe/Pattern-matching.html#Pattern-matching">http://practical-scheme.net/gauche/man/gauche-refe/Pattern-matching.html#Pattern-matching</a>.
+</p>
+<p id="Gerbil">
+vyzo et. al. <cite>Gerbil Reference.</cite> Sect. "Core Prelude - Prelude Macros - Pattern Matching." <a href="https://cons.io/reference/core-prelude.html#pattern-matching">https://cons.io/reference/core-prelude.html#pattern-matching</a>.
+</p>
+<p id="Kawa">
+Per Bothner. 2020. <cite>The Kawa Scheme Language - Reference Documentation.</cite> Sect. 8.3 "Variables and Patterns." Retrieved from <a href="https://www.gnu.org/software/kawa/Variables-and-Patterns.html">https://www.gnu.org/software/kawa/Variables-and-Patterns.html</a>.
+</p>
+<p id="Rapid">
+Marc Nieper-Wi&szlig;kirchen. 2016. <cite>snow-fort.org.</cite> "(rapid match)" <a href="http://snow-fort.org/s/rapid-scheme.org/marc/rapid/match/0.1.5/index.html"> http://snow-fort.org/s/rapid-scheme.org/marc/rapid/match/0.1.5/index.html</a>.
+</p>
+<p id="Picrin">
+Yuichi Nishiwaki. 2016 <cite>50.destructuring-bind (source directory).</cite> Retrieved from <a href="https://github.com/picrin-scheme/picrin/tree/master/contrib/50.destructuring-bind">https://github.com/picrin-scheme/picrin/tree/master/contrib/50.destructuring-bind</a>.
+</p>
+<p id="Racket">
+Matthew Flatt &amp; PLT. <cite>The Racket Reference.</cite> Chap. 9 "Pattern Matching" Retrieved from <a href="https://docs.racket-lang.org/reference/match.html?q=match#%28form._%28%28lib._racket%2Fmatch..rkt%29._match%29%29">https://docs.racket-lang.org/reference/match.html?q=match#%28form._%28%28lib._racket%2Fmatch..rkt%29._match%29%29</a>.
+</p>
+<p id="s9fes">
+Nils M. Holm. <cite>matcher.scm (source code).</cite> Retrieved from <a href="http://t3x.org/s9fes/matcher.scm.html">http://t3x.org/s9fes/matcher.scm.html</a>.
+</p>
+<p id="Scheje">
+Rafik Naccache <cite>unifier.cljc (source code).</cite> Retrieved from <a href="https://github.com/turbopape/scheje/blob/master/src/scheje/unifier.cljc">https://github.com/turbopape/scheje/blob/master/src/scheje/unifier.cljc</a>.
+</p>
+<p id="STklos">
+Erick Gallesio. <cite>STklos Reference Manual.</cite> Chapter 6 "Pattern Matching." Retrieved from <a href="https://stklos.net/Doc/html/stklos-ref-6.html#Pattern-Matching">https://stklos.net/Doc/html/stklos-ref-6.html#Pattern-Matching</a>.
+</p>
+<p id="Norvig">
+  Peter Norvig. 1992 <cite>Paradigms of Artificial intelligence.</cite> (1st Ed.). ELIZA,Dialog with a Machine, Chap. 5. Morgan Kaufmann Publishers, San Francisco, CA. Retrieved on July 15 2020 from <a href="https://github.com/norvig/paip-lisp/blob/master/docs/chapter5.md">https://github.com/norvig/paip-lisp/blob/master/docs/chapter5.md</a>.
+<p>
+<h2 id="Acknowledgements">Acknowledgements</h2>
+
+Andrew K. Wright, Robert Cartwright, Alex Shinn, and Panicz Maciej Godek.
+<p>
+Alex Shinn provided documentation of his implementation.
+</p>
+<p>
+Shiro Kawai and Ludovic Cort&egrave;s et. al. provided pattern grammar documentation.
+</p>
+
+<h2 id="Copyright">Copyright</h2>
+<p>Copyright &copy; Felix Thibault (2020).</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html SYSTEM "-//IETF//DTD HTML//EN">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>SRFI 121: Generators</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-121">Title</a></H1>
+
+Generators
+
+<h1>Author</h1>
+
+Shiro Kawai, John Cowan, Thomas Gilray
+
+<p>
+This SRFI is currently in ``final'' status.
+To see an explanation of
+each status that a SRFI can hold, see <a href="http://srfi.schemers.org/srfi-process.html">here</a>.
+
+To provide input on this SRFI, please
+<a href="mailto:srfi minus 121 at srfi dot schemers dot org">mail to
+<code>&lt;srfi minus 121 at srfi dot schemers dot org&gt;</code></a>.  See
+<a href="http://srfi.schemers.org/srfi-list-subscribe.html">instructions here</a> to
+subscribe to the list.  You can access previous messages via
+<a href="http://srfi.schemers.org/srfi-121/mail-archive/maillist.html">the archive of the mailing list</a>.
+</p><ul>
+    <li>Received: <a href="http://srfi.schemers.org/srfi-121/srfi-121-1.1.html">2015/01/27</a></li>
+    <li>Draft #2 published: <a href="http://srfi.schemers.org/srfi-121/srfi-121-1.2.html">2015/06/10</a></li>
+    <li>Draft #3 published: 2015/09/03</li>
+    <li>Draft #4 published: 2015/10/14</li>
+    <li>Draft #5 published: 2015/10/19</li>
+    <li>Draft #6 published: 2015/10/25</li>
+    <li>Draft #7 published: 2015/11/2</li>
+    <li>Draft #8 published: 2015/11/8</li>
+    <li>Draft #9 published: 2015/12/25</li>
+    <li>Draft #10 published: 2016/1/4</li>
+    <li>Draft #11 published: 2016/1/18</li>
+    <li>Finalized: 2016/1/18</li>
+    <li>Revised to fix errata: 2016/1/20</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>This SRFI defines utility procedures that create, transform, and consume generators.
+A generator is simply a procedure with no arguments that works
+as a source of a series of values.  Every time it is called,
+it yields a value.  Generators may be finite or infinite; a finite
+generator returns an end-of-file object to indicate that it is exhausted.
+For example, <code>read-char</code>, <code>read-line</code>,
+and <code>read</code> are generators that
+generate characters, lines, and objects from the current input port.
+Generators provide lightweight laziness.
+</p>
+
+
+<h1>Issues</h1>
+
+None at present.
+
+<h1>Rationale</h1>
+
+<p>The main purpose of generators is high performance.  Although
+<a href="http://srfi.schemers.org/srfi-41/srfi-41.html">SRFI 41</a>
+streams can do everything generators can do and more,
+SRFI 41 uses lazy pairs that require making a thunk for every item.
+Generators can generate items without consing, so they are
+very lightweight and are useful for implementing simple
+on-demand calculations.</p>
+
+<p>Existing examples of generators are readers from the current input port 
+and <a href="http://srfi.schemers.org/srfi-27/srfi-27.html">SRFI 27</a>
+random numbers.
+If Scheme had streams as one of its built-in
+abstractions, these would have been naturally represented by
+lazy streams.  But Scheme usually does not expose this
+kind of API using lazy streams.  Generator-like interfaces are
+common, so it seems worthwhile to have some common idioms
+extracted into a library.</p>
+
+<p>Calling a generator is a
+side-effecting construct; you can't safely backtrack, for example,
+as you can with streams.
+Persistent lazy sequences based on generators and ordinary Scheme pairs
+(which are heavier weight than generators, but lighter weight
+than lazy pairs) are the subject of SRFI 127.
+Of course the efficiency of streams depends on the implementation.
+Some implementations may have have super-light thunk creation.  But in most,
+thunk creation is probably slower than simple consing.</p>
+
+<p>The generators of this SRFI don't belong to a disjoint type.
+They are just procedures that conform to a calling convention, 
+so you can construct a generator with <code>lambda</code>.  The constructors
+of this SRFI are provided for convenience.
+Any procedure that can be called with no arguments can serve as a
+generator.
+</p>
+
+<p>Using an end-of-file object to indicate that there is no more input
+makes it impossible to include such an object in the stream of generated values.
+However, it is compatible with the existing design of input ports,
+and it makes for
+more compact code than returning a user-specified termination object (as in Common Lisp)
+or returning multiple values.
+(Note that some generators are infinite in length, and never return an end-of-file object.)
+</p>
+
+<p> The combination of <code>make-for-each-generator</code> and
+<code>generator-unfold</code> makes it possible to convert any
+collection that has a for-each procedure into any collection that has
+an unfold constructor.  This generalizes such conversion procedures as
+<code>list-&gt;vector</code> and <code>string-&gt;list</code>.</p>
+
+<p>These procedures are drawn from the Gauche core and the Gauche
+module <code>gauche.generator</code>, with
+some renaming to make them more systematic, and with a few additions
+from the Python library
+<a href="https://docs.python.org/3/library/itertools.html"><code>itertools</code></a>.
+Consequently, Shiro Kawai,
+the author of Gauche and its specifications, is listed as first author
+of this SRFI.  John Cowan served as editor and shepherd.  Thomas Gilray
+provided the sample implementation and a valuable critique of the SRFI.
+Special acknowledgements to Kragen Javier Sitaker for his extensive review.</p>
+
+<h1>Specification</h1>
+
+<p>Generators can be divided into two classes, finite and infinite.  Both kinds of generators can be invoked an indefinite number of times.  After a finite generator has generated all its values, it will return an end-of-file object for all subsequent calls.
+A generator is said to be <i>exhausted</i> if calling it will return an end-of-file object.
+By definition, infinite generators can never be exhausted.</p>
+
+<p>A generator is said to be in an <i>undefined state</i> if it
+cannot be determined exactly how many values it has generated.
+This arises because it is impossible to tell by inspecting a
+generator whether it is exhausted or not.  For example,
+<code>(generator-fold + 0 (generator 1 2 3) (generator 1 2))</code>
+will compute 0 + 1 + 1 + 2 + 2 = 6, at which time the second
+generator will be exhausted.  If the first generator is invoked,
+however, it may return either 3 or an end-of-file object,
+depending on whether the implementation of <code>generator-fold</code>
+has invoked it or not.
+Therefore, the first generator is said to be in an undefined state.
+</p>
+
+<h2 class="subsection">Generator constructors</h2>
+
+<p>The result of a generator constructor is just a procedure,
+so printing it doesn't show much.  In the examples in this section
+we use <code>generator-&gt;list</code> to convert the generator to a list.
+</p>
+<p>These procedures have names ending with <code>generator</code>.</p>
+<dl>
+<dt><code>generator</code><i> arg …</i></dt>
+<dd><p>The simplest finite generator.  Generates each of its arguments in turn.
+When no arguments are provided, it returns an empty generator that generates no values.
+</p></dd></dl>
+
+<dl>
+<dt><code>make-iota-generator</code><i> count [ start  [ step ] ]</i></dt>
+<dd><p>Creates a finite generator of a sequence of <var>count</var>
+numbers.  The sequence begins with <var>start</var> (which defaults to 0)
+and increases by <var>step</var> (which defaults to 1).
+If both <var>start</var> and <var>step</var> are exact, it generates
+exact numbers; otherwise it generates inexact numbers.  The exactness
+of <var>count</var> doesn't affect the exactness of the results.
+</p>
+<table>
+<tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-iota-generator 3 8))
+  ⇒ (8 9 10)
+</pre></td></tr>
+<tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-iota-generator 3 8 2))
+  ⇒ (8 10 12)
+</pre></td></tr>
+</tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>make-range-generator</code><i> start [ end  [ step ] ]</i></dt>
+<dd><p>Creates a generator of a sequence of
+numbers.  The sequence begins with <var>start</var>,
+increases by <var>step</var> (default 1),
+and continues while the number is less than <var>end</var>,
+or forever if <var>end</var> is omitted.
+If both <var>start</var> and <var>step</var> are exact, it generates
+exact numbers; otherwise it generates inexact numbers.  The exactness
+of <var>end</var> doesn't affect the exactness of the results.
+</p>
+<table>
+<tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-range-generator 3) 4)
+  ⇒ (3 4 5 6)
+</pre></td></tr>
+<tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-range-generator 3 8))
+  ⇒ (3 4 5 6 7)
+</pre></td></tr>
+<tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-range-generator 3 8 2))
+  ⇒ (3 5 7)
+</pre></td></tr>
+</tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>make-coroutine-generator</code><i> proc</i></dt>
+<dd><p>Creates a generator from a coroutine.
+</p>
+<p>The <var>proc</var> argument is a procedure that takes one argument, <var>yield</var>.  When
+called, <code>make-coroutine-generator</code> immediately returns
+a generator <var>g</var>.  When <var>g</var> is called, <var>proc</var> runs
+until it calls <var>yield</var>.  Calling <var>yield</var> causes
+the execution of <var>proc</var> to be suspended, and <var>g</var> returns the value passed
+to <var>yield</var>.
+</p>
+<p>Whether this generator is finite or infinite depends on
+the behavior of <var>proc</var>.
+If <var>proc</var> returns, it is the end of the sequence — <var>g</var> returns an
+end-of-file object from then on.  The return value of <var>proc</var> is ignored.
+</p>
+<p>The following code creates a generator that produces a series
+0, 1, and 2 (effectively the same as <code>(make-range-generator 0 3)</code>) and binds
+it to <code>g</code>.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(define g
+  (make-coroutine-generator
+   (lambda (yield) (let loop ((i 0))
+               (when (&lt; i 3) (yield i) (loop (+ i 1)))))))
+
+(generator-&gt;list g) ⇒ (0 1 2)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>list-&gt;generator</code><i> lis</i></dt>
+<dt><code>vector-&gt;generator</code><i> vec [ start [ end ] ]</i></dt>
+<dt><code>reverse-vector-&gt;generator</code><i> vec [ start [ end ] ]</i></dt>
+<dt><code>string-&gt;generator</code><i> str [ start [ end ] ]</i></dt>
+<dt><code>bytevector-&gt;generator</code><i> bytevector [ start [ end ] ]</i></dt>
+<dd><p>These procedures return generators that yield each element of
+the given argument.  Mutating the underlying object will affect the results
+of the generator.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (list-&gt;generator '(1 2 3 4 5)))
+  ⇒ (1 2 3 4 5)
+(generator-&gt;list (vector-&gt;generator '#(1 2 3 4 5)))
+  ⇒ (1 2 3 4 5)
+(generator-&gt;list (reverse-vector-&gt;generator '#(1 2 3 4 5)))
+  ⇒ (5 4 3 2 1)
+(generator-&gt;list (string-&gt;generator "abcde"))
+  ⇒ (#\a #\b #\c #\d #\e)
+</pre></td></tr></tbody></table>
+
+<p>The generators returned by the constructors are exhausted once all elements are retrieved;
+the optional <var>start</var>-th and <var>end</var>-th arguments can limit the range
+the generator walks across.
+</p>
+
+<p>For <code>reverse-vector-&gt;generator</code>, the first value is the element right before
+the <var>end</var>-th element, and the last value is the <var>start</var>-th
+element.
+For all the other constructors, the first value the generator yields
+is the <var>start</var>-th element, and it ends right before the <var>end</var>-th element.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (vector-&gt;generator '#(a b c d e) 2))
+  ⇒ (c d e)
+(generator-&gt;list (vector-&gt;generator '#(a b c d e) 2 4))
+  ⇒ (c d)
+(generator-&gt;list (reverse-vector-&gt;generator '#(a b c d e) 2))
+  ⇒ (e d c)
+(generator-&gt;list (reverse-vector-&gt;generator '#(a b c d e) 2 4))
+  ⇒ (d c)
+(generator-&gt;list (reverse-vector-&gt;generator '#(a b c d e) 0 2))
+  ⇒ (b a)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+
+</p></dd></dl>
+
+<dl>
+<dt><code>make-for-each-generator</code><i> for-each obj</i></dt>
+<dd><p>A generator constructor that converts any collection <var>obj</var> to
+a generator that returns its elements using a
+<var>for-each</var> procedure appropriate for <var>obj</var>.  This must
+be a procedure that when called as <var>(for-each proc obj)</var> calls
+<var>proc</var> on each element of <var>obj</var>.  Examples of such
+procedures are <code>for-each</code>, <code>string-for-each</code>,
+and <code>vector-for-each</code> from R7RS.  The value returned by
+<var>for-each</var> is ignored.
+The generator is finite if the  collection is finite, which would
+typically be the case.
+</p>
+<p>The collections need not be conventional ones (lists, strings, etc.)
+as long as <i>for-each</i> can invoke a procedure on everything that
+counts as a member.  For example,
+the following procedure allows <code>for-each-generator</code> to generate
+the digits of an integer from least to most significant:</p>
+
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(define (for-each-digit proc n)
+  (when (&gt; n 0)
+    (let-values (((div rem) (truncate/ n 10)))
+      (proc rem)
+      (for-each-digit proc div))))
+</pre></td></tr></tbody></table>
+
+
+</dd></dl>
+
+<dl>
+<dt><code>make-unfold-generator</code><i> stop? mapper successor seed</i></dt>
+<dd><p>A generator constructor similar to <a href="http://srfi.schemers.org/srfi-1/srfi-1.html">
+SRFI 1's</a> <code>unfold</code>.
+</p>
+<p>The <var>stop?</var> predicate takes a seed value and determines
+whether to stop.  The <var>mapper </var> procedure calculates a value
+to be returned by the generator
+from a seed value.  The <var>successor </var> procedure calculates the
+next seed value from the current seed value.
+</p>
+<p>For each call of the resulting generator, <var>stop?</var> is called with
+the current seed value.  If it returns true, then the generator
+returns an end-of-file object.  Otherwise,
+it applies <var>mapper</var> to the current seed value to get the value to
+return, and uses <var>successor</var> to update the seed value.</p>
+<p>This generator is finite unless <var>stop?</var> never returns true.</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (make-unfold-generator
+                      (lambda (s) (&gt; s 5))
+                      (lambda (s) (* s 2))
+                      (lambda (s) (+ s 1))
+                      0))
+  ⇒ (0 2 4 6 8 10)
+</pre></td></tr></tbody></table>
+</dd>
+</dl>
+
+<h2 class="subsection">Generator operations</h2>
+
+<p>The following procedures accept one or more generators and return a new generator
+without consuming any elements from the source generator(s).
+In general, the result will be a finite generator if the arguments are.</p>
+<p>The names of these procedures are prefixed with <code>g</code>.
+</p>
+
+<dl>
+<dt><code>gcons*</code><i> item … gen</i></dt>
+<dd><p>Returns a generator that adds <var>item</var>s in front of <var>gen</var>.
+Once the <var>items</var> have been consumed, the generator is guaranteed to
+tail-call <var>gen</var>.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (gcons* 'a 'b (make-range-generator 0 2)))
+ ⇒ (a b 0 1)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dl>
+<dt><code>gappend</code><i> gen …</i></dt>
+<dd><p>Returns a generator that yields the items from the first given
+generator, and once it is exhausted, from the second generator, and so on.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (gappend (make-range-generator 0 3) (make-range-generator 0 2)))
+ ⇒ (0 1 2 0 1)
+
+(generator-&gt;list (gappend))
+ ⇒ ()
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dl>
+<dt><code>gcombine</code><i> proc seed gen gen<sub>2</sub> …</i></dt>
+<dd><p>A generator for
+mapping with state.  It yields a sequence of sub-folds over <var>proc</var>.
+</p>
+<p>The <var>proc</var> argument is a procedure that takes as many arguments
+as the input generators plus one.  It is called as
+<code>(</code><var>proc v<sub>1</sub> v<sub>2</sub> … seed)</var>,
+where <var>v<sub>1</sub></var>, <var>v<sub>2</sub></var>, … are
+the values yielded from the input generators, and <var>seed</var> is the
+current seed value.  It must return two values, the yielding value
+and the next seed.
+The result generator is exhausted when any of the <i>gen<sub>n</sub></i>
+generators is exhausted, at which time all the others are in an undefined state.
+</p>
+</dd></dl>
+
+<dl>
+<dt><code>gfilter</code><i> pred gen</i></dt>
+<dt><code>gremove</code><i> pred gen</i></dt>
+<dd><p>Return generators that yield the items from the source generator,
+except those on which <var>pred</var> answers false or true respectively.
+</p></dd></dl>
+
+
+
+<dl>
+<dt><code>gtake</code><i> gen k [ padding ]</i></dt>
+<dt><code>gdrop</code><i> gen k</i></dt>
+<dd><p>These are generator analogues of SRFI 1
+<code>take</code> and <code>drop</code>. <code>Gtake</code> returns a generator
+that yields (at most) the first <var>k</var> items
+of the source generator, while <code>gdrop</code> returns a generator
+that skips the first <var>k</var> items of the source generator.
+</p>
+<p>These won't complain if the source generator is exhausted before generating
+<var>k</var> items.  By default, the generator returned by <code>gtake</code>
+terminates when the source generator does, but if you provide the <var>padding</var> argument,
+then the returned generator will yield exactly <var>k</var> items, using the <var>padding</var> value
+as needed to provide sufficient additional values.
+</p>
+</dd></dl>
+
+<dl>
+<dt><code>gtake-while</code><i> pred gen</i></dt>
+<dt><code>gdrop-while</code><i> pred gen</i></dt>
+<dd><p>The generator analogues of SRFI-1 <code>take-while</code> and <code>drop-while</code>.  The generator returned
+from <code>gtake-while</code> yields items from the source generator
+as long as <var>pred</var> returns true for each.  The generator returned
+from <code>gdrop-while</code> first reads and discards values from the source generator
+while <var>pred</var> returns true for them, then starts yielding items returned by the source.
+</p></dd></dl>
+
+<dl>
+<dt><code>gdelete</code><i> item gen [ = ]</i></dt>
+<dd><p>Creates a generator that returns whatever <var>gen</var> returns, except for any items that
+are the same as <var>item</var> in the sense of <var>=</var>, which defaults to <code>equal?</code>.
+The <var>=</var> predicate is passed exactly two arguments, of which the first was generated
+by <var>gen</var> before the second.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (gdelete 3 (generator 1 2 3 4 5 3 6 7)))
+  ⇒ (1 2 4 5 6 7)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>gdelete-neighbor-dups</code><i> gen [ = ]</i></dt>
+<dd><p>Creates a generator that returns whatever <var>gen</var> returns, except for any items
+that are equal to the preceding item in the sense of <var>=</var>, which defaults to <code>equal?</code>.
+The <var>=</var> predicate is passed exactly two arguments, of which the first was generated
+by <var>gen</var> before the second.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (gdelete-neighbor-dups (list-&gt;generator '(a a b c a a a d c))))
+  ⇒ (a b c a d c)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>gindex</code><i> value-gen index-gen</i></dt>
+<dd><p>Creates a generator that returns elements of <var>value-gen</var>
+specified by the indices (non-negative exact integers) generated by
+<var>index-gen</var>.  It is an error if the indices are not strictly
+increasing, or if any index exceeds the number of elements generated by
+<var>value-gen</var>.
+The result generator is exhausted when either generator
+is exhausted, at which time the other is in an undefined state.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (gindex (list-&gt;generator '(a b c d e f))
+                         (list-&gt;generator '(0 2 4))))
+  ⇒ (a c e)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>gselect</code><i> value-gen truth-gen</i></dt>
+<dd><p>Creates a generator that returns elements of <var>value-gen</var>
+that correspond to the values generated by
+<var>truth-gen</var>.  If the current value of <var>truth-gen</var> is
+true, the current value of <var>value-gen</var> is generated, but otherwise not.
+The result generator is exhausted when either generator
+is exhausted, at which time the other is in an undefined state.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(generator-&gt;list (gselect (list-&gt;generator '(a b c d e f))
+                          (list-&gt;generator '(#t #f #f #t #t #f))))
+  ⇒ (a d e)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+
+<h2 class="subsection">Consuming generated values</h2>
+
+<p>Unless otherwise noted,
+these procedures consume all the values available from the generator that is passed to them,
+and therefore will not return if one or more generator arguments are infinite.
+They have names prefixed with <code>generator</code>.
+</p>
+
+<dl>
+<dt><code>generator-&gt;list</code><i> generator [ k ]</i></dt>
+<dd><p>Reads items from <var>generator</var> and returns a
+newly allocated list of them.
+By default, it reads until the generator is exhausted.</p><p>If
+an optional argument <var>k</var> is given, it must be a non-negative
+integer, and the list ends when either <var>k</var> items are consumed,
+or <i>generator</i> is exhausted; therefore <i>generator</i> can be infinite in this case.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-&gt;reverse-list</code><i> generator [ k ]</i></dt>
+<dd><p>Reads items from <var>generator</var> and returns a
+newly allocated list of them in reverse order.
+By default, this reads until the generator is exhausted.</p><p>If
+an optional argument <var>k</var> is given, it must be a non-negative
+integer, and the list ends when either <var>k</var> items are read,
+or <i>generator</i> is exhausted; therefore <i>generator</i> can be infinite in this case.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-&gt;vector</code><i> generator [ k ]</i></dt>
+<dd><p>Reads items from <var>generator</var> and returns a
+newly allocated vector of them.
+By default, it reads until the generator is exhausted.</p><p>If
+an optional argument <var>k</var> is given, it must be a non-negative
+integer, and the list ends when either <var>k</var> items are consumed,
+or <i>generator</i> is exhausted; therefore <i>generator</i> can be infinite in this case.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-&gt;vector!</code><i> vector at generator</i></dt>
+<dd><p>Reads items from <var>generator</var> and puts them into
+<var>vector</var> starting at index <var>at</var>, until <var>vector</var> is full or
+<var>generator</var> is exhausted.  <i>Generator</i> can be infinite.  The number of elements
+generated is returned.
+</p>
+</dd></dl>
+
+<dl>
+<dt><code>generator-&gt;string</code><i> generator [ k ]</i></dt>
+<dd><p>Reads items from <var>generator</var> and returns a
+newly allocated string of them.  It is an error if the items are not characters.
+By default, it reads until the generator is exhausted.</p><p>If
+an optional argument <var>k</var> is given, it must be a non-negative
+integer, and the string ends when either <var>k</var> items are consumed,
+or <i>generator</i> is exhausted; therefore <i>generator</i> can be infinite in this case.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-fold</code><i> proc seed gen<sub>1</sub> gen<sub>2</sub> …</i></dt>
+<dd><p>Works like SRFI 1 <code>fold</code> on the values generated by the generator
+arguments.
+</p>
+<p>When one generator is given, for each value <var>v</var> generated
+by <var>gen</var>,
+<var>proc</var> is called as <code>(<var>proc</var> <var>v</var> <var>r</var>)</code>, where
+<var>r</var> is the current accumulated result; the initial value of the
+accumulated result is <var>seed</var>,
+and the return value from <var>proc</var> becomes the next accumulated result.
+When <var>gen</var> is exhausted, the accumulated result at that time is returned
+from <code>generator-fold</code>.
+</p>
+<p>When more than one generator is given, <var>proc</var> is
+invoked on the values returned by all the generator arguments followed by
+the current accumulated result.  
+The procedure terminates when any of the <i>gen<sub>n</sub></i>
+generators is exhausted, at which time all the others are in an undefined state.
+</p>
+<table><tbody><tr><td>&nbsp;</td><td><pre class="example">(with-input-from-string "a b c d e"
+  (lambda () (generator-fold cons 'z read)))
+  ⇒ (e d c b a . z)
+</pre></td></tr></tbody></table>
+</dd></dl>
+
+<dl>
+<dt><code>generator-for-each</code><i> proc gen gen<sub>2</sub> …</i></dt>
+<dd><p>A generator analogue of <code>for-each</code> that consumes generated values using side effects.
+Repeatedly applies <var>proc</var> on
+the values yielded by <var>gen</var>, <var>gen<sub>2</sub></var> … until any one of
+the generators is exhausted.  The values returned from <var>proc</var> are discarded.
+The procedure terminates when any of the <i>gen<sub>n</sub></i>
+generators is exhausted, at which time all the others are in an undefined state.
+Returns an unspecified value.
+</p></dd></dl>
+
+
+<dl>
+<dt><code>generator-find</code><i> pred gen</i></dt>
+<dd><p>Returns the first item from the generator <var>gen</var> that satisfies
+the predicate <var>pred</var>, or <code>#f</code> if no such item is found before
+<var>gen</var> is exhausted.
+If <var>gen</var> is infinite, <code>generator-find</code> will not return
+if it cannot find an appropriate item.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-count</code><i> pred gen</i></dt>
+<dd><p>Returns the number of items available from the generator <var>gen</var> that satisfy
+the predicate <var>pred</var>.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-any</code><i> pred gen</i></dt>
+<dd><p>Applies <i>pred</i> to each item from <i>gen</i>.  As soon
+as it yields a true value, the value is returned without consuming the
+rest of <i>gen</i>.
+If <i>gen</i> is exhausted, returns <code>#f</code>.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-every</code><i> pred gen</i></dt>
+<dd><p>Applies <i>pred</i> to each item from <i>gen</i>.  As soon
+as it yields a false value, the value is returned without consuming the
+rest of <i>gen</i>.
+If <i>gen</i> is exhausted, returns the last value returned by
+<i>pred</i>, or <code>#t</code> if <i>pred</i> was never called.
+</p></dd></dl>
+
+<dl>
+<dt><code>generator-unfold</code><i> gen unfold arg ...</i></dt>
+<dd><p>
+Equivalent to <code>(</code><var>unfold</var> <code>eof-object? (lambda (x) x)
+(lambda (x) (</code><var>gen</var><code>)) (</code><var>gen</var><code>)</code> <var>arg</var> ...<code>)</code>.
+The values of <var>gen</var>
+are unfolded into the collection that <var>unfold</var> creates.
+</p>
+<p>The signature of the <var>unfold</var> procedure is <code>(</code><var>unfold stop? mapper successor seed args ...</var><code>)</code>.
+Note that the
+<code>vector-unfold</code> and <code>vector-unfold-right</code> 
+of <a href="http://srfi.schemers.org/srfi-43/srfi-43.html">SRFI 43</a>
+and <a href="http://srfi.schemers.org/srfi-133/srfi-133.html">SRFI 133</a>
+do not have this signature and cannot be used with this procedure.
+To unfold into a vector, use SRFI 1's <code>unfold</code> and then apply <code>list-&gt;vector</code>
+to the result.
+</p>
+<table>
+<tbody><tr><td>&nbsp;</td><td><pre class="example">
+;; Iterates over string and unfolds into a list using SRFI 1 unfold
+(generator-unfold (make-for-each-generator string-for-each "abc") unfold)
+  ⇒ (#\a #\b #\c)
+</pre></td></tr> </tbody></table>
+</dd></dl>
+
+<h1>Implementation</h1>
+
+<p>The sample implementation is in the SRFI 121 repository.  It contains the following files:</p>
+
+<ul>
+<li><code>generators-impl.scm</code> - implementation of generators</li>
+<li><code>r7rs-shim.scm</code> - supplementary code for non-R7RS systems</li>
+<li><code>generators.sld</code> - R7RS library</li>
+<li><code>generators.scm</code> - Chicken library</li>
+<li><code>generators-test.scm</code> - Chicken test-egg test file</li>
+</ul>
+
+<h1>Copyright</h1>
+Copyright (C) Shiro Kawai, John Cowan, Thomas Gilray (2015). All Rights Reserved. 
+<p>
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:</p>
+<p>
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors at srfi dot schemers    dot org">Arthur Gleckler</a></address>
+<!-- Created: Tue Sep 29 19:20:08 EDT 1998 -->
+<!-- hhmts start -->
+Last modified: Wed Jun 10 08:57:14 MST 2015
+<!-- hhmts end -->
+  
+

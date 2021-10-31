@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SRFI 195: Multiple-value boxes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+
+    <H1><a name="lp-srfi-195">Title</a></H1>
+    Multiple-value boxes
+
+    <h1>Author</h1>
+    <p>Marc Nieper-Wißkirchen</p>
+
+    <h1>Status</h1>
+    <p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+195+at+srfi+dotschemers+dot+org">srfi-195@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-195">archive</a>.</p>
+    <ul>
+      <li>Received: 2020-05-04</li>
+      <li>60-day deadline: 2020-07-03</li>
+      <li>Draft #1 published: 2020-05-14</li>
+    </ul>
+
+    <h1>Abstract</h1>
+
+    <p>
+      This SRFI extends the specification of the boxes
+      of <a href="https://srfi.schemers.org/srfi-111/srfi-111.html">SRFI
+  111</a> so that they are multiple-values aware.  Whereas a SRFI
+      111 box is limited in that it can only box a single value,
+      multiple values can be boxed with this SRFI.
+    </p>
+
+    <h1>Issues</h1>
+
+    <p>There are currently no issues.</p>
+
+    <h1>Rationale</h1>
+
+    <p>
+      At its core, Scheme's evaluation semantics is multiple-value
+      based.  Continuations can accept an arbitrary number of values and
+      expressions can yield an arbitrary number of values.  This is
+      contrast to the functional languages ML and Haskell.
+    </p>
+
+    <p>
+      Despite this fact, programming with multiple values is more
+      cumbersome than programming with single values.  This is mostly
+      due to the fact that Scheme's application syntax does not deal
+      directly with operands returning multiple values so that the
+      programmer has to fall back on things
+      like <code>call-with-values</code>.  It is, however, also partly
+      due to the fact that a lot of Scheme's procedures have been
+      modelled on a language that does not have multiple values.
+    </p>
+
+    <p>
+      One example for this are the procedures exported by SRFI 111.
+      In an ongoing attempt to make Scheme more uniform (and therefore
+      also simpler) and so that multiple values feel less like a
+      second-class citizen, this SRFI extends SRFI 111 so that it
+      becomes multiple-values-aware in a natural way.  The naturalness
+      of the extension is a proof that it is the right extension.
+    </p>
+
+    <p>
+      The boxes of this SRFI can be used to reify the concept of
+      multiple values into a first-class single value.  This can be
+      used in the implementation of SRFIs
+      like <a href="https://srfi.schemers.org/srfi-189/srfi-189.html">SRFI
+      189</a>.
+    </p>
+
+    <p>Multiple-value-aware boxes as described in this SRFI form a
+      natural Scheme monad as much as the monads defined in SRFI 165
+      and SRFI 189 do.  However, it is left to a future SRFI to
+      describe a monadic interface to boxes (the monadic pure would be
+      the <code>box</code> procedure; the monadic join would
+      be <code>unbox</code> when restricted to boxes whose values
+      consist of a single box).
+    </p>
+
+    <h1>Specification</h1>
+
+    <p>In a Scheme system supporting both SRFI 111 and this SRFI, the
+      bindings exported by both SRFIs have to be equivalent.</p>
+
+    <h2>Procedures</h2>
+
+    <p>The following procedures implement the box type (which is disjoint
+      from all other Scheme types), and are exported by
+      the <code>(srfi 111)</code> and <code>(srfi 195)</code>
+      libraries.
+    </p>
+
+    <p><code>(box <var>value</var> …)</code></p>
+
+    <p>
+      Constructor. Returns a newly allocated box initialized to
+      the <code><var>value</var></code>s.
+    </p>
+
+    <p><code>(box? <var>object</var>)</code></p>
+
+    <p>
+      Predicate. Returns <code>#t</code>
+      if <code><var>object</var></code> is a box, and <code>#f</code>
+      otherwise.
+    </p>
+
+    <p>
+      <code>(unbox <var>box</var>)</code>
+    </p>
+
+    <p>
+      Accessor. Returns the current values of <code><var>box</var></code>.
+    </p>
+
+    <p>
+      <code>(set-box! <var>box</var> <var>value</var> …)</code>
+    </p>
+
+    <p>
+      Mutator. Changes <code><var>box</var></code> to
+      hold <code><var>value</var></code>s.
+    </p>
+
+    <p>
+      The behavior of boxes with the equivalence
+      predicates <code>eq?</code>, <code>eqv?</code>,
+      and <code>equal?</code> is the same as if they were implemented
+      with records. That is, two boxes are both <code>eq?</code>
+      and <code>eqv?</code> iff they are the product of the same call
+      to box and not otherwise, and while they must
+      be <code>equal?</code> if they are <code>eqv?</code>, the
+      converse is implementation-dependent.
+
+    <h1>Implementation</h1>
+
+    <p>A simple, portable R7RS-implementation of <code>(srfi
+      195)</code> and a compatible <code>(srfi 111)</code> is given in
+      the repository of this SRFI.
+    </p>
+
+    </p>
+
+    <h1>Acknowledgements</h1>
+
+    <p>
+      This SRFI is based on SRFI 111, written by John Cowan.  In the
+      specification section, I stole its language.
+    </p>
+
+    <h1>Copyright</h1>
+    Copyright &copy; Marc Nieper-Wißkirchen (2020).
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+      <hr>
+      <address>
+      Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a>
+      </address>
+  </body>
+</html>
+
+

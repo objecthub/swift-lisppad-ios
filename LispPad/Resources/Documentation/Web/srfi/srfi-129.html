@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>SRFI 129: Titlecase procedures</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-129">Title</a></H1>
+
+Titlecase procedures
+
+<h1>Author</h1>
+
+John Cowan
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status. Here is <a href="http://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+129+at+srfi+dotschemers+dot+org">srfi-129@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="http://srfi-email.schemers.org/srfi-129">archive</a>.</p>
+<ul>
+  <li>Received: 2015/11/30</li>
+  <li>60-day deadline: 2016/1/29</li>
+  <li>Draft #1 published: 2015/11/30</li>
+  <li>Draft #2 published: 2015/11/30</li>
+  <li>Draft #3 published: 2015/12/7 (reference implementation only)</li>
+  <li>Finalized: 2016/3/8</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+This SRFI defines R7RS-style  <tt>char-title-case?</tt>,
+<tt>char-titlecase</tt>, and <tt>string-titlecase</tt> procedures.
+</p>
+
+<h1>Issues</h1>
+
+<p>None at present.</p>
+
+<h1>Rationale</h1>
+
+<p>
+The Latin letters of the ASCII repertoire are divided into
+two groups, the uppercase letters A-Z and the lowercase letters a-z.
+In Unicode matters are more complicated.  For historical reasons,
+some Unicode characters represent two consecutive letters, the
+first uppercase and the second lowercase.  These are known as titlecase
+letters, because they can be used to capitalize words, as in book titles.
+They can also appear at the beginning of a sentence.  In all cases, it
+is possible to avoid titlecase letters by using two Unicode characters
+to represent the sequence.
+</p>
+
+<p>
+There are four Latin titlecase letters, each with an uppercase and a
+lowercase counterpart.  For example, the titlecase letter &#x01F2; has the
+uppercase counterpart &#x01F1; and the lowercase counterpart &#x01F3;.
+These may be replaced by the usually identical-looking two-character
+sequences Dz, DZ, and dz respectively.  Similarly, there are 27 Greek
+titlecase letters, each of which has Greek &#x03B9; displayed either
+as a diacritic under the capital letter or immediately following it.
+For example, &#x1F88; is a titlecase letter with &#x1F80; as its lowercase
+counterpart.  There is no single-character uppercase equivalent; one
+must use the two-character sequence &#x1F08;&#x0399 instead.
+</p>
+
+<p>
+This SRFI defines Unicodely correct <tt>char-title-case?</tt>,
+<tt>char-titlecase</tt>, and <tt>string-titlecase</tt>
+procedures similar to those specified in <a class="ext-link"
+href="http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-2.html#node_sec_1.2">R6RS</a>.
+They correspond to the R7RS-small procedures <tt>char-upper-case?</tt>,
+<tt>char-lower-case?</tt>, <tt>char-upcase</tt>, <tt>char-downcase</tt>,
+<tt>string-upcase</tt>, and <tt>string-downcase</tt>.  The titlecase
+versions didn't seem important enough to include in the small language,
+but are a useful building block for future SRFIs.  The specification
+does not depend on the availability of full Unicode, however, and will
+work just as well with a partial or even purely ASCII repertoire.
+</p>
+
+<p>
+As an example of why the R6RS definition of <tt>string-titlecase</tt>
+does not suffice, consider the string <tt>ﬂoo powDER</tt>, which
+begins with a ligature of the characters <tt>f</tt> and <tt>l</tt>.
+The Unicode way of titlecasing this string is to treat the ligature
+the same as the two-character sequence <tt>fl</tt>, in which case the
+result is <tt>Floo Powder</tt>.  However, by the strict letter of R6RS,
+the <tt>ﬂ</tt> character must be passed to <tt>char-titlecase</tt>,
+which in this case will return its argument unchanged, and the result is
+<tt>ﬂoo Powder</tt>.  What is more, if the <tt>ﬂ</tt> character is not
+even seen as a casing letter, then the result will be <tt>ﬂOo Powder</tt>.
+Existing Schemes exhibit all of these behaviors.
+</p>
+
+<h1>Specification</h1>
+
+
+<p>The procedures in this SRFI are in the <code>(srfi 129)</code> library (or <code>(srfi :129)</code> on R6RS), but the sample implementation currently places them in the <code>(titlecase)</code> library.</p>
+
+<p>
+<tt>(char-title-case? </tt><em>char</em><tt>)</tt>
+</p>
+<p>
+Returns <tt>#t</tt> if <em>char</em> is a character belonging to the Unicode category Lt, and <tt>#f</tt> otherwise.  (The same as the R6RS equivalent.)
+</p>
+<p>
+<tt>(char-titlecase </tt><em>char</em><tt>)</tt>
+</p>
+<p>
+Returns the titlecase equivalent of <em>char</em>, if that character exists in the implementation, and <em>char</em> otherwise.  The titlecase equivalent of a character is typically not a titlecase character; for most characters it is the same as the uppercase equivalent or else the character itself.  Note that language-sensitive mappings are not used.  (The same as the R6RS equivalent.)
+</p>
+<p>
+<tt>(string-titlecase </tt><em>string</em><tt>)</tt>
+</p>
+<p>
+This procedure applies the Unicode full string lowercasing algorithm to its argument.  However, any character preceded by a non-cased character, or which is the first character of <em>string</em>, is processed by a different algorithm.  If such a character has a multi-character titlecase mapping specified by Unicode, and all the characters of the mapping are supported by the implementation, then it is replaced by that mapping.  Otherwise, it is replaced by its single-character titlecase mapping as if by <tt>char-titlecase</tt>.  The result of the application of these algorithms is returned.
+</p>
+<p>
+In certain cases, the result differs in length from the argument. If the result is equal to the argument in the sense of <tt>string=?</tt>, the argument may be returned. Note that language-sensitive mappings are not used.  (The R6RS version does not make use of multi-character mappings.)
+</p>
+<h1>Implementation</h1>
+
+<p>The <a href="titlecase.tar.gz" target="_blank">sample implementation</a> 
+is found in the repository of this SRFI.  It contains the following files.</p>
+<ul><li><code>titlecase-impl.scm</code> - the procedures</li>
+<li><code>titlemaps.scm</code> - the Unicode mapping tables for the implementation</li>
+<li><code>chicken-shim.scm</code> - an adapter from the Chicken <code>utf8</code> egg to R7RS</li>
+<li><code>titlecase.sld</code> - an R7RS library</li>
+<li><code>titlecase.scm</code> - a Chicken library</li>
+<li><code>titlecase-test.scm</code> - a test file using the Chicken <code>test</code> egg</li></ul>
+
+<h1>Copyright</h1>
+Copyright (C) John Cowan (2015).  All Rights Reserved. 
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors at srfi dot schemers dot org">Arthur A. Gleckler</a></address></body></html>

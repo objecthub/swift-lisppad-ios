@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SRFI 196: Range objects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+
+    <H1><a name="lp-srfi-196">Title</a></H1>
+    Range Objects
+
+    <h1>Author</h1>
+    John Cowan (text), Wolfgang Corcoran-Mathe (implementation)
+
+    <h1>Status</h1>
+    <p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+196+at+srfi+dotschemers+dot+org">srfi-196@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-196">archive</a>.</p>
+    <ul>
+      <li>Received: 2020-05-17</li>
+      <li>60-day deadline: 2020-07-16</li>
+      <li>Draft #1 published: 2020-05-17</li>
+    </ul>
+
+    <h1>Abstract</h1>
+
+    <p>Ranges are immutable collections that can be enumerated but are
+    represented algorithmically rather than by a per-element data
+    structure.  This SRFI defines a large subset of the sequence operations
+    defined on lists, vectors, and other collections.  If necessary,
+    ranges can be converted to a list of its elements or a generator
+    that will lazily produce each element in the range.</p>
+
+    <h1>Issues</h1>
+
+    None at present.
+
+    <h1>Rationale</h1>
+
+    <p>One of the most common things to do in programming is to execute
+    a block of code a fixed number of times, with access to the index
+    of the iteration.  Indeed, it is so common that there is generally
+    a standard syntax for providing it, generally involving the keyword
+    <code>for</code> (or if not, as in Fortran and Lisp, the word
+    <code>do</code>).  It is also usual to provide a lower bound,
+    generally defaulting to 0 or 1, as well as step size, allowing
+    iterations through a sequence of odd numbers, or multiples of 10,
+    or whatever.</p>
+
+    <p>Languages with higher order functions, however, provide a second
+    approach to such loops: construct a sequence of numbers and apply
+    a function to each element of the sequence.  SRFI 1's <code>iota</code>
+    and the standard <code>for-each</code> procedures make this easy:
+    <code>(for-each (lambda (i) ...) (iota 0 10))</code>
+    will execute the expressions represented as <code>...</code>
+    with <code>i</code> bound to the numbers 0 through 9, as
+    the generated list includes the lower bound and excludes the upper bound.</p>
+
+    <p>This approach is less feasible as the number of numbers grows.
+    To iterate a million times involves constructing a list of a million
+    numbers to be iterated over and immediately discarded as garbage.
+    This is not something you want to do in the inner loop of your code.
+    The range objects of this SRFI represent such sequences using only
+    a small fixed amount of storage.  Using
+    <code>(range-for-each (lambda (i) ...) (numeric-range 0 1000000))</code>
+    iterates a million times but with less space overhead than
+    <code>iota</code>'s list of ten elements.</p>
+
+    <p>In addition, there are other sequences besides integers from
+    which a range may be drawn.  In particular, inexact numbers can
+    also specify ranges: <code>(numeric-range 0.0 1.0 0.1)</code>
+    specifies the sequence 0.0, 0.1, ... 0.9.  For another
+    example, the basic Latin capital letters A-Z can be specified using
+    a range constructed by <code>(range char-comparator #\A 26
+    (lambda (c n) (integer->char (+ (char->integer c) n))))</code>.
+    And to specify the geometric sequence 1, 1/2, 1/4, &hellip;, 1/512,
+    <code>(range real-comparator 1/2 10 expt)</code> will do the job.
+    These comparators can be found in SRFI 162.
+
+    <h1>Specification</h1>
+
+    <h2 id="constructors">Constructors</h2>
+    <p><code>(range</code>&nbsp;<em>comparator lower-bound length indexer</em><code>)</code></p>
+    <p>Returns a range whose lower bound is <i>lower-bound</i>
+    and whose length (number of elements) is <i>length</i>.
+    The <i>indexer</i> procedure returns the <i>n</i>th element
+    (where 0 &#x2264; <i>n</i> &lt; <i>length</i>)
+    of the range given <i>lower-bound</i> and <i>n</i>.
+    The comparator object <i>comparator</i> is used to determine
+    if a value is within the range or not.
+
+    <p><code>(numeric-range</code>&nbsp;<em>start end</em> [<em>step</em>]<code>)</code></p>
+    <p>Returns a numeric range, a special case of a range specified by an
+    inclusive lower bound (default 0), an exclusive upper bound, and a
+    step value (default 1), all of which can be exact or inexact real
+    numbers. Its comparator is the natural comparator on real numbers,
+    and its indexer is
+    <code>(lambda (bound n) (+ bound (* n step)))</code>.
+    It is an error if <i>upper-bound</i> - <i>lower-bound</i> is not a
+    multiple of <i>step</i>.</p>
+
+    <p>Note that an effect of this definition is that the elements of
+    a range over inexact numbers are enumerated by multiplying the index
+    by the step value rather than by adding the step value to itself
+    repeatedly.  This reduces the likelihood of roundoff errors.</p>
+
+
+    <h2 id="predicates">Predicates</h2>
+
+    <p><code>(range?</code>&nbsp;<em>obj</em><code>)</code></p>
+    <p>Returns <code>#t</code> if <em>obj</em> is a range and <code>#f</code>
+    otherwise.</p>
+
+    <p><code>(range-contains?</code>&nbsp;<em>range value</em><code>)</code></p>
+    <p>Returns true if value is an element of <em>range</em>.</p>
+
+    <p><code>(range-includes?</code>&nbsp;<em>range value</em><code>)</code></p>
+    <p>Returns true if value is greater than or equal to the range start and less
+    than or equal to the range end, whether or not it is an element of the
+    range.</p>
+
+    <p><code>(range-empty?</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns true if <em>range</em> is empty.</p>
+
+    <h2 id="accessors">Accessors</h2>
+
+    <p><code>(range-element-comparator</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns the comparator of <em>range</em>.</p>
+
+    <p><code>(range-length</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns the length (number of elements) of <em>range</em>.</p>
+
+    <p><code>(range-indexer</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns the indexer of <em>range</em>.</p>
+
+    <p><code>(range-ref</code>&nbsp;<em>range n</em><code>)</code></p>
+    <p>Returns the <em>n</em>th element of <em>range</em>. It is an error if
+    <em>n</em> is less than 0 or greater than or equal to the length of
+    <em>range</em>.</p>
+
+    <p><code>(range-start</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Shorthand for <code>(range-ref</code>&nbsp;<em>range</em>
+    <code>0)</code>.</p>
+
+    <p><code>(range-end</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Shorthand for <code>(range-ref</code>&nbsp;<em>range</em> <code>(-
+    (range-length</code>&nbsp;<em>range</em><code>) 1))</code>.</p>
+
+    <h2 id="iteration">Iteration</h2>
+
+    <p><code>(range-split-at</code>&nbsp;<em>range index</em><code>)</code></p>
+    <p>Returns two values which are ranges. The first value contains all elements
+    of <em>range</em> from the zeroth element to the <em>index</em>th element
+    exclusive. The second value contains all elements of <em>range</em> from the
+    <em>index</em>th element inclusive to the last element.</p>
+
+    <p><code>(range-take</code>&nbsp;<em>range count</em><code>)</code></p>
+    <p>Returns a range which contains the first <em>count</em> elements of
+    <em>range</em>.</p>
+
+    <p><code>(range-take-right</code>&nbsp;<em>range count</em><code>)</code></p>
+    <p>Returns a range which contains the last <em>count</em> elements of
+    <em>range</em>.</p>
+
+    <p><code>(range-drop</code>&nbsp;<em>range count</em><code>)</code></p>
+    <p>Returns a range which contains all except the first <em>count</em> elements
+    of <em>range</em>.</p>
+
+    <p><code>(range-drop-right</code>&nbsp;<em>range count</em><code>)</code></p>
+    <p>Returns a range which contains all except the last <em>count</em> elements
+    of range.</p>
+
+    <p><code>(range-count</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns the number of elements of <em>range</em> which satisfy
+    <em>pred</em>.</p>
+
+    <p><code>(range-any</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns true if any of the elements of <em>range</em> satisfy <em>pred</em>.
+    Specifically it returns the last value returned by <em>pred</em>. Otherwise,
+    <code>#f</code> is returned.</p>
+
+    <p><code>(range-every</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns true if all the elements of <em>range</em> satisfy <em>pred</em>,
+    specifically it returns the last value returned by <em>pred</em> or
+    <code>#t</code> if <em>pred</em> was never invoked. Otherwise, <code>#f</code>
+    is returned.</p>
+
+    <p><code>(range-map-&gt;list</code>&nbsp;<em>proc range</em><code>)</code></p>
+    <p>Returns a list of the results of applying <em>proc</em> to each
+    element of <em>range</em> in order. However, the order in which
+    <em>proc</em> is actually applied to the elements is unspecified.</p>
+
+    <p><code>(range-for-each</code>&nbsp;<em>proc range</em><code>)</code></p>
+    <p>Applies <em>proc</em> to each element of <em>range</em> in order. Returns an
+    unspecified result.</p>
+
+    <p><code>(range-filter-&gt;list</code>&nbsp;<em>pred range</em><code>)</code></p>
+
+    <p><code>(range-remove-&gt;list</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns a list containing the elements of <em>range</em> that satisfy / do
+    not satisfy <em>pred</em>.</p>
+
+    <p><code>(range-fold</code>&nbsp;<em>proc nil range</em><code>)</code></p>
+    <p>Invokes <em>proc</em> on each member of <em>range</em> in order, passing the
+    result of the previous invocation as a second argument. For the first
+    invocation, <em>nil</em> is used as the second argument. Returns the result of
+    the last invocation, or <em>nil</em> if there was no invocation.</p>
+
+    <p><code>(range-fold-right</code>&nbsp;<em>proc nil range</em><code>)</code></p>
+    <p>Invokes proc on each member of <em>range</em> in reverse order, passing the
+    result of the previous invocation as a second argument. For the first
+    invocation, <em>nil</em> is used as the second argument. Returns the result of
+    the last invocation, or <em>nil</em> if there was no invocation.</p>
+
+    <p><code>(range-reverse</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns a range which contains the same elements as <em>range</em>, but in
+    reverse order.</p>
+
+    <h2 id="searching">Searching</h2>
+
+    <p><code>(range-index</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns the index of the first element of <em>range</em> that satisfies
+    <em>pred</em>, or <code>#f</code> if there is none.</p>
+
+    <p><code>(range-index-right</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns the index of the last element of <em>range</em> that satisfies
+    <em>pred</em>, or <code>#f</code> if there is none.</p>
+
+    <p><code>(range-take-while</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns a range containing the elements of <em>range</em> that satisfy
+    <em>pred</em> up to the first one that does not.</p>
+
+    <p><code>(range-take-while-right</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns a range containing the trailing elements of <em>range</em> that
+    satisfy <em>pred</em>.</p>
+
+    <p><code>(range-drop-while pred</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns a range that omits elements of <em>range</em> that satisfy
+    <em>pred</em> until the first one that does not.</p>
+
+    <p><code>(range-drop-while-right</code>&nbsp;<em>pred range</em><code>)</code></p>
+    <p>Returns a range the omits the last elements of <em>range</em> that satisfy
+    <em>pred</em> until the last one that does not.</p>
+
+    <h2 id="conversion">Conversion</h2>
+
+    <p><code>(range-&gt;list</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns a list containing the elements of <em>range</em> in order.</p>
+
+    <p><code>(range-&gt;generator</code>&nbsp;<em>range</em><code>)</code></p>
+    <p>Returns a SRFI 158 generator that generates the elements of <em>range</em>
+    in order.</p>
+
+    <h1>Implementation</h1>
+
+    <p>The sample implementation is in the repository of this SRFI.
+    An R7RS library file and a separate file containing the actual
+    implementation are provided, along with a test file that
+    works with SRFI 78, but is self-contained if SRFI 78 does not exist.
+    The implementation needs SRFI 1 and SRFI 128, and can take
+    advantage of SRFI 145 (<code>assume</code>) if it is present.</p>
+
+
+    <h1>Acknowledgements</h1>
+
+    <p>Without Python's <code>range</code> object, this SRFI would not exist.
+    Thanks also to the contributors on the SRFI 196 mailing list.
+    </p>
+
+    <h1>Copyright</h1>
+    Copyright &copy; John Cowan, Wolfgang Corcoran-Mathe (2020).
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+      <hr>
+      <address>
+        Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a>
+      </address>
+  </body>
+</html>

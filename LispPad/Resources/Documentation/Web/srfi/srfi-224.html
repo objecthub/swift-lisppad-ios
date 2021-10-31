@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 224: Integer Mappings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+        <H2><a name="lp-srfi-224">Title</a></H2>
+        Integer Mappings
+
+        <h2>Author</h2>
+        <p>Wolfgang Corcoran-Mathe</p>
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+224+at+srfi+dotschemers+dot+org">srfi-224@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-224">archive</a>.</p>
+<ul>
+  <li>Received: 2021-03-24</li>
+  <li>Draft #1 published: 2021-03-24</li>
+  <li>Draft #2 published: 2021-03-29</li>
+  <li>Draft #3 published: 2021-04-01</li>
+  <li>Draft #4 published: 2021-04-20</li>
+  <li>Draft #5 published: 2021-05-12</li>
+  <li>Draft #6 published: 2021-05-28</li>
+  <li>Draft #7 published: 2021-06-01</li>
+  <li>Draft #8 published: 2021-06-08</li>
+  <li>Draft #9 published: 2021-06-10</li>
+  <li>Draft #10 published: 2021-06-16</li>
+  <li>Draft #11 published: 2021-06-19</li>
+  <li>Draft #12 published: 2021-06-21</li>
+  <li>Draft #13 published: 2021-06-22</li>
+  <li>Draft #14 published: 2021-06-26</li>
+  <li>Finalized: 2021-06-30</li>
+  <li>Revised to fix errata:
+    <ul>
+      <li>2021-09-14 (Fixed an omission in the spec. of
+	<a href="#fxmapping-alter"><code>fxmapping-alter</code></a>.)</li></ul></li>
+</ul>
+
+<h2>Abstract</h2>
+
+<p>Integer maps, or <em>fxmappings</em>, are finite sets, where each element is
+an association between a fixnum (exact integer) key and an arbitrary Scheme
+object.  They are similar to the general mappings of
+<a href="https://srfi.schemers.org/srfi-146/">SRFI
+146</a>, but the restricted key-type allows implementations of
+fxmappings to benefit from optimized structures and algorithms.  This
+library provides a rich set of operations on fxmappings, including
+analogues of most of the forms provided by SRFI 146.  Fxmappings have
+no intrinsic order, but may be treated as ordered sets, using the
+natural ordering on keys; a substantial sublibrary for working with
+fxmappings in this fashion is included.</p>
+
+<h2>Rationale</h2>
+
+<p>&ldquo;Finite maps are the workhorse data structure in every compiler.&rdquo;
+—Okasaki &amp; Gill</p>
+
+<p>Mappings provide operations that are critical to a host of functional
+algorithms. They describe finite sets of key-value associations (pairs)
+which can be extended, queried, and transformed.  Critically,
+all of these operations can be efficiently implemented as &ldquo;pure&rdquo;
+functions.  While
+hash-tables (see <a href="https://srfi.schemers.org/srfi-125/">SRFI 125</a>)
+provide similar operations, they generally provide a strictly imperative
+language for insertion and mutation of association
+sets.</p>
+
+<p>Mappings are already familiar to Scheme programmers;
+<a href="https://srfi.schemers.org/srfi-146/">SRFI 146</a> provides general
+mappings and was added to the Tangerine Edition of R7RS-large.  But
+the generality of SRFI 146 is costly.  Any comparable type of Scheme
+object can be used as a key in a SRFI 146 mapping, so comparisons
+between keys must use the generic methods of
+<a href="https://srfi.schemers.org/srfi-128/">SRFI 128</a>.  This is overkill for
+many use cases; in particular, if we wish to use exact integers as keys,
+we expect comparisons to be very fast and to require no mediation
+from a comparison dictionary.  In addition,
+some efficient and simple mapping representations, for example the
+Okasaki-Gill radix tree model used in this SRFI&rsquo;s sample implementation,
+are unsuitable for representing general mappings.</p>
+
+<p>The integer mappings we describe restrict the type of keys to
+fixnums, a subrange of the exact integers provided
+by most Schemes (See the R⁶RS § 3.3 and
+<a href="https://srfi.schemers.org/srfi-143/">SRFI 143</a>).
+The fixnum subset is broadly useful as a key-type for mappings; its use
+opens up a range of implementation options.</p>
+
+<p>This library provides an interface similar to that used by
+SRFI 146, although it diverges in some areas.  In addition,
+<code>fxmapping-adjust</code>, <code>fxmapping-alter</code>, and
+several other forms derive from Haskell&rsquo;s
+<a href="https://hackage.haskell.org/package/containers/docs/Data-IntMap-Strict.html">IntMap</a>
+library.</p>
+
+<p>The specification of this SRFI depends on the comparator type
+(used to determine the equality of values, not keys) described in
+SRFI 128.  Conversions from fxmappings to
+<a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a> generators
+are provided.
+The sample implementation has further dependencies; see the
+<a href="#implementation">appropriate section</a> for more details.</p>
+
+<h2>Specification</h2>
+
+<p>Fxmappings (pronounced "fix-mappings") form a new type as if
+created by <code>define-record-type</code> (see R7RS § 5.5). The
+effects of using record-type inspection or inheritance for the
+fxmapping type are unspecified.</p>
+
+<p>In systems supporting R6RS record-type semantics, fxmappings are
+instances of a nongenerative record type with uid
+<code>fxmapping-7a1f4d5b-a540-462b-82b1-47283c935b85</code>.</p>
+
+<p>Fxmappings represent finite sets of associations whose keys are
+fixnums, an implementation-defined subset of the exact integers.
+This is a closed interval,</p>
+<pre>[-(2 ^ (<em>w</em> - 1)), (2 ^ (<em>w</em> - 1)) - 1],</pre>
+<p>where <em>w</em> is an integer greater than or equal to 24.
+Portable code should not assume that <em>w</em> is greater than 24.</p>
+
+<p>Fxmappings are immutable in the sense that all of the procedures
+defined in this SRFI are &ldquo;pure&rdquo;, that is, they must not
+mutate their arguments.  If an implementation allows
+fxmappings to be mutated, the effects of combining mutation and the
+procedures of this library are unspecified.</p>
+
+<h3>Non-local control flow</h3>
+
+<p>The procedures in this SRFI must fully support non-local control
+flow, e.g. as created by exception handling or invocation of
+continuations.  In particular, if multiple returns occur from
+a higher-order procedure, such as <code>fxmapping-unfold</code>, then
+the values returned by earlier returns must not be mutated.</p>
+
+<h3>Notation</h3>
+
+<p>The words &ldquo;must&rdquo;, &ldquo;may&rdquo;, etc., though not
+capitalized in this SRFI, are to be interpreted as described in
+<a href="https://tools.ietf.org/html/rfc2119">RFC 2119</a>.</p>
+
+<p>The naming conventions of this document are consistent with those used
+in the R7RS Scheme standard.</p>
+
+<p>The following names are used for the parameters of procedures:</p>
+
+<table>
+<tr><td><em>obj</em></td><td>any Scheme object</td></tr>
+<tr><td><em>boolean</em></td><td>a boolean</td></tr>
+<tr><td><em>fxmap</em></td><td>a fxmapping with values of arbitrary type</td></tr>
+<tr><td><em>k</em></td><td>a fixnum satisfying <a href="https://srfi.schemers.org/srfi-143/">SRFI 143</a>'s <code>fixnum?</code></td></tr>
+<tr><td><em>list</em></td><td>a proper list</td></tr>
+<tr><td><em>alist</em></td><td>an association list</td></tr>
+<tr><td><em>proc</em></td><td>a procedure</td></tr>
+<tr><td><em>pred</em></td><td>a predicate that is assumed to have no side effects</td></tr>
+<tr><td><em>comp</em></td><td>a SRFI 128 comparator object</td></tr>
+</table>
+
+
+<p>Unless otherwise noted, it is an error if the procedures are passed arguments
+that do not have the type implied by the argument names.</p>
+
+<p>The pair notation (<em>k</em>,<em>v</em>) is often used to describe
+an association of a fxmapping.  Here, <em>k</em> is the key and
+<em>v</em> its associated value.  If a fxmapping <em>fxmap</em> is said
+to "contain the association (<em>k</em>,<em>v</em>)", then this is to
+be understood in the sense that looking up <em>k</em> in <em>fxmap</em>
+(via <code>(fxmapping-ref</code> <em>fxmap k</em><code>)</code>, for
+example) will produce the value <em>v</em>.</p>
+
+<p>Each procedure is written in the form</p>
+
+<p><code>(</code><em>proc&nbsp;arg₁ arg₂</em> …<code>)</code> → [<em>type</em>₁, <em>type</em>₂, …]</p>
+
+<p>where <em>proc</em> is the name of the procedure, the <em>args</em> are its
+parameters, and the <em>types</em> are the types of the objects it returns.
+If the procedure returns a single value, the brackets on the right-hand side
+may be omitted.  A pair of empty brackets, <code>[]</code>, denotes zero values;
+thus a "thunk" (nullary procedure) returning zero or more values is of type
+<code>[] → [*, …]</code>.
+The <em>types</em> refer (informally) to Scheme types; e.g. <code>boolean</code>
+denotes a Scheme boolean, <code>list[integer]</code> denotes a list of integers,
+etc.  The special notation &lsquo;*&rsquo; indicates that the type
+of the value may be anything, depending on the context of the procedure call.
+For example, Scheme&rsquo;s <code>list-ref</code> procedure would be written</p>
+
+<p><code>(list-ref&nbsp;</code><em>list k</em><code>) → *</code></p>
+
+<p>since the type of the return value depends on <em>list</em>.  Multiple
+<code>*</code> values appearing in the same type signature do not necessarily
+denote the same type.  For example, the signature <code>* * → boolean</code> might
+denote the type of a procedure taking two values of the same type to a boolean,
+or two values of differing types.  The accompanying description may clarify
+the semantics of procedures defined on <code>*</code> values, but Scheme's
+type system makes it difficult to explain all of the possible interactions of
+these procedures.</p>
+
+<p>A procedure which returns a value of type <em>τ</em><code>-or-false</code>
+(where <em>τ</em> denotes a type) returns a <em>τ</em> on success, and
+<code>#f</code> otherwise.  Thus the <code>memv</code> procedure of R7RS
+would have the type signature <code>* list[*] → list[*]-or-false</code>.</p>
+
+<h3>Index</h3>
+
+<ul>
+<li><p><a href="#constructors">Constructors</a>: <code>fxmapping, fxmapping-unfold,
+fxmapping-accumulate, alist-&gt;fxmapping,
+alist-&gt;fxmapping/combinator</code></p></li>
+<li><p><a href="#predicates">Predicates</a>: <code>fxmapping?, fxmapping-contains?, fxmapping-empty?, fxmapping-disjoint?</code></p></li>
+<li><p><a href="#accessors">Accessors</a>: <code>fxmapping-ref, fxmapping-ref/default,
+fxmapping-min, fxmapping-max</code></p></li>
+<li><p><a href="#updaters">Updaters</a>: <code>fxmapping-adjoin, fxmapping-adjoin/combinator,
+fxmapping-set, fxmapping-adjust, fxmapping-delete,
+fxmapping-delete-all, fxmapping-alter,
+fxmapping-update, fxmapping-delete-min,
+fxmapping-delete-max,
+fxmapping-update-min, fxmapping-update-max,
+fxmapping-pop-min, fxmapping-pop-max</code></p></li>
+<li><p><a href="#whole">The whole fxmapping</a>: <code>fxmapping-size,
+fxmapping-find,
+fxmapping-count, fxmapping-any?, fxmapping-every?</code></p></li>
+<li><p><a href="#traversal">Traversal</a>: <code>fxmapping-fold,
+fxmapping-fold-right, fxmapping-map, fxmapping-map-&gt;list,
+fxmapping-map-&gt;list, fxmapping-for-each,
+fxmapping-relation-map</code></p></li>
+<li><p><a href="#filter">Filter</a>: <code>fxmapping-filter,
+fxmapping-remove, fxmapping-partition</code></p></li>
+<li><p><a href="#conversion">Conversion</a>: <code>fxmapping-&gt;alist,
+fxmapping-&gt;decreasing-alist, fxmapping-keys, fxmapping-values,
+fxmapping-&gt;generator, fxmapping-&gt;decreasing-generator</code></p></li>
+<li><p><a href="#comparison">Comparison</a>: <code>fxmapping=?, fxmapping&lt;?, fxmapping&gt;?, fxmapping&lt;=?, fxmapping&gt;=?</code></p></li>
+<li><p><a href="#settheory">Set theory operations</a>: <code>fxmapping-union, fxmapping-intersection, fxmapping-difference,
+fxmapping-xor,
+fxmapping-union/combinator,
+fxmapping-intersection/combinator</code></p></li>
+<li><p><a href="#submappings">Submappings</a>: <code>fxmapping-open-interval, fxmapping-closed-interval,
+fxmapping-open-closed-interval, fxmapping-closed-open-interval,
+fxsubmapping=, fxsubmapping&lt;, fxsubmapping&lt;=, fxsubmapping&gt;=,
+fxsubmapping&gt;,
+fxmapping-split</code></p></li>
+</ul>
+
+<h3 id="constructors">Constructors</h3>
+
+<p><code>(fxmapping</code>&nbsp;<em>k</em>₁ <em>obj</em>₁ <em>k</em>₂ <code>…) → fxmapping</code></p>
+
+<p>Constructs a fxmapping from the given arguments, which alternate between keys
+and values (which are arbitrary Scheme objects); the
+resulting fxmapping is newly allocated and contains these (<em>k</em>, <em>obj</em>) associations.
+The number of arguments must be even.  If duplicate keys occur in
+the arguments, earlier associations take priority.</p>
+
+<p>Examples:</p>
+<pre class="example"><code>(fxmapping-&gt;alist (fxmapping 0 'a 1 'b 2 'c))
+ ⇒ ((0 . a) (1 . b) (2 . c))
+(fxmapping-&gt;alist (fxmapping -10 "worf" -10 "yar"))
+ ⇒ ((-10 . "worf"))
+</code></pre>
+
+<p><code>(fxmapping-unfold</code>&nbsp;<em>stop? mapper successor seed</em>₁ <em>seed</em>₂ …<code>) → fxmapping</code></p>
+
+The arguments have the following types:
+<ul>
+<li><em>stop?</em> : <code>* *</code> … <code>→ *-or-false</code></li>
+<li><em>mapper</em> : <code>* *</code> … <code>→ [fixnum, *]</code></li>
+<li><em>successor</em> : <code>* *</code> … <code> → * *</code> …</li>
+<li><em>seed</em>₁, <em>seed</em>₂, … : <code>*</code></li>
+</ul>
+<p>The <em>stop?</em>, <em>mapper</em>, and <em>successor</em>
+procedures must accept as many arguments as there are <em>seed</em>
+parameters.  In addition, the number of values returned by the
+<em>successor</em> procedure must agree with the number of arguments
+expected by <em>mapper</em>; that is, the expression</p>
+<pre class="example"><code>(call-with-values
+ (lambda () (</code><em>successor seed</em>₁ <em>seed</em>₂ … <code>))
+ </code><em>mapper</em><code>)
+</code></pre>
+<p>must result in a valid procedure application.</p>
+
+<p>Unfold a fxmapping from the initial <em>seed</em>s.
+The <em>mapper</em> is applied to the <em>seed</em>s and returns two values, a key
+and an associated value, which are adjoined to the new fxmapping.
+The <em>successor</em> maps the <em>seed</em>s to new seeds.
+Unfolding terminates when the predicate <em>stop?</em> returns a true
+value when applied to the current seeds.  The resulting fxmapping is
+newly allocated.</p>
+
+<p>It is an error for the number of seeds to vary between steps of
+the unfolding process.  If different steps of this process produce
+associations with the same key, then the first such association
+takes precedence.</p>
+
+<p>Example:</p>
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-unfold (lambda (i) (= i 4))
+                   (lambda (i) (values i (make-string i #\a)))
+                   (lambda (i) (+ i 1))
+                   0))
+ ⇒ ((0 . "") (1 . "a") (2 . "aa") (3 . "aaa"))
+</code></pre>
+
+<p><code>(fxmapping-accumulate</code>&nbsp;<em>proc seed</em>₁ <em>seed</em>₂ …<code>) → fxmapping</code></p>
+
+The arguments have the following types:
+<ul>
+<li><em>proc</em> : <code>(* … → [fxmapping, *, …]) * *</code> … <code>→ [fixnum, *, *, *, …]</code></li>
+<li><em>seed</em>₁, <em>seed</em>₂, … : <code>*</code></li>
+</ul>
+
+<p>Similar to <code>fxmapping-unfold</code>, except that a single
+procedure controls the unfolding of a new fxmapping.  Let <em>n</em>
+be the number of <em>seed</em>s.  The procedure <em>proc</em> is applied to a
+procedure <em>abort-with-result</em> and the <em>seed</em>s, in that order, and is
+expected to return <em>n</em><code> + 2</code> values: a key (fixnum), an
+associated value, and <em>n</em> new seed values.  The key/value
+association is added to the new fxmapping, and unfolding continues
+with the new seeds.  If, instead, <em>abort-with-result</em> is invoked on any
+number of arbitrary values, then the current continuation is discarded
+and the new fxmapping along with the arguments passed to <em>abort-with-result</em>
+are delivered as multiple values to the continuation that was in effect when
+<code>fxmapping-accumulate</code> was called.</p>
+
+<p>It is an error for the number of seeds to vary between steps of
+the unfolding process.  If different steps of this process produce
+associations with the same key, then the first such association
+takes precedence.</p>
+
+<p>Example:</p>
+<pre class="example"><code>(let-values (((fxmap s)
+              (fxmapping-accumulate
+               (lambda (abort-with-result i)
+                 (if (&lt; i -3)
+                     (abort-with-result 'finished)
+                     (values i (square i) (- i 1))))
+               -1)))
+  (values (fxmapping-&gt;alist fxmap) s))
+ ⇒ ((-3 . 9) (-2 . 4) (-1 . 1))
+   finished
+</code></pre>
+
+<p><strong>Rationale:</strong> As well as sometimes leading to more compact
+expressions than the
+traditional three-procedure unfold, <code>fxmapping-accumulate</code>
+is also more efficient when the programmer wants the value of each new seed
+to depend on the computed key and value.  For example,
+assume that we apply some procedure <em>f</em> to a seed <em>s</em> to get a
+key <em>k</em> and a value <em>v</em>, and that we also want to compute a new
+seed from <em>k</em> and <em>v</em>.  Using <em>fxmapping-unfold</em>, we'd
+have no choice other than to compute <em>k</em> and <em>v</em> twice:</p>
+
+<pre class="example"><code>(fxmapping-unfold stop?
+                  f
+                  (lambda (s)
+                    (let-values (((k v) (f s)))
+                      (let ((s* …))
+                        s*)))
+                  seed)</code></pre>
+
+<p>Using <code>fxmapping-accumulate</code>, however, it's easy to write an
+equivalent unfold which computes <em>k</em> and <em>v</em> only once for
+each step:</p>
+
+<pre class="example"><code>(fxmapping-accumulate (lambda (abort-with-result s)
+                        (if (stop? s)
+                            (abort-with-result)
+                            (let-values (((k v) (f s)))
+                              (let ((s* …))
+                                (values k v s*)))))
+                      seed)</code></pre>
+
+<p>This may be preferable when <em>f</em> is expensive to apply or entails
+side effects.</p>
+
+<p><code>(alist-&gt;fxmapping</code>&nbsp;<em>alist</em><code>) → fxmapping</code></p>
+
+<p>Returns a newly allocated fxmapping containing the associations of <em>alist</em>.
+It is an error if the car of any pair in <em>alist</em> is not a
+fixnum.  If an integer <em>k</em> appears as the key of multiple
+associations in <em>alist</em> (i.e. as the car of multiple pairs),
+then the first association for <em>k</em> is preferred.</p>
+
+<p>Example:</p>
+<pre class="example"><code>(fxmapping-&gt;alist
+  (alist-&gt;fxmapping '((1 . b) (0 . a) (2 . c))))
+ ⇒ ((0 . a) (1 . b) (2 . c))
+
+(fxmapping-&gt;alist
+  (alist-&gt;fxmapping '((-10 . "yar") (-10 . "worf"))))
+ ⇒ ((-10 . "yar))
+</code></pre>
+
+<p><code>(alist-&gt;fxmapping/combinator</code>&nbsp;<em>proc alist</em><code>) → fxmapping</code></p>
+
+<p><em>proc</em> is a procedure of type <code>fixnum * * → *</code>.</p>
+
+<p>Returns a newly allocated fxmapping containing the associations of <em>alist</em>.
+It is an error if the car of any pair in <em>alist</em> is not a
+fixnum.  If pairs (<em>k</em> . <em>v</em>₁) and
+(<em>k</em> . <em>v</em>₂) appear (in that order) in <em>alist</em>, then
+the association
+(<em>k</em>, (<em>proc k v</em>₂ <em>v</em>₁)) is
+added to the resulting fxmapping; in general, if <em>k</em> is associated with
+values v₁, …, vₙ in <em>alist</em>, then <em>k</em> will be associated
+with the value of</p>
+
+<pre>(<em>proc k v</em>ₙ (<em>proc k</em> … (<em>proc k v</em>₂ <em>v</em>₁)))</pre>
+
+<p>in the resulting fxmapping.</p>
+
+<p>Example:</p>
+<pre class="example"><code>(fxmapping-&gt;alist
+ (alist-&gt;fxmapping/combinator (lambda (_k x _y) x)
+                              '((1 . b) (0 . a) (1 . c))))
+ ⇒ ((0 . a) (1 . c))
+
+(fxmapping-&gt;alist
+ (alist-&gt;fxmapping/combinator
+  (lambda (_k s t) (string-append s " " t))
+  '((1 . "riker") (2 . "yar") (2 . "tasha"))))
+ ⇒ ((1 . "riker") (2 . "tasha yar"))
+</code></pre>
+
+<h3 id="predicates">Predicates</h3>
+
+<p><code>(fxmapping?</code>&nbsp;<em>obj</em><code>) → boolean</code></p>
+
+<p>Returns <code>#t</code> if and only if <em>obj</em> is a fxmapping.</p>
+
+<p><code>(fxmapping-contains?</code>&nbsp;<em>fxmap k</em><code>) → boolean</code></p>
+
+<p>Returns <code>#t</code> if and only if <em>fxmap</em> contains an association for key <em>k</em>.</p>
+<p>Examples:</p>
+<pre class="example"><code>(fxmapping-contains? (fxmapping 1 'b) 1) ⇒ #t
+(fxmapping-contains? (fxmapping 1 'b) 0) ⇒ #f
+</code></pre>
+
+<p><code>(fxmapping-empty?</code>&nbsp;<em>fxmap</em><code>) → boolean</code></p>
+
+<p>Returns <code>#t</code> if and only if <em>fxmap</em> contains no associations.</p>
+<p>Examples:</p>
+<pre class="example"><code>(fxmapping-empty? (alist-&gt;fxmapping '())) ⇒ #t
+(fxmapping-empty? (alist-&gt;fxmapping '((0 . a)))) ⇒ #f
+</code></pre>
+
+<p><code>(fxmapping-disjoint?</code>&nbsp;<em>fxmap</em>₁ <em>fxmap</em>₂<code>) → boolean</code></p>
+
+<p>Returns <code>#t</code> if and only if <em>fxmap</em>₁ and <em>fxmap</em>₂ have no keys in common.</p>
+<p>Examples:</p>
+<pre class="example"><code>(fxmapping-disjoint? (fxmapping 0 'a) (fxmapping 1 'b)) ⇒ #t
+(fxmapping-disjoint? (fxmapping 1 '(b)) (fxmapping 1 'b)) ⇒ #f
+</code></pre>
+
+<h3 id="accessors">Accessors</h3>
+
+<p><code>(fxmapping-ref</code>&nbsp;<em>fxmap k</em><code> [ </code><em>failure</em><code> [ </code><em>success</em><code> ] ]) → * …</code></p>
+
+<p>The optional <em>failure</em> parameter is a procedure of type
+<code>[] → [*, …]</code>.  The optional <em>success</em> parameter
+is a procedure of type <code>* → [*, …]</code>.  The <em>success</em> procedure
+defaults to <code>values</code>.</p>
+
+<p>If an association <code>(</code><em>k</em>, <em>v</em><code>)</code>
+occurs in <em>fxmap</em>, then <em>success</em> is invoked in tail
+context on <em>v</em>, and its values are returned.  If <em>k</em> does
+not have an association in <em>fxmap</em> and <em>failure</em> is
+supplied, then it is invoked in tail context on no arguments, and
+its values are returned.  Otherwise, it is an error.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-ref (fxmapping 36864 'zap) 36864) ⇒ zap
+(fxmapping-ref (fxmapping 0 'a) 36864) ⇒ ; error
+(fxmapping-ref (fxmapping 0 "worf")
+               0
+               (lambda () #f)
+               string-length)
+ ⇒ 4
+</code></pre>
+
+<p><code>(fxmapping-ref/default</code>&nbsp;<em>fxmap k obj</em><code>) → *</code></p>
+
+<p>If an association <code>(</code><em>k</em>, <em>v</em><code>)</code> occurs in <em>fxmap</em>, returns <em>v</em>.
+Otherwise, returns <em>obj</em>.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-ref/default (fxmapping 36864 'zap) 36864 #f) ⇒ zap
+(fxmapping-ref/default (fxmapping 0 'a) 36864 #f) ⇒ #f
+</code></pre>
+
+<p><code>(fxmapping-min</code>&nbsp;<em>fxmap</em><code>) → [fixnum, *]</code></p>
+
+<p>Returns two values: the least key of <em>fxmap</em> and its
+associated value. It is an error if <em>fxmap</em> is empty.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-min (fxmapping 0 'a 1 'b 2 'c)) ⇒ 0 a
+</code></pre>
+
+<p><code>(fxmapping-max</code>&nbsp;<em>fxmap</em><code>) → [fixnum, *]</code></p>
+
+<p>Returns two values: the greatest key of <em>fxmap</em> and its
+associated value. It is an error if <em>fxmap</em> is empty.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-max (fxmapping 0 'a 1 'b 2 'c)) ⇒ 2 c
+</code></pre>
+
+<h3 id="updaters">Updaters</h3>
+
+<p><code>(fxmapping-adjoin</code>&nbsp;<em>fxmap k</em>₁ <em>obj</em>₁ <em>k</em>₂ <code>…) → fxmapping</code></p>
+
+<p>Returns a fxmapping containing all of the associations of
+<em>fxmap</em> as well as the associations (<em>k</em>₁, <em>obj</em>₁),
+(<em>k</em>₂, <em>obj</em>₂), ….
+The number of key/value arguments must be even.</p>
+
+<p>If any of the keys already have associations in <em>fxmap</em>, the old
+associations are preserved.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist (fxmapping-adjoin (fxmapping 1 'b) 0 'a))
+ ⇒ ((0 . a) (1 . b))
+</code></pre>
+
+<p><code>(fxmapping-adjoin/combinator</code>&nbsp;<em>fxmap proc k</em>₁ <em>obj</em>₁ <em>k</em>₂ <code>…) → fxmapping</code></p>
+
+<p>Similar to <code>fxmapping-adjoin</code>, except that duplicate associations
+are combined with <em>proc</em>, which is a procedure of type <code>fixnum * * → *</code>.
+The <em>proc</em> procedure is called on the new and old values (in that order) associated
+with a duplicated key, and is expected to return a value to be
+associated with that key in the resulting fxmapping.  For example, if
+<em>fxmap</em> contains the association (<em>k</em>, <em>v</em>₁), then
+the value of
+<code>(fxmapping-adjoin/combinator</code>&nbsp;<em>fxmap f k v</em>₂<code>)</code>
+will be a fxmapping with the association
+(<em>k</em>, (<em>f k v</em>₂ <em>v</em>₁)).
+</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-adjoin/combinator
+   (fxmapping 0 "geordi" 1 "reginald")
+   (lambda (_ last first)
+     (string-append first " " last))
+   0 "laforge"
+   1 "barclay"))
+ ⇒ ((0 . "geordi laforge") (1 . "reginald barclay"))
+</code></pre>
+
+<p><code>(fxmapping-set</code>&nbsp;<em>fxmap k</em>₁ <em>obj</em>₁ <em>k</em>₂ <code>…) → fxmapping</code></p>
+
+<p><code>fxmapping-set</code> is the same as <code>fxmapping-adjoin</code>,
+except that any existing associations for <em>k</em>₁, <em>k</em>₂, … are
+replaced.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-set (fxmapping 0 "geordi" 1 "reginald")
+                1
+                "tasha"))
+ ⇒ ((0 . "geordi") (1 . "tasha"))
+</code></pre>
+
+<p><code>(fxmapping-adjust fxmap k proc) → fxmapping</code></p>
+
+<p>The <em>proc</em> parameter of <code>fxmapping-adjust</code> is a
+procedure of type <code>fixnum * → *</code>.</p>
+
+<p>Returns a fxmapping in which the association (<em>k</em>, <em>v</em>) in <em>fxmap</em>
+is replaced by (<em>k</em>, (<em>proc k v</em>)).  If <em>k</em> has
+no association in <em>fxmap</em>,
+then a fxmapping with the same associations as <em>fxmap</em> is returned.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-adjust (fxmapping 64 "var")
+                   64
+                   (lambda (k s)
+                     (string-append s (number-&gt;string k)))))
+ ⇒ ((64 . "var64"))
+</code></pre>
+
+<p><code>(fxmapping-delete fxmap</code>&nbsp;<em>k</em>₁ <em>k</em>₂ <code>…) → fxmapping</code></p>
+
+<p>Returns a fxmapping with the same associations as <em>fxmap</em>, except
+those with keys equal to one of <em>k</em>₁, <em>k</em>₂, ….</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+  (fxmapping-delete (fxmapping 0 -200 1 -100) 0))
+ ⇒ ((1 . -100))
+</code></pre>
+
+<p><code>(fxmapping-delete-all</code>&nbsp;<em>fxmap list</em><code>) → fxmapping</code></p>
+
+<p>Returns a fxmapping with the same associations as <em>fxmap</em>, except
+those for keys equal to an element of <em>list</em>.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+  (fxmapping-delete-all (fxmapping 0 'a 1 'b 2 'c) '(1 2)))
+ ⇒ ((0 . a))
+</code></pre>
+
+<p><code>(fxmapping-update</code>&nbsp;<em>fxmap k proc</em><code> [ </code><em>failure</em><code> ]) → *</code> …</p>
+
+<p>The procedure <em>proc</em> is of type
+<code>fixnum * (* → fxmapping) ([] → fxmapping) → *</code> ….
+If the optional <em>failure</em> parameter is provided, then it must
+be a procedure of type <code>[] → [*, …]</code>.</p>
+
+<p>Updates the association for <em>k</em> in <em>fxmap</em> as follows.
+If <em>k</em> has an association in <em>fxmap</em>, then <em>proc</em> is
+invoked in tail context on <em>k</em>, its associated value, and two procedure arguments,
+<em>replace</em> and <em>delete</em>, and its values are returned.
+Invoking <em>replace</em> on a value <em>v</em> returns a fxmapping with
+the association (<em>k</em>, <em>v</em>) and all of <em>fxmap</em>'s other
+associations.
+Invoking <em>delete</em> returns a fxmapping with all of the associations of
+<em>fxmap</em>, but without an association for <em>k</em>.
+If <em>k</em> has no association in <em>fxmap</em> and <em>failure</em>
+is provided, then <em>failure</em> is invoked in tail context on no
+arguments and its values are returned.  Otherwise, it is an error.</p>
+
+<p>Note that, in contrast to similar Scheme forms, <em>proc</em> is
+not required to tail-call one of <em>delete</em> or <em>replace</em>,
+and that <code>fxmapping-update</code> simply returns the results of
+invoking <em>proc</em> (assuming <em>k</em> is found).
+Thus, the following is valid:</p>
+
+<pre class="example"><code>(fxmapping-update (fxmapping 0 'a 1 'b 2 'c)
+                  1
+                  (lambda (k v replace _del)
+                    (values k
+                            v
+                            (fxmapping-&gt;alist (replace 'z)))))
+ ⇒ 1
+   b
+   ((0 . a) (1 . z) (2 . c))
+</code></pre>
+
+<p>Simple versions of several other update operations may be defined
+in terms of <code>fxmapping-update</code>, e.g.:</p>
+
+<pre><code>  (fxmapping-delete fxmap k)
+   ≡
+  (fxmapping-update fxmap k (lambda (_k _v _r delete) (delete)))
+
+  (fxmapping-set fxmap k v)
+   ≡
+  (fxmapping-update fxmap
+                    k
+                    (lambda (_k _u replace _d) (replace v)))
+</code></pre>
+<p>Examples:</p>
+
+<pre class="example"><code>;; Delete the association for 1 if its value is a symbol.
+(fxmapping-&gt;alist
+ (fxmapping-update (fxmapping 0 'a 1 'b 2 'c)
+                   1
+                   (lambda (_k v replace delete)
+                     (if (symbol? v)
+                         (delete)
+                         (replace v)))))
+ ⇒ ((0 . a) (2 . c))
+
+(fxmapping-&gt;alist
+ (fxmapping-update (fxmapping 0 'a 1 'b 2 'c)
+                   1
+                   (lambda (k _v replace _d)
+                     (replace k)))))
+ ⇒ ((0 . a) (1 . 1) (2 . c))
+</code></pre>
+
+<p id="fxmapping-alter"><code>(fxmapping-alter</code>&nbsp;<em>fxmap k failure success</em><code>) → *</code> …</p>
+
+<p>The procedure <em>failure</em> is of type
+<code>(* → fxmapping) ([] → fxmapping) → [*, …]</code>.
+The procedure <em>success</em> is of type
+<code>fixnum * (* → fxmapping) ([] → fxmapping) →  [*, …]</code>.</p>
+
+<p>Updates the association, or lack thereof, for <em>k</em> in <em>fxmap</em> as
+follows.  If the association (<em>k</em>, <em>v</em>) exists in <em>fxmap</em>,
+then <em>success</em> is invoked in tail context on <em>k</em>, <em>v</em>, and two procedure
+arguments, <em>replace</em> and <em>delete</em>, and its values are
+returned.</p>
+
+<ul>
+  <li><p>Invoking <code>(</code><em>replace v′</em><code>)</code> returns
+         a fxmapping with the association (<em>k</em>, <em>v′</em>)
+         as well as all of <em>fxmap</em>&rsquo;s other associations<ins>, except
+    for (<em>k</em>, <em>v</em>)</ins>.</p></li>
+  <li><p>Invoking <code>(</code><em>delete</em><code>)</code> returns
+         a fxmapping with all of <em>fxmap</em>&rsquo;s associations
+         except for (<em>k</em>, <em>v</em>).</p></li>
+</ul>
+
+<p>If no association for <em>k</em> exists in <em>fxmap</em>, then
+<em>failure</em> is invoked in tail context on two procedure arguments, <em>insert</em> and
+<em>ignore</em>, and its values are returned.</p>
+
+<ul>
+  <li><p>Invoking <code>(</code><em>insert u</em><code>)</code> returns
+         a fxmapping with all of the associations of <em>fxmap</em>
+         as well as (<em>k</em>, <em>u</em>).</p></li>
+  <li><p>Invoking <code>(</code><em>ignore</em><code>)</code> returns
+         a fxmapping with the same associations as <em>fxmap</em>.</p></li>
+</ul>
+
+<p>Note that, in contrast to similar Scheme forms, <em>failure</em> and
+<em>success</em> are not required to tail-call one of their procedure
+arguments, and that <code>fxmapping-alter</code> simply returns the
+results of invoking <em>failure</em> or <em>success</em>.  Thus, the
+following is valid:</p>
+<pre class="example"><code>;; Returns an additional boolean value indicating
+;; whether the fxmapping was updated.
+(fxmapping-alter (fxmapping 0 'a 1 'b 2 'c)
+                 1
+                 (lambda (_ins ignore)
+                   (values (ignore) #f))
+                 (lambda (_k _v replace _del)
+                   (values (replace 'z) #t)))
+ ⇒ &lt;fxmapping&gt;
+   #t
+</code></pre>
+
+<p>Examples:</p>
+
+<pre class="example"><code>;; Insert an association for 4 if it's not present.
+(fxmapping-&gt;alist
+ (fxmapping-alter (fxmapping 0 'a 1 'b)
+                  4
+                  (lambda (insert _ig) (insert 'e))
+                  (lambda (_k v replace _del)
+                    (replace v))))  ; keep original value
+ ⇒ ((0 . a) (1 . b) (4 . e))
+
+;; Delete an association for 1 if its value is a symbol.
+(fxmapping-&gt;alist
+ (fxmapping-alter (fxmapping 0 'a 1 'b)
+                  1
+                  (lambda (_ins ignore) (ignore))
+                  (lambda (_k v replace delete)
+                    (if (symbol? v)
+                        (delete)
+                        (replace v)))))
+ ⇒ ((0 . a))
+</code></pre>
+
+<p><code>(fxmapping-delete-min</code>&nbsp;<em>fxmap</em><code>) → fxmapping</code><br>
+<code>(fxmapping-delete-max</code>&nbsp;<em>fxmap</em><code>) → fxmapping</code></p>
+
+<p>Returns a fxmapping with the same associations as <em>fxmap</em> except
+for the association with the least/greatest key.  It is an error if
+<em>fxmap</em> is empty.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-delete-min (fxmapping 0 'a 1 'b 2 'c))
+ ⇒ ((1 . b) (2 . c))
+(fxmapping-delete-max (fxmapping 0 'a 1 'b 2 'c))
+ ⇒ ((0 . a) (1 . b))
+</code></pre>
+
+<p><code>(fxmapping-update-min</code>&nbsp;<em>fxmap proc</em><code>) → *</code> …<br>
+<code>(fxmapping-update-max</code>&nbsp;<em>fxmap proc</em><code>) → *</code> …</p>
+
+<p>The <em>proc</em> argument of <code>fxmapping-update-min</code> and <code>-max</code> is of
+type <code>fixnum * (* → fxmapping) ([] → fxmapping) → *</code> ….</p>
+
+<p>Updates the association of <em>fxmap</em> with the least/greatest key
+<em>k</em> as follows.  Procedure <em>proc</em> is invoked in tail context on <em>k</em>, its
+associated value, and two procedure arguments, <em>replace</em> and
+<em>delete</em>, and its values are returned.  Invoking
+<em>replace</em> on a value <em>v</em> returns a fxmapping with
+the association (<em>k</em>, <em>v</em>) and all of <em>fxmap</em>'s other
+associations.  Invoking <em>delete</em> returns a fxmapping with all of
+the associations of <em>fxmap</em>, but without an association for
+<em>k</em>.  It is an error if <em>fxmap</em> is empty.</p>
+
+<p>Note that, in contrast to similar Scheme forms, <em>proc</em> is
+not required to tail-call one of <em>delete</em> or <em>replace</em>,
+and that <code>fxmapping-update-min</code> and <code>-max</code> simply
+return the results of invoking <em>proc</em>.  Thus, the following is
+valid:</p>
+<pre class="example"><code>(fxmapping-update-min
+  (fxmapping 0 'a 1 'b 2 'c)
+  (lambda (k v _r delete)
+    (values k v (fxmapping-&gt;alist (delete)))))
+ ⇒ 0
+   a
+   ((1 . b) (2 . c))
+</code></pre>
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-update-min (fxmapping -5 "phaser" -1 "tricorder")
+                       (lambda (_ v replace delete)
+                         (if (symbol? v)
+                             (replace v)
+                             (delete)))))
+ ⇒ ((-1 . "tricorder"))
+
+(fxmapping-&gt;alist
+ (fxmapping-update-max (fxmapping -5 "phaser" -1 "tricorder")
+                       (lambda (k v replace delete)
+                         (if (and (negative? k) (string? v))
+                             (replace (string-length v))
+                             (delete)))))
+ ⇒ ((-5 . "phaser") (-1 . 9))
+</code></pre>
+
+<p><code>(fxmapping-pop-min</code>&nbsp;<em>fxmap</em><code>) → [fixnum, *, fxmapping]</code><br>
+<code>(fxmapping-pop-max</code>&nbsp;<em>fxmap</em><code>) → [fixnum, *, fxmapping]</code><br>
+
+<p>Returns three values: <em>k</em>, <em>v</em>, and <em>fxmap′</em>,
+where (<em>k</em>, <em>v</em>) is the association of
+<em>fxmap</em> with the least/greatest key and <em>fxmap′</em> is a
+fxmapping containing all of the associations of <em>fxmap</em> except for
+(<em>k</em>, <em>v</em>).  It is an error if <em>fxmap</em> is empty.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(let-values (((k v fxmap)
+              (fxmapping-pop-min (fxmapping 0 'a 1 'b 2 'c))))
+  (values k v (fxmapping-&gt;alist fxmap)))
+ ⇒ (0 a ((1 . b) (2 . c)))
+</code></pre>
+
+<h3 id="whole">The whole fxmapping</h3>
+
+<p><code>(fxmapping-size</code>&nbsp;<em>fxmap</em><code>) → fixnum</code></p>
+
+<p>Returns the number of associations in <em>fxmap</em>.</p>
+
+<p><code>(fxmapping-find</code>&nbsp;<em>pred fxmap failure</em><code> [ </code><em>success</em><code> ])</code> → <code>[*, …]</code></p>
+
+<p>Procedure <em>pred</em> is a predicate of type <code>fixnum * → boolean</code>.
+Procedure <em>failure</em> is of type <code>[] → [*, …]</code>.
+If the optional <em>success</em> parameter is supplied, then it must be
+a procedure of type <code>fixnum * → [*, …]</code>.  Procedure <em>success</em>
+defaults to <code>values</code>.</p>
+
+<p>Invokes <em>success</em> in tail context on <em>k</em> and
+<em>v</em> and returns it results, where (<em>k</em>, <em>v</em>)
+is the association of <em>fxmap</em> with the least key such that
+<code>(</code><em>pred k v</em><code>)</code> is true.
+If there is no
+such association, then <em>failure</em> is tail-called with no
+arguments and its results are returned.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-find (lambda (_ v) (even? v))
+                (fxmapping 0 1 1 2 2 4 3 8)
+                (lambda () (values #f #f)))
+ ⇒ 1 2
+
+(fxmapping-find (lambda (_ v) (negative? v))
+                (fxmapping 0 1 1 2 2 4 3 8)
+                (lambda () (values 'nope 'nada)))
+ ⇒ nope nada
+
+(fxmapping-find (lambda (k s) (= k (string-length s)))
+                (fxmapping 2 "worf" 3 "data" 4 "troi")
+                (lambda () (error "not found"))
+                list)
+ ⇒ (4 "troi")
+</code></pre>
+
+<p><code>(fxmapping-count</code>&nbsp;<em>pred fxmap</em><code>) → fixnum</code></p>
+
+<p>Procedure <em>pred</em> is a predicate of type
+<code>fixnum * → boolean</code>.</p>
+
+<p>Returns the number of associations in <em>fxmap</em> that satisfy
+<em>pred</em> (in the sense of <code>fxmapping-find</code>).</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-count (lambda (_ v) (even? v))
+                 (fxmapping 0 1 1 2 2 4 3 8)) ⇒ 3
+(fxmapping-count (lambda (k s) (= k (string-length s)))
+                 (fxmapping 0 "x" 1 "y" 2 "z"))
+ ⇒ 1
+</code></pre>
+
+<p><code>(fxmapping-any?</code>&nbsp;<em>pred fxmap</em><code>) → boolean</code></p>
+
+<p>Procedure <em>pred</em> is a predicate of type
+<code>fixnum * → boolean</code>.</p>
+
+<p>Returns <code>#t</code> if and only if there exists an association
+in <em>fxmap</em> that satisfies <em>pred</em> (in the sense of
+<code>fxmapping-find</code>).  The <em>fxmap</em> is traversed in ascending
+numerical order of keys.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-any? (lambda (_ v) (odd? v))
+                (fxmapping 0 1 1 2 2 4 3 8)) ⇒ #t
+</code></pre>
+
+<p><code>(fxmapping-every?</code>&nbsp;<em>pred fxmap</em><code>) → boolean</code></p>
+
+<p>Procedure <em>pred</em> is a predicate of type
+<code>fixnum * → boolean</code>.</p>
+
+<p>Returns <code>#t</code> if and only every association in
+<em>fxmap</em> satisfies <em>pred</em> (in the sense of
+<code>fxmapping-find</code>), or if <em>fxmap</em> is empty.
+The <em>fxmap</em> is traversed in ascending numerical order of keys.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-every? (lambda (_ v) (integer? v))
+                  (fxmapping 0 1 1 2 2 4 3 8)) ⇒ #t
+</code></pre>
+
+<h3 id="traversal">Traversal</h3>
+
+<p><code>(fxmapping-map</code>&nbsp;<em>proc fxmap</em><code>) → fxmapping</code></p>
+
+<p>The <em>proc</em> argument of <code>fxmapping-map</code> is of type
+<code>fixnum * → *</code>.</p>
+
+<p>Returns a fxmapping with the same keys as <em>fxmap</em> whose values
+are the result of transforming the values of <em>fxmap</em> with <em>proc</em>.
+For each association
+<code>(</code><em>k, v</em><code>)</code> in <em>fxmap</em>, the association
+<code>(</code><em>k</em><code>, (</code><em>proc k v</em><code>))</code>
+is added to the resulting fxmapping.
+The dynamic order
+of the applications of <em>proc</em> to the elements of <em>fxmap</em> is
+unspecified.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-map (lambda (_ s) (string-length s))
+                (fxmapping 0 "picard" 1 "riker" 2 "troi")))
+ ⇒ ((0 . 6) (1 . 5) (2 . 4))
+
+(fxmapping-&gt;alist
+ (fxmapping-map (lambda (k s)
+                  (string-append s (number-&gt;string k)))
+                (fxmapping 256 "x" 512 "y" 1024 "z")))
+ ⇒ ((256 . "x256") (512 . "y512") (1024 . "z1024"))
+</code></pre>
+
+<p>Note that, in contrast to SRFI 146&rsquo;s <code>mapping-map</code>
+procedure, this procedure transforms the values of <em>fxmap</em> only;
+that is, the set of keys of the resulting fxmapping is the same as that
+of <em>fxmap</em>.</p>
+
+<p><code>(fxmapping-for-each</code>&nbsp;<em>proc fxmap</em><code>) → unspecified</code></p>
+
+<p>Procedure <em>proc</em> is of type <code>fixnum * → *</code>.
+
+<p>Calls <em>proc</em> on the key and value of each association in <em>fxmap</em> and returns
+an unspecified value.  The <em>fxmap</em> is traversed in ascending numerical
+order of keys.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(let ((sum 0))
+  (fxmapping-for-each (lambda (_ v) (set! sum (+ sum v)))
+                      (fxmapping 0 1 1 2 2 4 3 8))
+  sum)
+ ⇒ 15
+</code></pre>
+
+<p><code>(fxmapping-fold</code>&nbsp;<em>kons knil fxmap</em><code>) → *</code><br>
+<code>(fxmapping-fold-right</code>&nbsp;<em>kons knil fxmap</em><code>) → *</code></p>
+
+<p>The <em>kons</em> argument of <code>fxmapping-fold</code> and <code>fxmapping-fold-right</code> is a
+procedure of type <code>fixnum * * → *</code>.
+The <em>knil</em> argument is an object of any type which can be passed to <em>kons</em>
+as its third argument.</p>
+
+<p>Folds <em>kons</em> over <em>fxmap</em>, using <em>knil</em> as the base value.  At
+each step, <em>kons</em> is applied to the key of an association, its
+associated value, and to the result of the last application.
+<code>fxmapping-fold</code> folds in ascending numerical order of keys;
+<code>fxmapping-fold-right</code> folds in descending order.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-fold-right
+  (lambda (_ v vs) (cons v vs))
+  '()
+  (fxmapping 0 "worf" 1 "data" 2 "crusher"))
+ ⇒ ("worf" "data" "crusher")
+
+(fxmapping-fold (lambda (k _ ks) (cons k ks))
+                '()
+                (fxmapping 0 "worf" 1 "data" 2 "crusher"))
+ ⇒ (2 1 0)
+</code></pre>
+
+<p><code>(fxmapping-map-&gt;list</code>&nbsp;<em>proc fxmap</em><code>) → list</code></p>
+
+<p>Equivalent to
+<code>(fxmapping-values (fxmapping-map</code>&nbsp;<em>proc fxmap</em><code>))</code>,
+but may be implemented more efficiently.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-map-&gt;list
+  (lambda (_ v) (string-length v))
+  (fxmapping 0 "picard" 1 "riker" 2 "troi"))
+ ⇒ (6 5 4)
+</code></pre>
+
+<p><code>(fxmapping-relation-map</code>&nbsp;<em>proc fxmap</em><code>) → fxmapping</code></p>
+
+<p>Procedure <em>proc</em> must be of type
+<code>fixnum * → [fixnum, *]</code>.</p>
+
+<p>Returns a fxmapping whose associations are the results of
+transforming both the keys and the values of <em>fxmap</em> with
+<em>proc</em>.  For each association (<em>k</em>,
+<em>v</em>) in <em>fxmap</em>, (<em>proc k v</em>) is evaluated to
+return a new key and a new value which are associated in the new
+fxmapping.  Duplicate keys are replaced, but the results in this case
+are unpredictable; if <em>proc</em> is not injective, that is, if it
+produces multiple associations with the same key, then it is unspecified
+which one of these associations will be present in the resulting
+fxmapping. The dynamic order of the applications of <em>proc</em> to the
+elements of <em>fxmap</em> is unspecified.</p>
+
+<p><strong>Rationale:</strong> <code>fxmapping-relation-map</code>
+corresponds to <code>mapping-map</code> from SRFI 146 and is specified
+primarily for compatibility with that SRFI.  It generalizes
+<code>fxmapping-map</code>, and can
+be used to produce a wide range of transformations on fxmappings.  This
+generality comes at a price, however.  Certain familiar laws that hold
+of <code>fxmapping-map</code> and other Scheme "map" functions do not
+hold of <code>fxmapping-relation-map</code>; in particular, the size of
+the <em>fxmap</em> may not be preserved, and a key with an
+association in <em>fxmap</em> may not have an association in the
+resulting fxmapping.</p>
+
+<p>As such, <code>fxmapping-map</code>
+likely conforms better to the familiar pattern of Scheme "map" functions,
+while being sufficiently general for most purposes.</p>
+
+<h3 id="filter">Filter</h3>
+
+<p><code>(fxmapping-filter</code>&nbsp;<em>pred fxmap</em><code>) → fxmapping</code></p>
+
+<p>Returns a fxmapping containing all of the associations of <em>fxmap</em>
+that satisfy <em>pred</em> (in the sense of <code>fxmapping-find</code>).</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-filter (lambda (_ v) (positive? v))
+                   (fxmapping 0 2 1 -4 2 8 3 -16)))
+ ⇒ ((0 . 2) (2 . 8))
+</code></pre>
+
+<p><code>(fxmapping-remove</code>&nbsp;<em>pred fxmap</em><code>) → fxmapping</code></p>
+
+<p>Returns a fxmapping containing all of the associations of
+<em>fxmap</em> that do not satisfy <em>pred</em> (in the sense of
+<code>fxmapping-find</code>).</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-remove (lambda (_ v) (positive? v))
+                   (fxmapping 0 2 1 -4 2 8 3 -16)))
+ ⇒ ((1 . -4) (3 . -16))
+</code></pre>
+
+<p><code>(fxmapping-partition</code>&nbsp;<em>pred fxmap</em><code>) → [fxmapping, fxmapping]</code></p>
+
+<p>Returns two fxmappings.  The first contains all associations of
+<em>fxmap</em> that satisfy <em>pred</em> (in the sense of
+<code>fxmapping-find</code>), and the second contains those
+that do not.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(let-values (((pos ~pos)
+              (fxmapping-partition
+                (lambda (_ v) (positive? v))
+                (fxmapping 0 2 1 -4 2 8 3 -16))))
+  (values (fxmapping-&gt;alist pos)
+          (fxmapping-&gt;alist ~pos)))
+ ⇒ ((0 . 2) (2 . 8))
+   ((1 . -4) (3 . -16))
+</code></pre>
+
+<h3 id="conversion">Conversion</h3>
+
+<p><code>(fxmapping-&gt;alist</code>&nbsp;<em>fxmap</em><code>) → alist[fixnum, *]</code></p>
+
+<p>Returns an alist containing the associations of
+<em>fxmap</em> in increasing numerical order of key.
+That is, if (<em>k</em>₁, <em>v</em>₁), …, (<em>k</em>ₙ,
+<em>v</em>ₙ) are the associations of <em>fxmap</em> ordered so that
+<em>k</em>₁ ≤ … ≤ <em>k</em>ₙ, then
+<code>(fxmapping-&gt;alist</code> <em>fxmap</em><code>)</code>
+produces the list <code>((</code><em>k</em>₁ <code>.</code>
+<em>v</em>₁<code>)</code> … <code>(</code><em>k</em>ₙ
+<code>.</code> <em>v</em>ₙ<code>))</code>.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist (fxmapping 1 'a 2 'b)) ⇒ ((1 . a) (2 . b))
+</code></pre>
+
+<p><code>(fxmapping-&gt;decreasing-alist</code>&nbsp;<em>fxmap</em><code>) → alist[fixnum, *]</code></p>
+
+<p>Identical to <code>fxmapping-&gt;alist</code>, except that the
+resulting alist contains the associations of <em>fxmap</em> in
+decreasing numerical order of key.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-&gt;decreasing-alist (fxmapping 1 'a 2 'b))
+ ⇒ ((2 . b) (1 . a))
+</code></pre>
+
+<p><code>(fxmapping-keys</code>&nbsp;<em>fxmap</em><code>) → list[fixnum]</code></p>
+
+<p>Returns the keys of <em>fxmap</em> as a list in ascending numerical order.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-keys (fxmapping 137 'a -24 'b -5072 'c))
+ ⇒ (-5072 -24 137)
+</code></pre>
+
+<p><code>(fxmapping-values</code>&nbsp;<em>fxmap</em><code>) → list[*]</code></p>
+
+<p>Returns the values of <em>fxmap</em> as a list in ascending numerical
+order of key.
+That is, if (<em>k</em>₁, <em>v</em>₁), …, (<em>k</em>ₙ,
+<em>v</em>ₙ) are the associations of <em>fxmap</em> ordered so that
+<em>k</em>₁ ≤ … ≤ <em>k</em>ₙ, then
+<code>(fxmapping-values</code> <em>fxmap</em><code>)</code>
+produces the list
+<code>(</code><em>v</em>₁ … <em>v</em>ₙ<code>)</code>.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(fxmapping-values (fxmapping 0 "picard" 1 "riker" 2 "troi"))
+ ⇒ ("picard" "riker" "troi")
+</code></pre>
+
+<p><code>(fxmapping-&gt;generator</code> <em>fxmapping</em><code>) → generator[pair(fixnum, *)]</code></p>
+
+<p>Returns a <a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a> generator which
+produces the associations of <em>fxmapping</em> as key/value pairs in increasing
+order of key.  That is, if (<em>k</em>₁, <em>v</em>₁), …, (<em>k</em>ₙ,
+<em>v</em>ₙ) are the associations of <em>fxmap</em> ordered so that
+<em>k</em>₁ ≤ … ≤ <em>k</em>ₙ, then the generator returned by
+<code>(fxmapping-&gt;generator</code> <em>fxmap</em><code>)</code>
+produces the pairs <code>(</code><em>k</em>₁ <code>.</code>
+<em>v</em>₁<code>)</code>, …, <code>(</code><em>k</em>ₙ
+<code>.</code> <em>v</em>ₙ<code>)</code>, in that order.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(generator-&gt;list
+  (fxmapping-&gt;generator (fxmapping 3 "yar" 2 "troi")))
+ ⇒ ((2 . "troi") (3 . "yar"))
+</code></pre>
+
+<p><code>(fxmapping-&gt;decreasing-generator</code> <em>fxmapping</em><code>) → generator[pair(fixnum, *)]</code></p>
+
+<p>This is the same as <code>fxmapping-&gt;generator</code>, except that the associations
+of <em>fxmapping</em> are produced in decreasing order of key.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(generator-&gt;list
+  (fxmapping-&gt;decreasing-generator
+    (fxmapping 3 "yar" 2 "troi")))
+ ⇒ ((3 . "yar") (2 . "troi"))
+</code></pre>
+
+<h3 id="comparison">Comparison</h3>
+
+<p>Each of the following predicates takes a
+<a href="https://srfi.schemers.org/srfi-128/">SRFI 128</a> comparator
+argument which is used to compare the values of the associations of
+two fxmappings.  (Keys are always compared as if with <code>=</code>.)</p>
+
+<p>Note that none of these five predicates produces a total order on
+fxmappings.  In particular, <code>fxmapping=?</code>, <code>fxmapping&lt;?</code>,
+and <code>fxmapping&gt;?</code> do not obey the
+<a href="https://en.wikipedia.org/wiki/Trichotomy_(mathematics)">trichotomy law</a>.</p>
+
+<p><code>(fxmapping=?</code>&nbsp;<em>comp fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ <code>…) → boolean</code></p>
+
+<p>Returns <code>#t</code> if and only if all of the <em>fxmaps</em> contain equal
+associations.  Two associations are equal exactly when their keys are
+equal (in the sense of <code>=</code>) and their values are equal in the sense
+of the equality predicate of <em>comp</em>.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping=? (make-default-comparator)
+             (fxmapping 1 'a 2 'b)
+             (fxmapping 2 'b 1 'a))
+ ⇒ #t
+
+(fxmapping=? (make-default-comparator)
+             (fxmapping 1 'a 2 'b 3 'c)
+             (fxmapping 2 'b 1 'a))
+ ⇒ #f
+</code></pre>
+
+<p><code>(fxmapping&lt;?</code>&nbsp;<em>comp</em> <em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ <code>…) → boolean</code><br>
+<code>(fxmapping&lt;=?</code>&nbsp;<em>comp</em> <em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ <code>…) → boolean</code><br>
+<code>(fxmapping&gt;?</code>&nbsp;<em>comp</em> <em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ <code>…) → boolean</code><br>
+<code>(fxmapping&gt;=?</code>&nbsp;<em>comp</em> <em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ <code>…) → boolean</code></p>
+
+<p>Returns <code>#t</code> if and only if each <em>fxmap</em> other than the last is a proper
+subset/subset/proper superset/superset of the following <em>fxmap</em>.  Values are
+compared using the equality predicate of <em>comp</em>.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping&lt;? (make-default-comparator)
+             (fxmapping 1 'a 2 'b)
+             (fxmapping 2 'b 1 'a 3 'c))
+ ⇒ #t
+
+(fxmapping&gt;? (make-default-comparator)
+             (fxmapping 2 'b 1 "worf" 3 'c)
+             (fxmapping 1 'a 2 'b))
+ ⇒ #f
+
+(fxmapping&gt;=? (make-default-comparator)
+              (fxmapping 2 'b 1 'a 3 'c)
+              (fxmapping 1 'a 2 'b)
+              (fxmapping 2 'b 1 'a)
+              (fxmapping 1 'a))
+ ⇒ #t
+</code></pre>
+
+<h3 id="settheory">Set theory operations</h3>
+
+<p><code>(fxmapping-union</code>&nbsp;<em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ …<code>) → fxmapping</code><br>
+<code>(fxmapping-intersection</code>&nbsp;<em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ …<code>) → fxmapping</code><br>
+<code>(fxmapping-difference</code>&nbsp;<em>fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ …<code>) → fxmapping</code><br>
+<code>(fxmapping-xor</code>&nbsp;<em>fxmap</em>₁ <em>fxmap</em>₂<code>) → fxmapping</code></p>
+
+<p>Return a fxmapping whose set of associations is the
+union, intersection, asymmetric difference, or symmetric difference of
+the sets of associations of the <em>fxmaps</em>.  Asymmetric difference is
+extended to more than two fxmappings by taking the difference between
+the first fxmapping and the union of the others.  Symmetric difference
+is not extended beyond two fxmappings.  When comparing associations,
+only the keys are compared.  In case of duplicate keys, associations
+in the result fxmapping are drawn from the first fxmapping in which they
+appear.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist (fxmapping-union (fxmapping 0 'a 2 'c)
+                                   (fxmapping 1 'b 3 'd)))
+ ⇒ ((0 . a) (1 . b) (2 . c) (3 . d))
+
+(fxmapping-&gt;alist
+ (fxmapping-intersection (fxmapping 0 'a 2 'c)
+                         (fxmapping 1 'b 2 'c 3 'd)
+                         (fxmapping 2 'c 4 'e)))
+ ⇒ ((2 . c))
+
+(fxmapping-&gt;alist
+  (fxmapping-difference (fxmapping 0 'a 1 'b 2 'c)
+                        (fxmapping 2 "worf")
+                        (fxmapping 1 "data")))
+ ⇒ ((0 . a))
+</code></pre>
+
+<p><code>(fxmapping-union/combinator</code>&nbsp;<em>proc fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ …<code>) → fxmapping</code><br>
+<code>(fxmapping-intersection/combinator</code>&nbsp;<em>proc fxmap</em>₁ <em>fxmap</em>₂ <em>fxmap</em>₃ …<code>) → fxmapping</code></p>
+
+<p>Procedure <em>proc</em> is of type <code>fixnum * * → *</code>.</p>
+
+<p>Return a fxmapping whose set of keys is the union/intersection of
+the sets of keys of the <em>fxmaps</em>.  The values associated with duplicate
+keys are combined left-associatively with <em>proc</em>, which is also passed
+the duplicated key as its first argument; that is, if an integer <em>k</em> is associated
+with values <em>v</em>₁, <em>v</em>₂, …, <em>v</em>ₙ in <em>fxmap</em>₁, <em>fxmap</em>₂, …, <em>fxmap</em>ₙ,
+respectively, then the resulting fxmapping will contain the association
+(<em>k</em>, (<em>proc k</em> … (<em>proc k v</em>₁ <em>v</em>₂) … <em>v</em>ₙ)).</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>;; Right-biased union.
+(fxmapping-&gt;alist
+ (fxmapping-union/combinator (lambda (_k _l r) r)
+                             (fxmapping 1 'b 2 'c)
+                             (fxmapping 2 "data" 3 "picard")))
+
+ ⇒ ((1 . b) (2 . "data") (3 . "picard"))
+
+(fxmapping-&gt;alist
+ (fxmapping-intersection/combinator
+  (lambda (_ l r) (string-append l " " r))
+  (fxmapping 1 "q" 3 "jean-luc" 5 "miles" 7 "quark")
+  (fxmapping 3 "picard" 5 "o'brien")))
+
+ ⇒ ((3 . "jean-luc picard") (5 . "miles o'brien"))
+</code></pre>
+
+<h3 id="submappings">Submappings</h3>
+
+<p><code>(fxmapping-open-interval</code>&nbsp;<em>fxmap low high</em><code>) → fxmapping</code><br>
+<code>(fxmapping-closed-interval</code>&nbsp;<em>fxmap low high</em><code>) → fxmapping</code><br>
+<code>(fxmapping-open-closed-interval</code>&nbsp;<em>fxmap low high</em><code>) → fxmapping</code><br>
+<code>(fxmapping-closed-open-interval</code>&nbsp;<em>fxmap low high</em><code>) → fxmapping</code></p>
+
+<p>Arguments <em>low</em> and <em>high</em> are both fixnums.</p>
+
+<p>Procedures that return a subset of <em>fxmap</em> containing the associations
+whose keys are contained in the interval from <em>low</em> to <em>high</em>.  The
+interval is open/closed/open below and closed above/open
+above and closed below.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxmapping-open-interval
+   (fxmapping 0 'a 1 'b 2 'c 3 'd) 1 3))
+ ⇒ ((2 . c))
+
+(fxmapping-&gt;alist
+ (fxmapping-closed-interval
+   (fxmapping 0 'a 1 'b 2 'c 3 'd) 1 3))
+ ⇒ ((1 . b) (2 . c) (3 . d))
+
+(fxmapping-&gt;alist
+ (fxmapping-closed-open-interval
+   (fxmapping 0 'a 1 'b 2 'c 3 'd) 1 3))
+ ⇒ ((1 . b) (2 . c))
+</code></pre>
+
+<p><code>(fxsubmapping=</code>&nbsp;<em>fxmap k</em><code>) → fxmapping</code><br>
+<code>(fxsubmapping&lt;</code>&nbsp;<em>fxmap k</em><code>) → fxmapping</code><br>
+<code>(fxsubmapping&lt;=</code>&nbsp;<em>fxmap k</em><code>) → fxmapping</code><br>
+<code>(fxsubmapping&gt;</code>&nbsp;<em>fxmap k</em><code>) → fxmapping</code><br>
+<code>(fxsubmapping&gt;=</code>&nbsp;<em>fxmap k</em><code>) → fxmapping</code></p>
+
+<p>Procedures that return a fxmapping containing the associations of
+<em>fxmap</em> whose keys are equal to/less than/less than or equal
+to/greater than/greater than or equal to <em>k</em>.  Note that the result of
+<code>fxsubmapping=</code> contains at most one element.</p>
+
+<p>Examples:</p>
+
+<pre class="example"><code>(fxmapping-&gt;alist
+ (fxsubmapping= (fxmapping 0 'a 1 'b 2 'c 3 'd) 2))
+ ⇒ ((2 . c))
+
+(fxmapping-&gt;alist
+ (fxsubmapping&lt; (fxmapping 0 'a 1 'b 2 'c 3 'd) 2))
+ ⇒ ((0 . a) (1 . b))
+
+(fxmapping-&gt;alist
+ (fxsubmapping&gt;= (fxmapping 0 'a 1 'b 2 'c 3 'd) 2))
+ ⇒ ((2 . c) (3 . d))
+</code></pre>
+
+<p><code>(fxmapping-split</code> <em>fxmap k</em><code>) → [fxmapping, fxmapping]</code></p>
+
+<p>Returns two fxmappings.  The first contains all of the associations
+of <em>fxmap</em> whose keys are less than or equal to <em>k</em>, and the second
+contains the remaining associations.  This is equivalent to
+<code>(values (fxsubmapping&lt;=</code>&nbsp;<em>fxmap k</em><code>)
+(fxsubmapping&gt;</code>&nbsp;<em>fxmap k</em><code>))</code>, but may be
+implemented more efficiently.</p>
+
+<p>If <em>fxmap</em> is empty, then both of the fxmappings returned by
+<code>fxmapping-split</code> are empty.</p>
+
+<p>Example:</p>
+
+<pre class="example"><code>(let-values ((fxmaps
+              (fxmapping-split
+                (fxmapping 0 'a 1 'b 2 'c 3 'd) 2)))
+  (map fxmapping-&gt;alist fxmaps))
+
+ ⇒ (((0 . a) (1 . b) (2 . c))
+    ((3 . d)))
+</code></pre>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation is found in the repository for this SRFI.
+The fxmapping implementation is based on big-endian radix (Patricia) trees
+as described by Chris Okasaki and Andrew Gill in &ldquo;Fast
+Mergeable Integer Maps&rdquo; (see <a href="#references">References</a>).
+These trees provide fast insert, lookup, and set-theoretical operations.</p>
+
+<p>The implementation should be portable without changes to any R7RS
+Scheme that provides SRFIs 1, 128, and 143.  The provided
+tests can be run with SRFIs 64 or 78; additional shims for the test
+libraries preferred by <a href="http://synthcode.com/scheme/chibi/lib/chibi/test.html">chibi-scheme</a>
+and <a href="https://wiki.call-cc.org/eggref/5/test">CHICKEN</a> are also
+included.</p>
+
+<h2>Acknowledgements</h2>
+
+<p>Thanks to Marc-Nieper Wißkirchen and Arthur A. Gleckler, the
+authors of SRFI 146, as well as to Daan Leijen and Andriy Palamarchuk,
+who created the Haskell IntMap library.  These libraries provided
+critical inspiration and implementation clues in the creation of this
+SRFI.</p>
+
+<p>Thanks to the SRFI editor and to the contributors to the SRFI
+mailing list, as well as to those who provided feedback on this SRFI
+via the <code>#scheme</code> IRC channel.</p>
+
+<p>This SRFI contains ideas and language drawn from dozens of other
+SRFIs, in particular specifications by Olin Shivers, John Cowan, and
+Taylor Campbell.  The R7RS and earlier standards also provided
+constant design and literary guidance.  Thus, little of what appears
+in this SRFI is &ldquo;original&rdquo;.  Thanks to all of the Schemers who have
+contributed their knowledge and time to the SRFI process and to the
+R<sup><em>n</em></sup>RS standards.</p>
+
+<p>Of course, none of this should be understood to imply that any of
+the individuals mentioned above endorse this SRFI.</p>
+
+<h2 id="references">References</h2>
+
+<p>Alex Shinn, John Cowan, &amp; Arthur A. Gleckler, eds., <em>Revised⁷ Report
+on the Algorithmic Language Scheme</em> (R7RS) (2013).  Available
+<a href="https://small.r7rs.org/">on the Web</a>.</p>
+
+<p>Michael Sperber, R. Kent Dybvig, Matthew Flatt, &amp; Anton van
+Straaten, eds., <em>The Revised⁶ Report on the Algorithmic Language
+Scheme</em> (R6RS).  Cambridge University Press, 2010.  Available
+<a href="http://www.r6rs.org/final/html/r6rs/r6rs.html">on the Web</a>.</p>
+
+<p>Chris Okasaki &amp; Andrew Gill, &ldquo;Fast Mergeable Integer Maps&rdquo;,
+1998 <em>Workshop on ML</em>, p. 77-86.</p>
+
+<p>S. Bradner, &ldquo;Key words for use in RFCs to Indicate Requirement Levels&rdquo;.
+1997. http://www.ietf.org/rfc/rfc2119.txt</p>
+
+<h2>Copyright</h2>
+
+<p>&copy; 2021 Wolfgang Corcoran-Mathe.  All rights reserved.</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+&ldquo;Software&rdquo;), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:</p>
+
+<p>The above copyright notice and this permission notice (including the
+next paragraph) shall be included in all copies or substantial portions
+of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED &ldquo;AS IS&rdquo;, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<hr>
+<address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>
+
+

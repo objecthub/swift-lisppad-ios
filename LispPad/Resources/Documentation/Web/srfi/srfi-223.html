@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 223: Generalized binary search procedures</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+        <H2><a name="lp-srfi-223">Title</a></H2>
+            Generalized binary search procedures
+
+        <h2>Author</h2>
+        <p>Daphne Preston-Kendal</p>
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+223+at+srfi+dotschemers+dot+org">srfi-223@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-223">archive</a>.</p>
+<ul>
+  <li>Received: 2021-03-13</li>
+  <li>Draft #1 published: 2021-03-14</li>
+  <li>Draft #2 published: 2021-03-17</li>
+  <li>Draft #3 published: 2021-04-02</li>
+  <li>Draft #4 published: 2021-07-16</li>
+  <li>Finalized: 2021-07-27</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>Generalized procedures for binary search of vector-like data structures are provided which can be applied to any sequence type, including ones defined by the user, together with applications of these procedures for Scheme’s built-in vectors.
+
+<h2 id="rationale">Rationale</h2>
+
+<p>While SRFIs <a href="https://srfi.schemers.org/srfi-43/srfi-43.html">43</a> and <a href="https://srfi.schemers.org/srfi-133/srfi-133.html">133</a> provide a <code>vector-binary-search</code> procedure, in neither SRFI is the option provided to control whether the index of the leftmost or rightmost matching element of the vector is returned. They also use a C-style <code>cmp</code> procedure which is compatible neither with the less-than comparison predicate used by <a href="https://srfi.schemers.org/srfi-132/srfi-132.html">SRFI 132</a> for sorting lists and vectors (such as might be used to make one ready for binary search), nor with <a href="https://srfi.schemers.org/srfi-128/srfi-128.html">SRFI 128</a> comparator ordering predicates. Finally, <code>vector-binary-search</code>, as the name implies, can only be used on Scheme vectors. Use on other sequence types, such as the homogeneous numeric vectors of <a href="https://srfi.schemers.org/srfi-160/srfi-160.html">SRFI 160</a>, is not foreseen.
+
+<p>As binary search is notoriously tricky to implement correctly (especially in light of its apparent simplicity), a correct implementation which is generalizable to any sequence type (including one that a programmer might define themselves) is a useful building block for fast search applications.
+
+<p>Programmers should be aware that it rarely makes sense to use binary search on any sequence type which does not provide O(1) (or ‘effectively O(1)’) access to its members. Scheme lists are not suitable for binary searching, as <code>list-ref</code> is an O(n) operation.
+
+<h2 id="specification">Specification</h2>
+
+<p>In the following procedure specifications, the following variable names are used as procedure arguments having a particular meaning:
+
+<ul>
+  <li><dfn><var>a</var></dfn> is a sorted sequence which should be searched.
+  <li><dfn><var>val</var></dfn> is the value which will be searched for within the sequence <var>a</var>.
+  <li><dfn><var>ref</var></dfn> is a procedure taking two arguments, <var>a</var> and <var>i</var>, which returns the object at index <var>i</var> in <var>a</var>. It is the programmer’s responsibility to ensure that <var>ref</var> can correctly obtain indexed values for a given sequence <var>a</var>. (Thus, it is an error to pass <code>bytevector-u8-ref</code> as <var>ref</var> when <var>a</var> is a vector.)
+  <li><dfn><var>less?</var></dfn> is a procedure taking two arguments and returning <code>#t</code> if the first is strictly less than the second according to the sort order of the sequence <var>a</var>, or otherwise <code>#f</code>. It is the programmer’s responsibility to ensure that <var>less?</var> can handle comparisons between the given <var>val</var> and any value present in the sequence <var>a</var>; that the order of items in a given sequence <var>a</var> actually corresponds to the behaviour of the given <var>less?</var>; and that it is irreflexive, antisymmetric, and transitive, yielding a total ordering of all values in its domain.
+  <li><dfn><var>lo</var></dfn> is the lowest (i.e. leftmost) index into <var>a</var> from which the search should be made. If optional and not provided, defaults to 0.
+  <li><dfn><var>hi</var></dfn> is the one more than the highest (i.e. rightmost) index into <var>a</var> to which the search should be made. If optional and not provided, defaults to the length of the sequence.
+</ul>
+
+<h3 id=generalized-procedures>Generalized procedures</h3>
+
+<p>The following procedures must work when used, with suitable <var>ref</var>, <var>lo</var>, and <var>hi</var> arguments, on sequence types which define negative indexes. (This does not refer to the potential use of negative indexes to refer to items in a sequence counting from the last item rather than the first, but rather to sequences where negative indexes refer to unique positions in the sequence.)
+
+<dl>
+  <dt><code>(bisect-left</code> <var>a</var> <var>val</var> <var>ref</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code> ⇒ <var>idx</var>
+    <dd>Searches the sequence <var>a</var> for the value <var>val</var>, returning the smallest index <var>idx</var> into <var>a</var> such that all elements with indexes ≥ <var>idx</var> are all ≥ <var>val</var>. In other words, returns the leftmost index in <var>a</var> of <var>val</var> or anything which is less than it. Returns <var>lo</var> if <var>val</var> is less than everything in <var>a</var>.
+  <dt><code>(bisect-right</code> <var>a</var> <var>val</var> <var>ref</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code> ⇒ <var>idx</var>
+    <dd>Searches the sequence <var>a</var> for the value <var>val</var>, returning the largest index <var>idx</var> into <var>a</var> such that all elements with indexes &lt; <var>idx</var> are all &lt; <var>val</var>. In other words, returns the leftmost index in <var>a</var> which is to the right of (i.e. after) <var>val</var> or anything less than it. Returns <var>hi</var> if <var>val</var> is greater than everything in <var>a</var>.
+</dl>
+
+<h3 id=convenience>Convenience procedure</h3>
+
+<p>Defining both <code>*-bisect-left</code> and <code>*-bisect-right</code> procedures for a given type, and handling the optionality of <var>lo</var> and <var>hi</var> correctly, can make code very repetitive. To ease this repetition, the following convenience procedure is provided.
+
+<dl>
+  <dt><code>(bisection</code> <var>ref</var><code>)</code>
+    ⇒
+    <span style="display: inline-block; vertical-align: middle;">
+      1 <code>(<var>left-proc</var></code> <var>a</var> <var>val</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code> <br>
+      2 <code>(<var>right-proc</var></code> <var>a</var> <var>val</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code>
+    </span>
+  <dt><code>(bisection</code> <var>ref</var> <var>lo-hi-proc</var><code>)</code>
+    ⇒
+    <span style="display: inline-block; vertical-align: middle;">
+      1
+      <span style="display: inline-block; vertical-align: middle;">
+        <code>(<var>left-proc</var></code> <var>a</var> <var>val</var> <var>less?</var><code>)</code> <br>
+        <code>(<var>left-proc</var></code> <var>a</var> <var>val</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code>
+      </span> <br>
+      2
+      <span style="display: inline-block; vertical-align: middle; margin-top: 0.5em;">
+        <code>(<var>right-proc</var></code> <var>a</var> <var>val</var> <var>less?</var><code>)</code> <br>
+        <code>(<var>right-proc</var></code> <var>a</var> <var>val</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code>
+      </span>
+    </span>
+    <dd>Returns two values, procedures which call <code>bisect-left</code> and <code>bisect-right</code> respectively with the given <var>ref</var> procedure, comparable to <code>vector-bisect-left</code> and <code>vector-bisect-right</code> for vectors. If the <var>lo-hi-proc</var> argument is given, it should be a procedure which takes one argument, a sequence <var>a</var>, and returns two values, the default <var>lo</var> and <var>hi</var> values for that sequence (usually 0 and the length of the sequence). If no <var>lo-hi-proc</var> procedure is given, the <var>lo</var> and <var>hi</var> arguments to the returned procedures are mandatory.
+</dl>
+
+<h3 id=vector-procedures>Vector procedures</h3>
+
+<dl>
+  <dt><code>(vector-bisect-left</code> <var>a</var> <var>val</var> <var>less?</var><code>)</code> ⇒ <var>idx</var>
+  <dt><code>(vector-bisect-left</code> <var>a</var> <var>val</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code> ⇒ <var>idx</var>
+    <dd>Searches the vector <var>a</var> using <code>bisect-left</code>.
+  <dt><code>(vector-bisect-right</code> <var>a</var> <var>val</var> <var>less?</var><code>)</code> ⇒ <var>idx</var>
+  <dt><code>(vector-bisect-right</code> <var>a</var> <var>val</var> <var>less?</var> <var>lo</var> <var>hi</var><code>)</code> ⇒ <var>idx</var>
+    <dd>Searches the vector <var>a</var> using <code>bisect-right</code>.
+</dl>
+
+<h3 id=library-names>Library names</h3>
+
+<p>All procedures provided by this SRFI are in the library called <code>(srfi 223)</code>, <i lang="la">mutatis mutandis</i>.
+
+<p>Implementations and future RnRS specifications should, if they adopt this SRFI, specify analogous <code>*-bisect-left</code> and <code>*-bisect-right</code> procedures for all sequence types they provide which offer O(1) or ‘effectively O(1)’ access time, and in which sorted data may reasonably be expected to appear, but they should do under another library name.  The library <code>(srfi 223)</code> must contain only the procedures directly specified here. They may also choose to divide the core, generalized procedures of this library (<code>bisect-left</code>, <code>bisect-right</code>, and <code>bisection</code>) into one library (such as <code>(xyz bisect)</code>) and make each application of those procedures to specific sequence types their own sublibrary (such as <code>(xyz bisect vector)</code>, <code>(xyz bisect flexvector)</code>, etc.)
+
+<h2 id=example>Example usage</h2>
+
+<h3>Defining a new bisection</h3>
+
+<p>Bisect procedures which operate on Scheme bytevectors can be defined concisely with the following code.
+
+<pre><code>(define-values (bytevector-bisect-left bytevector-bisect-right)
+  (bisection bytevector-u8-ref
+             (lambda (bv) (values 0 (bytevector-length bv)))))</code></pre>
+
+<h3>Bisecting a vector</h3>
+
+<table>
+  <tr>
+    <td><code>(vector-bisect-left #(1 2 2 3 5) 2 &lt;)</code>
+    <td>⇒ <code>1</code>
+  <tr>
+    <td><code>(vector-bisect-right #(1 2 2 3 5) 2 &lt;)</code>
+    <td>⇒ <code>3</code>
+  <tr>
+    <td><code>(vector-bisect-left #(1 2 2 3 5) 4 &lt;)</code>
+    <td>⇒ <code>4</code>
+  <tr>
+    <td><code>(vector-bisect-left #(1 2 2 3 5) 4 &lt; 0 1)</code>
+    <td>⇒ <code>1</code>
+</table>
+
+<p>Or with the example bytevector bisection defined above, one could change the procedures here to their corresponding bytevector versions, and the vectors also to bytevectors, and get the same results.
+
+<h3>Use with SRFI 128 comparators</h3>
+
+<p>The following code shows how to define a procedure <code>vector-bisect-index</code> which returns the smallest index of <var>val</var> in the vector <var>a</var>, or <code>#f</code> if <var>val</var> is not actually in <var>a</var>, according to the given SRFI 128 comparator <var>cmpr</var>.
+
+<pre><code>(define (vector-bisect-index a val cmpr)
+  (let ((idx (vector-bisect-left a val (comparator-ordering-predicate cmpr))))
+    (and (&lt; idx (vector-length a))
+         (=? cmpr val (vector-ref a idx))
+         idx)))</code></pre>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation in the <a href="https://github.com/scheme-requests-for-implementation/srfi-223">Git repository for this SRFI</a> should be correct and work on all compliant R7RS small implementations, although programmers working on Schemes with no automatic promotion of the results of <code>+</code> to bignums and very large sequences (typically more than a gibi-entry or so in size, depending on fixnum range) should be aware of the possibility of integer overflow. See Joshua Bloch, <a href="https://ai.googleblog.com/2006/06/extra-extra-read-all-about-it-nearly.html">‘Extra, Extra — Read All About It: Nearly All Binary Searches and Mergesorts are Broken’</a>. Supporting Scheme systems without automatic bignum promotion is not a goal of the sample implementation.
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>Thanks to:
+  John Cowan, for suggesting a more rigorous specification of the <var>less?</var> parameter, using language from SRFI 128, which in turn inspired an altogether clearer description of what the programmer’s responsibilities are in terms of providing correct values to the procedures in this library;
+  Marc Nieper-Wißkirchen, for suggesting using SRFI 128 comparators instead of bare comparison predicates, and Daniel Itaborai, for requesting higher-level procedures, which suggestions were not adopted but together inspired the above example of implementing <code>vector-bisect-index</code>;
+  Arthur Gleckler, for editing this SRFI and many others, and suggesting a cleaner implementation of <code>vector-bisect-index</code>;
+  and especially to
+  Sundarshan S. Chawathe, who by attempting to create an independent implementation of this library uncovered ambiguities and problems in the specifications of <code>bisect-left</code> and <code>bisect-right</code> in earlier drafts of this SRFI.
+
+<p>The sample implementation is essentially a translation of the Python standard library implementation of binary search in <a href="https://github.com/python/cpython/blob/3.9/Lib/bisect.py"><code>bisect.py</code></a> into Scheme.
+
+<p>Any remaining errors in specification or sample implementation are the author’s and the author’s alone.
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2021 Daphne Preston-Kendal (text and sample implementation in Scheme). <br>
+&copy; 1992–2019 Python Software Foundation (guideline algorithm implementation in Python).</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+<p><a href="https://github.com/python/cpython/blob/3.9/LICENSE">Link to the applicable version of the licence for the original Python implementation, inasmuch as it is applicable.</a></p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>

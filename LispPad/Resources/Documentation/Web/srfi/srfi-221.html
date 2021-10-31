@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 221: Generator/accumulator sub-library</title>
+    <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+      <H2><a name="lp-srfi-221">Title</a></H2>
+            Generator/accumulator sub-library
+
+        <h2>Author</h2>
+        <p>John Cowan (text), Arvydas Silanskas (implementation)</p>
+        
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+221+at+srfi+dotschemers+dot+org">srfi-221@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-221">archive</a>.</p>
+<ul>
+  <li>Received: 2021-02-15</li>
+  <li>Draft #1 published: 2021-02-16</li>
+  <li>Draft #2 published: 2021-03-17</li>
+  <li>Draft #3 published: 2021-04-20</li>
+  <li>Finalized: 2021-05-28</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>This is a set of convenience routines for generators and accumulators
+intended to blend in with
+<a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI 158</a>.
+The authors recommend that they be added to the
+<code>(srfi 158)</code> library provided by
+users or implementations.
+If they are approved by the R7RS-large process,
+they can also be added to <code>(r7rs generator)</code>.
+
+<h2 id="rationale">Rationale</h2>
+
+<p>The procedures of this SRFI
+don't particularly cohere together, being just a collection
+of procedures devised since SRFI 158 was finalized.
+Consequently, this section provides a rationale
+for each procedure independently.</p>
+
+The <code>gcompose-left</code> and <code>gcompose-right</code> procedures,
+in cooperation with generator constructors and operations
+(that is, procedures that accept one or more generators
+and return a generator)
+from SRFI 158 or elsewhere, make it easier to set up
+pipelines of generators, starting with an
+initial generator and adding generator operations to it
+to produce a desired result.<p>
+
+<p>The <code>accumulate-generated-values</code>
+procedure captures the output of a generator
+and passes it directly to an accumulator
+until the generator is exhausted.  The
+generator can be a <code>gcompose-left</code>
+or <code>gcompose-right</code> chain,
+which allows arbitrary transformations.</p>
+
+<p>The <code>genumerate</code> procedure attaches increasing
+non-negative exact integers to the outputs of a generator.
+Filtering the stream will still allow the original indices
+to be recovered at a later stage.</p>
+
+<p>The <code>gchoice</code> operation uses one generator to dictate
+which one of a number of other generators will be drawn on to
+provide the next value.  If used with the
+<code>make-categorical-generator</code> procedure of
+<a href="https://srfi.schemers.org/srfi-194/srfi-194.html">SRFI 194</a>
+as the first argument, it can choose from the other generators
+using a weighted probability.</p>
+
+<p>Finally, <code>stream->generator</code>
+and <code>generator->stream</code> allow
+conversion between generators and
+<a href="https://srfi.schemers.org/srfi-41/srfi-41.html">SRFI 41</a> streams,
+and indirectly between streams and
+<a href="https://srfi.schemers.org/srfi-127/srfi-127.html">SRFI 127</a> lazy sequences,
+which are either lists or improper lists
+with a generator in their tails.</p>
+
+<h2 id="specification">Specification</h2>
+<p><code>(gcompose-left </code><em>constructor</em> <em>operation</em> ...<code>)</code><br />
+<code>(gcompose-right </code><em>operation</em> ... <em>constructor</em><code>)</code></p>
+<p>Creates a generator from a generator constructor plus
+a chain of generator operations.  The first/last argument is
+called with no arguments, the remaining arguments with
+the result of calling the previous/following argument.
+For example, <code>(gcompose-left make-gen gfoo gbar)</code> returns the same
+generator as <code>(gbar (gfoo (make-gen)))</code>,
+as does <code>(gcompose-right gbar gfoo make-gen)</code>.
+<p>Since it is typically necessary to pass additional arguments to the
+constructor and the operations, the arguments
+will usually be lambda expressions.  For example:</p>
+<blockquote><pre><code>(gcompose-left
+  (lambda () (make-iota-generator 100))
+  (lambda (g) (gfilter even? g))
+  (lambda (g) (ggroup g 5)))
+</code></pre></blockquote>
+<p>returns a generator that outputs the values
+<code>(0 2 4 6 8)</code>, <code>(10 12 14 16 18)</code>, ... <code>(90 92 94 96 98)</code>.
+So does
+<blockquote><pre><code>(gcompose-right
+  (lambda (g) (ggroup 5 g)))
+  (lambda (g) (gfilter even? g))
+  (lambda () (make-iota-generator 100)).
+</code></pre></blockquote>
+<p>Such calls can be written more compactly using the <code>cut</code> macro from
+<a href="https://srfi.schemers.org/srfi-26/srfi-26.html" rel="nofollow">SRFI 26</a>:</p>
+<blockquote><pre><code>(gcompose-left
+  (cut make-iota-generator 100)
+  (cut gfilter even? &lt;&gt;)
+  (cut ggroup 5 &lt;&gt;))
+</code></pre></blockquote>
+
+<p><code>(accumulate-generated-values
+</code><em>accumulator</em> <em>generator</em><code>)</code></p>
+<p>Invokes <em>generator</em>, passing the value
+it returns to <em>accumulator</em>.  If the value was an end-of-file
+object, <code>accumulate-generated-values</code> returns whatever the
+accumulator returned.  Otherwise, the process is repeated.</p>
+<p><code>(genumerate </code><em>gen</em><code>)</code></p>
+<p>Creates a generator that returns pairs.
+The car of each pair is an exact integer counting up by 1 from 0.
+The cdr of each pair is the result of <em>gen</em>.</p>
+<p><code>(gchoice </code><em>choice-gen</em> <em>source-gen</em> ...<code>)</code></p>
+<p>Returns a generator <em>g</em> that behaves as follows:</p>
+<p>When <em>g</em> is invoked, it first invokes <em>choice-gen</em> to return an index value <em>i</em>.
+It is an error if <em>i</em> is not an exact integer between 0 (inclusive)
+and the number of <em>source-gens</em> (exclusive).
+Then the <em>i</em>th <em>source-gen</em> is invoked and its value returned by <em>g</em>.</p>
+<p>If <em>choice-gen</em> is exhausted, <em>g</em> returns an end-of-file object.
+If the chosen <em>source-gen</em> is exhausted, <em>g</em> remembers that fact
+and invokes <em>choice-gen</em> until it returns the index of a <em>source-gen</em>
+that has not been exhausted.  When all <em>source-gens</em> are exhausted,
+<em>g</em> returns an end-of-file object.</p>
+<p>Composing <code>make-iota-generator</code> and <code>make-circular-generator</code>
+from <a href="https://srfi.schemers.org/srfi-158/srfi-158.html" rel="nofollow">SRFI 158</a>
+performs round-robin selection of the <em>source-gens</em>.</p>
+<p><code>(stream-&gt;generator </code><em>stream</em><code>)</code></p>
+<p>Returns a generator that steps through the elements of a SRFI 41 stream.</p>
+<p><code>(generator-&gt;stream </code><em>generator</em><code>)</code></p>
+<p>Returns a SRFI 41 stream containing the values of a generator.</p>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation of this SRFI is in the repository for it.</p>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>Thanks to all who participated on the SRFI mailing list.</p>
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2020 John Cowan (text), Arvydas Silanskas (implementation).</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+
+

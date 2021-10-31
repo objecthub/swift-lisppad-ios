@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "" "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>SRFI 111: Boxes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+<body>
+
+<H1><a name="lp-srfi-111">Title</a></H1>
+
+Boxes
+
+<H1>Author</H1>
+
+John Cowan
+
+<H1>Status</H1>
+
+This SRFI is currently in ``final'' status.  To see an explanation of
+each status that a SRFI can hold, see <a
+href="http://srfi.schemers.org/srfi-process.html">here</a>.
+
+To provide input on this SRFI, please
+<a href="mailto:srfi minus 111 at srfi dot schemers dot org">mail to
+<code>&lt;srfi minus 111 at srfi dot schemers dot org&gt;</code></a>.  See
+<a href="../srfi-list-subscribe.html">instructions here</a> to
+subscribe to the list.  You can access previous messages via
+<a href="mail-archive/maillist.html">the archive of the mailing list</a>.
+You can access
+post-finalization messages via
+<a href="http://srfi.schemers.org/srfi-111/post-mail-archive/maillist.html">
+the archive of the mailing list</a>.
+</p>
+
+<ul>
+      <li>Received: <a href="http://srfi.schemers.org/srfi-111/srfi-111-1.1.html">2013/04/14</a></li>
+      <li>Draft: 2013/04/25-2013/06/24</li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-111/srfi-111-1.2.html">2013/5/18</a></li>
+      <li>Final: <a href="http://srfi.schemers.org/srfi-111/srfi-111-1.3.html">2013/5/18</a></li>
+    </ul>
+
+<H1>Abstract</H1>
+
+<p>Boxes are objects with a single mutable state. Several Schemes have them, sometimes called <i>cells</i>.  A constructor, predicate, accessor, and mutator are provided.</p>
+
+<H1>Issues</H1>
+
+<p>None in this draft.</p>
+
+<H1>Rationale</H1>
+
+<p>A box is a container for an object of any Scheme type, including another box.  It is like a single-element vector, or half of a pair, or a direct representation of state.  Boxes are normally used as minimal mutable storage, and can inject a controlled amount of mutability into an otherwise immutable data structure (or one that is conventionally treated as immutable).  They can be used to implement call-by-reference semantics by passing a boxed value to a procedure and expecting the procedure to mutate the box before returning.</p>
+
+<p>Some Scheme systems use boxes to implement <code>set!</code>.  In this transformation, known as <i>assignment conversion</i>, all variables that are actually mutated are initialized to boxes, and all <code>set!</code> syntax forms become calls on <code>set-box!</code>.  Naturally, all ordinary references to those variables must become calls on <code>unbox</code>.  By reducing all variable mutation to data-structure mutation in this way, such Scheme systems are free to maintain variables in multiple hardware locations, such as the stack and the heap or registers and the stack, without worrying about exactly when and where they are mutated.</p>
+
+<p>Boxes are also useful for providing an extra level of indirection, allowing more than one body of code or data structure to share a reference, or pointer, to an object.  In this way, if any procedure mutates the box in any of the data structures, all procedures will immediately "see" the new value in all data structures containing it.</p>
+
+<p>Racket and Chicken provide <i>immutable boxes</i>, which look like boxes to <code>box?</code> and <code>unbox</code> but which cannot be mutated.  They are not considered useful enough to be part of this SRFI.  If they are provided nevertheless, the recommended constructor name is <code>immutable-box</code>.</p>
+
+<p>The following table specifies the procedure names used by the Scheme implementations that provide boxes:</p>
+
+<table>
+<tr><td>Proposed</td><td><a href="http://docs.racket-lang.org/reference/boxes.html">Racket</a></td><td><a href="http://www.iro.umontreal.ca/~gambit/doc/gambit-c.html#index-boxes">Gambit</a></td><td><a href="http://sisc-scheme.org/manual/html/ch03.html#Boxing">SISC</a></td><td><a href="http://www.scheme.com/csug7/objects.html#g50">Chez</a></td><td><a href="http://wiki.call-cc.org/eggref/4/box">Chicken</a></td><td><a href="http://web.mit.edu/scheme_v9.0.1/doc/mit-scheme-ref/Cells.html">MIT</a></td><td><a href="http://s48.org/1.1/manual/s48manual_42.html">Scheme48/scsh</a></td></tr>
+<tr><td>box</td><td>box</td><td>box</td><td>box</td><td>box</td><td>make-box</td><td>make-cell</td><td>make-cell</td></tr>
+<tr><td>box?</td><td>box?</td><td>box?</td><td>box?</td><td>box?</td><td>box-mutable?</td><td>cell?</td><td>cell?</td></tr>
+<tr><td>unbox</td><td>unbox</td><td>unbox</td><td>unbox</td><td>unbox</td><td>box-ref</td><td>cell-contents</td><td>cell-ref</td></tr>
+<tr><td>set-box<tt>!</tt></td><td>set-box<tt>!</tt></td><td>set-box<tt>!</tt></td><td>set-box<tt>!</tt></td><td>set-box<tt>!</tt></td><td>box-set<tt>!</tt></td><td>set-cell-contents<tt>!</tt></td><td>cell-set<tt>!</tt></td></tr>
+</table>
+
+<p>Note that Chicken also supports the procedure names defined by this SRFI in addition to its native API.  Although the native API uses the standard naming pattern, for the purposes of this SRFI the unanimous voice of Racket, Gambit, SISC, and Chez is considered more significant.</p>
+
+<p>Racket, Gambit, SISC, Chez, and Chicken all support the lexical syntax <code>#&amp;</code><i>datum</i> to create a literal box (immutable in Racket, mutable in the other implementations).  However, this SRFI does not.  Incorporating a specifically mutable object into code makes it hard for an implementation to separate compile-time and run-time reliably, and it's not clear that providing them in data files provides enough benefit, as the box has to be located by tree-walking in any case.  MIT Scheme and Scheme48/scsh do not provide a lexical syntax.</p>
+
+<p>The features specified in the autoboxing section of specification are based on those specified by RnRS for promises, which are analogous to immutable boxes except that their value is specified by code instead of data.</p>
+
+<H1>Specification</H1>
+
+<h2>Procedures</h2>
+
+<p>The following procedures implement the box type (which is disjoint from all other Scheme types), and are exported by the <code>(srfi 111)</code> library (or <code>(srfi :111)</code> on R6RS).</p>
+
+<p><code>(box <i>value</i>)</code></p>
+
+<p>Constructor.  Returns a newly allocated box initialized to <i>value</i>.</p>
+
+<p><code>(box? <i>object</i>)</code></p>
+
+<p>Predicate.  Returns <code>#t</code> if <i>object</i> is a box, and <code>#f</code> otherwise.</p>
+
+<p><code>(unbox <i>box</i>)</code></p>
+
+<p>Accessor.  Returns the current value of <i>box</i>.</p>
+
+<p><code>(set-box! <i>box value</i>)</code></p>
+
+<p>Mutator.  Changes <i>box</i> to hold <i>value</i>.</p>
+
+<p>The behavior of boxes with the equivalence predicates <code>eq?</code>, <code>eqv?</code>, and <code>equal?</code> is the same as if they were implemented with records.  That is, two boxes are both <code>eq?</code> and <code>eqv?</code> iff they are the product of the same call to <code>box</code> and not otherwise, and while they must be <code>equal?</code> if they are <code>eqv?</code>, the converse is implementation-dependent.</p>
+
+<p></p>
+
+<H1>Implementation</H1>
+
+<p>Here is a definition as an R7RS library:</p>
+
+<pre>
+(define-library (srfi 111)
+  (import (scheme base))
+  (export box box? unbox set-box!)
+  
+  (begin
+    (define-record-type box-type
+      (box value)
+      box?
+      (value unbox set-box!))))
+</pre>
+
+<p>The <code>define-record-type</code> macro will also work on R5RS Schemes that provide SRFI 9.</p>
+
+<p>Here is a translation into R6RS Scheme:</p>
+
+<pre>
+(library (srfi :111)
+  (export box box? unbox set-box!)
+  (import (rnrs base) (rnrs records syntactic))
+  
+  (define-record-type
+    (box-type box box?)
+    (fields
+      (mutable value unbox set-box!))))
+</pre>
+
+<p>Finally, here is an implementation in pure R5RS (plus <code>error</code>) that depends on redefining <code>pair?</code>.</p>
+
+<pre>
+;; Prepare to redefine pair?.
+(define %true-pair? pair?)
+
+;; Unique object in the cdr of a pair flags it as a box.
+(define %box-flag (string-copy "box flag"))
+
+;; Predicate
+(define (box? x) (and (%true-pair? x) (eq? (cdr x) %box-flag)))
+
+;; Constructor
+(define (box x) (cons x %box-flag))
+
+;; Accessor
+(define (unbox x)
+  (if (box? x)
+    (car x)
+    (error "Attempt to unbox non-box")))
+    
+;; Mutator
+(define (set-box! x y)
+  (if (box? x)
+    (set-car! x y)
+    (error "Attempt to mutate non-box")))
+
+;; Override pair?.
+(set! pair?
+  (lambda (x)
+    (and (%true-pair? x) (not (box? x)))))
+</pre>
+
+<p>Note that these implementations do not support the lexical syntax.</p>
+
+<h2>Autoboxing (optional)</h2>
+
+<p>The following provisions of this SRFI are optional:</p>
+
+<ul>
+
+<li><p>A procedure, whether system-provided or user-written, that expects a box as an argument but receives a non-box may, if appropriate, allocate a box itself that holds the value, thus providing autoboxing.</p></li>
+
+<li><p>A procedure that accepts arguments only of specified types (such as <code>+</code>) but receives a box instead may, if appropriate, unbox the box.  Procedures that accept arguments of any type (such as <code>cons</code>) must not unbox their arguments.</p></li>
+
+<li><p>Calling <code>unbox</code> on a non-box may simply return the non-box.</p></li>
+
+</ul>
+
+<H1>Copyright</H1>
+
+<p>Copyright (C) John Cowan 2013. All Rights Reserved.</p> 
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.</p>
+
+    <hr />
+<address>Editor: <a href="mailto:srfi-editors at srfi dot schemers dot org">
+             Mike Sperber</a></address>
+<!-- Created: Tue Sep 29 19:20:08 EDT 1998 -->
+<!-- hhmts start -->
+Last modified: Wed Jul  3 09:04:14 MST 2013
+<!-- hhmts end -->
+  </body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "" "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>SRFI 112: Environment Inquiry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+<body>
+
+<H1><a name="lp-srfi-112">Title</a></H1>
+
+Environment Inquiry
+
+<H1>Author</H1>
+
+John Cowan
+
+<H1>Status</H1>
+
+<p>
+This SRFI is currently in ``final'' status.
+
+To see an explanation of
+each status that a SRFI can hold, see <a
+href="http://srfi.schemers.org/srfi-process.html">here</a>.
+
+To provide input on this SRFI, please
+<a href="mailto:srfi minus 112 at srfi dot schemers dot org">mail to
+<code>&lt;srfi minus 112 at srfi dot schemers dot org&gt;</code></a>.  See
+<a href="../srfi-list-subscribe.html">instructions here</a> to
+subscribe to the list.  You can access previous messages via
+<a href="mail-archive/maillist.html">the archive of the mailing list</a>.
+You can access
+post-finalization messages via
+<a href="http://srfi.schemers.org/srfi-112/post-mail-archive/maillist.html">
+the archive of the mailing list</a>.
+</p>
+
+<ul>
+      <li>Received: <a href="http://srfi.schemers.org/srfi-112/srfi-112-1.1.html">2013/05/04</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-112/srfi-112-1.3.html">2013/07/03</a></li>
+      <li>Revised: <a href="http://srfi.schemers.org/srfi-112/srfi-112-1.4.html">2013/07/18</a></li>
+      <li>Final: <a href="http://srfi.schemers.org/srfi-112/srfi-112-1.5.html">2013/09/12</a></li>
+      <li>Draft: 2013/05/05-2013/07/05</li>
+      <li>Final: 2013/09/12</li>
+    </ul>
+
+    <h2>Abstract</h2>
+    <p>This is a proposal for environment inquiry, providing human-readable information <em>at run time</em> about the hardware and software configuration on which a Scheme program is being executed.  They are mostly based on Common Lisp, with additions from the Posix <code>uname()</code> system call.</p>
+    <h2>Issues</h2>
+    <p>None for this draft.</p>
+    <h2>Rationale</h2>
+    <p>The feature symbols of the R7RS-small <code>cond-expand</code> syntax provide the ability to conditionally compile code based on particular properties of an implementation that it sees fit to publish.  The <code>features</code> procedure, which returns the list of feature symbols of the implementation, provides run-time access to the same set of properties. Assuming that Rhinoceros Scheme provides the feature symbol <code>rhinoceros</code> but not <code>diplodocus</code> and Diplodocus Scheme does the opposite, programs can portably ask "Is this Rhinoceros Scheme or Diplodocus Scheme?" and behave differently  at run time based on the answer.  Similarly, a program can ask "Does this implementation have exact complex numbers?" by checking for the presence of the <code>exact-complex</code> feature symbol in the result of calling <code>features</code>.</p>
+    <p>However, a program using just the <code>features</code> procedure cannot report to its user "I am executing on X Scheme" for every value of X, because it does not know which symbol in the feature list represents the implementation name, nor does it have a comprehensive list of implementation names.  Similarly, there are other properties that the feature list may allow testing for but not reporting on, such as the underlying OS  and the CPU architecture.  For the sake of logging and debugging, it is necessary or at least extremely useful to provide a standard way for Scheme applications, as well as Scheme users at the REPL, to report these things.  In the Common Lisp world, bugs are often reported in a REPL transcript beginning with a call to <code>lisp-implementation-version</code>.</p>
+    <h2>Specification</h2>
+    <p>The following procedures take no arguments and return either a string, or <code>#f</code> if the implementation cannot provide an appropriate and relevant result.  It is an error to mutate the returned string.  The procedures in this proposal are in the <code>(srfi 112)</code> library (or <code>(srfi :112)</code> on R6RS).</p>
+    <p>Because users are expected to use the values of these procedures for reporting rather than testing, no attempt is made to standardize the string values they return.</p>
+    <p>Procedures are provided rather than strings against the possibility that a Scheme process might migrate from machine to machine. This need not happen only in a distributed environment; consider, for example, dumping a core image file containing a compiler and then shipping it to another site.</p>
+    <p>Posix and Common Lisp equivalents or near-equivalents are provided.  On Windows, some of this information is available using the <code>GetSystemInfo</code> and <code>GetComputerName</code> APIs.</p>
+    <p>
+      <code>(implementation-name)</code>
+    </p>
+    <p>Returns the name of the Scheme implementation.  This procedure corresponds roughly to Common Lisp's <code>lisp-implementation-type</code> function.</p>
+    <p>
+      <code>(implementation-version)</code>
+    </p>
+    <p>Returns the version of the Scheme implementation.  This procedure corresponds roughly to Common Lisp's <code>lisp-implementation-version</code> function.</p>
+    <p>
+      <code>(cpu-architecture)</code>
+    </p>
+    <p>Returns the CPU architecture, real or virtual, on which this implementation is executing.  This procedure corresponds roughly to Common Lisp's <code>machine-type</code> function.  On Posix systems, the result may be derived from the <code>machine</code> field of the <code>utsname</code> structure.</p>
+    <p>
+      <code>(machine-name)</code>
+    </p>
+    <p>Returns a name for the particular machine on which the implementation is running.  Possible values are the DNS or WINS host name, the DNS full name, an IP address in string form associated with the system, or a MAC address in string form associated with the system.  This procedure corresponds roughly to Common Lisp's <code>machine-instance</code> function.  On Posix systems, the result may be derived from the <code>nodename</code> field of the <code>utsname</code> structure.</p>
+    <p>
+      <code>(os-name)</code>
+    </p>
+    <p>Returns a name for the operating system, platform, or equivalent on which the implementation is running.  This procedure corresponds roughly to Common Lisp's <code>software-type</code> function.  On Posix systems, the result may be derived from the <code>sysname</code> field of the <code>utsname</code> structure.</p>
+    <p>
+      <code>(os-version)</code>
+    </p>
+    <p>Returns the version of the operating system, platform, or equivalent on which the implementation is running.  This procedure corresponds roughly to Common Lisp's <code>software-version</code> function.  On Posix systems, the result may be derived from the <code>release</code> and/or <code>version</code> fields of the <code>utsname</code> structure.</p>
+    <p>Note: Analogues to the Common Lisp <code>machine-version</code>, <code>short-site-name</code>, and <code>long-site-name</code> are not provided.  They are inconsistently implemented and of doubtful utility.</p>
+    <h2>Implementation</h2>
+    <p>The implementation of this SRFI is inherently system-dependent.  The version shown below is for an imaginary Scheme implementation, and is in R5RS style.  Trivial wrappers will convert it to an R6RS or R7RS library.</p>
+    <p>Some of the information can be derived from the <code>uname()</code> system call, which is provided by the Posix standard.  (Some of the same information is available on Win32 using <code>GetSystemInfo</code> and <code>GetComputerNameA</code>.)  The exact Scheme interface to <code>uname</code> is highly system-dependent.  In Chicken, the <code>system-information</code> procedure returns a list of five strings representing the five components of the Posix <code>utsname</code> structure.  In Gauche, the same procedure is called <code>sys-uname</code>.  In Guile and Sizzle, it is called <code>uname</code>, and returns a vector rather than a list; Sizzle places it in the module <code>(core posix)</code>.  In Scheme48, there are five separate procedures in the <code>posix</code> structure named <code>os-name</code>, <code>os-node-name</code>, <code>os-release-name</code>, <code>os-version-name</code>, and <code>machine-name</code>.  In scsh, the <tt>uname</tt> procedure returns a record whose fields have the same names as the Scheme48 procedures; their accessors are named <tt>uname:os-name</tt>, etc.  The version below uses the Guile convention.</p>
+    <pre>
+    (define (implementation-name) "Fantastic Scheme")
+    
+    (define (implementation-version) "1.0")
+    
+    (define (cpu-architecture) (vector-ref (uname) 4)) ; Posix machine field
+    
+    (define (machine-name) (vector-ref (uname) 1)) ; Posix nodename field
+    
+    (define (os-type) (vector-ref (uname) 0)) ; Posix sysname field
+    
+    (define (os-version)
+      (string-append
+        (vector-ref (uname) 2) ; Posix version field
+        " "
+        (vector-ref (uname) 3))) ; Posix release field
+    </pre>
+
+<H1>Copyright</H1>
+
+<p>Copyright (C) John Cowan 2013. All Rights Reserved.</p> 
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.</p>
+
+    <hr />
+<address>Editor: <a href="mailto:srfi-editors at srfi dot schemers dot org">
+             Mike Sperber</a></address>
+<!-- Created: Tue Sep 29 19:20:08 EDT 1998 -->
+<!-- hhmts start -->
+Last modified: Sun Nov 23 17:54:46 MET 2014
+<!-- hhmts end -->
+  </body>
+</html>

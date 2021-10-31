@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 174: POSIX Timespecs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+
+<H1><a name="lp-srfi-174">Title</a></H1>
+
+P<small>OSIX</small> Timespecs
+
+<h1>Author</h1>
+
+John Cowan &lt;cowan@ccil.org&gt;
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+174+at+srfi+dotschemers+dot+org">srfi-174@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-174">archive</a>.</p>
+<ul>
+  <li>Received: 2019/9/14</li>
+  <li>60-day deadline: 2019/11/15</li>
+  <li>Draft #1 published: 2019/9/16</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>This SRFI defines the trivial type <i>timespec</i>, which is used
+to represent the <code>struct timespec</code> defined by the
+<a href="https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/time.h.html">
+P<small>OSIX</small> <code>&lt;time.h&gt;</code> header</a>.</p>
+
+<h1>Issues</h1>
+
+None at present.
+
+<h1>Rationale</h1>
+
+<p>The reason for putting this very simple and straightforward type
+into a SRFI (and library) of its own is that timespecs are part of the
+interface for more than one SRFI.  If they are defined in just
+one SRFI and imported by the rest, that produces an otherwise useless
+and unnecessary dependency on the defining SRFI.  This arises particularly
+in R6RS and R7RS because record types are generative (distinct
+definitions lead to distinct record types) and because most implementations
+report a warning or even an error if the same identifier is imported from
+different libraries, unless they have both imported it in turn
+from the same original library.</p>
+
+<h1>Specification</h1>
+
+<p>Timespec is a type that contains two values.
+The first is the number of seconds
+since a particular <a href="https://en.wikipedia.org/wiki/Epoch_(computing)">
+epoch</a>, but normally excluding all leap seconds that have occurred since then.
+The second is the number of nanoseconds since the beginning of the
+specified second.  It is recommended, but not required, that timespecs
+are a disjoint type, but for efficiency's sake they may be represented
+otherwise in particular implementations.  If they are not disjoint, the
+exact representation (such as a pair) must be documented
+by the implementation.</p>
+
+<h2>Procedures</h2>
+
+<p><code>(timespec </code><i>seconds nanoseconds</i><code>)</code></p>
+
+<p>Returns a timespec containing <i>seconds</i> and <i>nanoseconds</i>.
+
+<p><code>(timespec? </code><i>obj</i><code>)</code></p>
+
+<p>Returns <code>#f</code> if <i>obj</i> is definitely not a timespec,
+and <code>#t</code> if it is most probably one.</p>
+
+<p>If timespecs are a disjoint type, this procedure simply tests whether
+<i>obj</i> belongs to that type.  If not, then each component
+is checked to see if it is an exact integer, and in the case
+of the nanoseconds component, whether it is a non-positive integer
+less than 1,000,000,000.  In addition, on 64-bit Schemes, the
+integers will almost certainly be fixnums for all times in the
+past or future one billion years, which is certainly sufficient in
+practice, so a check for fixnum status (if possible) will provide additional
+certitude.</p>
+
+<p><code>(timespec-seconds </code><i>timespec</i>)</code></p>
+
+<p>Returns the seconds component of <i>timespec</i>.</p>
+
+<p><code>(timespec-nanoseconds </code><i>timespec</i>)</code></p>
+
+<p>Returns the nanoseconds component of <i>timespec</i>.</p>
+
+<p><code>timespec-comparator</code></p>
+
+<p>This variable (not a procedure) is a comparator object for
+timespecs, ordering them by the total number of nanoseconds.
+A simple hash function is also provided.</p>
+
+<p>Note that it is an (undetectable) error to compare two
+timespecs that are relative to different epochs.</p>
+
+<h1>Implementation</h1>
+
+<p>Two implementations of SRFI 174 are in the repository of this SRFI.
+The files are:</p>
+
+<ul>
+<li><code>srfi/174.sld</code> - uses a disjoint type</li>
+<li><code>srfi/pair-174.sld</code> - uses a pair</li>
+<li><code>chibi-tests.scm</code> - Tests using <code>(chibi tests)</code></li>
+<li><code>chibi-tests-pair.scm</code> - Tests for <code>(srfi pair-174)</code></li>
+</ul>
+
+
+<h1>Acknowledgements</h1>
+
+<p>Discussions between me, Lassi Kortela, and Harold Ancell, mostly on the
+<a href="https://srfi-email.schemers.org/srfi-170/">SRFI 170
+mailing list</a>, made the need for this SRFI clear.</p>
+
+<h1>Copyright</h1>
+Copyright &copy; John Cowan (2019).
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>
