@@ -35,6 +35,7 @@ final class UserSettings: ObservableObject {
   private static let consoleTightSpacingKey = "Console.tightSpacing"
   private static let consoleBackgroundColorKey = "Console.graphicsBackgroundColor"
   private static let maxConsoleHistoryKey = "Console.maxConsoleHistory"
+  private static let consoleLogSwitcherKey = "Console.logSwitcher"
   private static let inputFontSizeKey = "Console.inputFontSize"
   private static let inputTightSpacingKey = "Console.inputTightSpacing"
   private static let documentationFontSizeKey = "Documentation.fontSize"
@@ -172,6 +173,12 @@ final class UserSettings: ObservableObject {
   @Published var maxConsoleHistory: Int {
     didSet {
       UserDefaults.standard.set(self.maxConsoleHistory, forKey: Self.maxConsoleHistoryKey)
+    }
+  }
+  
+  @Published var consoleLogSwitcher: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleLogSwitcher, forKey: Self.consoleLogSwitcherKey)
     }
   }
   
@@ -491,6 +498,8 @@ final class UserSettings: ObservableObject {
     self.consoleBackgroundColor = UserDefaults.standard.str(
       forKey: Self.consoleBackgroundColorKey, UserSettings.whiteBackground)
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)
+    self.consoleLogSwitcher = UserDefaults.standard.boolean(forKey: Self.consoleLogSwitcherKey,
+                                                            false)
     self.inputFontSize = UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
                                                    UserSettings.smallFontSize)
     self.inputTightSpacing = UserDefaults.standard.boolean(forKey: Self.inputTightSpacingKey,

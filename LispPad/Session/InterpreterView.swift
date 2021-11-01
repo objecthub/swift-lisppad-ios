@@ -103,6 +103,7 @@ struct InterpreterView: View {
   @State private var showResetActionSheet = false
   @State private var selectedPreferencesTab = 0
   @State private var showSheet: SheetAction? = nil
+  @State private var showLog: Bool = false
   @State private var alertAction: AlertAction? = nil
   @State private var showProgressView: String? = nil
   @State private var navigateToEditor: Bool = false
@@ -232,6 +233,7 @@ struct InterpreterView: View {
           readingStatus: $interpreter.readingStatus,
           ready: $interpreter.isReady,
           showSheet: $showSheet,
+          showLog: $showLog,
           showProgressView: $showProgressView)
         if let header = self.showProgressView {
          ProgressView(header)
@@ -256,6 +258,14 @@ struct InterpreterView: View {
           }
           if self.interpreter.isReady {
             Menu {
+              Button(action: {
+                withAnimation {
+                  self.showLog.toggle()
+                }
+              }) {
+                Label(self.showLog ? "Hide Log" : "Show Log",
+                      systemImage: self.showLog ? "xmark" : "scroll")
+              }
               Button(action: {
                 self.showSheet = .shareConsole
               }) {

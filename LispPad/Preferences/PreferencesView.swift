@@ -50,6 +50,7 @@ struct PreferencesView: View {
             Spacer(minLength: 16)
             Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
           }
+          Toggle("Console/Log switcher", isOn: $settings.consoleLogSwitcher)
         }
         Section(header: Text("Input")) {
           Picker(selection: $settings.inputFontSize, label: Text("Font size")) {

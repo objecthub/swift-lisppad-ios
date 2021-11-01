@@ -33,7 +33,6 @@ struct ConsoleView: View {
   @State var inputHistoryIndex: Int = -1
   @State var updateConsole: ((CodeEditorTextView) -> Void)? = nil
   @State var showCard: Bool = false
-  @State var showLog: Bool = false
   @State var minSeverityFilter = Severity.debug
   @State var logMessageFilter = ""
   @State var filterMessage = true
@@ -48,6 +47,7 @@ struct ConsoleView: View {
   @Binding var readingStatus: Interpreter.ReadingStatus
   @Binding var ready: Bool
   @Binding var showSheet: InterpreterView.SheetAction?
+  @Binding var showLog: Bool
   @Binding var showProgressView: String?
   
   init(font: Font = .system(size: 12, design: .monospaced),
@@ -60,6 +60,7 @@ struct ConsoleView: View {
        readingStatus: Binding<Interpreter.ReadingStatus>,
        ready: Binding<Bool>,
        showSheet: Binding<InterpreterView.SheetAction?>,
+       showLog: Binding<Bool>,
        showProgressView: Binding<String?>) {
     self.font = font
     self.infoFont = infoFont
@@ -71,6 +72,7 @@ struct ConsoleView: View {
     self._readingStatus = readingStatus
     self._ready = ready
     self._showSheet = showSheet
+    self._showLog = showLog
     self._showProgressView = showProgressView
   }
   
@@ -393,19 +395,21 @@ struct ConsoleView: View {
           if self.showLog {
             LogView(font: self.font, input: $input, showSheet: $showSheet, showLog: $showLog)
           }
-          Button(action: {
-            withAnimation(.easeInOut) {
-              self.showLog.toggle()
+          if self.settings.consoleLogSwitcher {
+            Button(action: {
+              withAnimation(.easeInOut) {
+                self.showLog.toggle()
+              }
+            }) {
+              Circle()
+                .stroke(lineWidth: 1)
+                .frame(width: 23.5, height: 23.5)
+                .overlay(Image(systemName: self.showLog ? "list.triangle" : "scroll")
+                          .resizable()
+                          .scaledToFit()
+                          .frame(height: self.showLog ? 11 : 13), alignment: .center)
+                .padding(9.5)
             }
-          }) {
-            Circle()
-              .stroke(lineWidth: 1)
-              .frame(width: 23.5, height: 23.5)
-              .overlay(Image(systemName: self.showLog ? "list.triangle" : "scroll")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: self.showLog ? 11 : 13), alignment: .center)
-              .padding(9.5)
           }
         }
       }
