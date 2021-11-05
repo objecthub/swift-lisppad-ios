@@ -41,6 +41,7 @@
 		CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD85264ADB59001AAD10 /* Mutable.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
+		CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC624CD32735B46B005F15B3 /* TaskSerializer.swift */; };
 		CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CC27240997004C9B89 /* SessionLog.swift */; };
 		CC6598D82725859C004C9B89 /* log.sld in Copy Root/Libraries/lispkit */ = {isa = PBXBuildFile; fileRef = CC6598D52725846D004C9B89 /* log.sld */; };
 		CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC6598D227258405004C9B89 /* log.sld */; };
@@ -375,6 +376,7 @@
 		CC55DD85264ADB59001AAD10 /* Mutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutable.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
+		CC624CD32735B46B005F15B3 /* TaskSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSerializer.swift; sourceTree = "<group>"; };
 		CC6598CC27240997004C9B89 /* SessionLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLog.swift; sourceTree = "<group>"; };
 		CC6598D227258405004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
 		CC6598D52725846D004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
@@ -919,6 +921,7 @@
 				CC8BBA27269E45EE00552B8F /* KeyCommand.swift */,
 				CC55DD85264ADB59001AAD10 /* Mutable.swift */,
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
+				CC624CD32735B46B005F15B3 /* TaskSerializer.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1067,6 +1070,7 @@
 				CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
+				CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */,
 				CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
 				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,

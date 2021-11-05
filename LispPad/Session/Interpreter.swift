@@ -101,14 +101,13 @@ final class Interpreter: ContextDelegate, ObservableObject {
   /// Condition synchronizing changes to the published state variables
   let readingCondition = NSCondition()
   
-  /// The processing queue for the interpreter
-  private let processingQueue: OperationQueue
+  /// The task serializer used for Interpreter-related processing tasks
+  private var serializer: TaskSerializer
   
   init() {
-    self.processingQueue = OperationQueue()
-    self.processingQueue.qualityOfService = .userInitiated
-    self.processingQueue.maxConcurrentOperationCount = 1
-    self.processingQueue.addOperation(self.initialize)
+    self.serializer = TaskSerializer()
+    self.serializer.schedule(task: self.initialize)
+    self.serializer.start()
   }
   
   func append(output: ConsoleOutput) {
@@ -137,7 +136,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
       return false
     }
     self.context = nil
-    self.processingQueue.addOperation(self.initialize)
+    self.serializer.schedule(task: self.initialize)
     return true
   }
   
@@ -160,7 +159,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     self.isReady = false
     self.readingStatus = .reject
-    self.processingQueue.addOperation { [weak self] in
+    self.serializer.schedule { [weak self] in
       if UserSettings.standard.logCommands {
         SessionLog.standard.addLogEntry(
           severity: .info,
@@ -206,7 +205,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     self.isReady = false
     self.readingStatus = .reject
-    self.processingQueue.addOperation { [weak self] in
+    self.serializer.schedule { [weak self] in
       let res = self?.execute { context in
         var sourceId = SourceManager.consoleSourceId
         if let url = url {
@@ -240,7 +239,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     self.isReady = false
     self.readingStatus = .reject
-    self.processingQueue.addOperation { [weak self] in
+    self.serializer.schedule { [weak self] in
       let res = self?.execute { context in
         try context.machine.eval(file: url.absoluteURL.path, in: context.global, as: "<loader>")
       }
@@ -267,7 +266,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     self.isReady = false
     self.readingStatus = .reject
-    self.processingQueue.addOperation { [weak self] in
+    self.serializer.schedule { [weak self] in
       let res = self?.execute { context in
         try context.environment.import(lib)
         return .void
