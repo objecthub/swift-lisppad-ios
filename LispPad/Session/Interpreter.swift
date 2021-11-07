@@ -211,10 +211,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
         if let url = url {
           sourceId = context.sources.obtainSourceId(for: url)
         }
-        return try context.machine.eval(str: text,
-                                        sourceId: sourceId,
-                                        in: context.global,
-                                        as: "<loader>")
+        return try context.machine.eval(str: text, sourceId: sourceId)
       }
       DispatchQueue.main.sync {
         self?.isReady = true
@@ -241,7 +238,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.readingStatus = .reject
     self.serializer.schedule { [weak self] in
       let res = self?.execute { context in
-        try context.machine.eval(file: url.absoluteURL.path, in: context.global, as: "<loader>")
+        try context.machine.eval(file: url.absoluteURL.path)
       }
       DispatchQueue.main.sync {
         self?.isReady = true
@@ -350,7 +347,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
                       LispKitContext.defaultPreludePath
     self.context = context
     do {
-      _ = try context.machine.eval(file: preludePath, in: context.global, as: "<prelude>")
+      _ = try context.machine.eval(file: preludePath)
     } catch let error {
       DispatchQueue.main.sync {
         self.append(output: .error(error.localizedDescription,
