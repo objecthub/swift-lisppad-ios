@@ -42,6 +42,9 @@
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
 		CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC624CD32735B46B005F15B3 /* TaskSerializer.swift */; };
+		CC624CDF27412F74005F15B3 /* (lispkit prolog).md in Resources */ = {isa = PBXBuildFile; fileRef = CC624CDE27412F74005F15B3 /* (lispkit prolog).md */; };
+		CC624CE12741364E005F15B3 /* (lispkit math stats).md in Resources */ = {isa = PBXBuildFile; fileRef = CC624CE02741364E005F15B3 /* (lispkit math stats).md */; };
+		CC624CE32741367E005F15B3 /* (lispkit math util).md in Resources */ = {isa = PBXBuildFile; fileRef = CC624CE22741367E005F15B3 /* (lispkit math util).md */; };
 		CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CC27240997004C9B89 /* SessionLog.swift */; };
 		CC6598D82725859C004C9B89 /* log.sld in Copy Root/Libraries/lispkit */ = {isa = PBXBuildFile; fileRef = CC6598D52725846D004C9B89 /* log.sld */; };
 		CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC6598D227258405004C9B89 /* log.sld */; };
@@ -377,6 +380,9 @@
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
 		CC59FA3526361A3900EDA3CB /* Open.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Open.swift; sourceTree = "<group>"; };
 		CC624CD32735B46B005F15B3 /* TaskSerializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSerializer.swift; sourceTree = "<group>"; };
+		CC624CDE27412F74005F15B3 /* (lispkit prolog).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit prolog).md"; sourceTree = "<group>"; };
+		CC624CE02741364E005F15B3 /* (lispkit math stats).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit math stats).md"; sourceTree = "<group>"; };
+		CC624CE22741367E005F15B3 /* (lispkit math util).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit math util).md"; sourceTree = "<group>"; };
 		CC6598CC27240997004C9B89 /* SessionLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLog.swift; sourceTree = "<group>"; };
 		CC6598D227258405004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
 		CC6598D52725846D004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
@@ -693,8 +699,11 @@
 				CC8B952A26079FBA00830B4F /* (lispkit markdown).md */,
 				CC8B954926079FBA00830B4F /* (lispkit match).md */,
 				CC8B952C26079FBA00830B4F /* (lispkit math).md */,
+				CC624CE02741364E005F15B3 /* (lispkit math stats).md */,
+				CC624CE22741367E005F15B3 /* (lispkit math util).md */,
 				CC8B954C26079FBA00830B4F /* (lispkit object).md */,
 				CC8B953326079FBA00830B4F /* (lispkit port).md */,
+				CC624CDE27412F74005F15B3 /* (lispkit prolog).md */,
 				CC8B954A26079FBA00830B4F /* (lispkit queue).md */,
 				CC8B954726079FBA00830B4F /* (lispkit record).md */,
 				CC8B954B26079FBA00830B4F /* (lispkit regexp).md */,
@@ -998,12 +1007,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC624CE12741364E005F15B3 /* (lispkit math stats).md in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
+				CC624CE32741367E005F15B3 /* (lispkit math util).md in Resources */,
+				CC624CDF27412F74005F15B3 /* (lispkit prolog).md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
