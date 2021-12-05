@@ -866,7 +866,7 @@ struct CodeEditorView: View {
   private func runInterpreter() {
     self.dismissCard()
     if self.editorType == .scheme {
-      self.interpreter.append(output: .command("<execute code from editor>"))
+      self.interpreter.console.append(output: .command("<execute code from editor>"))
       self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
                                 url: self.fileManager.editorDocument?.fileURL)
       if self.splitView && self.splitViewMode == .secondaryOnly {

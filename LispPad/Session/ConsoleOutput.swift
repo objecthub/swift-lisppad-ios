@@ -25,6 +25,7 @@ import LispKit
 struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
   
   enum Kind: Equatable {
+    case empty
     case info
     case command
     case output
@@ -40,6 +41,10 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
   private init(_ kind: Kind, _ text: String) {
     self.kind = kind
     self.text = text
+  }
+  
+  static var empty: ConsoleOutput {
+    return ConsoleOutput(.empty, "")
   }
   
   static func info(_ text: String) -> ConsoleOutput {
@@ -93,6 +98,8 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
   
   var description: String {
     switch self.kind {
+      case .empty:
+        return ""
       case .info:
         return "ℹ️ " + self.text
       case .command:

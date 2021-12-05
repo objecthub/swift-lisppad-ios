@@ -157,7 +157,7 @@ struct InterpreterView: View {
       case .shareConsole:
         ZStack {
           Color(.secondarySystemBackground).ignoresSafeArea()
-          ShareSheet(activityItems: [self.interpreter.consoleAsText() as NSString])
+          ShareSheet(activityItems: [self.interpreter.console.description as NSString])
         }
       case .shareImage(let image):
         ZStack {
@@ -216,17 +216,18 @@ struct InterpreterView: View {
             let input: String
             if self.interpreter.isReady {
               input = InterpreterView.canonicalizeInput(old)
-              self.interpreter.append(output: .command(input))
+              self.interpreter.console.append(output: .command(input))
               self.histManager.addCommandEntry(input)
             } else {
               input = old
             }
-            self.interpreter.evaluate(input, reset: {
+            self.interpreter.evaluate(input) {
               self.consoleInput = old
-              self.interpreter.consoleContent.removeLast()
-            })
+              self.interpreter.console.removeLast()
+            }
           },
-          content: $interpreter.consoleContent,
+          console: interpreter.console,
+          contentBatch: $interpreter.contentBatch,
           history: $histManager.commandHistory,
           input: $consoleInput,
           selectedInputRange: $consoleInputRange,
@@ -271,14 +272,14 @@ struct InterpreterView: View {
               }) {
                 Label("Share Console", systemImage: "square.and.arrow.up")
               }
-              .disabled(self.interpreter.consoleContent.isEmpty)
+              .disabled(self.interpreter.console.isEmpty)
               Divider()
               Button(action: {
-                self.interpreter.consoleContent.removeAll()
+                self.interpreter.console.reset()
               }) {
                 Label("Clear Console", systemImage: "trash")
               }
-              .disabled(self.interpreter.consoleContent.isEmpty)
+              .disabled(self.interpreter.console.isEmpty)
               Button(action: {
                 self.showResetActionSheet = true
               }) {
@@ -400,7 +401,7 @@ struct InterpreterView: View {
                               _ = self.interpreter.reset()
                             }),
                             .destructive(Text("Reset console & interpreter"), action: {
-                              self.interpreter.consoleContent.removeAll()
+                              self.interpreter.console.reset()
                               _ = self.interpreter.reset()
                             }),
                             .cancel()])
@@ -470,7 +471,7 @@ struct InterpreterView: View {
     if let url = url {
       let input = InterpreterView.canonicalizeInput(
                     "(load \"\(self.fileManager.canonicalPath(for: url))\")")
-      self.interpreter.append(output: .command(input))
+      self.interpreter.console.append(output: .command(input))
       self.histManager.addCommandEntry(input)
       self.histManager.trackRecentFile(url)
       self.interpreter.load(url)

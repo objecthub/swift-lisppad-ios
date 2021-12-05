@@ -155,6 +155,7 @@ final class HistoryManager: ObservableObject {
   func addCommandEntry(_ input: String) {
     let str = input.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     if self.commandHistory.isEmpty || str != self.commandHistory.first! {
+      self.commandHistory.removeAll { command in command == str }
       self.commandHistory.insert(str, at: 0)
       if self.maxCommandHistory < self.commandHistory.count {
         self.commandHistory.removeLast(self.commandHistory.count - self.maxCommandHistory)

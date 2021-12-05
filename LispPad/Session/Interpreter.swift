@@ -88,10 +88,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
   }()
   
   /// Published state
-  @Published var consoleContent: [ConsoleOutput] = []
   @Published var isReady: Bool = false
   @Published var readingStatus: ReadingStatus = .reject
+  @Published var contentBatch: Int = 0
   
+  /// Dependencies
+  let console = Console()
   let libManager = LibraryManager()
   let envManager = EnvironmentManager()
   
@@ -110,25 +112,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.serializer.start()
   }
   
-  func append(output: ConsoleOutput) {
-    while self.consoleContent.count >= UserSettings.standard.maxConsoleHistory {
-      self.consoleContent.removeFirst()
-    }
-    if let last = self.consoleContent.last,
-       case .output = last.kind,
-       last.text.last == "\n" {
-      self.consoleContent[self.consoleContent.count - 1].text = String(last.text.dropLast())
-    }
-    self.consoleContent.append(output)
-  }
-  
-  func consoleAsText() -> String {
-    var res = ""
-    for output in self.consoleContent {
-      res += output.description
-      res += "\n"
-    }
-    return res
+  func completeContentBatch() {
+    self.contentBatch &+= 1
   }
   
   func reset() -> Bool {
@@ -153,7 +138,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     guard self.isReady else {
       if self.readingStatus == .accept {
         self.readingStatus = .read(command)
-        self.printInternal(command + "\n")
+        self.console.print(command + "\n")
       }
       return
     }
@@ -184,11 +169,18 @@ final class Interpreter: ContextDelegate, ObservableObject {
         self?.isReady = true
         self?.readingStatus = .accept
         if let res = res {
-          for op in res {
-            self?.append(output: op)
+          if res.isEmpty {
+            self?.console.append(output: .empty)
+          } else {
+            for op in res {
+              self?.console.append(output: op)
+            }
           }
         } else {
           reset()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+          self?.completeContentBatch()
         }
       }
     }
@@ -213,15 +205,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
         }
         return try context.machine.eval(str: text, sourceId: sourceId)
       }
-      DispatchQueue.main.sync {
-        self?.isReady = true
-        self?.readingStatus = .accept
-        if let res = res {
-          for op in res {
-            self?.append(output: op)
-          }
-        }
-      }
+      self?.append(result: res)
     }
   }
   
@@ -240,15 +224,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
       let res = self?.execute { context in
         try context.machine.eval(file: url.absoluteURL.path)
       }
-      DispatchQueue.main.sync {
-        self?.isReady = true
-        self?.readingStatus = .accept
-        if let res = res {
-          for op in res {
-            self?.append(output: op)
-          }
-        }
-      }
+      self?.append(result: res)
     }
   }
   
@@ -268,14 +244,21 @@ final class Interpreter: ContextDelegate, ObservableObject {
         try context.environment.import(lib)
         return .void
       }
-      DispatchQueue.main.sync {
-        self?.isReady = true
-        self?.readingStatus = .accept
-        if let res = res {
-          for op in res {
-            self?.append(output: op)
-          }
+      self?.append(result: res)
+    }
+  }
+  
+  private func append(result: [ConsoleOutput]?) {
+    DispatchQueue.main.sync {
+      self.isReady = true
+      self.readingStatus = .accept
+      if let res = result {
+        for op in res {
+          self.console.append(output: op)
         }
+      }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        self.completeContentBatch()
       }
     }
   }
@@ -350,8 +333,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
       _ = try context.machine.eval(file: preludePath)
     } catch let error {
       DispatchQueue.main.sync {
-        self.append(output: .error(error.localizedDescription,
-                                   context: ErrorContext(stackTrace: "init")))
+        self.console.append(output: .error(error.localizedDescription,
+                                           context: ErrorContext(stackTrace: "init")))
         self.isReady = true
         self.readingStatus = .accept
       }
@@ -478,28 +461,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   /// Prints the given string into the console window.
   func print(_ str: String) {
     DispatchQueue.main.async {
-      self.printInternal(str)
-    }
-  }
-  
-  private func printInternal(_ str: String) {
-    if self.consoleContent.isEmpty {
-      self.append(output: .output(str))
-    } else if let last = self.consoleContent.last,
-              last.kind == .output {
-      if last.text.count < 1000 {
-        self.consoleContent[self.consoleContent.count - 1].text += str
-      } else if str.first == "\n" {
-        self.append(output: .output(String(str.dropFirst())))
-      } else if last.text.last == "\n" {
-        let str = String(self.consoleContent[self.consoleContent.count - 1].text.dropLast())
-        self.consoleContent[self.consoleContent.count - 1].text = str
-        self.append(output: .output(str))
-      } else {
-        self.append(output: .output(str))
-      }
-    } else {
-      self.append(output: .output(str))
+      self.console.print(str)
     }
   }
   

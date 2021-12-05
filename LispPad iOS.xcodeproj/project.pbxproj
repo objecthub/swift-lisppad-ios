@@ -50,6 +50,7 @@
 		CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC6598D227258405004C9B89 /* log.sld */; };
 		CC6598DE272628A7004C9B89 /* CustomPopOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598DD272628A7004C9B89 /* CustomPopOver.swift */; };
 		CC6598E027292CB6004C9B89 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598DF27292CB6004C9B89 /* LogView.swift */; };
+		CC7A62BE275D375C009F72E4 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7A62BD275D375C009F72E4 /* Console.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
 		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
 		CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24D25FE59EE00758581 /* ContentView.swift */; };
@@ -388,6 +389,7 @@
 		CC6598D52725846D004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
 		CC6598DD272628A7004C9B89 /* CustomPopOver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPopOver.swift; sourceTree = "<group>"; };
 		CC6598DF27292CB6004C9B89 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
+		CC7A62BD275D375C009F72E4 /* Console.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Console.swift; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
 		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
@@ -637,6 +639,7 @@
 				CC890A55267E829100FA8BAA /* ConsoleEditor.swift */,
 				CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */,
 				CC84C26D25FE78A600758581 /* ConsoleScrollView.swift */,
+				CC7A62BD275D375C009F72E4 /* Console.swift */,
 				CC84C26F25FE78E100758581 /* ConsoleOutput.swift */,
 				CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */,
 				CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */,
@@ -1039,6 +1042,7 @@
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
 				CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */,
 				CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */,
+				CC7A62BE275D375C009F72E4 /* Console.swift in Sources */,
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,

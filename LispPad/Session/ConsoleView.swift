@@ -22,10 +22,6 @@ import SwiftUI
 import MobileCoreServices
 
 struct ConsoleView: View {
-  let font: Font
-  let infoFont: Font
-  let action: () -> Void
-  
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var settings: UserSettings
   @State var dynamicHeight: CGFloat = 100
@@ -40,7 +36,12 @@ struct ConsoleView: View {
   @StateObject var cardContent = MutableBlock()
   @StateObject var keyboardObserver = KeyboardObserver()
   
-  @Binding var content: [ConsoleOutput]
+  let font: Font
+  let infoFont: Font
+  let action: () -> Void
+  
+  @ObservedObject var console: Console
+  @Binding var contentBatch: Int
   @Binding var history: [String]
   @Binding var input: String
   @Binding var selectedInputRange: NSRange
@@ -49,32 +50,6 @@ struct ConsoleView: View {
   @Binding var showSheet: InterpreterView.SheetAction?
   @Binding var showLog: Bool
   @Binding var showProgressView: String?
-  
-  init(font: Font = .system(size: 12, design: .monospaced),
-       infoFont: Font = .system(size: 13, weight: .bold, design: .default),
-       action: @escaping () -> Void = {},
-       content: Binding<[ConsoleOutput]>,
-       history: Binding<[String]>,
-       input: Binding<String>,
-       selectedInputRange: Binding<NSRange>,
-       readingStatus: Binding<Interpreter.ReadingStatus>,
-       ready: Binding<Bool>,
-       showSheet: Binding<InterpreterView.SheetAction?>,
-       showLog: Binding<Bool>,
-       showProgressView: Binding<String?>) {
-    self.font = font
-    self.infoFont = infoFont
-    self.action = action
-    self._content = content
-    self._history = history
-    self._input = input
-    self._selectedInputRange = selectedInputRange
-    self._readingStatus = readingStatus
-    self._ready = ready
-    self._showSheet = showSheet
-    self._showLog = showLog
-    self._showProgressView = showProgressView
-  }
   
   func errorText(image: String, text: String?) -> Text {
     return text == nil ? Text("") : Text("\n") +
@@ -122,6 +97,8 @@ struct ConsoleView: View {
           .padding(.leading, 2)
       }
       switch entry.kind {
+        case .empty:
+          Divider().frame(width: 10, height: 1)
         case .drawingResult(let drawing, let image):
           VStack(alignment: .leading, spacing: 2) {
             Text(entry.text)
@@ -367,26 +344,31 @@ struct ConsoleView: View {
     VStack(alignment: .leading, spacing: 0) {
       GeometryReader { geo in
         ZStack(alignment: .bottomTrailing) {
-          ScrollViewReader { scrollViewProxy in
-            ScrollView(.vertical, showsIndicators: true) {
+          ScrollView(.vertical, showsIndicators: true) {
+            ScrollViewReader { scrollViewProxy in
               LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(self.content, id: \.id) { entry in
+                ForEach(self.console.content, id: \.id) { entry in
                   self.consoleRow(entry, width: geo.size.width)
                 }
               }
-              .onChange(of: self.content.count) { _ in
-                if self.content.count > 0 {
+              .onChange(of: self.console.content.count) { _ in
+                if let id = self.console.lastOutputId {
                   withAnimation {
-                    scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
-                                             anchor: .bottomLeading)
+                    scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
+                  }
+                }
+              }
+              .onChange(of: self.contentBatch) { _ in
+                if let id = self.console.lastOutputId {
+                  withAnimation {
+                    scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
                   }
                 }
               }
               .onChange(of: self.input.count) { _ in
-                if self.content.count > 0 {
+                if let id = self.console.lastOutputId {
                   withAnimation {
-                    scrollViewProxy.scrollTo(self.content[self.content.endIndex - 1].id,
-                                             anchor: .bottomLeading)
+                    scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
                   }
                 }
               }

@@ -132,7 +132,7 @@ struct LogView: View {
                 scrollViewProxy.scrollTo(
                   self.sessionLog.filteredLogEntries[
                     self.sessionLog.filteredLogEntries.endIndex - 1].id,
-                  anchor: .bottomLeading)
+                  anchor: .bottomTrailing)
               }
             }
           }
