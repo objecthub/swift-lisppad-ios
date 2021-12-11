@@ -26,6 +26,10 @@
 		<string>(lispkit system os).md</string>
 		<key>lispkit math</key>
 		<string>(lispkit math).md</string>
+		<key>lispkit math util</key>
+		<string>(lispkit math util).md</string>
+		<key>lispkit math stats</key>
+		<string>(lispkit math stats).md</string>
 		<key>lispkit list</key>
 		<string>(lispkit list).md</string>
 		<key>lispkit hashtable</key>
@@ -96,6 +100,10 @@
 		<string>(lispkit test).md</string>
 		<key>lispkit debug</key>
 		<string>(lispkit debug).md</string>
+		<key>lispkit prolog</key>
+		<string>(lispkit prolog).md</string>
+		<key>lispkit text-table</key>
+		<string>(lispkit text-table).md</string>
 	</dict>
 	<key>web</key>
 	<dict>
@@ -213,6 +221,8 @@
 		<string>srfi/srfi-162.html</string>
 		<key>srfi 165</key>
 		<string>srfi/srfi-165.html</string>
+		<key>srfi 166</key>
+		<string>srfi/srfi-166.html</string>
 		<key>srfi 167</key>
 		<string>srfi/srfi-167.html</string>
 		<key>srfi 173</key>
@@ -257,6 +267,10 @@
 		<string>srfi/srfi-223.html</string>
 		<key>srfi 224</key>
 		<string>srfi/srfi-224.html</string>
+		<key>srfi 227</key>
+		<string>srfi/srfi-227.html</string>
+		<key>srfi 229</key>
+		<string>srfi/srfi-229.html</string>
 		<key>srfi sicp</key>
 		<string>srfi/srfi-216.html</string>
 	</dict>

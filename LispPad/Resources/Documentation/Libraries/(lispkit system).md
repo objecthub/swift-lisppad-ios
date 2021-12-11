@@ -1,15 +1,5 @@
 # LispKit System
 
-## Source files
-
-**(load _filename_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(load _filename_ _environment_)**  
-
-`load` reads a source file specified by _filename_ and executes it in the given _environment_. If no environment is specified, the current _interaction environment_ is used, which can be accessed via `(interaction-environment)`. Execution of the file consists of reading expressions and definitions from the file, compiling them, and evaluating them sequentially in the environment. `load` returns the result of evaluating the last expression or definition from the file. During compilation, the special form `source-directory` can be used to access the directory in which the executed file is located.
-
-It is an error if _filename_ is not a string. If _filename_ is not an absolute file path, LispKit will try to find the file in a predefined set of directories, such as the default libraries search path. If no file name suffix, also called _path extension_, is provided, the system will try to determine the right suffix. For instance, `(load "Prelude")` will find the prelude file, determine its suffix and load and execute the file.
-
-
 ## File paths
 
 Files and directories are referenced by _paths_. Paths are strings consisting of directory names separated by character `'/'` optionally followed by a file name (if the path refers to a file) and a path extension (sometimes also called _file name suffix_, if the path refers to a file). Paths are either _absolute_, if they start with character `'/'`, or they are _relative_ to some unspecified directory.

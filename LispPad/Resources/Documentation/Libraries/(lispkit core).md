@@ -300,6 +300,59 @@ Returns `#t` if _obj_ is an "arity-at-least" object and `#f` otherwise.
 
 Returns a fixnum denoting the minimum number of arguments required by the given "arity-at-least" object _obj_.
 
+
+## Procedures with optional arguments  
+
+**(opt-lambda _(arg1 ... arg1 bind1 ... bindm) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(opt-lambda _(arg1 ... argn bind1 ... bindm . rest) expr ..._)**  
+**(opt-lambda _rest expr ..._)**  
+
+An `opt-lambda` expression evaluates to a procedure and is lexically scoped in the same manner as a procedure resulting from a `lambda` expression. When the procedure is later called with actual arguments, the variables are bound to fresh locations, the values of the corresponding arguments are stored in those locations, the body _expr ..._ is evaluated in the extended environment, and the result of the last body expression is returned as the result of the procedure 
+call.
+
+Formal arguments _argi_ are required arguments. Arguments _bindi_ are optional. They are of the form `(var init)`, with _var_ being a symbol and _init_ an initialization expression which gets evaluated and assigned to _var_ if the argument is not provided when the procedure is called. It is a syntax violation if the same variable appears more than once among the variables.
+
+A procedure created with the first syntax of `opt-formals` takes at least _n_ arguments and at most _n + m_ arguments. A procedure created with the second syntax of `opt-formals` takes _n_ or more arguments. If the procedure is called with fewer than _n_ + _m_ (but at least _n_ arguments), the missing actual arguments are substituted by the values resulting from evaluating the corresponding _init_s. The corresponding _init_s are evaluated in an unspecified order in the lexical environment of the `opt-lambda` expression when the procedure is called.
+
+**(opt\*-lambda _(arg1 ... arg1 bind1 ... bindm) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(opt\*-lambda _(arg1 ... argn bind1 ... bindm . rest) expr ..._)**  
+**(opt\*-lambda _rest expr ..._)**  
+
+Similar to syntax `opt-lambda` except that the initializers of optional arguments _bindi_ corresponding to missing actual arguments are evaluated sequentially from left to right. The region of the binding of a variable is that part of the `opt*-lambda` expression to the right of it or its binding.
+
+**(define-optionals (_f arg ... bind ..._) _expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(define-optionals (_f arg ... bind ... . rest_) _expr ..._)**
+
+`define-optionals` is operationally equivalent to `(define f (opt-lambda (arg ... bind ...) expr ...))` or `(define f (opt-lambda (arg ... bind ... . rest) expr ...))` if the second syntactical form is used.
+
+**(define-optionals\* (_f arg ... bind ..._) _expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(define-optionals\* (_f arg ... bind ... . rest_) _expr ..._)**
+
+`define-optionals*` is operationally equivalent to `(define f (opt*-lambda (arg ... bind ...) expr ...))` or `(define f (opt*-lambda (arg ... bind ... . rest) expr ...))` if the second syntactical form is used.
+
+
+## Tagged procedures
+
+LispKit allows a data object to be associated with a procedure. Such data objects are called _tags_, procedures with an associated tag are called _tagged procedures_. The tag of a procedure is immutable. It is defined at procedure creation time and can later be retrieved without calling the procedure.
+
+**(procedure/tag? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a tagged procedure and `#f` otherwise. Procedures are tagged procedures if they were created either via `lambda/tag` or `case-lambda/tag`.
+
+**(procedure-tag _proc_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the tag of the tagged procedure _proc_. It is an error if _proc_ is not a tagged procedure.
+
+**(lambda/tag _tag (arg1 ...) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(lambda/tag _tag (arg1 ... . rest) expr ..._)**  
+**(lambda/tag _tag rest expr ..._)**  
+
+A `lambda/tag` expression evaluates to a tagged procedure. First, _tag_ is evaluated to obtain the tag value for the procedure. Then, the tagged procedure itself gets created for the given formal arguments. The procedure is lexically scoped in the same manner as a procedure resulting from a `lambda` expression. When the procedure is called, it behaves as if constructed by a `lambda` expression with the same formal arguments and body.
+
+**(case-lambda/tag _tag (formals expr ...) ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+
+A `case-lambda/tag` expression evaluates to a tagged procedure. First, _tag_ is evaluated to obtain the tag value for the procedure. Then, the tagged procedure itself gets created, accepting a variable number of arguments. It is lexically scoped in the same manner as a procedure resulting from a `lambda` expression. When the procedure is called, it behaves as if it was constructed by a `case-lambda` expression with the same formal arguments and bodies.
+
 ## Delayed execution
 
 LispKit provides _promises_ to delay the execution of code. Built on top of _promises_ are _streams_. Streams are similar to lists, except that the tail of a stream is not computed until it is de-referenced. This allows streams to be used to represent infinitely long lists. Library `(lispkit core)` only defines procedures for _streams_ equivalent to _promises_. Library `(lispkit stream)` provides all the list-like functionality.
@@ -661,6 +714,15 @@ If _version_ is equal to 5, corresponding to R5RS, the _null-environment_ proced
 **(interaction-environment)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 This procedure returns a mutable environment which is the environment in which expressions entered by the user into a read-eval-print loop are evaluated. This is typically a superset of bindings from _(lispkit base)_.
+
+## Source files
+
+**(load _filename_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(load _filename_ _environment_)**  
+
+`load` reads a source file specified by _filename_ and executes it in the given _environment_. If no environment is specified, the current _interaction environment_ is used, which can be accessed via `(interaction-environment)`. Execution of the file consists of reading expressions and definitions from the file, compiling them, and evaluating them sequentially in the environment. `load` returns the result of evaluating the last expression or definition from the file. During compilation, the special form `source-directory` can be used to access the directory in which the executed file is located.
+
+It is an error if _filename_ is not a string. If _filename_ is not an absolute file path, LispKit will try to find the file in a predefined set of directories, such as the default libraries search path. If no file name suffix, also called _path extension_, is provided, the system will try to determine the right suffix. For instance, `(load "Prelude")` will find the prelude file, determine its suffix and load and execute the file.
 
 ## Syntax errors
 

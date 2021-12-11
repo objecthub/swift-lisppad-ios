@@ -42,9 +42,6 @@
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
 		CC59FA3626361A3900EDA3CB /* Open.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA3526361A3900EDA3CB /* Open.swift */; };
 		CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC624CD32735B46B005F15B3 /* TaskSerializer.swift */; };
-		CC624CDF27412F74005F15B3 /* (lispkit prolog).md in Resources */ = {isa = PBXBuildFile; fileRef = CC624CDE27412F74005F15B3 /* (lispkit prolog).md */; };
-		CC624CE12741364E005F15B3 /* (lispkit math stats).md in Resources */ = {isa = PBXBuildFile; fileRef = CC624CE02741364E005F15B3 /* (lispkit math stats).md */; };
-		CC624CE32741367E005F15B3 /* (lispkit math util).md in Resources */ = {isa = PBXBuildFile; fileRef = CC624CE22741367E005F15B3 /* (lispkit math util).md */; };
 		CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CC27240997004C9B89 /* SessionLog.swift */; };
 		CC6598D82725859C004C9B89 /* log.sld in Copy Root/Libraries/lispkit */ = {isa = PBXBuildFile; fileRef = CC6598D52725846D004C9B89 /* log.sld */; };
 		CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC6598D227258405004C9B89 /* log.sld */; };
@@ -159,6 +156,10 @@
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
+		CCFA6807276535E1009A599C /* (lispkit prolog).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CDE27412F74005F15B3 /* (lispkit prolog).md */; };
+		CCFA68092765397D009A599C /* (lispkit text-table).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCFA680827653915009A599C /* (lispkit text-table).md */; };
+		CCFA680A27653986009A599C /* (lispkit math stats).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CE02741364E005F15B3 /* (lispkit math stats).md */; };
+		CCFA680B27653990009A599C /* (lispkit math util).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CE22741367E005F15B3 /* (lispkit math util).md */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
@@ -195,6 +196,10 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CCFA680B27653990009A599C /* (lispkit math util).md in Copy Documentation/Libraries */,
+				CCFA680A27653986009A599C /* (lispkit math stats).md in Copy Documentation/Libraries */,
+				CCFA68092765397D009A599C /* (lispkit text-table).md in Copy Documentation/Libraries */,
+				CCFA6807276535E1009A599C /* (lispkit prolog).md in Copy Documentation/Libraries */,
 				CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */,
 				CC1896DF266D5FE700D384F6 /* (lisppad system).md in Copy Documentation/Libraries */,
 				CC1896DE266D5AC500D384F6 /* (lispkit archive zip).md in Copy Documentation/Libraries */,
@@ -515,6 +520,7 @@
 		CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_menu.png; sourceTree = "<group>"; };
 		CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_prefs.png; sourceTree = "<group>"; };
 		CCEA5A302643D62C00D78C62 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		CCFA680827653915009A599C /* (lispkit text-table).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit text-table).md"; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -720,6 +726,7 @@
 				CC8B952226079FBA00830B4F /* (lispkit test).md */,
 				CC8B952326079FBA00830B4F /* (lispkit type).md */,
 				CC8B953826079FBA00830B4F /* (lispkit vector).md */,
+				CCFA680827653915009A599C /* (lispkit text-table).md */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -1010,15 +1017,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC624CE12741364E005F15B3 /* (lispkit math stats).md in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
-				CC624CE32741367E005F15B3 /* (lispkit math util).md in Resources */,
-				CC624CDF27412F74005F15B3 /* (lispkit prolog).md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 229: Tagged Procedures</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+        <H2><a name="lp-srfi-229">Title</a></H2>
+        Tagged Procedures
+
+        <h2>Author</h2>
+        <p>Marc Nieper-Wißkirchen</p>
+
+    <h2 id="status">Status</h2>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+229+at+srfi+dotschemers+dot+org">srfi-229@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-229">archive</a>.</p>
+    <ul>
+      <li>Received: 2021-08-26</li>
+      <li>Draft #1 published: 2021-08-31</li>
+      <li>Draft #2 published: 2021-11-07</li>
+      <li>Finalized: 2021-11-15</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>This SRFI defines <dfn>tagged procedures</dfn>, which are procedures
+      that are tagged with a Scheme value when created through the
+      syntax <code>lambda/tag</code> and <code>case-lambda/tag</code>.  The
+      value of the tag of a procedure can be retrieved
+      with <code>procedure-tag</code>, and the
+      predicate <code>procedure/tag?</code> discerns whether a procedure is
+      tagged.</p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>The only way to interact with an ordinary Scheme procedure, besides
+      applying predicates like <code>eqv?</code> or <code>procedure?</code> to
+      it, is to call it.  Some applications, however, have the need to
+      associate data with a procedure that can be retrieved without calling the
+      procedure.  For an R7RS system, this can be achieved in principle by
+      associating the data through a weak hash table.  For an R6RS system, this
+      is not possible because R6RS does not expose a coarse-enough equivalence
+      predicate for procedures.  But even for an R7RS system, such an approach
+      is not straightforward.  Firstly, weak hash tables are not necessarily
+      available and, secondly, even for an R7RS system, procedure equivalence
+      is not trivial because the expression types that create
+      procedures, <code>lambda</code> and <code>case-lambda</code>, are not
+      necessarily generative.</p>
+
+    <p>Therefore, this SRFI defines a simple interface that can be used to
+      create tagged procedures, to detect the existence of a tag, and to
+      retrieve it.  Through this mechanism, even R6RS procedures can be given
+      an identity that can be tested in Scheme code.</p>
+
+    <p>The mechanism defined in this SRFI can be used to implement procedure
+      properties, documentation strings, source location information, and other
+      things in Scheme.</p>
+
+    <p>Scheme records as defined by R<sup>6</sup>RS or R<sup>7</sup>R7
+      cannot be called as procedures, but this SRFI can be used to
+      implement an alternative record system where the record
+      instances are procedures whose actual fields are stored in a
+      private record as the procedure's tag.</p>
+
+    <p>In order to not prevent certain optimizations, the procedure
+      tags defined through the facilities presented here are
+      immutable.  In other words, the Scheme object used as a tag is
+      fixed at procedure creation time.  If an application needs
+      mutable fields attached to a procedure, a Scheme object that is
+      itself mutable (like a pair, a string, a vector, or a record with
+      mutable fields) has to be used as a tag.</p>
+
+    <p>Contrary to proposals that conceptually attach properties to
+      every procedure, this SRFI gives implementations the freedom to
+      have disjoint types of tagged and untagged procedures, both
+      non-empty.  In particular, this SRFI can be implemented at zero
+      cost for the general case of untagged procedures.</p>
+
+    <p>In fact, in the context of SRFI 229, one shouldn't think of
+      procedures falling in just two classes, untagged and tagged ones (note
+      that all procedures may be implementable as tagged ones), but falling
+      into infinitely many classes, one for each type of its tag.  So one can
+      really think of them as callable structs, where the struct is in the
+      tag.  (See MIT/GNU Scheme's apply hooks for an example.)</p>
+
+    <p>Future SRFIs are expected to build on SRFI 229 to provide a
+      procedure type with an extensible tag field, allowing
+      independent composition.</p>
+
+    <h3>Application Hooks</h3>
+
+    <p>MIT/GNU Scheme Scheme
+      defines <a href="https://www.gnu.org/software/mit-scheme/documentation/stable/mit-scheme-ref/Application-Hooks.html"><dfn>application
+      hooks</dfn> and <dfn>entities</dfn></a>, which are objects that can
+      applied like procedures.  As a demonstration of the generality of the
+      primitives defined by this SRFI, we give a portable sample implementation of
+      application hooks and entities on top of this SRFI:</p>
+
+    <pre>(define-library (application-hook)
+  (export make-apply-hook
+          apply-hook?
+          apply-hook-procedure
+          set-apply-hook-procedure!
+          apply-hook-extra
+          set-apply-hook-extra!
+          make-entity
+          entity?
+          entity-procedure
+          set-entity-procedure!
+          entity-extra
+          set-entity-extra!)
+  (import (scheme base)
+          (srfi 229))
+  (begin
+    (define-record-type apply-hook-tag
+      (make-apply-hook-tag procedure extra)
+      apply-hook-tag?
+      (procedure apply-hook-tag-procedure apply-hook-tag-set-procedure!)
+      (extra apply-hook-tag-extra apply-hook-tag-set-extra!))
+
+    (define (make-apply-hook proc obj)
+      (let ((tag (make-apply-hook-tag proc obj)))
+        (lambda/tag tag arg*
+          (apply (apply-hook-tag-procedure tag) arg*))))
+
+    (define (apply-hook? obj)
+      (and (procedure/tag? obj)
+           (apply-hook-tag? (procedure-tag obj))))
+
+    (define (apply-hook-procedure hook)
+      (apply-hook-tag-procedure (procedure-tag hook)))
+
+    (define (set-apply-hook-procedure! hook proc)
+      (apply-hook-tag-set-procedure! (procedure-tag hook) proc))
+
+    (define (apply-hook-extra hook)
+      (apply-hook-tag-extra (procedure-tag hook)))
+
+    (define (set-apply-hook-extra! hook obj)
+      (apply-hook-tag-set-extra! (procedure-tag hook) obj))
+
+    (define-record-type entity-tag
+      (make-entity-tag procedure extra)
+      entity-tag?
+      (procedure entity-tag-procedure entity-tag-set-procedure!)
+      (extra entity-tag-extra entity-tag-set-extra!))
+
+    (define (make-entity proc obj)
+      (let ((tag (make-entity-tag proc obj)))
+        (define f
+          (lambda/tag tag arg*
+            (apply (entity-tag-procedure tag) f arg*)))
+        f))
+
+    (define (entity? obj)
+      (and (procedure/tag? obj)
+           (entity-tag? (procedure-tag obj))))
+
+    (define (entity-procedure hook)
+      (entity-tag-procedure (procedure-tag hook)))
+
+    (define (set-entity-procedure! hook proc)
+      (entity-tag-set-procedure! (procedure-tag hook) proc))
+
+    (define (entity-extra hook)
+      (entity-tag-extra (procedure-tag hook)))
+
+    (define (set-entity-extra! hook obj)
+      (entity-tag-set-extra! (procedure-tag hook) obj))))</pre>
+
+    <h2 id="specification">Specification</h2>
+
+    <h3>Equivalence</h3>
+
+    <p>When invoked on two objects, the <code>eqv?</code> procedure
+      returns <code>#f</code> if one object is a tagged procedure and
+      the other object is a non-procedure or a procedure that is not
+      tagged, or if both objects are tagged procedures but tagged with
+      values such that <code>eq?</code> would return <code>#f</code>
+      when invoked on them.</p>
+
+    <p><i>Note:</i> Note that in an R<sup>7</sup>RS system, all
+      procedures are conceptually tagged with a storage location and
+      that <code>eqv?</code> returns <code>#t</code> when invoked on
+      procedures whose location tags are equal.  As each tagged
+      procedure (in the sense of this SRFI) is also a procedure in the
+      sense of the Scheme reports, tagged procedures inherit this
+      behavior in R<sup>7</sup>RS systems.</p>
+
+    <p>On the other hand, the syntax and procedures of this SRFI can
+      be used to give procedures also in R<sup>6</sup>RS systems an
+      identity that can be discerned through Scheme procedures:</p>
+
+    <pre class="example">(define-syntax lambda/id
+  (syntax-rules ()
+    ((lambda/id formals body)
+     (lambda/tag (list 'tag) formals body))))
+
+(define lambda/id=?
+  (lambda (f g)
+    (assert (procedure/tag? f))
+    (assert (procedure/tag? g))
+    (eq? (procedure-tag f) (procedure-tag g))))
+
+(define p (lambda/id (x) x))
+(lambda/id=? p p)<span class="result">#t</span></pre>
+
+    <h3>Syntax</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(case-lambda/tag <span class="token">expression</span>
+	  (<span class="token">formals</span> <span class="token">body</span>) &hellip;)</code><span class="type">syntax</span>
+      </dt>
+      <dd>
+	<p><i>Semantics:</i> First, <code>expression</code> is evaluated to
+	  obtain a value.  Then a procedure is returned that accepts a variable number of
+	  arguments, that is lexically scoped in the same manner as a procedure
+	  resulting from a <code>lambda</code> expression, and that
+	  is <dfn>tagged</dfn> with the obtained value.  When the
+	  procedure is called, it behaves as if constructed by
+	  a <code>case-lambda</code> expression with the
+	  same <code><span class="token">formals</span></code>
+	  and <code><span class="token">bodies</span></code>.</p>
+      </dd>
+      <dt class="entry"><code>(lambda/tag <span class="token">expression</span>
+	  <span class="token">formals</span> <span class="token">body</span>)</code><span class="type">syntax</span>
+      </dt>
+      <dd>
+	<p><i>Semantics:</i>
+	  Operationally equivalent to <code>(case-lambda/tag <span class="token">expression</span>
+	  (<span class="token">formals</span> <span class="token">body</span>))</code>.</p>
+      </dd>
+    </dl>
+
+    <h3>Procedures</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(procedure/tag? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>Returns <code>#t</code> if <code><var>obj</var></code> is a tagged
+	  procedure and <code>#f</code> otherwise.</p>
+	<p><i>Note:</i> It is unspecified whether a procedure created by
+	  a <code>lambda</code> or <code>case-lambda</code> expression or
+	  returned by a procedure of one of the standard libraries or defined
+	  by syntax of one of the standard libraries is tagged.  In
+	  case it is tagged, the tag value is unspecified.</p>
+      </dd>
+      <dt class="entry"><code>(procedure-tag <var>proc</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+	<p>It is an error if <code><var>proc</var></code> is not a tagged procedure.</p>
+	<p>Returns the tag of <code><var>proc</var></code>.</p>
+      </dd>
+    </dl>
+
+    <pre class="example">(define f
+  (lambda/tag 42
+      (x)
+    (* x x)))
+
+(procedure/tag? f)<span class="result">#t</span>
+(f 3)<span class="result"> 9</span>
+(procedure-tag f)<span class="result">42</span>
+
+(define f*
+  (lambda/tag 43
+      (x)
+    (* x x)))
+
+(eqv? f f*)<span class="result">#f</span>
+
+(define g
+  (let ((y 10))
+    (lambda/tag y ()
+	(set! y (+ y 1))
+	y)))
+
+(procedure-tag g)<span class="result">10</span>
+(let ((y 9)) (procedure-tag g))<span class="result">10</span>
+(g)<span class="result">11</span>
+(procedure-tag g)<span class="result">10</span>
+
+(define h
+  (let ((box (vector #f)))
+    (case-lambda/tag box
+      (() (vector-ref box 0))
+      ((val) (vector-set! box 0 val)))))
+
+(h 1)
+(vector-ref (procedure-tag h) 0))<span class="result">1</span>
+(h)<span class="result">1</span></pre>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>The following is a portable R7RS implementation.  It is fully
+    conformant, but tagged procedures will never be
+    garbage-collected.</p>
+
+    <pre>(define-library (srfi 229)
+  (export case-lambda/tag
+	  lambda/tag
+	  procedure/tag?
+	  procedure-tag)
+  (import (scheme base)
+	  (scheme case-lambda))
+  (begin
+    (define *tagged-procedures* '())
+
+    (define key (list 'key))
+
+    (define make-procedure/tag
+      (lambda (tag proc)
+	(define f
+	  (case-lambda
+	    ((arg)
+	     (if (eq? arg key) tag (proc arg)))
+	    (arg*
+	     (apply proc arg*))))
+	(set! *tagged-procedures* (cons f *tagged-procedures*))
+	f))
+
+    (define-syntax case-lambda/tag
+      (syntax-rules ()
+	((case-lambda/tag expr (formals body1 ... body2) ...)
+	 (make-procedure/tag
+	  expr
+	  (case-lambda (formals body1 ... body2) ...)))))
+
+    (define-syntax lambda/tag
+      (syntax-rules ()
+	((lambda/tag expr formals body1 ... body2)
+	 (make-procedure/tag
+	  expr
+	  (lambda formals body1 ... body2)))))
+
+    (define procedure/tag?
+      (lambda (f)
+	(and (memv f *tagged-procedures*) #t)))
+
+    (define procedure-tag
+      (lambda (f)
+	(f key)))))</pre>
+
+    <p>Scheme implementers should replace the above implementation by a more
+      efficient one where the tag value is stored like a closure variable.</p>
+
+    <p>A portable R6RS implementation is not possible because procedures in
+      R6RS have no identity (exposed via Scheme predicates).</p>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>Thanks to the participants on the mailing list, and to Arthur
+      A. Gleckler, who pointed out MIT/GNU Scheme's <i>application hooks</i> to
+      me.</p>
+
+    <p>Some Scheme systems like Kawa implement procedure properties,
+      which can be used to implement this SRFI.</p>
+
+    <p>Thanks to Göran Weinholt for implementing this SRFI during its
+    draft period natively in his Loko compiler.</p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2021 Marc Nieper-Wißkirchen.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>

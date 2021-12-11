@@ -850,7 +850,7 @@ The goal `(%var E)` succeeds if `E` is not completely instantiated, i.e. it has 
 
 The form `(%which (V ...) G ...)` returns an instantiation of the variables `V ...` that satisfies all of `G ...`. If `G ...` cannot be satisfied, `%which` returns `#f`. Calling the thunk `%more` produces more instantiations, if available.
 
-**(_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(\_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 A thunk that produces a new logic variable. Can be used in situations where we want a logic variable but don’t want to name it. `%let`, in contrast, introduces new lexical names for the logic variables it creates.
 

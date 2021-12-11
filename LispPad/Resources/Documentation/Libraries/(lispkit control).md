@@ -204,33 +204,40 @@ _bindings_ has the form `((⟨`_formals init_`) ...)`, where each _formals_ is a
 First, the variables of the _formals_ lists are bound to fresh locations holding unspecified values. Then, the _init_ expressions are evaluated in the current environment as if by invoking `call-with-values`, where the _formals_ are matched to the return values in the same way that the _formals_ in a lambda expression are matched to the arguments in a procedure call. Finally, _body_ is evaluated in the resulting environment, and the values of the last expression in _body_ are returned. Each binding of a _variable_ has the entire `letrec-values` expression as its scope, making it possible to define mutually recursive procedures.
 
 ```scheme
-(letrec-values (((a)   (lambda (n)
-                         (if (zero? n) #t (odd? (- n 1)))))
-                ((b c) (values
-                         (lambda (n)
-                           (if (zero? n) #f (even? (- n 1))))
-                         a)))
-  (list (a 1972) (b 1972) (c 1972)))  ⇒  (#t #f #t)
+(letrec-values
+  (((a)   (lambda (n)
+            (if (zero? n) #t (odd? (- n 1)))))
+   ((b c) (values
+            (lambda (n)
+              (if (zero? n) #f (even? (- n 1))))
+            a)))
+  (list (a 1972) (b 1972) (c 1972)))
+⇒  (#t #f #t)
 ```
 
-**(let-optionals _args_ ((_var_ _default_) ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(let-optionals _args_ (_arg_ ... (_var_ _default_) ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(let-optionals _args_ (_arg_ ... (_var_ _default_) ... . _rest_) _body_ ...)**  
 
-This binding construct can be used to handle optional arguments of procedures. _args_ refers to the rest parameter list of a procedure or lambda expression. `let-optionals` binds the variables _var_, ... to the arguments available in _args_, or to _default_, ... if there are not enough arguments provided in _args_. Variables are bound in parallel, i.e. all _default_ expressions are evaluated in the current environment in which the new variables are not bound yet. Then, _body_ is evaluated in the extended environment including all variable definitions of `let-optionals`, and the values of the last expression of _body_ are returned. Each binding of a variable has _body_ as its scope.
+This binding construct can be used to handle optional arguments of procedures. _args_ refers to the rest parameter list of a procedure or lambda expression. `let-optionals` binds the variables _arg ..._ to the arguments available in _args_. It is an error if there are not sufficient elements in _args_. Then, the variables _var_, ... are bound to the remaining elements available in list _args_, or to _default_, ... if there are not enough elements available in _args_. Variables are bound in parallel, i.e. all _default_ expressions are evaluated in the current environment in which the new variables are not bound yet. Then, _body_ is evaluated in the extended environment including all variable definitions of `let-optionals`, and the values of the last expression of _body_ are returned. Each binding of a variable has _body_ as its scope.
 
 ```scheme
-(let-optionals '("one" "two")
-               ((one 1) (two 2) (three 3))
-  (list one two three))  ⇒  ("one" "two" 3)
+(let-optionals '("zero" "one" "two")
+               (zero (one 1) (two 2) (three 3))
+  (list zero one two three))  ⇒  ("zero" "one" "two" 3)
 ```
 
-**(let\*-optionals _args_ ((_var_ _default_) ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+**(let\*-optionals _args_ (_arg_ ... (_var_ _default_) ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(let\*-optionals _args_ (_arg_ ... (_var_ _default_) ... . _rest_) _body_ ...)**  
 
-The `let*-optionals` construct is similar to `let-optionals`, but the _default_ expressions are evaluated and bindings created sequentially from left to right, with the scope of the bindings of each variable including the _default_ expressions to its right as well as _body_. Thus the second _default_ expression is evaluated in an environment in which the first binding is visible and initialized, and so on.
+The `let*-optionals` construct is similar to `let-optionals`, but the _default_ expressions are evaluated and bindings created sequentially from left to right, with the scope of the bindings of each variable including the _default_ expressions to its right as well as _body_. Thus, the second _default_ expression is evaluated in an environment in which the first binding is visible and initialized, and so on.
 
 ```scheme
-(let*-optionals '(10 20)
-                ((one 1) (two (+ one 1)) (three (+ two 1)))
-  (list one two three))  ⇒  (10 20 21)
+(let*-optionals '(0 10 20)
+                (zero
+                 (one (+ zero 1))
+                 (two (+ zero one 1))
+                 (three (+ two 1)))
+  (list zero one two three))  ⇒  (0 10 20 21)
 ```
 
 **(let-keywords _args_ (_binding_ ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>   

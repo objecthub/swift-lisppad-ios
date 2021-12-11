@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 227: Optional Arguments</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+        <H2><a name="lp-srfi-227">Title</a></H2>
+        Optional Arguments
+
+        <h2>Author</h2>
+        <p>Marc Nieper-Wißkirchen (spec and R<sup>6</sup>RS implementation)<br/>
+           Daphne Preston-Kendal (R<sup>7</sup>RS implementation)</p>
+
+    <h2 id="status">Status</h2>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+227+at+srfi+dotschemers+dot+org">srfi-227@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-227">archive</a>.</p>
+    <ul>
+      <li>Received: 2021-08-24</li>
+      <li>Draft #1 published: 2021-08-25</li>
+      <li>Draft #2 published: 2021-11-07</li>
+      <li>Finalized: 2021-11-16</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>This SRFI specifies the <code>opt-lambda</code> syntax, which
+      generalizes <code>lambda</code>.  An <code>opt-lambda</code> expression
+      evaluates to a procedure that takes a number of required and a number of
+      optional (positional) arguments whose default values are determined by
+      evaluating corresponding expressions when the procedure is called.</p>
+
+    <p>This SRFI also specifies a variation <code>opt*-lambda</code>, which is
+      to <code>opt-lambda</code> as <code>let*</code> is to <code>let</code>
+      and the related binding constructs <code>let-optionals</code>
+      and <code>let-optionals*</code>.</p>
+
+    <p>Finally, for those who prefer less explicit procedure
+      definitions, a sublibrary provides <code>define-optionals</code>
+      and <code>define-optionals*</code>.</p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>Scheme procedures taking optional arguments can either be implemented
+      with a <code>lambda</code> form taking a rest argument or
+      a <code>case-lambda</code> form.  Both approaches are not optimal.  The
+      disadvantage of using <code>lambda</code> is that the rest argument,
+      which is an implementation detail, has to be made explicit, that it has
+      to be destructured explicitly, and that there is some reliance on
+      compiler optimizations to eliminate heap allocation of the rest argument.
+      The disadvantage of using <code>case-lambda</code> is that the size of
+      the source code becomes quadratic in the number of optional arguments.</p>
+
+    <p>In contrast, the <code>opt-lambda</code> syntax specified in this SRFI
+      does not suffer from these issues but provides an idiomatic way to create
+      procedures with optional (positional) arguments.</p>
+
+    <h2 id="specification">Specification</h2>
+
+    <h3>Examples</h3>
+
+    <pre class="example">(define f
+  (opt-lambda (a b (c 1) (d 2) . r)
+    (list a b c d r)))
+
+(f 1 2)<span class="result">(1 2 1 2 ()) </span>
+(f 1 2 3)<span class="result">(1 2 3 2 ()) </span>
+(f 1 2 3 4)<span class="result">(1 2 3 4 ()) </span>
+(f 1 2 3 4 5)<span class="result">(1 2 3 4 (5))</span>
+
+(define n 1)
+(define g
+  (opt-lambda (n (m (* n 2)))
+    (list n m)))
+
+(g 2)<span class="result">(2 2)</span>
+(g 2 3)<span class="result">(2 3)</span>
+
+(set! n 2)
+(g 1)<span class="result">(1 4)</span>
+(g 1 2)<span class="result">(1 2)</span>
+
+(define g*
+  (opt*-lambda (n (m (* n 2)))
+    (list n m)))
+
+(set! n 1)
+(g* 2)<span class="result">(2 4)</span>
+(g* 2 3)<span class="result">(2 3)</span>
+
+(let-optionals '(1 2)
+    (x . y)
+  (list x y))<span class="result">(1 (2))</span>
+
+(let-optionals '(1)
+    (x (y 2) (z 3))
+  (list x y z))<span class="result">(1 2 3)</span>
+
+(let-optionals* '(1 3)
+    (x (y 2) (z (+ x y)))
+  (list x y z))<span class="result">(1 3 4)</span>
+
+(define-optionals (f1 x (y 1))
+  (list x y))
+(f1 0)<span class="result">(0 1)</span>
+
+(define-optionals* (f2 x (y (* x x)) . z)
+  (list x y z))
+(f2 3)<span class="result">(3 9 ())</span></pre>
+
+    <h3>Syntax</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(opt-lambda <span class="token">opt-formals</span> <span class="token">body</span>)</code></dt>
+      <dd>
+	<p><i>Syntax:</i>
+	  <code><span class="token">Opt-formals</span></code> is either of the form
+	  <code>(<span class="token">variable<sub>1</sub></span> &hellip; <span class="token">variable<sub><var>n</var></sub></span>
+	  <span class="token">binding<sub>1</sub></span> &hellip;
+	  <span class="token">binding<sub>m</sub></span>)</code> or
+	  <code>(<span class="token">variable<sub>1</sub></span> &hellip; <span class="token">variable<sub><var>n</var></sub></span>
+	  <span class="token">binding<sub>1</sub></span> &hellip;
+	  <span class="token">binding<sub>m</sub></span>
+	  . <span class="token">variable</span>)</code>, where
+	  each <code><span class="token">binding<sub><var>i</var></sub></span></code>
+	  has the form <code>(<span class="token">variable<sub><var>n</var>
+	  + <var>i</var></sub></span> <span class="token">init</span>)</code>,
+	  where each <code><span class="token">init</span></code> is an
+	  expression.  It is a syntax violation if the same variable appears
+	  more than once among
+	  the <code><span class="token">variable</span></code>s.</p>
+	<p><i>Semantics:</i> An <code>opt-lambda</code> expression evaluates to
+	  a procedure and is lexically scoped in the same manner as a procedure
+	  resulting from a <code>lambda</code> expression.  When the procedure
+	  is later called with actual arguments,
+	  the <code><span class="token">variable</span></code>s are bound to
+	  fresh locations, the values of the corresponding arguments are stored
+	  in those locations, the <code><span class="token">body</span></code>
+	  is evaluated in the extended environment, and the results
+	  of <code><span class="token">body</span></code> are returned as the
+	  results of the procedure call.
+	</p>
+	<p>A procedure created with the first syntax
+	  of <code><span class="token">opt-formals</span></code> takes at
+	  least <code><var>n</var></code> arguments and at
+	  most <code><var>n</var> +
+	    <var>m</var></code> arguments.  A procedure created with the second
+	  syntax of <code><span class="token">opt-formals</span></code>
+	  takes <code><var>n</var></code> or more arguments.  If the procedure
+	  is called with fewer than <code><var>n</var> + <var>m</var></code>
+	  (but at least <code><var>n</var></code> arguments), the missing
+	  actual arguments are substituted by the values resulting from
+	  evaluating the corresponding <code><var>init</var></code>s.  The
+	  corresponding <code><var>init</var></code>s are evaluated in an
+	  unspecified order in the lexical environment of
+	  the <code>opt-lambda</code> expression when the procedure is
+	  called.</p>
+
+	<p>It is an assertion violation if the procedure created with the first
+	  syntax of <code><span class="token">opt-formals</span></code> is
+	  called with more than <code><var>n</var> + <var>m</var></code> actual
+	  arguments.  The value stored in the binding
+	  of <code><span class="token">variable</span></code> of a procedure
+	  created with the second syntax
+	  of <code><span class="token">opt-formals</span></code> will be a
+	  newly allocated list of the actual arguments left over after all the
+	  other actual arguments have been matched up against the other formal
+	  arguments (or the empty list in case no actual arguments are left
+	  over).</p>
+	<p><i>Note:</i> Both <code><var>n</var></code>
+	  and <code><var>m</var></code> may be zero.</p>
+      </dd>
+
+      <dt class="entry"><code>(opt*-lambda <span class="token">opt-formals</span> <span class="token">body</span>)</code><span class="type">syntax</span></dt>
+      <dd>
+	<p>Similar to <code>opt-lambda</code> except that
+	the <code><span class="token">init</span></code>s corresponding to
+	missing actual arguments are evaluated sequentially from left to right,
+	and the region of the binding of
+	a <code><span class="token">variable</span></code> is that part of
+	the <code>opt*-lambda</code> expression to the right of it or
+	its <code><span class="token">binding</span></code>.</p>
+      </dd>
+
+      <dt class="entry"><code>
+	  (let-optionals <span class="token">expression</span> <span class="token">opt-formals</span> <span class="token">body</span>)</code><span class="type">syntax</span></dt>
+      <dd><p><i>Syntax:</i>
+	  <code><span class="token">Opt-formals</span></code> is as in
+	  a <code>opt-lambda</code> expression.</p>
+	<p><i>Semantics:</i>
+	  Operationally equivalent to
+	  <code>(apply (opt-lambda <span class="token">opt-formals</span> <span class="token">body</span>) <span class="token">expression</span>)</code>
+      </dd>
+
+      <dt class="entry"><code>
+	  (let-optionals* <span class="token">expression</span> <span class="token">opt-formals</span> <span class="token">body</span>)</code><span class="type">syntax</span></dt>
+      <dd>
+	<p>Similar to <code>let-optionals</code> except that
+	  <code>opt-lambda</code> is replaced with <code>opt*-lambda</code> in
+	  the operational definition.</p></dd>
+    </dl>
+
+    <p>The following definition syntax is exported by the <code>(srfi
+        :227 opt-lambda definitions)</code> sublibrary (for R<sup>6</sup>RS systems)
+      and by the <code>(srfi 227 definition)</code> sublibrary (for
+      R<sup>7</sup>RS systems).</p>
+
+    <dl class="entries">
+      <dt class="entry"><code>
+	  (define-optionals (<span class="token">identifier</span> . <span class="token">opt-formals</span>) <span class="token">body</span>)</code><span class="type">syntax</span></dt>
+      <dd><p><i>Syntax:</i>
+	  <code><span class="token">Opt-formals</span></code> is as in
+	  a <code>opt-lambda</code> expression.</p>
+	<p><i>Semantics:</i>
+	  Operationally equivalent to
+	  <code>(define <span class="token">identifier</span>
+	  (opt-lambda <span class="token">opt-formals</span> <span class="token">body</span>))</code>
+      </dd>
+      <dt class="entry"><code>
+	  (define-optionals* (<span class="token">identifier</span> . <span class="token">opt-formals</span>) <span class="token">body</span>)</code><span class="type">syntax</span></dt>
+      <dd><p><i>Syntax:</i>
+	  <code><span class="token">Opt-formals</span></code> is as in
+	  a <code>opt-lambda</code> expression.</p>
+	<p><i>Semantics:</i>
+	  Operationally equivalent to
+	  <code>(define <span class="token">identifier</span>
+	  (opt*-lambda <span class="token">opt-formals</span> <span class="token">body</span>))</code>
+      </dd>
+    </dl>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>A portable implementation for R<sup>6</sup>RS is given by:</p>
+
+    <pre class="code">(library (srfi :227 opt-lambda)
+  (export opt-lambda
+          opt*-lambda
+          let-optionals
+          let-optionals*)
+  (import (rnrs (6))
+          (srfi :227 opt-lambda meta))
+
+  (define-syntax opt-lambda
+    (make-opt-lambda-transformer 'opt-lambda #f))
+
+  (define-syntax opt*-lambda
+    (make-opt-lambda-transformer 'opt*-lambda #t))
+
+  (define-syntax let-optionals
+    (syntax-rules ()
+      [(_ expr opt-formals body1 ... body2)
+       (apply (opt-lambda opt-formals body1 ... body2) expr)]))
+
+  (define-syntax let-optionals*
+    (syntax-rules ()
+      [(_ expr opt-formals body1 ... body2)
+       (apply (opt*-lambda opt-formals body1 ... body2) expr)]))
+
+  (define-syntax define-optionals
+    (syntax-rules ()
+      [(_ (name . opt-formals) body1 ... body2)
+       (define name (opt-lambda opt-formals body1 ... body2))]))
+
+  (define-syntax define-optionals*
+    (syntax-rules ()
+      [(_ (name . opt-formals) body1 ... body2)
+       (define name (opt*-lambda opt-formals body1 ... body2))])))</pre>
+
+    <p>It uses the following helper library:</p>
+
+    <pre>(library (srfi :227 opt-lambda meta)
+  (export make-opt-lambda-transformer
+          rec)
+  (import (rnrs (6)))
+
+  (define-syntax rec
+    (lambda (stx)
+      (syntax-case stx ()
+        [(_ f e)
+         #'(letrec ([f e]) f)])))
+
+  (define make-opt-lambda-transformer
+    (lambda (who sequential?)
+      (lambda (stx)
+        (syntax-case stx ()
+          [(_ (formal ... . rest) body1 ... body2)
+           (let*-values
+               ([(var1* bdg*)
+                 (let f ([formal* #'(formal ...)])
+                   (syntax-case formal* ()
+                     [()
+                      (values '() '())]
+                     [(var formal ...)
+                      (identifier? #'var)
+                      (let-values ([(var1* bdg*)
+                                    (f #'(formal ...))])
+                        (values (cons #'var var1*) bdg*))]
+                     [_
+                      (values '() formal*)]))]
+                [(var2* init*)
+                 (let f ([bdg* bdg*])
+                   (syntax-case bdg* ()
+                     [()
+                      (values '() '())]
+                     [([var init] bdg ...)
+                      (identifier? #'var)
+                      (let-values ([(var2* init*)
+                                    (f #'(bdg ...))])
+                        (values (cons #'var var2*)
+                                (cons #'init init*)))]
+                     [_
+                      (syntax-violation who
+                                        "invalid bindings"
+                                        stx
+                                        bdg*)]))]
+                [(tmp1*) (if sequential?
+                             var1*
+                             (generate-temporaries var1*))]
+                [(tmp2*) (if sequential?
+                             var2*
+                             (generate-temporaries var2*))])
+             #`(rec f
+                 (case-lambda
+                   #,@(let f ([tmp1* tmp1*] [var1* var1*]
+                              [tmp2* tmp2*] [var2* var2*]
+                              [init* init*])
+                        (if (null? var2*)
+                            (list #`[(#,@var1* . rest) body1 ... body2])
+                            (cons #`[(#,@tmp1*)
+                                     (f #,@tmp1* #,(car init*))]
+                                  (f (append tmp1* (list (car tmp2*)))
+                                     (append var1* (list (car var2*)))
+                                     (cdr tmp2*)
+                                     (cdr var2*)
+                                     (cdr init*))))))))])))))</pre>
+
+    <p>A portable implementation for R<sup>7</sup>RS will be in the
+      <a href="https://github.com/scheme-requests-for-implementation/srfi-227">Git
+      repository</a> of this SRFI.</p>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>Syntax for procedures with optional arguments are not a new invention.
+      In particular, the <code>let-optionals</code> syntax has seen widespread
+      use before.</p>
+
+    <p>Thanks to all participants of the mailing list of this SRFI, especially
+      to Daphne Preston-Kendal for her review of optionals and keywords,
+      examples, helpful comments and contributing
+      the <code>R<sup>7</sup>RS</code> implementation, and to Jakub
+      T. Jankiewicz for bringing up this topic.</p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2021 Marc Nieper-Wißkirchen, Daphne Preston-Kendal.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+
+
