@@ -32,33 +32,40 @@ struct Sheet<Content: View>: View {
   }
 
   var body: some View {
-    ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
+    ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
       if let color = self.backgroundColor {
         color.ignoresSafeArea()
       }
       VStack(alignment: .center, spacing: 0) {
         self.content
       }
-      HStack {
-        Spacer()
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          ExitButton()
-        }
-        .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+      Button(action: {
+        self.presentationMode.wrappedValue.dismiss()
+      }) {
+        ExitButton()
       }
-      .padding(EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
+      .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+      .padding()
     }
   }
 }
 
 public struct ExitButton: View {
+  let size: CGFloat
+  
+  init(size: CGFloat? = nil) {
+    self.size = size ?? (UIDevice.current.userInterfaceIdiom == .pad ? 28.0 : 24.0)
+  }
+  
   public var body: some View {
     Image(systemName: "xmark.circle.fill")
       .resizable()
       .scaledToFit()
-      .frame(height: 24)
+      .frame(height: self.size)
       .foregroundColor(Color(UIColor.lightGray))
+      .accessibility(label: Text("Close"))
+      .accessibility(hint: Text("Tap to close the sheet"))
+      .accessibility(addTraits: .isButton)
+      .accessibility(removeTraits: .isImage)
   }
 }

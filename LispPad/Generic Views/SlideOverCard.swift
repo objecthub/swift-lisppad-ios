@@ -67,16 +67,14 @@ public struct SlideOverCard<Content: View>: View {
   }
   
   private var card: some View {
-    ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
+    ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
       content
-      HStack {
-        Spacer()
-        Button(action: self.dismiss) {
-          ExitButton()
-        }
-        .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close card")
+      Button(action: self.dismiss) {
+        ExitButton(size: 24)
       }
-      .padding(8)
+      .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close card")
+      .padding(.trailing, 7)
+      .padding(.top, 8)
     }
     .background(Color(.systemBackground))
     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))

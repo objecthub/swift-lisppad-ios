@@ -111,13 +111,14 @@ struct SaveAs: View {
         .font(.body)
         .padding(.horizontal)
         .padding(.vertical, 8)
+        .padding(.top, 6)
         HStack(alignment: .top, spacing: 16) {
           self.targetDescription
             .font(.footnote)
             .foregroundColor(.secondary)
           Spacer(minLength: 0)
         }
-        .padding(EdgeInsets(top: -16, leading: 20, bottom: 8, trailing: 16))
+        .padding(EdgeInsets(top: -19, leading: 20, bottom: 8, trailing: 16))
         Form {
           Section(header: Text("File")) {
             TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)

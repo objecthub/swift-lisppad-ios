@@ -6,8 +6,6 @@ Enumerated values are represented by ordinary symbols, while finite sets of enum
 
 In the descriptions of the following procedures, _enum-set_ ranges over the enumeration sets, which are defined as the subsets of the universes that can be defined using `make-enumeration`.
 
-***
-
 **(make-enumeration _symbol-list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Argument _symbol-list_ must be a list of symbols. The `make-enumeration` procedure creates a new enumeration type whose universe consists of those symbols (in canonical order of their first appearance in the list) and returns that universe as an enumeration set whose universe is itself and whose enumeration type is the newly created enumeration type.

@@ -2,8 +2,6 @@
 
 Library `(lispkit combinator)` defines abstractions for _combinator-style programming_. It provides means to create and compose functions.
 
-***
-
 **(const _c ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns a function accepting any number of arguments and returning the values `c` ... . 

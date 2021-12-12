@@ -12,8 +12,6 @@ A _turtle_ is defined in terms of the following components:
 
 Turtles are mutable objects created via `make-turtle`. The functions listed below change the state of a turtle. In particular, they generate a drawing as a side-effect which can be accessed via `turtle-drawing`. For most functions, the turtle is an optional argument. If it is not provided, the function applies to the turtle provided by the `current-turtle` parammeter object.
 
-***
-
 **current-turtle** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[parameter object]</span>  
 
 Defines the _current turtle_, which is used as a default by all functions for which the turtle argument is optional. If there is no current turtle, this parameter is set to `#f`.

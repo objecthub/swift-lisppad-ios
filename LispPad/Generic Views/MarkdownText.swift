@@ -35,7 +35,8 @@ struct MarkdownText: View {
                        maxLayoutWidth: geometry.size.width -
                                        geometry.safeAreaInsets.leading -
                                        geometry.safeAreaInsets.trailing,
-                       intrinsicContentSize: self.intrinsicContentSize)
+                       intrinsicContentSize: self.intrinsicContentSize,
+                       rightPadding: 0)
     }
     .frame(idealWidth: self.intrinsicContentSize.size?.width,
            idealHeight: self.intrinsicContentSize.size?.height)
@@ -46,9 +47,11 @@ struct MarkdownText: View {
 struct MutableMarkdownText: View {
   @StateObject private var intrinsicContentSize = MutableSize()
   @ObservedObject private var mutableBlock: MutableBlock
+  let rightPadding: Int
   
-  init(_ mutableBlock: MutableBlock) {
+  init(_ mutableBlock: MutableBlock, rightPadding: Int) {
     self.mutableBlock = mutableBlock
+    self.rightPadding = rightPadding
   }
   
   var body: some View {
@@ -57,7 +60,8 @@ struct MutableMarkdownText: View {
                        maxLayoutWidth: geometry.size.width -
                                        geometry.safeAreaInsets.leading -
                                        geometry.safeAreaInsets.trailing,
-                       intrinsicContentSize: self.intrinsicContentSize)
+                       intrinsicContentSize: self.intrinsicContentSize,
+                       rightPadding: self.rightPadding)
     }
     .frame(idealWidth: self.intrinsicContentSize.size?.width,
            idealHeight: self.intrinsicContentSize.size?.height)
@@ -101,7 +105,45 @@ struct MarkdownTextView: UIViewRepresentable {
   }
   
   private class DocumentationStringGenerator: AttributedStringGenerator   {
+    let rightPadding: Int
+    
+    init(fontColor: String,
+         codeFontColor: String,
+         codeBlockFontColor: String,
+         codeBlockBackground: String,
+         borderColor: String,
+         blockquoteColor: String,
+         h1Color: String,
+         h2Color: String,
+         h3Color: String,
+         h4Color: String,
+         rightPadding: Int) {
+      self.rightPadding = rightPadding
+      super.init(fontSize: UserSettings.standard.documentationTextFontSize,
+                 fontFamily: MarkdownTextView.textFont,
+                 fontColor: fontColor,
+                 codeFontSize: UserSettings.standard.documentationCodeFontSize,
+                 codeFontFamily: MarkdownTextView.codeFont,
+                 codeFontColor: codeFontColor,
+                 codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
+                 codeBlockFontColor: codeBlockFontColor,
+                 codeBlockBackground: codeBlockBackground,
+                 borderColor: borderColor,
+                 blockquoteColor: blockquoteColor,
+                 h1Color: h1Color,
+                 h2Color: h2Color,
+                 h3Color: h3Color,
+                 h4Color: h4Color)
+    }
+    
     private class DocumentationHtmlGenerator: InternalHtmlGenerator {
+      let rightPadding: Int
+      
+      public override init(outer: AttributedStringGenerator) {
+        self.rightPadding = (outer as! DocumentationStringGenerator).rightPadding
+        super.init(outer: outer)
+      }
+      
       open override func generate(block: Block, tight: Bool = false) -> String {
         switch block {
           case .heading(let n, let text):
@@ -116,7 +158,8 @@ struct MarkdownTextView: UIViewRepresentable {
                    "<tr style=\"height: 15px; font-family: " + MarkdownTextView.libraryFont +
                    "; font-size: \(UserSettings.standard.documentationLibraryFontSize); font-style: italic;\">" +
                    "<td style=\"text-align: left;\">" + lib + "</td>" +
-                   "<td style=\"text-align: right;\">" + type + "</td></tr></tbody></table><br/>\n"
+                   "<td style=\"text-align: right;padding-right: \(self.rightPadding)px;\">" + type +
+                   "</td></tr></tbody></table><br/>\n"
           default:
             return super.generate(block: block, tight: tight)
         }
@@ -138,6 +181,7 @@ struct MarkdownTextView: UIViewRepresentable {
   @ObservedObject var mutableBlock: MutableBlock
   let maxLayoutWidth: CGFloat
   let intrinsicContentSize: MutableSize
+  let rightPadding: Int
   
   func makeCoordinator() -> Coordinator {
     return Coordinator()
@@ -169,37 +213,29 @@ struct MarkdownTextView: UIViewRepresentable {
             uiView.attributedText =
               (context.coordinator.colorScheme == .dark ?
                 DocumentationStringGenerator(
-                  fontSize: UserSettings.standard.documentationTextFontSize,
-                  fontFamily: MarkdownTextView.textFont,
                   fontColor: "#fff",
-                  codeFontSize: UserSettings.standard.documentationCodeFontSize,
-                  codeFontFamily: MarkdownTextView.codeFont,
                   codeFontColor: "#ccddff",
-                  codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
                   codeBlockFontColor: "#aaddff",
                   codeBlockBackground: "#333",
                   borderColor: "#333",
                   blockquoteColor: "#fff",
-                  h1Color: "#007aff",
+                  h1Color: "#aa1111",
                   h2Color: "#007aff",
                   h3Color: "#007aff",
-                  h4Color: "#007aff") :
+                  h4Color: "#007aff",
+                  rightPadding: self.rightPadding) :
                 DocumentationStringGenerator(
-                  fontSize: UserSettings.standard.documentationTextFontSize,
-                  fontFamily: MarkdownTextView.textFont,
                   fontColor: "#000",
-                  codeFontSize: UserSettings.standard.documentationCodeFontSize,
-                  codeFontFamily: MarkdownTextView.codeFont,
                   codeFontColor: "#0000aa",
-                  codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
                   codeBlockFontColor: "#000099",
                   codeBlockBackground: "#eee",
                   borderColor: "#eee",
                   blockquoteColor: "#000",
-                  h1Color: "#007aff",
+                  h1Color: "#aa1111",
                   h2Color: "#007aff",
                   h3Color: "#007aff",
-                  h4Color: "#007aff")).generate(doc: md)
+                  h4Color: "#007aff",
+                  rightPadding: self.rightPadding)).generate(doc: md)
             self.intrinsicContentSize.size = uiView.intrinsicContentSize
           }
         } else {

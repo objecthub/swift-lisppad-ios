@@ -49,7 +49,7 @@ struct DefinitionView: View {
   @Binding var position: NSRange?
 
   var body: some View {
-    ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
+    ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
       Color(.systemGroupedBackground).ignoresSafeArea()
       Form {
         if self.defitions.values.count > 0 {
@@ -94,16 +94,13 @@ struct DefinitionView: View {
         }
       }
       .padding(.top, LispPadUI.panelTopPadding)
-      HStack {
-        Spacer()
-        Button(action: {
-          self.presentationMode.wrappedValue.dismiss()
-        }) {
-          ExitButton()
-        }
-        .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+      Button(action: {
+        self.presentationMode.wrappedValue.dismiss()
+      }) {
+        ExitButton()
       }
-      .padding(12)
+      .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+      .padding()
     }
   }
 

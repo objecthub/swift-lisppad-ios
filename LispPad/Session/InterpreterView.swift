@@ -103,11 +103,14 @@ struct InterpreterView: View {
   @State private var showResetActionSheet = false
   @State private var selectedPreferencesTab = 0
   @State private var showSheet: SheetAction? = nil
+  @State private var showModal: SheetAction? = nil
+  @State private var showCard: Bool = false
+  @StateObject private var cardContent = MutableBlock()
   @State private var showLog: Bool = false
   @State private var alertAction: AlertAction? = nil
   @State private var showProgressView: String? = nil
   @State private var navigateToEditor: Bool = false
-
+  
   private var keyboardShortcuts: some View {
     ZStack {
       Button(action: self.selectExpression) {
@@ -234,6 +237,9 @@ struct InterpreterView: View {
           readingStatus: $interpreter.readingStatus,
           ready: $interpreter.isReady,
           showSheet: $showSheet,
+          showModal: $showModal,
+          showCard: $showCard,
+          cardContent: cardContent,
           showLog: $showLog,
           showProgressView: $showProgressView)
         if let header = self.showProgressView {
@@ -268,7 +274,7 @@ struct InterpreterView: View {
                       systemImage: self.showLog ? "xmark" : "scroll")
               }
               Button(action: {
-                self.showSheet = .shareConsole
+                self.presentSheet(.shareConsole)
               }) {
                 Label("Share Console", systemImage: "square.and.arrow.up")
               }
@@ -305,7 +311,7 @@ struct InterpreterView: View {
             }
           }
           Button(action: {
-            self.showSheet = .loadFile
+            self.presentSheet(.loadFile)
           }) {
             Image(systemName: "arrow.down.doc")
               .font(LispPadUI.toolbarFont)
@@ -327,7 +333,7 @@ struct InterpreterView: View {
       ToolbarItemGroup(placement: .principal) {
         Menu {
           Button(action: {
-            self.showSheet = .showAbout
+            self.presentSheet(.showAbout)
           }) {
             Label("About…", systemImage: "questionmark.circle")
           }
@@ -393,6 +399,7 @@ struct InterpreterView: View {
         }
       }
     }
+    .sheet(item: $showModal, content: self.sheetView)
     .fullScreenCover(item: $showSheet, content: self.sheetView)
     .actionSheet(isPresented: $showResetActionSheet) {
       ActionSheet(title: Text("Reset"),
@@ -488,7 +495,8 @@ struct InterpreterView: View {
   private func defineIdentifier() {
     if let name = TextFormatter.selectedName(in: self.consoleInput, for: self.consoleInputRange),
        let documentation = self.docManager.documentation(for: name) {
-      self.showSheet = .showDocumentation(documentation)
+      self.showCard = true
+      self.cardContent.block = documentation
     }
   }
 
@@ -506,5 +514,13 @@ struct InterpreterView: View {
       }
     }
     return res
+  }
+  
+  private func presentSheet(_ action: SheetAction) {
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      self.showModal = action
+    } else {
+      self.showSheet = action
+    }
   }
 }

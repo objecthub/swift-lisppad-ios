@@ -2,8 +2,6 @@
 
 Library `(lispkit queue)` provides an implementation for mutable queues, i.e. mutable FIFO buffers.
 
-***
-
 **(make-queue)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns a new empty queue.

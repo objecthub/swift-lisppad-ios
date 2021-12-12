@@ -117,6 +117,7 @@ struct CodeEditorView: View {
   @State var replaceModeSearch: Bool = false
   @State var caseSensitiveSearch: Bool = true
   @State var showSheet: SheetAction? = nil
+  @State var showModal: SheetAction? = nil
   @State var showAbortAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
@@ -300,10 +301,11 @@ struct CodeEditorView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
           OptionalScrollView {
-            MutableMarkdownText(self.cardContent)
+            MutableMarkdownText(self.cardContent, rightPadding: 26)
               .modifier(self.globals.services)
               .padding(.horizontal, 10)
-              .padding(.top, 30)
+              .padding(.top, 10)
+              .padding(.bottom, -10)
           }
         }
         .onAppear {
@@ -354,7 +356,7 @@ struct CodeEditorView: View {
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .editFile
               } else {
-                self.showSheet = .editFile
+                self.presentSheet(.editFile)
               }
             }) {
               Label("Open…", systemImage: "tray.and.arrow.up")
@@ -362,7 +364,7 @@ struct CodeEditorView: View {
             Button(action: {
               self.dismissCard()
               self.fileManager.editorDocument?.saveFile { success in
-                self.showSheet = .saveFile
+                self.presentSheet(.saveFile)
               }
             }) {
               Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
@@ -423,7 +425,7 @@ struct CodeEditorView: View {
           Button(action: {
             self.dismissCard()
             self.fileManager.editorDocument?.saveFile { success in
-              self.showSheet = .saveFile
+              self.presentSheet(.saveFile)
             }
           }) {
             Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
@@ -431,7 +433,7 @@ struct CodeEditorView: View {
           }
           Button(action: {
             self.dismissCard()
-            self.showSheet = .renameFile
+            self.presentSheet(.renameFile)
           }) {
             Label("Rename", systemImage: "pencil")
           }
@@ -545,11 +547,11 @@ struct CodeEditorView: View {
             }
             if doc.info.editorType == .scheme {
               if let defs = DefinitionView.parseDefinitions(doc.text) {
-                self.showSheet = .showDefinitions(defs)
+                self.presentSheet(.showDefinitions(defs))
               }
             } else if doc.info.editorType == .markdown {
               if let structure = DocStructureView.parseDocStructure(doc.text) {
-                self.showSheet = .showDocStructure(structure)
+                self.presentSheet(.showDocStructure(structure))
               }
             }
           }) {
@@ -570,90 +572,8 @@ struct CodeEditorView: View {
         }
       }
     }
-    .fullScreenCover(item: $showSheet) { sheet in
-      switch sheet {
-        case .renameFile:
-          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentInfo.new,
-                 lockFolder: true) { url in
-            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
-              if newURL == nil {
-                self.notSavedAlertAction = .notSaved
-              }
-            }
-          }
-          .modifier(self.globals.services)
-        case .saveFile:
-          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
-            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
-              if newURL == nil {
-                self.notSavedAlertAction = .notSaved
-              }
-            }
-          }
-          .modifier(self.globals.services)
-        case .editFile:
-          Open() { url, mutable in
-            self.fileManager.loadEditorDocument(source: url, makeUntitled: !mutable)
-            return true
-          }
-          .modifier(self.globals.services)
-        case .organizeFiles:
-          Organizer().modifier(self.globals.services)
-        case .saveBeforeNew:
-          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
-            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
-              if newURL == nil {
-                self.notSavedAlertAction = .notSaved
-              } else {
-                self.fileManager.newEditorDocument()
-              }
-            }
-          }
-          .modifier(self.globals.services)
-        case .saveBeforeEdit:
-          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
-            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
-              if newURL == nil {
-                self.notSavedAlertAction = .notSaved
-              } else {
-                self.showSheet = .editFile
-              }
-            }
-          }
-          .modifier(self.globals.services)
-        case .saveBeforeOpen(let ourl):
-          SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
-                 firstSave: self.fileManager.editorDocumentInfo.new) { url in
-            self.fileManager.editorDocument?.saveFileAs(url) { newURL in
-              if newURL == nil {
-                self.notSavedAlertAction = .notSaved
-              } else {
-                self.fileManager.loadEditorDocument(
-                  source: ourl,
-                  makeUntitled: false,
-                  action: { success in })
-              }
-            }
-          }
-          .modifier(self.globals.services)
-        case .showDefinitions(let definitions):
-          DefinitionView(defitions: definitions, position: $editorPosition)
-            .modifier(self.globals.services)
-        case .showDocStructure(let structure):
-          DocStructureView(structure: structure, position: $editorPosition)
-            .modifier(self.globals.services)
-        case .markdownPreview(let block):
-          MarkdownViewer(markdown: block)
-            .modifier(self.globals.services)
-        case .showDocumentation(let doc):
-          MarkdownViewer(markdown: doc)
-            .modifier(self.globals.services)
-      }
-    }
+    .sheet(item: $showModal, content: self.sheetView)
+    .fullScreenCover(item: $showSheet, content: self.sheetView)
     .alert(item: $notSavedAlertAction) { alertAction in
       switch alertAction {
         case .newFile:
@@ -667,7 +587,7 @@ struct CodeEditorView: View {
           return self.notSavedAlert(
                    save: { self.showSheet = .saveBeforeEdit },
                    discard: { self.fileManager.editorDocument?.text = ""
-                              self.showSheet = .editFile })
+                              self.presentSheet(.editFile) })
         case .openFile(let url):
           return self.notSavedOnOpenAlert(
                    save: { self.showSheet = .saveBeforeOpen(url) },
@@ -704,6 +624,91 @@ struct CodeEditorView: View {
       self.histManager.saveSearchHistory()
       self.histManager.saveFilesHistory()
       self.histManager.saveFavorites()
+    }
+  }
+  
+  @ViewBuilder private func sheetView(_ sheet: SheetAction) -> some View {
+    switch sheet {
+      case .renameFile:
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new,
+               lockFolder: true) { url in
+          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+            if newURL == nil {
+              self.notSavedAlertAction = .notSaved
+            }
+          }
+        }
+        .modifier(self.globals.services)
+      case .saveFile:
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new) { url in
+          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+            if newURL == nil {
+              self.notSavedAlertAction = .notSaved
+            }
+          }
+        }
+        .modifier(self.globals.services)
+      case .editFile:
+        Open() { url, mutable in
+          self.fileManager.loadEditorDocument(source: url, makeUntitled: !mutable)
+          return true
+        }
+        .modifier(self.globals.services)
+      case .organizeFiles:
+        Organizer().modifier(self.globals.services)
+      case .saveBeforeNew:
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new) { url in
+          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+            if newURL == nil {
+              self.notSavedAlertAction = .notSaved
+            } else {
+              self.fileManager.newEditorDocument()
+            }
+          }
+        }
+        .modifier(self.globals.services)
+      case .saveBeforeEdit:
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new) { url in
+          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+            if newURL == nil {
+              self.notSavedAlertAction = .notSaved
+            } else {
+              self.presentSheet(.editFile)
+            }
+          }
+        }
+        .modifier(self.globals.services)
+      case .saveBeforeOpen(let ourl):
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new) { url in
+          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+            if newURL == nil {
+              self.notSavedAlertAction = .notSaved
+            } else {
+              self.fileManager.loadEditorDocument(
+                source: ourl,
+                makeUntitled: false,
+                action: { success in })
+            }
+          }
+        }
+        .modifier(self.globals.services)
+      case .showDefinitions(let definitions):
+        DefinitionView(defitions: definitions, position: $editorPosition)
+          .modifier(self.globals.services)
+      case .showDocStructure(let structure):
+        DocStructureView(structure: structure, position: $editorPosition)
+          .modifier(self.globals.services)
+      case .markdownPreview(let block):
+        MarkdownViewer(markdown: block)
+          .modifier(self.globals.services)
+      case .showDocumentation(let doc):
+        MarkdownViewer(markdown: doc)
+          .modifier(self.globals.services)
     }
   }
   
@@ -894,5 +899,13 @@ struct CodeEditorView: View {
                  secondaryButton: .destructive(Text("Terminate"), action: {
                    self.interpreter.context?.machine.abort()
                  }))
+  }
+  
+  private func presentSheet(_ action: SheetAction) {
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      self.showModal = action
+    } else {
+      self.showSheet = action
+    }
   }
 }

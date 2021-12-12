@@ -22,6 +22,7 @@ struct LogView: View {
   @State var showLogFilterPopOver: Bool = false
   @Binding var input: String
   @Binding var showSheet: InterpreterView.SheetAction?
+  @Binding var showModal: InterpreterView.SheetAction?
   @Binding var showLog: Bool
   
   func color(severity: Severity) -> Color {
@@ -117,7 +118,7 @@ struct LogView: View {
                 }
                 Divider()
                 Button(action: {
-                  self.showSheet = .shareText(entry.message)
+                  self.presentSheet(.shareText(entry.message))
                 }) {
                   Label("Share Message", systemImage: "square.and.arrow.up")
                 }
@@ -195,12 +196,12 @@ struct LogView: View {
               Label("Copy Messages", systemImage: "doc.on.clipboard")
             }
             Button(action: {
-              self.showSheet = .shareText(self.sessionLog.exportMessages())
+              self.presentSheet(.shareText(self.sessionLog.exportMessages()))
             }) {
               Label("Share Messages", systemImage: "square.and.arrow.up.on.square")
             }
             Button(action: {
-              self.showSheet = .shareText(self.sessionLog.export())
+              self.presentSheet(.shareText(self.sessionLog.export()))
             }) {
               Label("Share Log", systemImage: "square.and.arrow.up")
             }
@@ -237,5 +238,13 @@ struct LogView: View {
       )
     }
     .transition(.move(edge: .bottom))
+  }
+  
+  private func presentSheet(_ action: InterpreterView.SheetAction) {
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      self.showModal = action
+    } else {
+      self.showSheet = action
+    }
   }
 }

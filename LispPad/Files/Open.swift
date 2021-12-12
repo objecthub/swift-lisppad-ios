@@ -66,7 +66,7 @@ struct Open: View {
             }
             .font(.body)
             .padding(.horizontal)
-            .padding(.top, 8)
+            .padding(.top, 12)
             .padding(.bottom, 8)
             Form {
               Section(header: Text("Usage")) {

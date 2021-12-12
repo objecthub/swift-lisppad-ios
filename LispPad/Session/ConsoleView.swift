@@ -28,12 +28,10 @@ struct ConsoleView: View {
   @State var inputBuffer: String? = nil
   @State var inputHistoryIndex: Int = -1
   @State var updateConsole: ((CodeEditorTextView) -> Void)? = nil
-  @State var showCard: Bool = false
   @State var minSeverityFilter = Severity.debug
   @State var logMessageFilter = ""
   @State var filterMessage = true
   @State var filterTag = true
-  @StateObject var cardContent = MutableBlock()
   @StateObject var keyboardObserver = KeyboardObserver()
   
   let font: Font
@@ -48,6 +46,9 @@ struct ConsoleView: View {
   @Binding var readingStatus: Interpreter.ReadingStatus
   @Binding var ready: Bool
   @Binding var showSheet: InterpreterView.SheetAction?
+  @Binding var showModal: InterpreterView.SheetAction?
+  @Binding var showCard: Bool
+  @ObservedObject var cardContent: MutableBlock
   @Binding var showLog: Bool
   @Binding var showProgressView: String?
   
@@ -76,7 +77,7 @@ struct ConsoleView: View {
       }
       Divider()
       Button(action: {
-        self.showSheet = .shareText(text)
+        self.presentSheet(.shareText(text))
       }) {
         Label("Share Error", systemImage: "square.and.arrow.up")
       }
@@ -175,9 +176,9 @@ struct ConsoleView: View {
                                                    scale: 4.0,
                                                    renderingWidth: 1500,
                                                    renderingHeight: 1500) {
-                      self.showSheet = .shareImage(betterImage)
+                      self.presentSheet(.shareImage(betterImage))
                     } else {
-                      self.showSheet = .shareImage(image)
+                      self.presentSheet(.shareImage(image))
                     }
                     self.showProgressView = nil
                   }
@@ -215,7 +216,7 @@ struct ConsoleView: View {
               }
               Divider()
               Button(action: {
-                self.showSheet = .shareText(entry.text)
+                self.presentSheet(.shareText(entry.text))
               }) {
                 Label("Share Text", systemImage: "square.and.arrow.up")
               }
@@ -375,7 +376,11 @@ struct ConsoleView: View {
             }
           }
           if self.showLog {
-            LogView(font: self.font, input: $input, showSheet: $showSheet, showLog: $showLog)
+            LogView(font: self.font,
+                    input: $input,
+                    showSheet: $showSheet,
+                    showModal: $showModal,
+                    showLog: $showLog)
           }
           if self.settings.consoleLogSwitcher {
             Button(action: {
@@ -397,16 +402,25 @@ struct ConsoleView: View {
       }
       .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
         OptionalScrollView {
-          MutableMarkdownText(self.cardContent)
+          MutableMarkdownText(self.cardContent, rightPadding: 26)
             .modifier(self.globals.services)
             .padding(.horizontal, 10)
-            .padding(.top, 30)
+            .padding(.top, 10)
+            .padding(.bottom, -10)
         }
       }
       .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
       Divider()
         .ignoresSafeArea(.container, edges: [.leading, .trailing])
       self.control
+    }
+  }
+  
+  private func presentSheet(_ action: InterpreterView.SheetAction) {
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      self.showModal = action
+    } else {
+      self.showSheet = action
     }
   }
 }
