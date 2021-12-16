@@ -48,7 +48,7 @@ public struct SlideOverCard<Content: View>: View {
       if self.isPresented.wrappedValue {
         Color.black
           .opacity(0.4)
-          .edgesIgnoringSafeArea(.all)
+          .ignoresSafeArea()
           .transition(.opacity)
           .zIndex(1)
         VStack {

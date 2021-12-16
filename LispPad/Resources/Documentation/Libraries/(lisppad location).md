@@ -119,7 +119,7 @@ Returns the timezone for place _pl_ as a string or `#f` if the timezone is undef
 
 Returns a list of locations for the given place or address. _obj_ is either a valid place representation or it is an address string. _locale_ is a symbol representing a locale, which is used to interpret the given place or address. `geocode` signals an error if the geocoding operation fails (e.g. if there is no network access).
 
-```
+```scheme
 (geocode "Brandschenkestrasse 110, Zürich" 'de_CH)
 ⇒ ((47.3654121 8.5247038))
 ```
@@ -131,7 +131,7 @@ Returns a list of locations for the given place or address. _obj_ is either a va
 
 Returns a list of places for the given location. _loc_ is a valid location. _lat_ and _long_ describe latitude and longitude as flonums directly. _locale_ is a symbol representing a locale. It is used for the place representations returned by `reverse-geocode`.
 
-```
+```scheme
 (reverse-geocode (location 47.36541 8.5247) 'en_US)
 ⇒ (("CH" "Switzerland" "Zürich" "Zürich"
     "8002" "Zürich" "Brunau"
@@ -142,7 +142,7 @@ Returns a list of places for the given location. _loc_ is a valid location. _lat
 
 Formats a place as an address. For this operation to succeed, it is important that the country code of the place _pl_ is set as it is used to determine the address format.
 
-```
+```scheme
 (define pl (car (reverse-geocode (location 47.36541 8.5247) 'de_CH)))
 pl ⇒ (("CH" "Schweiz" "Zürich" "Zürich"
        "8002" "Zürich" "Brunau"
@@ -159,7 +159,7 @@ Schweiz
 
 Parses the given address string _str_ into a place (or potentially multiple possible places) and returns this as a list of places. _locale_ is a symbol representing a locale. It is used for the place representations returned by `address->place`.
 
-```
+```scheme
 (address->place "Brandschenkestrasse 110, Zürich")
 ⇒ (("CH" "Switzerland" "Zürich" "Zürich"
     "8002" "Zürich" "Brunau"

@@ -320,7 +320,7 @@ struct CodeEditorView: View {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
     }
-    // .navigationBarHidden(false)
+    .ignoresSafeArea(edges: .bottom)
     .navigationBarTitleDisplayMode(.inline)
     .navigationBarBackButtonHidden(true)
     .toolbar {

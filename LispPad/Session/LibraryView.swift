@@ -166,7 +166,7 @@ struct LibraryView: View {
         }
       }
       .offset(y: -8) // Not sure why this is needed
-      .edgesIgnoringSafeArea(.all)
+      .ignoresSafeArea()
     }
     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
     .toolbar {

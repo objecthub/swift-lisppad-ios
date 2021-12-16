@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 (2021-12-15)
+
+- Integrated log viewer into console
+- Increased stack size of interpreter
+- Fixed file/editor loader
+- Fixed scrolling within console
+- Included new documentation for libraries `(lispkit prolog)`, `(lispkit math stats)`, `(lispkit math util)`, `(lispkit text-table)`, `(srfi 166)`, `(srfi 227)`, and `(srfi 229)`
+- Interpreter now based on LispKit 2.1.0
+
 ## 1.2.0 (2021-10-02)
 
 - Optimized user interface for iOS 15

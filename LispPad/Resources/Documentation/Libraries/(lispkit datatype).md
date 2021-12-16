@@ -21,24 +21,24 @@ The datatype `tree` defines a predicate `tree?` for checking whether a value is 
 
 The following line defines a new tree:
 
-```
+```scheme
 (define t1 (node (empty) 4 (node (empty) 7 (empty))))
 ```
 
 Using `match`, values like `t1` can be deconstructed using pattern matching. The following function `elements` shows how to collect all elements from a tree in a list:
 
-```
-  (define (elements tree)
-    (match tree
-      ((empty)       ())
-      ((node l e r)  (append (elements l) (list e) (elements r)))))
+```scheme
+(define (elements tree)
+  (match tree
+    ((empty)       ())
+    ((node l e r)  (append (elements l) (list e) (elements r)))))
 ```
 
 `match` is a special form which takes a value of an algebraic datatype and matches it against a list of cases. Each case defines a pattern and a sequence of statements which get executed if the pattern matches the value.
 
 Cases can also optionally define a guard which is a boolean expression that gets executed if the pattern of the case matches a value. Only if the guard evaluates to true, the statements of the case get executed. Otherwise, pattern matching continues. The following function `insert` demonstrates this functionality:
 
-```
+```scheme
 (define (insert tree x)
   (match tree
     ((empty)
@@ -51,20 +51,20 @@ Cases can also optionally define a guard which is a boolean expression that gets
 
 A new tree `t2`, with two new elements inserted, can be created like this:
 
-```
+```scheme
 (define t2 (insert (insert t1 2) 9))
 ```
 
 If a pattern is used frequently containing a lot of boilerplate, it is possible to define a shortcut using the `define-pattern` syntax:
 
-```
+```scheme
 (define-pattern (single x)
   (node (empty) x (empty)))
 ```
 
 With this declaration, it is possible to use `single` in patterns. The following example also shows that it is possible to use `else` for defining a fallback case, if no other pattern is matching.
 
-```
+```scheme
 (match t
   ((empty) #f)
   ((single x) x)
@@ -73,13 +73,13 @@ With this declaration, it is possible to use `single` in patterns. The following
 
 `single` can also be used as a constructor for creating trees with a single element:
 
-```
+```scheme
 (single 6)
 ```
 
 An advanced feature of `match` is the usage of pattern alternatives in a single case of a `match` construct. This can be achieved using the `or` form on the top level of a pattern:
 
-```
+```scheme
 (define (has-many-elements tree)
   (match tree
     ((or (empty) (single _)) #f)
@@ -93,7 +93,7 @@ The underscore in the `(single _)` subpattern is a wildcard that matches every v
 
 **(define-datatype _type (constr arg ...) ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
 **(define-datatype _type pred (constr arg ...) ..._)**  
-**(define-datatype _type pred (constr arg ...)_ where _condition_ ..._)**  
+**(define-datatype _type pred (constr arg ...)_ where _condition ..._)**  
 
 Defines a new datatype with a given number of datatype variants. The definition requires the symbol _type_ denoting the new type, an optional symbol _pred_ which gets bound to a type test function for testing whether a value is an instance of this type, and a list of constructors of the form _(constr arg1 arg2 ...)_ where _constr_ is the constructor and _arg1_, _arg2_, ... are parameter names of the constructor. A constructor can be annotated with an invariant for defining requirements the parameters need to meet. This is done via clause `where` _expr_ succeeding the constructor declaration. _condition_ is a boolean expression which gets checked when the constructor gets invoked.
 

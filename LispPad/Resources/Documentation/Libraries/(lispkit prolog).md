@@ -90,7 +90,7 @@ Predicates can be more complicated than the above recitation of facts. The predi
               (%knows person 'Prolog))))
 ```
 
-This defines the predicate `%computer‑literate` in terms of the predicate `%knows`. In effect, a person is defined as computer-literate if they know TeX and Scheme, _or_ TeX and Prolog.
+This defines the predicate `%computer-literate` in terms of the predicate `%knows`. In effect, a person is defined as computer-literate if they know TeX and Scheme, _or_ TeX and Prolog.
 
 Note that this use of `%rel` employs a local _logic variable_ called person. In general, a `%rel`-expression can have a list of symbols as its second subform. These name new logic variables that can be used within the body of the `%rel`. The following query can now be answered:
 
@@ -110,7 +110,7 @@ The above queries are yes/no questions. Logic programming allows more: We can fo
 
 asks for an instantiation of the logic variable `what` that satisfies the goal `(%knows 'Odysseus what)`. In other words, we are asking, "What does Odysseus know?".
 
-Note that this use of `%which`, like `%rel` in the definition of `%computer‑literate`, uses a local logic variable `what`. In general, the second subform of `%which` can be a list of local logic variables. The `%which`-query returns an answer that is a list of bindings, one for each logic variable mentioned in its second subform. Thus,  
+Note that this use of `%which`, like `%rel` in the definition of `%computer-literate`, uses a local logic variable `what`. In general, the second subform of `%which` can be a list of local logic variables. The `%which`-query returns an answer that is a list of bindings, one for each logic variable mentioned in its second subform. Thus,  
 
 ```scheme
 (%which (what)
@@ -151,9 +151,9 @@ tacks on a new clause at the end of the existing clauses of the `%knows` predica
   (%knows 'Odysseus what))  
 ```
 
-gives TeX, Scheme, Prolog, and Penelope, as before, but a subsequent `(%more)` yields a new result: archery. The Schelog form `%assert‑a` is similar to `%assert` but adds clauses _before_ any of the current clauses.
+gives TeX, Scheme, Prolog, and Penelope, as before, but a subsequent `(%more)` yields a new result: archery. The Schelog form `%assert-a` is similar to `%assert` but adds clauses _before_ any of the current clauses.
 
-Both `%assert` and `%assert‑a` assume that the variable they are adding to already names a predicate, presumably defined using `%rel`. In order to allow defining a predicate entirely through `%assert`, Schelog provides an empty predicate value `%empty‑rel`. `%empty‑rel` takes any number of arguments and always fails. Here is a typical use of the `%empty‑rel` and `%assert` combination:
+Both `%assert` and `%assert-a` assume that the variable they are adding to already names a predicate, presumably defined using `%rel`. In order to allow defining a predicate entirely through `%assert`, Schelog provides an empty predicate value `%empty-rel`. `%empty-rel` takes any number of arguments and always fails. Here is a typical use of the `%empty-rel` and `%assert` combination:
 
 ```scheme
 (define %parent %empty-rel)
@@ -280,7 +280,7 @@ A price that this efficiency comes with is that we can use `%factorial` only wit
       (%is y (scheme-factorial x)))))  
 ```
 
-or better yet, inline any calls to `%factorial` with `%is`-expressions calling scheme‑factorial, where the latter is defined in the usual manner:  
+or better yet, inline any calls to `%factorial` with `%is`-expressions calling scheme-factorial, where the latter is defined in the usual manner:  
 
 ```scheme
 (define scheme-factorial  
@@ -339,18 +339,18 @@ The starting goal is:
 G0 = (%computer-literate Penelope)  
 ```
 
-Schelog tries to match this with the head of the first clause of `%computer‑literate`. It succeeds, generating a binding `(person Penelope)`. But this means it now has two new goals — _subgoals_ — to solve. These are the goals in the body of the matching clause, with the logic variables substituted by their instantiations:  
+Schelog tries to match this with the head of the first clause of `%computer-literate`. It succeeds, generating a binding `(person Penelope)`. But this means it now has two new goals — _subgoals_ — to solve. These are the goals in the body of the matching clause, with the logic variables substituted by their instantiations:  
 
 ```scheme
 G1 = (%knows Penelope TeX)  
 G2 = (%knows Penelope Scheme)  
 ```
 
-For `G1`, Schelog attempts matches with the clauses of `%knows`, and succeeds at the fifth try. There are no subgoals in this case, because the bodies of these "fact" clauses are empty, in contrast to the "rule" clauses of `%computer`‑literate. Schelog then tries to solve `G2` against the clauses of `%knows`, and since there is no clause stating that Penelope knows Scheme, it fails.
+For `G1`, Schelog attempts matches with the clauses of `%knows`, and succeeds at the fifth try. There are no subgoals in this case, because the bodies of these "fact" clauses are empty, in contrast to the "rule" clauses of `%computer`-literate. Schelog then tries to solve `G2` against the clauses of `%knows`, and since there is no clause stating that Penelope knows Scheme, it fails.
 
 All is not lost though. Schelog now _backtracks_ to the goal that was solved just before: `G1`. It _retries_ G1, i.e. tries to solve it in a different way. This entails searching down the previously unconsidered `%knows` clauses for `G1`, i.e. the sixth onwards. Obviously, Schelog fails again, because the fact that Penelope knows TeX occurs only once.
 
-Schelog now backtracks to the goal before `G1`, i.e. `G0`. We abandon the current successful match with the first clause-head of `%computer‑literate`, and try the next clause-head. Schelog succeeds, again producing a binding `(person Penelope)`, and two new subgoals:
+Schelog now backtracks to the goal before `G1`, i.e. `G0`. We abandon the current successful match with the first clause-head of `%computer-literate`, and try the next clause-head. Schelog succeeds, again producing a binding `(person Penelope)`, and two new subgoals:
 
 ```scheme
 G3 = (%knows Penelope TeX)  
@@ -383,15 +383,15 @@ Schelog also provides the predicate `%/=`, the _negation_ of `%=`. `(%/= X Y)` s
 
 Unification goals constitute the basic subgoals that all Schelog goals devolve to. A goal succeeds because all the eventual unification subgoals that it decomposes to in at least one of its subgoal-branching succeeded. It fails because every possible subgoal-branching was thwarted by the failure of a crucial unification subgoal.
 
-Going back to the example in the section on backtracking, the goal `(%computer‑literate 'Penelope)` succeeds because (a) it unified with `(%computer‑literate person)`; and then (b) with the binding `(person Penelope)` in place, `(%knows person 'TeX)` unified with `(%knows 'Penelope 'TeX)` and `(%knows person 'Prolog)` unified with `(%knows 'Penelope 'Prolog)`.
+Going back to the example in the section on backtracking, the goal `(%computer-literate 'Penelope)` succeeds because (a) it unified with `(%computer-literate person)`; and then (b) with the binding `(person Penelope)` in place, `(%knows person 'TeX)` unified with `(%knows 'Penelope 'TeX)` and `(%knows person 'Prolog)` unified with `(%knows 'Penelope 'Prolog)`.
 
-In contrast, the goal `(%computer‑literate 'Telemachus)` fails because, with `(person Telemachus)`, the subgoals `(%knows person 'Scheme)` and `(%knows person 'Prolog)` have no facts they can unify with.  
+In contrast, the goal `(%computer-literate 'Telemachus)` fails because, with `(person Telemachus)`, the subgoals `(%knows person 'Scheme)` and `(%knows person 'Prolog)` have no facts they can unify with.  
 
 ### The "occurs check"
 
 A robust unification algorithm uses the _occurs check_, which ensures that a logic variable isn’t bound to a structure that contains itself. Not performing the check can cause the unification to go into an infinite loop in some cases. On the other hand, performing the occurs check greatly increases the time taken by unification, even in cases that wouldn’t require the check.
 
-Schelog uses the global variable `*schelog‑use‑occurs‑check?*` to decide whether to use the occurs check. By default, this variable is `#f`, i.e. Schelog disables the occurs check. To enable the check,  
+Schelog uses the global variable `*schelog-use-occurs-check?*` to decide whether to use the occurs check. By default, this variable is `#f`, i.e. Schelog disables the occurs check. To enable the check,  
 
 ```scheme
 (set! *schelog-use-occurs-check?* #t)
@@ -438,7 +438,7 @@ lists all `x` that are members of either list.
 (%more) => ((x 5))  
 ```
 
-Here, `((x 3))` is listed twice. We can rewrite the predicate `%computer‑literate` from section "Predicates with rules" using `%and`and `%or`: 
+Here, `((x 3))` is listed twice. We can rewrite the predicate `%computer-literate` from section "Predicates with rules" using `%and`and `%or`: 
 
 ```scheme
 (define %computer-literate
@@ -499,7 +499,7 @@ The predicate `%nonvar` is the negation of `%var`.
 
 ### Preserving variables
 
-Schelog lets the user protect a term with variables from unification by allowing that term to be treated as a completely bound object. The predicates provided for this purpose are `%freeze`, `%melt`, `%melt‑new`, and `%copy`.
+Schelog lets the user protect a term with variables from unification by allowing that term to be treated as a completely bound object. The predicates provided for this purpose are `%freeze`, `%melt`, `%melt-new`, and `%copy`.
 
 The goal
 
@@ -531,7 +531,7 @@ The goal
 (%copy S C)  
 ```
 
-is an abbreviation for `(%freeze S F)` followed by `(%melt‑new F C)`.  
+is an abbreviation for `(%freeze S F)` followed by `(%melt-new F C)`.  
 
 ## The cut (!)
 
@@ -557,7 +557,7 @@ Clearly,
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`(%factorial 0 n))`  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`=> ((n 1))`
 
-But what if we asked for `(%more)` for either query? Backtracking will try the second clause of `%factorial`, and sure enough the clause-head unifies, producing binding `(x 0)`. We now get three subgoals. Solving the first, we get `(x1 ‑1)`, and then we have to solve `(%factorial ‑1 y1)`. It is easy to see there is no end to this, as we fruitlessly try to get the factorials of numbers that get more and more negative.  
+But what if we asked for `(%more)` for either query? Backtracking will try the second clause of `%factorial`, and sure enough the clause-head unifies, producing binding `(x 0)`. We now get three subgoals. Solving the first, we get `(x1 -1)`, and then we have to solve `(%factorial -1 y1)`. It is easy to see there is no end to this, as we fruitlessly try to get the factorials of numbers that get more and more negative.  
 
 If we placed a cut at the first clause:  
 
@@ -606,7 +606,7 @@ We first unify `G0` with the first clause-head, giving `(p Gbool)`, `(q Gthen)`,
 
 Case 1: If `Gbool` fails, backtracking will cause the `G0` to unify with the second clause-head. `r` is bound to `Gelse`, and so `Gelse` is tried, as expected.
 
-Case 2: If `Gbool` succeeds, the cut commits to this clause of the `%if‑then‑else`. We now try `Gthen`. If `Gthen` should now fail — or even if we simply retry for more solutions — we are guaranteed that the second clause-head will not be tried. If it were not for the cut, `G0` would attempt to unify with the second clause-head, which will of course succeed, and `Gelse` _will_ be tried.
+Case 2: If `Gbool` succeeds, the cut commits to this clause of the `%if-then-else`. We now try `Gthen`. If `Gthen` should now fail — or even if we simply retry for more solutions — we are guaranteed that the second clause-head will not be tried. If it were not for the cut, `G0` would attempt to unify with the second clause-head, which will of course succeed, and `Gelse` _will_ be tried.
 
 ### Negation as failure
 
@@ -647,7 +647,7 @@ This is the only solution for this goal:
 (%more) =>#f  
 ```
 
-Note that some things, e.g. TeX, are enumerated more than once. This is because more than one person knows TeX. To remove duplicates, use the predicate `%set‑of` instead of `%bag‑of`:
+Note that some things, e.g. TeX, are enumerated more than once. This is because more than one person knows TeX. To remove duplicates, use the predicate `%set-of` instead of `%bag-of`:
 
 ```scheme
 (%which (things-known)
@@ -658,7 +658,7 @@ Note that some things, e.g. TeX, are enumerated more than once. This is because 
        Penelope Odysseus calculus))) 
 ```
 
-In the above, the free variable someone in the `%knows-goal` is used as if it were existentially quantified. In contrast, Prolog’s versions of `%bag‑of` and `%set‑of` fix it for each solution of the set-predicate goal. We can do it too with some additional syntax that identifies the free variable, for instance:
+In the above, the free variable someone in the `%knows-goal` is used as if it were existentially quantified. In contrast, Prolog’s versions of `%bag-of` and `%set-of` fix it for each solution of the set-predicate goal. We can do it too with some additional syntax that identifies the free variable, for instance:
 
 ```scheme
 (%which (someone things-known)
@@ -682,7 +682,7 @@ The bag of things known by _one_ someone is returned. That someone is Odysseus. 
 (%more) => #f  
 ```
 
-Schelog also provides two variants of these set predicates: `%bag‑of‑1` and `%set‑of‑1`. These act like `%bag‑of` and `%set‑of` but fail if the resulting bag or set is empty.  
+Schelog also provides two variants of these set predicates: `%bag-of-1` and `%set-of-1`. These act like `%bag-of` and `%set-of` but fail if the resulting bag or set is empty.  
 
 ## API
 
@@ -738,17 +738,17 @@ The goal `(%append E1 E2 E3)` succeeds if `E3` is unifiable with the list obtain
 
 The form `(%assert Pname (V ...) C ...)` adds the clauses _C ..._ to the end of the predicate that is the value of the Scheme variable _Pname_. The variables _V ..._ are local logic variables for _C ..._.
 
-**(%assert‑a _Pname (V ...) C ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(%assert-a _Pname (V ...) C ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 The form `(%assert-a Pname (V ...) C ...)` adds the clauses _C ..._ to the front of the predicate that is the value of the Scheme variable _Pname_. The variables _V ..._ are local logic variables for _C ..._.  
 
-**(%bag‑of _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
+**(%bag-of _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%bag‑of E1 G E2)` unifies with `E2` the _bag_ (multiset) of all the instantiations of `E1` for which goal `G` succeeds.
+The goal `(%bag-of E1 G E2)` unifies with `E2` the _bag_ (multiset) of all the instantiations of `E1` for which goal `G` succeeds.
 
-**(%bag‑of‑1 _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
+**(%bag-of-1 _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%bag‑of E1 G E2)` unifies with `E2` the _bag_ (multiset) of all the instantiations of `E1` for which goal `G` succeeds. `%bag‑of‑1` fails if the bag is empty.
+The goal `(%bag-of E1 G E2)` unifies with `E2` the _bag_ (multiset) of all the instantiations of `E1` for which goal `G` succeeds. `%bag-of-1` fails if the bag is empty.
 
 **(%compound _E_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
@@ -762,25 +762,25 @@ The goal `(%constant E)` succeeds if `E` is an atomic object, i.e. not a vector 
 
 The goal `(%copy F S)` unifies with `S` a copy of the frozen structure in `F`.
 
-**(%empty‑rel _E ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
+**(%empty-rel _E ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%empty‑rel E ...)` always fails. The value `%empty‑rel` is used as a starting value for predicates that can later be enhanced with `%assert` and `%assert‑a`.
+The goal `(%empty-rel E ...)` always fails. The value `%empty-rel` is used as a starting value for predicates that can later be enhanced with `%assert` and `%assert-a`.
 
 **%fail** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[goal]</span>  
  
 The goal `%fail` always fails.  
 
-**(%free‑vars _(V ...) G_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(%free-vars _(V ...) G_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
 
-The form `(%free‑vars (V ...) G)` identifies the occurrences of the variables `V ...` in goal `G` as free. It is used to avoid existential quantification in calls to set predicates such as `%bag‑of`, `%set‑of`, etc.
+The form `(%free-vars (V ...) G)` identifies the occurrences of the variables `V ...` in goal `G` as free. It is used to avoid existential quantification in calls to set predicates such as `%bag-of`, `%set-of`, etc.
 
 **(%freeze _S F_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
 The goal `(%freeze S F)` unifies with `F` a new frozen version of the structure in `S`. Freezing implies that all the unbound variables are preserved. `F` can henceforth be used as _bound_ object with no fear of its variables getting bound by unification.
 
-**(%if‑then‑else _G1 G2 G3_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
+**(%if-then-else _G1 G2 G3_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%if‑then‑else G1 G2 G3)` tries `G1` first: if it succeeds, tries `G2`; if not, tries `G3`.
+The goal `(%if-then-else G1 G2 G3)` tries `G1` first: if it succeeds, tries `G2`; if not, tries `G3`.
 
 **(%is _E1 E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
@@ -796,7 +796,7 @@ The goal `(%melt F S)` unifies `S` with the thawed (original) form of the frozen
 
 **(%melt-new _F S_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%melt‑new F S)` unifies `S` with a thawed _copy_ of the frozen structure in `F`. This means new logic variables are used for unbound logic variables in `F`.
+The goal `(%melt-new F S)` unifies `S` with a thawed _copy_ of the frozen structure in `F`. This means new logic variables are used for unbound logic variables in `F`.
 
 **(%member _E1 E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
@@ -826,17 +826,17 @@ The form `(%rel (V ...) C ...)` creates a predicate object. Each clause `C` is o
 
 The goal `(%repeat)` always succeeds (even on retries). Used for failure-driven loops.
 
-**\*schelog‑use‑occurs‑check?\*** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+**\*schelog-use-occurs-check?\*** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
 
-If the global flag `*schelog‑use‑occurs‑check?*` is false (the default), unification will not use the occurs check. If it is true, the occurs check is enabled.
+If the global flag `*schelog-use-occurs-check?*` is false (the default), unification will not use the occurs check. If it is true, the occurs check is enabled.
 
-**(%set‑of _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
+**(%set-of _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%set‑of E1 G E2)` unifies with `E2` the _set_ of all the instantiations of `E1` for which goal `G` succeeds.
+The goal `(%set-of E1 G E2)` unifies with `E2` the _set_ of all the instantiations of `E1` for which goal `G` succeeds.
 
-**(%set‑of-1 _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
+**(%set-of-1 _E1 G E2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[predicate]</span>  
 
-The goal `(%set‑of-1 E1 G E2)` unifies with `E2` the _set_ of all the instantiations of `E1` for which goal `G` succeeds. The predicate fails if the set is empty.
+The goal `(%set-of-1 E1 G E2)` unifies with `E2` the _set_ of all the instantiations of `E1` for which goal `G` succeeds. The predicate fails if the set is empty.
 
 **%true** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[goal]</span>  
 
@@ -857,7 +857,5 @@ A thunk that produces a new logic variable. Can be used in situations where we w
 ***
 
 Copyright (c) 1993-2001, Dorai Sitaram.  
-All rights reserved.
-
+All rights reserved.  
 Permission to distribute and use this work for any purpose is hereby granted provided this copyright notice is included in the copy. This work is provided as is, with no warranty of any kind.
-
