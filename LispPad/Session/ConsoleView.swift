@@ -22,6 +22,11 @@ import SwiftUI
 import MobileCoreServices
 
 struct ConsoleView: View {
+  static let logButtonColor = Color(UIColor(named: "LogSwitchColor") ??
+                                      UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0))
+  static let resultColor = Color(UIColor(named: "ResultColor") ??
+                                   UIColor(red: 0.0, green: 0.1, blue: 0.7, alpha: 1.0))
+  
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var settings: UserSettings
   @State var dynamicHeight: CGFloat = 100
@@ -105,7 +110,7 @@ struct ConsoleView: View {
             Text(entry.text)
               .font(self.font)
               .fontWeight(.regular)
-              .foregroundColor(.blue)
+              .foregroundColor(ConsoleView.resultColor)
               .frame(maxWidth: .infinity, alignment: .topLeading)
               .fixedSize(horizontal: false, vertical: true)
             Image(uiImage: image)
@@ -194,7 +199,7 @@ struct ConsoleView: View {
           Text(entry.text)
             .font(entry.kind == .info ? self.infoFont : self.font)
             .fontWeight(entry.kind == .info ? .bold : .regular)
-            .foregroundColor(entry.kind == .result ? .blue :
+            .foregroundColor(entry.kind == .result ? ConsoleView.resultColor :
                               (entry.kind == .output ? .secondary : .primary))
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .fixedSize(horizontal: false, vertical: true)
@@ -389,13 +394,14 @@ struct ConsoleView: View {
               }
             }) {
               Circle()
-                .stroke(lineWidth: 1)
-                .frame(width: 23.5, height: 23.5)
+                .strokeBorder(Color.blue.opacity(0.6), lineWidth: 1.0, antialiased: true)
+                .background(Circle().fill(ConsoleView.logButtonColor).opacity(0.85))
+                .frame(width: 26, height: 26)
                 .overlay(Image(systemName: self.showLog ? "list.triangle" : "scroll")
                           .resizable()
                           .scaledToFit()
                           .frame(height: self.showLog ? 11 : 13), alignment: .center)
-                .padding(9.5)
+                .padding(8.2)
             }
           }
         }

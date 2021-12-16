@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 (2021-12-17)
+
+- Adjusted colors used in REPL to improve legibility
+- Fixed bug leading to symbol definition views disappearing behind the keyboard
+
 ## 1.2.1 (2021-12-15)
 
 - Integrated log viewer into console

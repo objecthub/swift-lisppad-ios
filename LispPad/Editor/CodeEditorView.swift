@@ -298,7 +298,7 @@ struct CodeEditorView: View {
                   self.cardContent.block = block
                  })
         .multilineTextAlignment(.leading)
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .ignoresSafeArea(edges: .bottom)
         .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
           OptionalScrollView {
             MutableMarkdownText(self.cardContent, rightPadding: 26)
@@ -320,7 +320,6 @@ struct CodeEditorView: View {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
         }
     }
-    .ignoresSafeArea(edges: .bottom)
     .navigationBarTitleDisplayMode(.inline)
     .navigationBarBackButtonHidden(true)
     .toolbar {
