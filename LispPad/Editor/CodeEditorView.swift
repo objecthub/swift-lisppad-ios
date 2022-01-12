@@ -896,7 +896,7 @@ struct CodeEditorView: View {
     return Alert(title: Text("Terminate evaluation?"),
                  primaryButton: .cancel(),
                  secondaryButton: .destructive(Text("Terminate"), action: {
-                   self.interpreter.context?.machine.abort()
+                   self.interpreter.context?.evaluator.abort()
                  }))
   }
   

@@ -151,10 +151,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
           tag: "repl/exec",
           message: command.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
       }
-      let res = self?.execute { context in
-        try context.machine.eval(str: command,
-                                 sourceId: SourceManager.consoleSourceId,
-                                 in: context.global, as: "<repl>")
+      let res = self?.execute { machine in
+        try machine.eval(str: command,
+                         sourceId: SourceManager.consoleSourceId,
+                         in: machine.context.global, as: "<repl>")
       }
       if UserSettings.standard.logCommands, let outputs = res {
         for output in outputs {
@@ -198,12 +198,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.isReady = false
     self.readingStatus = .reject
     self.serializer.schedule { [weak self] in
-      let res = self?.execute { context in
+      let res = self?.execute { machine in
         var sourceId = SourceManager.consoleSourceId
         if let url = url {
-          sourceId = context.sources.obtainSourceId(for: url)
+          sourceId = machine.context.sources.obtainSourceId(for: url)
         }
-        return try context.machine.eval(str: text, sourceId: sourceId)
+        return try machine.eval(str: text, sourceId: sourceId)
       }
       self?.append(result: res)
     }
@@ -221,8 +221,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.isReady = false
     self.readingStatus = .reject
     self.serializer.schedule { [weak self] in
-      let res = self?.execute { context in
-        try context.machine.eval(file: url.absoluteURL.path)
+      let res = self?.execute { machine in
+        try machine.eval(file: url.absoluteURL.path)
       }
       self?.append(result: res)
     }
@@ -240,8 +240,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.isReady = false
     self.readingStatus = .reject
     self.serializer.schedule { [weak self] in
-      let res = self?.execute { context in
-        try context.environment.import(lib)
+      let res = self?.execute { machine in
+        try machine.context.environment.import(lib)
         return .void
       }
       self?.append(result: res)
@@ -330,7 +330,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
                       LispKitContext.defaultPreludePath
     self.context = context
     do {
-      _ = try context.machine.eval(file: preludePath)
+      _ = try context.evaluator.machine.eval(file: preludePath)
     } catch let error {
       DispatchQueue.main.sync {
         self.console.append(output: .error(error.localizedDescription,
@@ -349,14 +349,14 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
-  private func execute(action: (Context) throws -> Expr) -> [ConsoleOutput]? {
+  private func execute(action: (VirtualMachine) throws -> Expr) -> [ConsoleOutput]? {
     guard let context = self.context else {
       return nil
     }
-    let res = context.machine.onTopLevelDo {
-      try action(context)
+    let res = context.evaluator.execute { machine in
+      try action(machine)
     }
-    if context.machine.exitTriggered {
+    if context.evaluator.exitTriggered {
       // Check if we should close this interpreter
     }
     switch res {
@@ -499,7 +499,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     var builder = StringBuilder()
     var offset = tailCall ? 0 : 1
     let callStack = machine.getStackTrace()
-    if machine.traceCalls == .byProc {
+    if machine.context.evaluator.traceCalls == .byProc {
       offset += self.countTracedProcedures(callStack)
     } else {
       offset += callStack.count
@@ -526,7 +526,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     var builder = StringBuilder()
     var offset = tailCall ? 0 : 1
     let callStack = machine.getStackTrace()
-    if machine.traceCalls == .byProc {
+    if machine.context.evaluator.traceCalls == .byProc {
       offset += self.countTracedProcedures(callStack)
     } else {
       offset += callStack.count

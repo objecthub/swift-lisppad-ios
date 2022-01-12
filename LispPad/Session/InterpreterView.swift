@@ -419,7 +419,7 @@ struct InterpreterView: View {
           return Alert(title: Text("Terminate evaluation?"),
                        primaryButton: .cancel(),
                        secondaryButton: .destructive(Text("Terminate"), action: {
-                         self.interpreter.context?.machine.abort()
+                         self.interpreter.context?.evaluator.abort()
                        }))
         case .notSaved:
           return Alert(title: Text("Document not saved"),

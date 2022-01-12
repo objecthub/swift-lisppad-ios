@@ -27,8 +27,13 @@
 ;;; permissions and limitations under the License.
 
 (import (lispkit base)
+        (lispkit thread)
         (lisppad system)
         (lisppad audio))
+
+;; Use sleep procedure from the (lispkit thread) library
+(define (sleep secs)
+  (thread-sleep! secs))
 
 ;; Reset the given audio player `pl` and set volume to `vol`.
 (define (reset-audio-player! pl vol)

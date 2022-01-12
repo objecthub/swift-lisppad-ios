@@ -92,7 +92,7 @@ public final class LocationLibrary: NativeLibrary {
   
   private func currentLocation() throws -> Expr {
     if self.locationManager == nil {
-      self.locationManager = LocationManager(machine: self.context.machine)
+      self.locationManager = LocationManager(evaluator: self.context.evaluator)
     }
     guard let location = self.locationManager?.currentLocation else {
       return .false
@@ -281,7 +281,7 @@ public final class LocationLibrary: NativeLibrary {
       }
       condition.signal()
     }
-    while res == nil && !self.context.machine.isAbortionRequested() {
+    while res == nil && !self.context.evaluator.isAbortionRequested() {
       var nextCheckpoint = Date()
       nextCheckpoint.addTimeInterval(0.5)
       condition.wait(until: nextCheckpoint)
@@ -363,7 +363,7 @@ public final class LocationLibrary: NativeLibrary {
       }
       condition.signal()
     }
-    while res == nil && !self.context.machine.isAbortionRequested() {
+    while res == nil && !self.context.evaluator.isAbortionRequested() {
       var nextCheckpoint = Date()
       nextCheckpoint.addTimeInterval(0.5)
       condition.wait(until: nextCheckpoint)
@@ -527,15 +527,15 @@ public final class LocationLibrary: NativeLibrary {
 }
 
 fileprivate final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-  private let machine: VirtualMachine
+  private let evaluator: Evaluator
   private let locationManager: CLLocationManager
   private let condition = NSCondition()
   var locationError: Bool = false
   var locationStatus: CLAuthorizationStatus? = nil
   var lastLocation: CLLocation? = nil
 
-  init(machine: VirtualMachine) {
-    self.machine = machine
+  init(evaluator: Evaluator) {
+    self.evaluator = evaluator
     self.locationManager = CLLocationManager()
     super.init()
     self.locationManager.delegate = self
@@ -575,7 +575,7 @@ fileprivate final class LocationManager: NSObject, ObservableObject, CLLocationM
     while self.lastLocation == nil &&
           !self.accessDenied &&
           !self.locationError &&
-          !self.machine.isAbortionRequested() {
+          !self.evaluator.isAbortionRequested() {
       n += 1
       if n >= 16 {
         break

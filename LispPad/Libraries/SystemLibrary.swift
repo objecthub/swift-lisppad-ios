@@ -45,14 +45,14 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("icloud-directory", self.icloudDirectory))
     self.define(Procedure("screen-size", self.screenSize))
     self.define(Procedure("dark-mode?", self.isDarkMode))
-    self.define(Procedure("sleep", self.sleep))
     self.define(Procedure("icloud-list", self.iCloudList))
     self.define(Procedure("session-log", self.sessionLog))
   }
   
   private func openInFilesApp(expr: Expr) throws -> Expr {
-    let path = self.context.fileHandler.path(try expr.asPath(),
-                                             relativeTo: self.context.machine.currentDirectoryPath)
+    let path = self.context.fileHandler.path(
+                 try expr.asPath(),
+                 relativeTo: self.context.evaluator.currentDirectoryPath)
     if let url = URL(string: "shareddocuments://\(path)") {
       DispatchQueue.main.async {
         UIApplication.shared.open(url)
@@ -94,16 +94,6 @@ public final class SystemLibrary: NativeLibrary {
   
   private func isDarkMode() -> Expr {
     return .makeBoolean(UITraitCollection.current.userInterfaceStyle == .dark)
-  }
-  
-  private func sleep(_ expr: Expr) throws -> Expr {
-    var remaining = try expr.asDouble(coerce: true)
-    let endTime = Timer.currentTimeInSec + remaining
-    while remaining > 0.0 && !self.context.machine.isAbortionRequested() {
-      Thread.sleep(forTimeInterval: min(remaining, 0.5))
-      remaining = endTime - Timer.currentTimeInSec
-    }
-    return .void
   }
   
   private func iCloudList(_ expr: Expr?) throws -> Expr {
