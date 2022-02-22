@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: iOS](https://img.shields.io/badge/Platform-iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.4](https://img.shields.io/badge/Language-Swift%205.4-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 12.5](https://img.shields.io/badge/IDE-Xcode%2012.5-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.5](https://img.shields.io/badge/Language-Swift%205.4-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 13](https://img.shields.io/badge/IDE-Xcode%2013-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lisppad/master/LICENSE)
 
@@ -34,9 +34,23 @@ _LispPad Go_ is a simplified version of the [macOS application _LispPad_](http:/
 
 <img src="Assets/ScreenShot_prefs.png" alt="Preferences" width="311" height="552" />
 
+## Included assets
+
+### Fonts
+
+- [Iosevka](https://github.com/be5invis/Iosevka), © 2015-2022 Renzhi Li \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
+- [Inconsolata](https://www.levien.com/type/myfonts/inconsolata.html), © 2006 The Inconsolata Project Authors \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
+- [Fira Code](https://github.com/tonsky/FiraCode), © 2014-2020 The Fira Code Project Authors \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
+- Source Code Pro, © 2010, 2012 [Adobe Systems Inc.](http://www.adobe.com/) \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
+- Roboto Mono, © Christian Robertson \(Apache License 2.0\)
+
+### Audio samples
+
+- <https://www.bensound.com/royalty-free-music>
+
 ## Requirements
 
-- [Xcode 12.5](https://developer.apple.com/xcode/)
-- [Swift 5.4](https://developer.apple.com/swift/)
+- [Xcode 13](https://developer.apple.com/xcode/)
+- [Swift 5.5](https://developer.apple.com/swift/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [LispKit](http://github.com/objecthub/swift-lispkit)
