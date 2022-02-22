@@ -74,6 +74,7 @@ final class UserSettings: ObservableObject {
   private static let bulletsColorKey = "Editor.bulletsColor"
   private static let blockquoteColorKey = "Editor.blockquoteColor"
   private static let codeColorKey = "Editor.codeColor"
+  private static let codingFontKey = "General.codingFont"
   
   // Font sizes
   static let tinyFontSize = "Tiny"
@@ -84,6 +85,7 @@ final class UserSettings: ObservableObject {
   static let xlargeFontSize = "X-Large"
   
   /// Regular font map
+  /*
   private static let fontMap: [String : Font] = [
     UserSettings.tinyFontSize   : .system(.caption, design: .default),
     UserSettings.smallFontSize  : .system(.footnote, design: .default),
@@ -92,9 +94,19 @@ final class UserSettings: ObservableObject {
     UserSettings.xlargeFontSize : .system(.body, design: .default),
     UserSettings.hugeFontSize   : .system(.body, design: .default)
   ]
+  */
+  
+  static let monospacedFontMap = FontMap(("Courier", "CourierNewPSMT"),
+                                         ("Menlo", "Menlo-Regular"),
+                                         ("Source Code Pro", "SourceCodePro-Regular"),
+                                         ("Roboto Mono", "RobotoMono-Regular"),
+                                         ("Fira Code", "FiraCode-Regular"),
+                                         ("Iosevka", "Iosevka"),
+                                         ("Iosevka Extended", "Iosevka-Extended"),
+                                         ("Inconsolata", "Inconsolata-Regular"))
   
   /// Monospaced font map
-  private static let monospacedFontMap: [String : Font] = [
+  /* private static let monospacedFontMap: [String : Font] = [
     UserSettings.tinyFontSize   : .system(.caption, design: .monospaced),
     UserSettings.smallFontSize  : .system(.footnote, design: .monospaced),
     UserSettings.mediumFontSize : .system(.subheadline, design: .monospaced),
@@ -124,7 +136,8 @@ final class UserSettings: ObservableObject {
     UserSettings.hugeFontSize   : .monospacedSystemFont(
                                     ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
                                     weight: .regular)
-  ]
+  ] */
+  
   
   /// Graphics background
   static let whiteBackground = "white"
@@ -152,9 +165,9 @@ final class UserSettings: ObservableObject {
     }
   }
   
-  @Published var consoleFontSize: String {
+  @Published var consoleFontSize: FontMap.FontSize {
     didSet {
-      UserDefaults.standard.set(self.consoleFontSize, forKey: Self.consoleFontSizeKey)
+      UserDefaults.standard.set(self.consoleFontSize.string, forKey: Self.consoleFontSizeKey)
     }
   }
   
@@ -182,9 +195,9 @@ final class UserSettings: ObservableObject {
     }
   }
   
-  @Published var inputFontSize: String {
+  @Published var inputFontSize: FontMap.FontSize {
     didSet {
-      UserDefaults.standard.set(self.inputFontSize, forKey: Self.inputFontSizeKey)
+      UserDefaults.standard.set(self.inputFontSize.string, forKey: Self.inputFontSizeKey)
     }
   }
   
@@ -288,9 +301,9 @@ final class UserSettings: ObservableObject {
     }
   }
   
-  @Published var editorFontSize: String {
+  @Published var editorFontSize: FontMap.FontSize {
     didSet {
-      UserDefaults.standard.set(self.editorFontSize, forKey: Self.editorFontSizeKey)
+      UserDefaults.standard.set(self.editorFontSize.string, forKey: Self.editorFontSizeKey)
     }
   }
   
@@ -427,30 +440,32 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var codingFont: String {
+    didSet {
+      UserDefaults.standard.set(self.codingFont, forKey: Self.codingFontKey)
+    }
+  }
+  
   var consoleGraphicsBackgroundColor: Color {
     return Self.backgroundColorMap[self.consoleBackgroundColor] ?? .clear
   }
   
   var consoleFont: Font {
-    return (Self.monospacedFontMap[self.consoleFontSize] ??
-              .system(.footnote, design: .monospaced))
-           .leading(self.consoleTightSpacing ? .tight : .standard)
+    return Self.monospacedFontMap.font(name: self.codingFont, size: self.consoleFontSize)
+             .leading(self.consoleTightSpacing ? .tight : .standard)
   }
   
   var consoleInfoFont: Font {
-    return (Self.fontMap[self.consoleFontSize] ??
-              .system(.footnote, design: .monospaced))
-           .leading(self.consoleTightSpacing ? .tight : .standard)
+    return Self.monospacedFontMap.font(name: self.codingFont, size: self.consoleFontSize)
+             .leading(self.consoleTightSpacing ? .tight : .standard)
   }
   
   var inputFont: UIFont {
-    return Self.monospacedUIFontMap[self.inputFontSize] ??
-             .monospacedSystemFont(ofSize: 12, weight: .regular)
+    return Self.monospacedFontMap.uiFont(name: self.codingFont, size: self.inputFontSize)
   }
   
   var editorFont: UIFont {
-    return Self.monospacedUIFontMap[self.editorFontSize] ??
-             .monospacedSystemFont(ofSize: 12, weight: .regular)
+    return Self.monospacedFontMap.uiFont(name: self.codingFont, size: self.editorFontSize)
   }
   
   var documentationTextFontSize: Float {
@@ -491,8 +506,8 @@ final class UserSettings: ObservableObject {
   private init() {
     self.foldersOnICloud = UserDefaults.standard.boolean(forKey: Self.foldersOnICloudKey)
     self.foldersOnDevice = UserDefaults.standard.boolean(forKey: Self.foldersOnDeviceKey)
-    self.consoleFontSize = UserDefaults.standard.str(forKey: Self.consoleFontSizeKey,
-                                                     UserSettings.smallFontSize)
+    self.consoleFontSize = .init(UserDefaults.standard.str(forKey: Self.consoleFontSizeKey,
+                                                           FontMap.FontSize.compact.string))
     self.consoleTightSpacing = UserDefaults.standard.boolean(forKey: Self.consoleTightSpacingKey,
                                                              false)
     self.consoleBackgroundColor = UserDefaults.standard.str(
@@ -500,8 +515,8 @@ final class UserSettings: ObservableObject {
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)
     self.consoleLogSwitcher = UserDefaults.standard.boolean(forKey: Self.consoleLogSwitcherKey,
                                                             false)
-    self.inputFontSize = UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
-                                                   UserSettings.smallFontSize)
+    self.inputFontSize = .init(UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
+                                                         FontMap.FontSize.compact.string))
     self.inputTightSpacing = UserDefaults.standard.boolean(forKey: Self.inputTightSpacingKey,
                                                            false)
     self.balancedParenthesis = UserDefaults.standard.boolean(forKey: Self.balancedParenthesisKey)
@@ -526,8 +541,8 @@ final class UserSettings: ObservableObject {
     self.consoleHighlightSyntax = UserDefaults.standard.boolean(forKey:
                                                                 Self.consoleHighlightSyntaxKey)
     self.consoleMarkupIdent = UserDefaults.standard.boolean(forKey: Self.consoleMarkupIdentKey)
-    self.editorFontSize = UserDefaults.standard.str(forKey: Self.editorFontSizeKey,
-                                                    UserSettings.smallFontSize)
+    self.editorFontSize = .init(UserDefaults.standard.str(forKey: Self.editorFontSizeKey,
+                                                          FontMap.FontSize.compact.string))
     self.indentSize = UserDefaults.standard.int(forKey: Self.indentSizeKey, 2)
     self.showLineNumbers = UserDefaults.standard.boolean(forKey: Self.showLineNumbersKey)
     self.highlightMatchingParen = UserDefaults.standard.boolean(forKey:
@@ -560,5 +575,6 @@ final class UserSettings: ObservableObject {
     self.blockquoteColor = UserDefaults.standard.color(forKey: Self.blockquoteColorKey,
                                                        red: 0.7, green: 0.3, blue: 0.5)    
     self.codeColor = UserDefaults.standard.color(forKey: Self.codeColorKey, UIColor.gray)
+    self.codingFont = UserDefaults.standard.str(forKey: Self.codingFontKey, "System")
   }
 }

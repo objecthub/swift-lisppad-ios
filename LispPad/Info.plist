@@ -68,7 +68,7 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2021 Matthias Zenger. All rights reserved.</string>
+	<string>© 2022 Matthias Zenger. All rights reserved.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>The library (lisppad location) provides functionality for accessing a users location.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -191,6 +191,16 @@
 				</array>
 			</dict>
 		</dict>
+	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>iosevka-regular.ttf</string>
+		<string>iosevka-extended.ttf</string>
+		<string>SourceCodePro-Regular.ttf</string>
+		<string>FiraCode-Regular.ttf</string>
+		<string>RobotoMono-Regular.ttf</string>
+		<string>Inconsolata-Regular.ttf</string>
+		<string>Inconsolata_SemiCondensed-Regular.ttf</string>
 	</array>
 </dict>
 </plist>

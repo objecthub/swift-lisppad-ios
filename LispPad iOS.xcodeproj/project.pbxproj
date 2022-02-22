@@ -157,6 +157,18 @@
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
+		CCEF3E2527C45D4200FB56EB /* SourceCodePro-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A327C4385400C2D660 /* SourceCodePro-License.txt */; };
+		CCEF3E2627C45D4200FB56EB /* FiraCode-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */; };
+		CCEF3E2727C45D4200FB56EB /* RobotoMono-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */; };
+		CCEF3E2827C45D4200FB56EB /* Inconsolata-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AF27C43EB500C2D660 /* Inconsolata-License.txt */; };
+		CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF8F09627C2E96700C2D660 /* FontMap.swift */; };
+		CCF8F09A27C431A800C2D660 /* iosevka-regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F09927C431A800C2D660 /* iosevka-regular.ttf */; };
+		CCF8F09E27C4344100C2D660 /* iosevka-extended.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F09D27C4344100C2D660 /* iosevka-extended.ttf */; };
+		CCF8F0A027C4375F00C2D660 /* Iosevka-License.md in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F09F27C4372C00C2D660 /* Iosevka-License.md */; };
+		CCF8F0A627C4391E00C2D660 /* SourceCodePro-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0A527C4391E00C2D660 /* SourceCodePro-Regular.ttf */; };
+		CCF8F0AC27C43C9900C2D660 /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0AB27C43C9900C2D660 /* RobotoMono-Regular.ttf */; };
+		CCF8F0B227C43EE700C2D660 /* Inconsolata-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0B127C43EE700C2D660 /* Inconsolata-Regular.ttf */; };
+		CCF8F0BA27C4489B00C2D660 /* FiraCode-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0B927C4489B00C2D660 /* FiraCode-Regular.ttf */; };
 		CCFA6807276535E1009A599C /* (lispkit prolog).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CDE27412F74005F15B3 /* (lispkit prolog).md */; };
 		CCFA68092765397D009A599C /* (lispkit text-table).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCFA680827653915009A599C /* (lispkit text-table).md */; };
 		CCFA680A27653986009A599C /* (lispkit math stats).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CE02741364E005F15B3 /* (lispkit math stats).md */; };
@@ -293,6 +305,11 @@
 			dstPath = Root/Assets/Documents;
 			dstSubfolderSpec = 7;
 			files = (
+				CCEF3E2527C45D4200FB56EB /* SourceCodePro-License.txt in Copy Root/Assets/Documents */,
+				CCEF3E2627C45D4200FB56EB /* FiraCode-License.txt in Copy Root/Assets/Documents */,
+				CCEF3E2727C45D4200FB56EB /* RobotoMono-License.txt in Copy Root/Assets/Documents */,
+				CCEF3E2827C45D4200FB56EB /* Inconsolata-License.txt in Copy Root/Assets/Documents */,
+				CCF8F0A027C4375F00C2D660 /* Iosevka-License.md in Copy Root/Assets/Documents */,
 				CC8B95C726080F9700830B4F /* LispKitDatatype.md in Copy Root/Assets/Documents */,
 			);
 			name = "Copy Root/Assets/Documents";
@@ -521,6 +538,18 @@
 		CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_menu.png; sourceTree = "<group>"; };
 		CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_prefs.png; sourceTree = "<group>"; };
 		CCEA5A302643D62C00D78C62 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		CCF8F09627C2E96700C2D660 /* FontMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontMap.swift; sourceTree = "<group>"; };
+		CCF8F09927C431A800C2D660 /* iosevka-regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "iosevka-regular.ttf"; sourceTree = "<group>"; };
+		CCF8F09D27C4344100C2D660 /* iosevka-extended.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "iosevka-extended.ttf"; sourceTree = "<group>"; };
+		CCF8F09F27C4372C00C2D660 /* Iosevka-License.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Iosevka-License.md"; sourceTree = "<group>"; };
+		CCF8F0A327C4385400C2D660 /* SourceCodePro-License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SourceCodePro-License.txt"; sourceTree = "<group>"; };
+		CCF8F0A527C4391E00C2D660 /* SourceCodePro-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceCodePro-Regular.ttf"; sourceTree = "<group>"; };
+		CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "FiraCode-License.txt"; sourceTree = "<group>"; };
+		CCF8F0AB27C43C9900C2D660 /* RobotoMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "RobotoMono-Regular.ttf"; sourceTree = "<group>"; };
+		CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "RobotoMono-License.txt"; sourceTree = "<group>"; };
+		CCF8F0AF27C43EB500C2D660 /* Inconsolata-License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Inconsolata-License.txt"; sourceTree = "<group>"; };
+		CCF8F0B127C43EE700C2D660 /* Inconsolata-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inconsolata-Regular.ttf"; sourceTree = "<group>"; };
+		CCF8F0B927C4489B00C2D660 /* FiraCode-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FiraCode-Regular.ttf"; sourceTree = "<group>"; };
 		CCFA680827653915009A599C /* (lispkit text-table).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit text-table).md"; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
@@ -608,6 +637,7 @@
 				CCFBC5C92605F4D700E29F99 /* Util */,
 				CC8B95B82607FFBC00830B4F /* Libraries */,
 				CC8B951F26079EC700830B4F /* Resources */,
+				CCF8F09827C430DE00C2D660 /* Fonts */,
 				CC84C24F25FE59F000758581 /* Assets.xcassets */,
 				CC8B95D32609462800830B4F /* LispPad.entitlements */,
 				CC84C25425FE59F000758581 /* Info.plist */,
@@ -781,6 +811,11 @@
 			isa = PBXGroup;
 			children = (
 				CC8B95B32607FDBC00830B4F /* LispKitDatatype.md */,
+				CCF8F09F27C4372C00C2D660 /* Iosevka-License.md */,
+				CCF8F0A327C4385400C2D660 /* SourceCodePro-License.txt */,
+				CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */,
+				CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */,
+				CCF8F0AF27C43EB500C2D660 /* Inconsolata-License.txt */,
 			);
 			path = Documents;
 			sourceTree = "<group>";
@@ -896,6 +931,7 @@
 		CCC8565E261D09190080B96E /* Preferences */ = {
 			isa = PBXGroup;
 			children = (
+				CCF8F09627C2E96700C2D660 /* FontMap.swift */,
 				CCEA5A18263DF7F400D78C62 /* UserSettings.swift */,
 				CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */,
 				CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */,
@@ -911,6 +947,19 @@
 				CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */,
 			);
 			path = Documents;
+			sourceTree = "<group>";
+		};
+		CCF8F09827C430DE00C2D660 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				CCF8F09927C431A800C2D660 /* iosevka-regular.ttf */,
+				CCF8F09D27C4344100C2D660 /* iosevka-extended.ttf */,
+				CCF8F0A527C4391E00C2D660 /* SourceCodePro-Regular.ttf */,
+				CCF8F0AB27C43C9900C2D660 /* RobotoMono-Regular.ttf */,
+				CCF8F0B127C43EE700C2D660 /* Inconsolata-Regular.ttf */,
+				CCF8F0B927C4489B00C2D660 /* FiraCode-Regular.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		CCFBC5BA25FE8E0A00E29F99 /* Editor */ = {
@@ -1022,9 +1071,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
+				CCF8F09A27C431A800C2D660 /* iosevka-regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
+				CCF8F09E27C4344100C2D660 /* iosevka-extended.ttf in Resources */,
+				CCF8F0B227C43EE700C2D660 /* Inconsolata-Regular.ttf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
+				CCF8F0AC27C43C9900C2D660 /* RobotoMono-Regular.ttf in Resources */,
+				CCF8F0BA27C4489B00C2D660 /* FiraCode-Regular.ttf in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
+				CCF8F0A627C4391E00C2D660 /* SourceCodePro-Regular.ttf in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 			);
@@ -1078,6 +1133,7 @@
 				CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */,
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
 				CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */,
+				CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */,
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,

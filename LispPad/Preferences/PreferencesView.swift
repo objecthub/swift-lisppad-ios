@@ -33,11 +33,13 @@ struct PreferencesView: View {
       Form {
         Section(header: Text("Console")) {
           Picker(selection: $settings.consoleFontSize, label: Text("Font size")) {
-            Text("Tiny").tag(UserSettings.tinyFontSize)
-            Text("Small").tag(UserSettings.smallFontSize)
-            Text("Medium").tag(UserSettings.mediumFontSize)
-            Text("Large").tag(UserSettings.largeFontSize)
-            Text("Huge").tag(UserSettings.xlargeFontSize)
+            Text("Tiny").tag(FontMap.FontSize.tiny)
+            Text("Small").tag(FontMap.FontSize.small)
+            Text("Compact").tag(FontMap.FontSize.compact)
+            Text("Regular").tag(FontMap.FontSize.regular)
+            Text("Medium").tag(FontMap.FontSize.medium)
+            Text("Large").tag(FontMap.FontSize.large)
+            Text("Huge").tag(FontMap.FontSize.huge)
           }
           Toggle("Tight spacing", isOn: $settings.consoleTightSpacing)
           Picker(selection: $settings.consoleBackgroundColor, label: Text("Graphics background")) {
@@ -54,11 +56,13 @@ struct PreferencesView: View {
         }
         Section(header: Text("Input")) {
           Picker(selection: $settings.inputFontSize, label: Text("Font size")) {
-            Text("Tiny").tag(UserSettings.tinyFontSize)
-            Text("Small").tag(UserSettings.smallFontSize)
-            Text("Medium").tag(UserSettings.mediumFontSize)
-            Text("Large").tag(UserSettings.largeFontSize)
-            Text("Huge").tag(UserSettings.xlargeFontSize)
+            Text("Tiny").tag(FontMap.FontSize.tiny)
+            Text("Small").tag(FontMap.FontSize.small)
+            Text("Compact").tag(FontMap.FontSize.compact)
+            Text("Regular").tag(FontMap.FontSize.regular)
+            Text("Medium").tag(FontMap.FontSize.medium)
+            Text("Large").tag(FontMap.FontSize.large)
+            Text("Huge").tag(FontMap.FontSize.huge)
           }
           Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
           Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
@@ -89,11 +93,13 @@ struct PreferencesView: View {
         }
         Section(header: Text("Text")) {
           Picker(selection: $settings.editorFontSize, label: Text("Font size")) {
-            Text("Tiny").tag(UserSettings.tinyFontSize)
-            Text("Small").tag(UserSettings.smallFontSize)
-            Text("Medium").tag(UserSettings.mediumFontSize)
-            Text("Large").tag(UserSettings.largeFontSize)
-            Text("Huge").tag(UserSettings.xlargeFontSize)
+            Text("Tiny").tag(FontMap.FontSize.tiny)
+            Text("Small").tag(FontMap.FontSize.small)
+            Text("Compact").tag(FontMap.FontSize.compact)
+            Text("Regular").tag(FontMap.FontSize.regular)
+            Text("Medium").tag(FontMap.FontSize.medium)
+            Text("Large").tag(FontMap.FontSize.large)
+            Text("Huge").tag(FontMap.FontSize.huge)
           }
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
             Text("Indentation size:")
@@ -162,8 +168,17 @@ struct PreferencesView: View {
               Toggle("On My Device", isOn: $settings.foldersOnDevice)
           }
         }
-        Section(header: Text("Documentation")) {
-          Picker(selection: $settings.documentationFontSize, label: Text("Font size")) {
+        Section(header: Text("Fonts")) {
+          Picker(selection: $settings.codingFont,
+                 label: Text("Code font")) {
+            ForEach(UserSettings.monospacedFontMap.fonts.keys.sorted(by: >),
+                    id: \.self,
+                    content: { key in
+              Text(key).tag(key)
+            })
+          }
+          Picker(selection: $settings.documentationFontSize,
+                 label: Text("Documentation font size")) {
             Text("Small").tag(UserSettings.smallFontSize)
             Text("Medium").tag(UserSettings.mediumFontSize)
             Text("Large").tag(UserSettings.largeFontSize)
