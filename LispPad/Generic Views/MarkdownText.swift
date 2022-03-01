@@ -105,6 +105,13 @@ struct MarkdownTextView: UIViewRepresentable {
   }
   
   private class DocumentationStringGenerator: AttributedStringGenerator   {
+    static let localBaseUrl = Bundle.main.url(
+                                  forResource: "thread-states",
+                                  withExtension: "png",
+                                  subdirectory: "Documentation/Libraries/images")?
+                                .deletingLastPathComponent()
+                                .deletingLastPathComponent()
+    
     let rightPadding: Int
     
     init(fontColor: String,
@@ -117,7 +124,8 @@ struct MarkdownTextView: UIViewRepresentable {
          h2Color: String,
          h3Color: String,
          h4Color: String,
-         rightPadding: Int) {
+         rightPadding: Int,
+         maxLayoutWidth: CGFloat) {
       self.rightPadding = rightPadding
       super.init(fontSize: UserSettings.standard.documentationTextFontSize,
                  fontFamily: MarkdownTextView.textFont,
@@ -133,7 +141,9 @@ struct MarkdownTextView: UIViewRepresentable {
                  h1Color: h1Color,
                  h2Color: h2Color,
                  h3Color: h3Color,
-                 h4Color: h4Color)
+                 h4Color: h4Color,
+                 maxImageWidth: "\(maxLayoutWidth)",
+                 imageBaseUrl: Self.localBaseUrl)
     }
     
     private class DocumentationHtmlGenerator: InternalHtmlGenerator {
@@ -156,10 +166,11 @@ struct MarkdownTextView: UIViewRepresentable {
             return "<table style=\"border-bottom: 0.5px solid #ccc; margin-bottom: 3px;\" " +
                    "width=\"100%\"><tbody>" +
                    "<tr style=\"height: 15px; font-family: " + MarkdownTextView.libraryFont +
-                   "; font-size: \(UserSettings.standard.documentationLibraryFontSize); font-style: italic;\">" +
+                   "; font-size: \(UserSettings.standard.documentationLibraryFontSize); " +
+                   "font-style: italic;\">" +
                    "<td style=\"text-align: left;\">" + lib + "</td>" +
-                   "<td style=\"text-align: right;padding-right: \(self.rightPadding)px;\">" + type +
-                   "</td></tr></tbody></table><br/>\n"
+                   "<td style=\"text-align: right;padding-right: \(self.rightPadding)px;\">" +
+                   type + "</td></tr></tbody></table><br/>\n"
           default:
             return super.generate(block: block, tight: tight)
         }
@@ -223,7 +234,8 @@ struct MarkdownTextView: UIViewRepresentable {
                   h2Color: "#007aff",
                   h3Color: "#007aff",
                   h4Color: "#007aff",
-                  rightPadding: self.rightPadding) :
+                  rightPadding: self.rightPadding,
+                  maxLayoutWidth: self.maxLayoutWidth) :
                 DocumentationStringGenerator(
                   fontColor: "#000",
                   codeFontColor: "#0000aa",
@@ -235,7 +247,8 @@ struct MarkdownTextView: UIViewRepresentable {
                   h2Color: "#007aff",
                   h3Color: "#007aff",
                   h4Color: "#007aff",
-                  rightPadding: self.rightPadding)).generate(doc: md)
+                  rightPadding: self.rightPadding,
+                  maxLayoutWidth: self.maxLayoutWidth)).generate(doc: md)
             self.intrinsicContentSize.size = uiView.intrinsicContentSize
           }
         } else {

@@ -62,7 +62,7 @@ Returns `#t` if the given expression _obj_ is a valid place; returns `#f` otherw
 **(place _code country_)**  
 **(place _code country region_)**  
 **(place _code country region admin_)**  
-**(place _code country region admin zip)**  
+**(place _code country region admin zip_)**  
 **(place _code country region admin zip city_)**  
 **(place _code country region admin zip city locality_)**  
 **(place _code country region admin zip city locality street_)**  

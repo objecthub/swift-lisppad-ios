@@ -346,6 +346,10 @@ Writes a representation of _obj_ to the given textual output _port_. Strings tha
 
 The `write` procedure is intended for producing machine-readable output and `display` for producing human-readable output.
 
+**(display\* _obj ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Writes a representation of _obj ..._ to the current default textual output port. Strings that appear in the written representation are output as if by `write-string` instead of by `write`. Symbols are not escaped. Character objects appear in the representation as if written by `write-char` instead of by `write`. `display*` will not loop forever on self-referencing pairs, vectors, or records.
+
 **(newline)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(newline _port_)**   
 

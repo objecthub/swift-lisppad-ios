@@ -22,6 +22,30 @@ The constant pi.
 
 Euler's number, i.e. the base of the natural logarithm.
 
+**fx-width** <span style="float:right;text-align:rigth;">[constant]</span>   
+
+Number of bits used to represent fixnum numbers (typically 64).
+
+**fx-greatest** <span style="float:right;text-align:rigth;">[constant]</span>   
+
+Greatest fixnum value (typically 9223372036854775807).
+
+**fx-least** <span style="float:right;text-align:rigth;">[constant]</span>   
+
+Smallest fixnum value (typically -9223372036854775808).
+
+**fl-epsilon** <span style="float:right;text-align:rigth;">[constant]</span>   
+
+Bound to the appropriate machine epsilon for the hardware representation of flonum numbers, i.e. the positive difference between 1.0 and the next greater representable number.
+
+**fl-greatest** <span style="float:right;text-align:rigth;">[constant]</span>   
+
+This value compares greater than or equal to all finite floating-point numbers, but less than infinity.
+
+**fl-least** <span style="float:right;text-align:rigth;">[constant]</span>   
+
+This value compares less than or equal to all positive floating-point numbers, but greater than zero.
+
 ## Predicates
 
 **(number? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
@@ -411,6 +435,23 @@ Returns the magnitude of the given complex number _z_. Assuming _z = x1 * e^(x2 
 
 Returns the `angle` of the given complex number _z_. The angle is a floating-point number between `-pi` and `pi`.
 
+## Random numbers
+
+**(random)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(random _max_)**  
+**(random _min max_)**  
+
+If called without any arguments, `random` returns a random floating-point number between 0.0 (inclusive) and 1.0 (exclusive). If _max_ is provided and is an exact integer, `random` returns a random exact integer between 0 (inclusive) and _max_ (exclusive). If _max_ is inexact, the random number returned by `random` is a floating-point number between 0.0 (inclusive) and _max_ (exclusive). If _min_ is provided, it is used instead of zero as the included lower-bound of the random number range. If one of _min_ and _max_ are inexact, the result is inexact. _max_ needs to be greater than _min_.
+
+```scheme
+(random)           ⇒ 0.17198431800336633
+(random 10)        ⇒ 9
+(random 10.0)      ⇒ 7.446150392968266
+(random 0.1)       ⇒ 0.06781020202176374
+(random 100 110)   ⇒ 106
+(random 100 109.9) ⇒ 108.30564866186835
+```
+
 ## String representation
 
 **(number-\>string _z_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
@@ -435,8 +476,8 @@ The result returned by `number->string` never contains an explicit radix prefix.
 
 The error case can occur only when _z_ is not a complex number or is a complex number with a non-rational real or imaginary part. If _z_ is an inexact number and the radix is 10, then the above expression is normally satisfied by a result containing a decimal point. The unspecified case allows for infinities, NaNs, and unusual representations.
 
-**(string-\>number _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(string-\>number _str radix_)**  
+**(string->number _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(string->number _str radix_)**  
 
 Returns a number of the maximally precise representation expressed by the given string _str_. It is an error if _radix_ is not 2, 8, 10, or 16. If supplied, _radix_ is a default radix that will be overridden if an explicit radix prefix is present in string (e.g. `"#o177"`). If _radix_ is not supplied, then the default radix is 10. If string _str_ is not a syntactically valid notation for a number, or would result in a number that cannot be represented, then `string->number` returns `#f`. An error is never signaled due to the content of string.
 
@@ -498,9 +539,9 @@ Returns the number of bits needed to represent _n_, i.e.
 
 ```scheme
 (ceiling (/ (log (if (negative? integer)
-			           (- integer)
-			           (+ 1 integer)))
-		        (log 2)))
+                 (- integer)
+                 (+ 1 integer)))
+            (log 2)))
 ```
 
 The result is always non-negative. For non-negative _n_, this is the number of bits needed to represent _n_ in an unsigned binary representation. For all _n_, `(+ 1 (integer-length i))` is the number of bits needed to represent _n_ in a signed two's-complement representation.
@@ -560,24 +601,24 @@ LispKit supports arbitrarily large exact integers. Internally, it has two differ
 
 Fixnum operations perform integer arithmetic on their fixnum arguments. If any argument is not a fixnum, or if the mathematical result is not representable as a fixnum, it is an error. In particular, this means that fixnum operations may return a mathematically incorrect fixnum in these situations without raising an error.
 
-**(integer-\>fixnum _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(integer->fixnum _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 `integer->fixnum` coerces a given integer _n_ into a fixnum. If _n_ is a fixnum already, _n_ is returned by `integer->fixnum`. If _n_ is a bignum, then the first word of the bignum is returned as the result of `integer->fixnum`.
 
-**(fx+ _n m_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(fx- _n m_)**  
-**(fx\* _n m_)**  
-**(fx/ _n m_)**  
+**(fx+ _n m ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fx- _n ..._)**  
+**(fx\* _n m ..._)**  
+**(fx/ _n m ..._)**  
 
-These procedures return the sum, the difference, the product and the quotient of their two fixnum arguments _n_ and _m_. These procedures may overlow without reporting an error.
+These procedures return the sum, the difference, the product and the quotient of their fixnum arguments _n m ..._. These procedures may overflow without reporting an error. `(fx- n)` is negating `n`.
 
-**(fx= _n m_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(fx\< _n m_)**  
-**(fx\> _n m_)**  
-**(fx\<= _n m_)**  
-**(fx\>= _n m_)**  
+**(fx= _n m o ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fx\< _n m o ..._)**  
+**(fx\> _n m o ..._)**  
+**(fx\<= _n m o ..._)**  
+**(fx\>= _n m o ..._)**  
 
-These procedures implement the comparison predicates. They return `#t` if _n = m_, _n \< m_, _n \> m_, _n \<= m_, or _n \>= m_ respectively
+These procedures implement the comparison predicates for fixnums. `fx=` returns `#t` if all provided fixnums are equal. `fx<` returns `#t` if all provided fixnums are strictly monotonically increasing. `fx>` returns `#t` if all provided fixnums are strictly monotonically decreasing. `fx<=` returns `#t` if all provided fixnums are monotonically increasing. `fx>=` returns `#t` if all provided fixnums are monotonically decreasing.
 
 **(fx1+ _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
@@ -672,7 +713,7 @@ Merges the bit sequences _n_ and _m_, with bit sequence _mask_ determining from 
 
 **(fxarithmetic-shift _n count_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-If _count > 0_, shifts fixnum _n_ left by _count_ bits; otherwise, shifts fixnum _n_ right by _count_ bits. The absolute value of _count_ must be less than `(fixnum-width)`.
+If _count > 0_, shifts fixnum _n_ left by _count_ bits; otherwise, shifts fixnum _n_ right by _count_ bits. The absolute value of _count_ must be less than `fx-width`.
 
 ```scheme
 (fxarithmetic-shift 8 2)    ⇒  32
@@ -686,17 +727,17 @@ If _count > 0_, shifts fixnum _n_ left by _count_ bits; otherwise, shifts fixnum
 **(fxarithmetic-shift-left _n count_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(fxlshift _n count_)**  
 
-Returns the result of arithmetically shifting _n_ to the left by _count_ bits. _count_ must be non-negative, and less than `(fixnum-width)`. The `fxarithmetic-shift-left` procedure behaves the same as `fxarithmetic-shift`.
+Returns the result of arithmetically shifting _n_ to the left by _count_ bits. _count_ must be non-negative, and less than `fx-width`. The `fxarithmetic-shift-left` procedure behaves the same as `fxarithmetic-shift`.
 
 **(fxarithmetic-shift-right _n count_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(fxrshift _n count_)**  
 
-Returns the result of arithmetically shifting _n_ to the right by _count_ bits. _count_ must be non-negative, and less than `(fixnum-width)`. `(fxarithmetic-shift-right n m)` behaves the same as `(fxarithmetic-shift n (fx- m))`.
+Returns the result of arithmetically shifting _n_ to the right by _count_ bits. _count_ must be non-negative, and less than `fx-width`. `(fxarithmetic-shift-right n m)` behaves the same as `(fxarithmetic-shift n (fx- m))`.
 
 **(fxlogical-shift-right _n count_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(fxlrshift _n count_)**   
 
-Returns the result of logically shifting _n_ to the right by _count_ bits. _count_ must be non-negative, and less than `(fixnum-width)`.
+Returns the result of logically shifting _n_ to the right by _count_ bits. _count_ must be non-negative, and less than `fx-width`.
 
 ```scheme
 (fxlogical-shift 8 2)    ⇒  2
@@ -731,7 +772,7 @@ Returns the index of the least significant 1 bit in the two's complement represe
 
 **(fxbit-set? _n k_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-_k_ must be non-negative and less than `(fixnum-width)`. The `fxbit-set?` procedure returns `#t` if the _k_-th bit is 1 in the two's complement representation of _n_, and `#f` otherwise. This is the fixnum result of the following computation:
+_k_ must be non-negative and less than `fx-width`. The `fxbit-set?` procedure returns `#t` if the _k_-th bit is 1 in the two's complement representation of _n_, and `#f` otherwise. This is the fixnum result of the following computation:
 
 ```scheme
 (not (fxzero? (fxand n (fxarithmetic-shift-left 1 k))))
@@ -739,7 +780,7 @@ _k_ must be non-negative and less than `(fixnum-width)`. The `fxbit-set?` proced
 
 **(fxcopy-bit _n k b_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-_k_ must be non-negative and less than `(fixnum-width)`. _b_ must be 0 or 1. The `fxcopy-bit` procedure returns the result of replacing the _k_-th bit of _n_ by _b_, which is the result of the following computation:
+_k_ must be non-negative and less than `fx-width`. _b_ must be 0 or 1. The `fxcopy-bit` procedure returns the result of replacing the _k_-th bit of _n_ by _b_, which is the result of the following computation:
 
 ```scheme
 (fxif (fxarithmetic-shift-left 1 k)
@@ -747,46 +788,61 @@ _k_ must be non-negative and less than `(fixnum-width)`. _b_ must be 0 or 1. The
       n)
 ```
 
-**(fxmin _n m_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fxmin _n m ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Returns the minimum of fixnums _n_ and _m_.
+Returns the minimum of the provided fixnums _n, m ..._.
 
-**(fxmax _n m_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fxmax _n m ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Returns the maximum of fixnums _n_ and _m_.
+Returns the maximum of the provided fixnums _n, m ..._.
 
-**(fxrandom _max_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fxrandom)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fxrandom _max_)**  
 **(fxrandom _min max_)**  
 
-Returns a random number between _min_ (inclusive) and _max_ (exclusive). If _min_ is not provided, then 0 is assumed to be the minimum bound. _min_ is required to be non-negative, _max_ is required to be bigger than _min_.
+Returns a random number between fixnum _min_ (inclusive) and fixnum _max_ (exclusive). If _min_ is not provided, then 0 is assumed to be the minimum bound. _max_ is required to be greater than _min_. If called without any arguments, `fxrandom` returns a random fixnum number from the full fixnum range. 
 
-**(fixnum-width)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-
-Returns the number of bits for representing fixnums. The current implementation of LispKit always returns 64.
-
-**(least-fixnum)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-
-Returns the smallest possible fixnum. The current implementation of LispKit always returns -9223372036854775808.
-
-**(greatest-fixnum)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-
-Returns the greatest possible fixnum. The current implementation of LispKit always returns 9223372036854775807.
+```scheme
+(fxrandom)           ⇒ 3845975858750874798
+(fxrandom 10)        ⇒ 7
+(fxrandom -6 -2)     ⇒ -5
+```
 
 ## Floating-point operations
 
-**(real-\>flonum _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(make-flonum _x n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Returns the best floating-point (flonum) representation of _x_.
+Returns _x_ × 2^_n_, where _n_ is a fixnum with an implementation-dependent range. The significand _x_ is a flonum.
 
-**(fl+ _x y_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(fl\* _x y_)**  
+**(real->flonum _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-These procedures return the flonum sum or product of their flonum arguments _x_ and _y_. In general, they return the flonum that best approximates the mathematical sum or product.
+Returns the best flonum representation of real number _x_.
 
-**(fl- _x y_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(fl/ _x y_)**  
+**(flexponent _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-These procedures return the flonum difference or quotient of their flonum arguments _x_ and _y_. In general, they return the flonum that best approximates the mathematical difference or quotient.
+Returns the exponent of flonum _x_ (using a base of 2).
+
+**(flsignificand _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns the significand of flonum _x_.
+
+**(flnext _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns the least representable flonum value that compares greater than flonum _x_.
+
+**(flprev _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns the greatest representable flonum value that compares less than flonum _x_.
+
+**(fl+ _x y..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fl\* _x y..._)**  
+
+These procedures return the flonum sum or product of their flonum arguments _x y ..._. In general, they return the flonum that best approximates the mathematical sum or product.
+
+**(fl- _x ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fl/ _x ..._)**  
+
+These procedures return the flonum difference or quotient of their flonum arguments _x ..._. In general, they return the flonum that best approximates the mathematical difference or quotient. `(fl- x)` negates `x`, `(fl/ x)` is equivalent to `(fl/ 1.0 x)`.
 
 **(flzero? _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
@@ -800,13 +856,13 @@ Returns `#t` if _x > 0.0_, `#f` otherwise.
 
 Returns `#t` if _x < 0.0_, `#f` otherwise.
 
-**(fl= _x y_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(fl\< _x y_)**  
-**(fl\> _x y_)**  
-**(fl\<= _x y_)**  
-**(fl\>= _x y_)**  
+**(fl= _x y z ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fl\< _x y z ..._)**  
+**(fl\> _x y z ..._)**  
+**(fl\<= _x y z ..._)**  
+**(fl\>= _x y z ..._)**  
 
-These procedures return `#t` if their flonum arguments _x_ and _y_ are respectively: equal, monotonically increasing, monotonically decreasing, monotonically nondecreasing, or monotonically nonincreasing, `#f` otherwise.
+These procedures implement the comparison predicates for flonums. `fl=` returns `#t` if all provided flonums are equal. `fl<` returns `#t` if all provided flonums are strictly monotonically increasing. `fl>` returns `#t` if all provided flonums are strictly monotonically decreasing. `fl<=` returns `#t` if all provided flonums are monotonically increasing. `fl>=` returns `#t` if all provided flonums are monotonically decreasing.
 
 ```scheme
 (fl= +inf.0 +inf.0)  ⇒  #t
@@ -822,10 +878,22 @@ These procedures return `#t` if their flonum arguments _x_ and _y_ are respectiv
 
 Returns the absolute value of _x_ as a flonum.
 
-**(flmin _x y_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(flmin _x ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Returns the minimum value of _x_ and _y_.
+Returns the minimum value of the provided flonum values _x ..._. If no arguments are provided, positive infinity is returned.
 
-**(flmax _x y_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(flmax _x ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Returns the maximum value of _x_ and _y_.
+Returns the maximum value of the provided flonum values _x ..._. If no arguments are provided, negative infinity is returned.
+
+**(flrandom)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(flrandom _max_)**  
+**(flrandom _min max_)**  
+
+Returns a random number between flonum _min_ (inclusive) and flonum _max_ (exclusive). If _min_ is not provided, then 0.0 is assumed to be the minimum bound. _max_ is required to be greater than _min_. If called without any arguments, `flrandom` returns a random floating-point number from the interval `[0.0, 1.0[`.
+
+```scheme
+(flrandom)          ⇒ 0.2179448178976645
+(flrandom 123.4)    ⇒ 30.841401002076296
+(flrandom -5.0 5.0) ⇒ -2.6619236065396237
+```

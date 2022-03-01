@@ -198,3 +198,23 @@ Returns a list of all sources that have been loaded.
 **(environment-info)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Prints out debug information about the current execution environment (mostly relevant for developing LispKit).
+
+**(stack-size)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the number of elements that are currently on the stack.
+
+**(call-stack-procedures)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of procedures that are currently in process of being executed in the current thread.
+
+**(call-stack-trace)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of procedure calls that are currently in process of being executed in the current thread. The result is a list of lists, where each element corresponds to an active procedure call (with the given parameters, where this can be reconstructed).
+
+**(set-max-call-stack! _n_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+When exceptions and errors are created, a call stack trace is attached to them. Since these can be quite large, call stack traces are capped at the top-most _n_ entries. _n_ can be at most 1000, default is _20_.
+
+**(internal-call-stack)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of strings, each representing a native function that is currently being executed internally.

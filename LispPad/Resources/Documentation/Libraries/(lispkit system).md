@@ -403,6 +403,18 @@ Returns a name for the particular machine on which the Scheme implementation is 
 
 Returns an identifier for the machine on which the Scheme implementation is currently running.
 
+**(physical-memory)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the amount of physical memory of the device executing the LispKit code in bytes.
+
+**(memory-footprint)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the amount of memory allocated by the application executing the LispKit code in bytes.
+
+**(system-uptime)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the uptime of the system in seconds.
+
 **(os-type)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the type of the operating system on which the Scheme implementation is running as a string. For macOS, this procedure returns "Darwin".

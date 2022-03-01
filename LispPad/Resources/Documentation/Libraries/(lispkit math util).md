@@ -44,3 +44,23 @@ Converts radians into degrees.
 **(prime? _n_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if integer _n_ is a prime number, `#f` otherwise.
+
+**(make-nan _neg quiet payload_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a NaN whose sign bit is equal to _neg_ (`#t` for negative, `#f` for positive), whose quiet bit is equal to _quiet_ (`#t` for quiet, `#f` for signaling), and whose payload is the positive exact integer _payload_. It is an error if _payload_ is larger than a NaN can hold.
+
+**(nan-negative? _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if the sign bit of _x_ is 1 and `#f` otherwise.
+
+**(nan-quiet? _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _x_ is a quiet NaN.
+
+**(nan-payload _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the payload bits of floating-point number _x_ as a positive exact integer.
+
+**(nan=? _x y_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _x_ and _y_ have the same sign, quiet bit, and payload; and `#f` otherwise.

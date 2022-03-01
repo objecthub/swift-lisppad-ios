@@ -98,6 +98,10 @@
 		<string>(lispkit log).md</string>
 		<key>lispkit test</key>
 		<string>(lispkit test).md</string>
+		<key>lispkit thread</key>
+		<string>(lispkit thread).md</string>
+		<key>lispkit thread channel</key>
+		<string>(lispkit thread channel).md</string>
 		<key>lispkit debug</key>
 		<string>(lispkit debug).md</string>
 		<key>lispkit prolog</key>
@@ -125,6 +129,8 @@
 		<string>srfi/srfi-16.html</string>
 		<key>srfi 17</key>
 		<string>srfi/srfi-17.html</string>
+		<key>srfi 18</key>
+		<string>srfi/srfi-18.html</string>
 		<key>srfi 19</key>
 		<string>srfi/srfi-19.html</string>
 		<key>srfi 23</key>
@@ -201,6 +207,8 @@
 		<string>srfi/srfi-142.html</string>
 		<key>srfi 143</key>
 		<string>srfi/srfi-143.html</string>
+		<key>srfi 144</key>
+		<string>srfi/srfi-144.html</string>
 		<key>srfi 145</key>
 		<string>srfi/srfi-145.html</string>
 		<key>srfi 146</key>
@@ -245,6 +253,8 @@
 		<string>srfi/srfi-196.html</string>
 		<key>srfi 204</key>
 		<string>srfi/srfi-204.html</string>
+		<key>srfi 208</key>
+		<string>srfi/srfi-208.html</string>
 		<key>srfi 209</key>
 		<string>srfi/srfi-209.html</string>
 		<key>srfi 210</key>
@@ -271,8 +281,42 @@
 		<string>srfi/srfi-227.html</string>
 		<key>srfi 229</key>
 		<string>srfi/srfi-229.html</string>
+		<key>srfi 230</key>
+		<string>srfi/srfi-230.html</string>
 		<key>srfi sicp</key>
 		<string>srfi/srfi-216.html</string>
+		<key>scheme bitwise</key>
+		<string>srfi/srfi-151.html</string>
+		<key>scheme charset</key>
+		<string>srfi/srfi-14.html</string>
+		<key>scheme comparator</key>
+		<string>srfi/srfi-128.html</string>
+		<key>scheme fixnum</key>
+		<string>srfi/srfi-143.html</string>
+		<key>scheme flonum</key>
+		<string>srfi/srfi-144.html</string>
+		<key>scheme generator</key>
+		<string>srfi/srfi-121.html</string>
+		<key>scheme hash-table</key>
+		<string>srfi/srfi-125.html</string>
+		<key>scheme ideque</key>
+		<string>srfi/srfi-134.html</string>
+		<key>scheme list</key>
+		<string>srfi/srfi-1.html</string>
+		<key>scheme mapping</key>
+		<string>srfi/srfi-146.html</string>
+		<key>scheme rlist</key>
+		<string>srfi/srfi-101.html</string>
+		<key>scheme set</key>
+		<string>srfi/srfi-113.html</string>
+		<key>scheme sort</key>
+		<string>srfi/srfi-132.html</string>
+		<key>scheme stream</key>
+		<string>srfi/srfi-41.html</string>
+		<key>scheme text</key>
+		<string>srfi/srfi-135.html</string>
+		<key>scheme vector</key>
+		<string>srfi/srfi-133.html</string>
 	</dict>
 </dict>
 </plist>

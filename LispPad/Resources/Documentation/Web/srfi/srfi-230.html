@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 230: Atomic Operations</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  
+        <H2><a name="lp-srfi-230">Title</a></H2>
+        Atomic Operations
+
+        <h2>Author</h2>
+        <p>Marc Nieper-Wißkirchen</p>
+
+    <h2 id="status">Status</h2>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+230+at+srfi+dotschemers+dot+org">srfi-230@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-230">archive</a>.</p>
+    <ul>
+      <li>Received: 2021-08-29</li>
+      <li>Draft #1 published: 2021-09-01</li>
+      <li>Draft #2 published: 2021-11-07</li>
+      <li>Finalized: 2021-11-15</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>This SRFI defines atomic operations for the Scheme programming language.
+      An <dfn>atomic operation</dfn> is an operation that, even in the presence
+      of multiple threads, is either executed completely or not at all.  Atomic
+      operations can be used to implement mutexes and other synchronization
+      primitives, and they can be used to make concurrent algorithms lock-free.
+      For this, this SRFI defines two data types, <dfn>atomic flags</dfn>
+      and <dfn>atomic (fixnum) boxes</dfn>, whose contents can be queried and
+      mutated atomically.  Moreover, each atomic operation comes with
+      a <dfn>memory order</dfn> that defines the level of synchronization with
+      other threads.</p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>Virtually all modern multi-threaded CPUs support atomic operations.
+      They can often be used to avoid costly locks in concurrent programming.
+      Many general-purpose programming languages like C, C++, Go, or Rust
+      expose a standard set of atomic operations to the programmer.  This SRFI
+      does the same for the Scheme programming language.</p>
+
+    <p>This SRFI is particularly interesting for multi-threaded applications,
+      e.g. those based on <a href="https://srfi.schemers.org/srfi-18/">SRFI 18</a> (or any other threading library), but can
+      also be used in general library code to make it thread-safe.</p>
+
+    <h3>Example</h3>
+
+    <p>The following example shows a typical use of atomic fixnum boxes.  If
+      the counter were a regular variable, the read-modify-write operation of
+      increasing the counter might be interrupted by another one in a different
+      thread, resulting in a total count too small.</p>
+
+    <pre class="example">(import (scheme base)
+  (scheme write)
+  (srfi 18)
+  (srfi 230))
+
+(define *atomic-counter* (make-atomic-fxbox 0))
+
+(define (task)
+  (do ((i 0 (+ i 1)))
+      ((= i 1000))
+    (atomic-fxbox+/fetch! *atomic-counter* 1)))
+
+(define threads (make-vector 10))
+
+(do ((i 0 (+ i 1)))
+    ((= i 10))
+  (let ((thread (make-thread task)))
+    (vector-set! threads i thread)
+    (thread-start! thread)))
+
+(do ((i 0 (+ i 1)))
+    ((= i 10))
+  (thread-join! (vector-ref threads i)))
+
+(display (atomic-fxbox-ref *atomic-counter*))
+(newline)</pre>
+
+    <h2 id="specification">Specification</h2>
+
+    <p>The procedures and syntax described in this section are exported by
+      the <code>(srfi 230)</code> library in an R<sup>7</sup>RS system and by both the <code>(srfi :230
+  atomic)</code> and <code>(srfi :230)</code> libraries in an R<sup>6</sup>RS system.</p>
+
+    <h3>Entry format</h3>
+
+    <p>The following naming conventions imply type restrictions:</p>
+
+    <dl>
+      <dt><code><var>obj</var></code></dt>
+      <dt><code><var>expected</var></code></dt>
+      <dt><code><var>desired</var></code></dt>
+      <dd>any object</dd>
+      <dt><code><var>fx</var></code></dt>
+      <dd>fixnum</dd>
+      <dt><code><var>memory-order</var></code></dt>
+      <dd>any memory order</dd>
+      <dt><code><var>atomic-flag</var></code></dt>
+      <dd>atomic flag</dd>
+      <dt><code><var>atomic-box</var></code></dt>
+      <dd>atomic box</dd>
+      <dt><code><var>atomic-fxbox</var></code></dt>
+      <dd>atomic fixnum box</dd>
+      <dt><code><var>atomic-pair</var></code></dt>
+      <dd>atomic pair</dd>
+    </dl>
+
+    <h3>Atomicity</h3>
+
+    <p>Unless otherwise specified, all procedures prefixed with <code>atomic-</code>
+      in the library are executed atomically.</p>
+
+    <p><i>Note:</i> In a <i>safe</i> top-level program (in the sense of
+      R<sup>6</sup>RS), all reads and writes to the store are necessarily
+      atomic.  In particular, a library implementing SRFI 18 is not necessarily
+      safe.</p>
+
+    <h3>Memory orders</h3>
+
+    <p>The memory order specifies how accesses, including regular, non-atomic
+      memory accesses, are to be ordered around an atomic operation. When
+      multiple threads simultaneously read and write to several variables, one
+      thread can observe the values change in an order different from the order
+      in which another thread wrote them. Indeed, the apparent order of changes can even
+      differ among multiple reader threads.
+
+    <p>The default behavior of all atomic operations defined in this library
+      provides for <i>sequentially consistent ordering</i> (see below).  That
+      default can hurt performance, but the library's atomic operations can be
+      given an additional <code><var>memory-order</var></code> argument to
+      specify the exact constraints, beyond atomicity, that the implementation
+      must enforce for that operation.</p>
+
+    <p>Atomic operations can be given the following memory orders to modify the
+      default behavior:</p>
+
+    <dl>
+      <dt><code>relaxed</code></dt>
+      <dd><i>Relaxed operation</i>: there are no synchronization or ordering
+  constraints imposed on other reads or writes.  Only this operation's
+  atomicity is guaranteed.</dd>
+      <dt><code>acquire</code></dt>
+      <dd>A read operation on the store with this memory order performs the
+  <i>acquire operation</i> on the affected memory location: no reads or
+  writes in the current thread can be reordered before this read.  All
+  writes in other threads that <i>release</i> the same atomic variable
+  are visible in the current thread.</dd>
+      <dt><code>release</code></dt>
+      <dd>A write operation on the store with this memory order performs
+  the <i>release operation</i>: no reads or writes in the current thread
+  can be reordered after this write.  All writes in the current thread
+  are visible in other threads that <i>acquire</i> the same atomic
+  variable.</dd>
+      <dt><code>acquire-release</code></dt>
+      <dd>A read-modify-write operation on the store with this memory order is
+  both an <i>acquire operation</i> and a <i>release operation</i>.  No
+  reads or writes on the store in the current thread can be reordered before or
+  after this write.  All writes in other threads that release the same
+  atomic variable are visible before the modification and the modification
+  is visible in other threads that acquire the same atomic variable.</dd>
+      <dt><code>sequentially-consistent</code></dt>
+      <dd>A read operation on the store with this memory order performs an
+      <i>acquire operation</i>, a write performs a <i>release operation</i>,
+      and read-modify-write performs both an <i>acquire operation</i> and
+      a <i>release operation</i>, plus a single total order exists in which all
+      threads observe all modifications in the same order.</dd>
+    </dl>
+
+    <dl class="entries">
+      <dt class="entry"><code>(memory-order <span class="token">memory-order symbol</span>)</code><span class="type">syntax</span></dt>
+      <dd>
+  <p>It is a syntax violation if <code><span class="token">memory-order
+        symbol</span></code> is not a symbol whose name is one of
+    <code>relaxed</code>, <code>acquire</code>, <code>release</code>, <code>acquire-release</code>,
+    and <code>sequentially-consistent</code>.  The result is the
+    corresponding symbol, and specifies the associated memory order.</p>
+  <p><i>Note:</i>
+    Only the name of <code><span class="token">memory-order
+        symbol</span></code> is significant.</p>
+      </dd>
+      <dt class="entry"><code>(memory-order? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns <code>#t</code> if the argument is a valid memory-order
+    symbol, and returns <code>#f</code> otherwise.</p>
+      </dd>
+    </dl>
+
+    <h3>Atomic flags</h3>
+
+    <p>An <dfn>atomic flag</dfn> is tagged with a location that can be either
+      in the <dfn>clear</dfn> state or in the <dfn>set</dfn> state and which can be
+      changed and tested atomically.</p>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-flag)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns a newly allocated atomic flag, which is initially in the
+  clear state.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-flag? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns <code>#t</code> if <code><var>obj</var></code> is an atomic
+  flag, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-flag-test-and-set! <var>atomic-flag</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-flag-test-and-set! <var>atomic-flag</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns <code>#t</code> if the state
+    of <code><var>atomic-flag</var></code> is set, and
+    returns <code>#f</code> otherwise.  Changes the state
+    of <code><var>atomic-flag</var></code> to set.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-flag-clear! <var>atomic-flag</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-flag-clear! <var>atomic-flag</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Changes the state of <code><var>atomic-flag</var></code> to clear.</p>
+      </dd>
+    </dl>
+
+    <h3>Atomic boxes</h3>
+
+    <p>An <dfn>atomic box</dfn> is tagged with a location that can hold any
+      object, the <dfn>content</dfn> of the atomic box, and which can be
+      changed and tested atomically.</p>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-box <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns a newly allocated atomic box whose initial content
+  is <code><var>obj</var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns <code>#t</code> if <code><var>obj</var></code> is an atomic
+  box, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-ref <var>atomic-box</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns the content of <code><var>atomic-box</var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-set! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-box</var></code>
+  to <code><var>obj</var></code>, and returns unspecified values.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-swap! <var>atomic-box</var> <var>obj</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets of the content of <code><var>atomic-box</var></code>
+  to <code><var>obj</var></code>, and returns the previous content.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-box-compare-and-swap! <var>atomic-box</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Operationally equivalent to the following, executed atomically:</p>
+  <pre class="code">(let ((actual (atomic-box-ref <var>atomic-box</var> <var>memory-order</var>)))
+  (when (eq? actual expected)
+    (atomic-box-set! <var>atomic-box</var> <var>desired</var> <var>memory-order</var>))
+  actual)</pre></dd>
+    </dl>
+
+    <h3>Atomic fixnum boxes</h3>
+
+    <p>An <dfn>atomic fixnum box</dfn> is tagged with a location that can hold
+      a fixnum, the <dfn>content</dfn> of the atomic fixnum box, which can be
+      changed and tested atomically.</p>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-fxbox <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns a newly allocated atomic fixnum box whose initial content
+  is <code><var>obj</var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns <code>#t</code> if <code><var>obj</var></code> is an atomic
+    fixnum box, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-ref <var>atomic-fxbox</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-ref <var>atomic-fxbox</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns the content of <code><var>atomic-fxbox</var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-set! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-set! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-fxbox</var></code>
+  to <code><var>fx</var></code>, and returns unspecified values.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-swap! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-swap! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets of the content of <code><var>atomic-fxbox</var></code>
+  to <code><var>fx</var></code>, and returns the previous content.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-compare-and-swap! <var>atomic-fxbox</var> <var>expected</var> <var>desired</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-compare-and-swap! <var>atomic-fxbox</var> <var>expected</var> <var>desired</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Operationally equivalent to the following, executed atomically:</p>
+  <pre class="code">(let ((actual (atomic-fxbox-ref <var>atomic-fxbox</var> <var>memory-order</var>)))
+  (when (fx=? actual expected)
+    (atomic-fxbox-set! <var>atomic-fxbox</var> <var>desired</var> <var>memory-order</var>))
+  actual)</pre></dd>
+      <dt class="entry"><code>(atomic-fxbox+/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox+/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-fxbox</var></code> to the sum of
+    the previous content and <code><var>fx</var></code>, and returns the
+    previous content.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-fxbox</var></code> to the
+    difference of the previous content and <code><var>fx</var></code>,
+    and returns the previous content.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-and/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-and/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-fxbox</var></code> to the
+    bitwise <em>and</em> of the previous content and <code><var>fx</var></code>,
+    and returns the previous content.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-ior/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-ior/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-fxbox</var></code> to the
+    bitwise <em>inclusive or</em> of the previous content
+    and <code><var>fx</var></code>, and returns the previous content.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-fxbox-xor/fetch! <var>atomic-fxbox</var> <var>fx</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-fxbox-xor/fetch! <var>atomic-fxbox</var> <var>fx</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-fxbox</var></code> to the
+    bitwise <em>exclusive or</em> of the previous content
+    and <code><var>fx</var></code>, and returns the previous content.</p>
+      </dd>
+    </dl>
+
+    <h3>Atomic pairs</h3>
+
+    <p>An <dfn>atomic pair</dfn> is tagged with two locations that can hold
+      a pair of Scheme objects, the <dfn>contents</dfn> of the atomic pair, and which can be
+      changed and tested atomically.</p>
+
+    <p>Atomic pairs can be used to solve the
+      so-called <a href="https://en.wikipedia.org/wiki/ABA_problem">ABA
+      problem</a>, for example.</p>
+
+    <dl class="entries">
+      <dt class="entry"><code>(make-atomic-pair <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dd>
+        <p>Returns a newly allocated atomic pair whose initial
+        contents are <code><var>obj<sub>1</sub></var></code>
+        and <code><var>obj<sub>2</sub></var></code>.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair? <var>obj</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns <code>#t</code> if <code><var>obj</var></code> is
+    an atomic pair, and returns <code>#f</code> otherwise.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair-ref <var>atomic-pair</var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-ref <var>atomic-pair</var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Returns the contents of <code><var>atomic-pair</var></code> as two values.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair-set! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-set! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-pair</var></code>
+    to <code><var>obj<sub>1</sub></var></code>
+    and <code><var>obj<sub>2</sub></var></code>, and returns
+    unspecified values.</p>
+      </dd>
+      <dt class="entry"><code>(atomic-pair-swap! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-swap! <var>atomic-pair</var> <var>obj<sub>1</sub></var> <var>obj<sub>2</sub></var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Sets the content of <code><var>atomic-pair</var></code>
+    to <code><var>obj<sub>1</sub></var></code>
+    and <code><var>obj<sub>2</sub></var></code>, and returns the
+    previous contents as two values.
+      </dd>
+      <dt class="entry"><code>(atomic-pair-compare-and-swap! <var>atomic-pair</var> <var>expected<sub>1</sub></var> <var>expected<sub>2</sub></var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var>)</code><span class="type">procedure</span></dt>
+      <dt class="entry"><code>(atomic-pair-compare-and-swap! <var>atomic-pair</var> <var>expected<sub>1</sub></var> <var>expected<sub>2</sub></var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var> <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Operationally equivalent to the following, executed atomically:</p>
+  <pre class="code">(let-values (((actual1 actual2) (atomic-pair-ref <var>atomic-pair</var> <var>memory-order</var>)))
+  (when (and (eq? actual1 <var>expected<sub>1</sub></var>) (eq? actual2 <var>expected<sub>2</sub></var>))
+    (atomic-pair-set! <var>atomic-pair</var> <var>desired<sub>1</sub></var> <var>desired<sub>2</sub></var> <var>memory-order</var>))
+  (values actual1 actual2))</pre></dd>
+    </dl>
+
+    <h3>Memory synchronization</h3>
+
+    <dl class="entries">
+      <dt class="entry"><code>(atomic-fence <var>memory-order</var>)</code><span class="type">procedure</span></dt>
+      <dd>
+  <p>Establishes memory synchronization ordering of non-atomic and
+    relaxed atomic accesses, as instructed
+    by <code><var>memory-order</var></code>, without an associated atomic
+    operation.  Returns unspecified values.</p>
+  <p><i>Note:</i> As this procedure does not store a value into a
+    previous allocated location, its name does not end in
+    “<code>!</code>”.</p>
+      </dd>
+    </dl>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>For Schemes that do not support multiple threads, an implementation of
+      this SRFI is trivial as all operations are automatically atomic.  In
+      particular, atomic flags and atomic boxes could be represented by SRFI
+      111 boxes.</p>
+
+    <p>For Schemes that support multiple threads, an implementation based on
+      SRFI 18 or <a href="https://srfi.schemers.org/srfi-226/">SRFI 226</a> mutexes is possible.</p>
+
+    <p>The primitives defined in this SRFI are all supported by modern
+      multi-threaded CPUs and are also implemented in the C and the C++
+      programming languages.  Thus, Scheme systems with a native compiler or
+      Scheme systems with a virtual machine based on C or C++ can easily
+      implement this SRFI efficiently.</p>
+
+    <p>The <a href="./lib/srfi/230.sld">sample implementation</a> is an R<sup>7</sup>RS
+      implementation based on SRFI 18.</p>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>This SRFI was inspired by the C11 atomic operations library.</p>
+
+    <p>It uses language from
+    the <a href="https://en.cppreference.com/w/c"><cite>C
+          reference</cite></a> wiki.</p>
+
+    <p>Many thanks go to Justin Ethier,
+      who <a href="https://github.com/cyclone-scheme/srfi-230">implemented</a>
+      SRFI 230 natively for his Cyclone Scheme compiler.</p>
+
+    <p>Likewise, thanks go to Göran Weinholt for private feedback.  He
+      pointed out to me the omission of double-width CAS operations in
+      the first draft.</p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2021 Marc Nieper-Wißkirchen.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+    <hr>
+    <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
