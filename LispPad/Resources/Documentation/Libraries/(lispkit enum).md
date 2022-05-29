@@ -140,4 +140,6 @@ Here is a complete example:
 
 ***
 
-Some of this documentation is derived from the [R6RS specification of enumerations](http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-14.html#node_chap_13) by Michael Sperber, Kent Dybvig, Matthew Flatt, Anton van Straaten, Richard Kelsey, William Clinger, and Jonathan Rees.
+<small>
+Some of this documentation is derived from the [R6RS specification of enumerations](http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-15.html#node_chap_14) by Michael Sperber, Kent Dybvig, Matthew Flatt, Anton van Straaten, Richard Kelsey, William Clinger, and Jonathan Rees.
+</small>

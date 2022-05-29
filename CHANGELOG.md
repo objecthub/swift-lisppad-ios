@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0 (2022-03-02)
+
+- Allow setting font in preferences; allow for more granular choice of font sizes
+- Multi-threaded evaluator, executing multiple virtual machines in parallel
+- Go-inspired channels for synchronizing threads
+- Revamp of math libraries, addressing incompatibilities and fixing numerous bugs
+- New procedures in libraries `(lispkit math)`, `(lispkit math util)`, `(lispkit system)`, `(lispkit port)`, and `(lispkit debug)`
+- New libraries: `(lispkit thread)`, `(lispkit thread channel)`, `(scheme flonum)`, `(srfi 18)`, `(srfi 144)`, `(srfi 208)`, and `(srfi 230)`
+- Exceptions now include more information about the active call stack
+- Interpreter now based on LispKit 2.2.0
+
 ## 1.2.2 (2021-12-17)
 
 - Adjusted colors used in REPL to improve legibility

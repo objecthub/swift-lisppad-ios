@@ -89,6 +89,16 @@
 			<string>Any</string>
 		</dict>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>iosevka-regular.ttf</string>
+		<string>iosevka-extended.ttf</string>
+		<string>SourceCodePro-Regular.ttf</string>
+		<string>FiraCode-Regular.ttf</string>
+		<string>RobotoMono-Regular.ttf</string>
+		<string>Inconsolata-Regular.ttf</string>
+		<string>Inconsolata_SemiCondensed-Regular.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -191,16 +201,6 @@
 				</array>
 			</dict>
 		</dict>
-	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>iosevka-regular.ttf</string>
-		<string>iosevka-extended.ttf</string>
-		<string>SourceCodePro-Regular.ttf</string>
-		<string>FiraCode-Regular.ttf</string>
-		<string>RobotoMono-Regular.ttf</string>
-		<string>Inconsolata-Regular.ttf</string>
-		<string>Inconsolata_SemiCondensed-Regular.ttf</string>
 	</array>
 </dict>
 </plist>
