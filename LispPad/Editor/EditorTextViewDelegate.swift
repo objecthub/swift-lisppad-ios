@@ -22,17 +22,19 @@ import UIKit
 import SwiftUI
 
 class EditorTextViewDelegate: NSObject, UITextViewDelegate {
+  
+  static let parenBackground = UIColor(named: "ParenMatchingColor") ??
+                                 UIColor(red: 0.87, green: 0.87, blue: 0.0, alpha: 1)
+  
   @Binding var text: String
   @Binding var selectedRange: NSRange
   
-  var lastSelectedRange = NSRange(location: 0, length: 0)
+  var lastSelectedRange: NSRange
   
-  let parenBackground = UIColor(named: "ParenMatchingColor") ??
-                        UIColor(red: 0.87, green: 0.87, blue: 0.0, alpha: 1)
-  
-  init(text: Binding<String>, selectedRange: Binding<NSRange>) {
+  init(text: Binding<String>, selectedRange: Binding<NSRange>, lastSelectedRange: NSRange) {
     self._text = text
     self._selectedRange = selectedRange
+    self.lastSelectedRange = lastSelectedRange
   }
   
   open var highlightMatchingParen: Bool {
@@ -52,6 +54,20 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
   
   public func textViewDidChangeSelection(_ textView: UITextView) {
     if self.lastSelectedRange != textView.selectedRange {
+      let nstext = textView.text as NSString
+      if let layoutManager = textView.layoutManager as? CodeEditorLayoutManager,
+         layoutManager.highlightCurrentLine {
+        if self.lastSelectedRange.upperBound <= nstext.length {
+          let lastLineRange = nstext.lineRange(for: self.lastSelectedRange)
+          if textView.selectedRange.upperBound <= nstext.length {
+            let newLineRange = nstext.lineRange(for: textView.selectedRange)
+            if lastLineRange != newLineRange {
+              layoutManager.invalidateDisplay(forCharacterRange: newLineRange)
+              layoutManager.invalidateDisplay(forCharacterRange: lastLineRange)
+            }
+          }
+        }
+      }
       self.lastSelectedRange = textView.selectedRange
       DispatchQueue.main.async {
         self.selectedRange = textView.selectedRange
@@ -347,19 +363,19 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
                  _ this: UniChar,
                  back: Bool,
                  in textView: UITextView,
-                 at loc: Int) {
+                 at iloc: Int) {
     if self.highlightMatchingParen {
       let str = textView.text as NSString
-      let loc = back ? TextFormatter.find(ch, matching: this, from: loc, to: 0, in: str)
-                     : TextFormatter.find(ch, matching: this, from: loc, to: str.length, in: str)
+      let loc = back ? TextFormatter.find(ch, matching: this, from: iloc, to: 0, in: str)
+                     : TextFormatter.find(ch, matching: this, from: iloc, to: str.length, in: str)
       if loc >= 0 {
         let storage = textView.textStorage
         storage.removeAttribute(.backgroundColor,
                                 range: NSRange(location: 0, length: storage.length))
         storage.addAttribute(.backgroundColor,
-                             value: self.parenBackground,
+                             value: Self.parenBackground,
                              range: NSRange(location: loc, length: 1))
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, qos: .userInitiated, flags: []) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, qos: .userInitiated, flags: []) {
           storage.removeAttribute(.backgroundColor,
                                   range: NSRange(location: 0, length: storage.length))
         }

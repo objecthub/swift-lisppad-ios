@@ -41,12 +41,29 @@ class CodeEditorTextView: UITextView {
 
   /// Show line numbers?
   private var internalShowLineNumbers: Bool
+  
+  /// Highlight current line?
+  private var internalHighlightCurrentLine: Bool
 
   /// When was the last syntax highlighting settings change?
   var syntaxHighlightingUpdate: Date
 
   let keyboard: CodeEditorKeyboard
 
+  var highlightCurrentLine: Bool {
+    get {
+      return self.internalHighlightCurrentLine
+    }
+    set(newVal) {
+      if self.internalHighlightCurrentLine != newVal {
+        let lm = self.layoutManager as! CodeEditorLayoutManager
+        lm.highlightCurrentLine = newVal
+        self.internalHighlightCurrentLine = newVal
+        self.setNeedsDisplay()
+      }
+    }
+  }
+  
   var showLineNumbers: Bool {
     get {
       return self.internalShowLineNumbers
@@ -115,7 +132,7 @@ class CodeEditorTextView: UITextView {
     let td = CodeEditorTextStorageDelegate(console: console,
                                            editorType: editorType,
                                            docManager: docManager)
-    let lm = CodeEditorLayoutManager()
+    let lm = CodeEditorLayoutManager(console: console)
     let tc = NSTextContainer(size: CGSize(width: CGFloat.greatestFiniteMagnitude,
                                           height: CGFloat.greatestFiniteMagnitude))
     tc.widthTracksTextView = true
@@ -127,10 +144,12 @@ class CodeEditorTextView: UITextView {
     ts.delegate = td
     self.textStorageDelegate = td
     self.internalShowLineNumbers = lm.showLineNumbers
+    self.internalHighlightCurrentLine = lm.highlightCurrentLine
     self.syntaxHighlightingUpdate = UserSettings.standard.syntaxHighlightingUpdate
     self.defineAction = defineAction
     self.keyboard = CodeEditorKeyboard(console: console, editorType: editorType)
     super.init(frame: frame, textContainer: tc)
+    lm.textView = self
     self.backgroundColor = .clear
     self.contentMode = .redraw
   }

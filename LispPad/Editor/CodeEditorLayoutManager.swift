@@ -25,11 +25,26 @@ import UIKit
 
 class CodeEditorLayoutManager: NSLayoutManager {
 
+  static let lineHighlightColor = UIColor(named: "LineHighlightColor") ??
+                                    UIColor(red: 0.95, green: 0.95, blue: 0.85, alpha: 0.8)
+  
+  let console: Bool
   var showLineNumbers = UserSettings.standard.showLineNumbers
+  var highlightCurrentLine = UserSettings.standard.highlightCurrentLine
   var codingFont = UIFont.systemFont(ofSize: 10.0)
   var codingTextColor = UIColor.secondaryLabel
   var lastLineLoc = 0
   var lastLineNum = 0
+  weak var textView: CodeEditorTextView? = nil
+  
+  init(console: Bool) {
+    self.console = console
+    super.init()
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
   
   private func lineNumber(for charRange: NSRange, in textStorage: NSTextStorage) -> Int {
     // NSString does not provide a means of efficiently determining the line number of a
@@ -106,47 +121,93 @@ class CodeEditorLayoutManager: NSLayoutManager {
   }
   
   override func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
-    super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
     // Draw line numbers. The background for line number gutter is drawn by the
     // CodeEditorTextView class.
-    guard self.showLineNumbers,
-          let textStorage = self.textStorage else {
+    guard !self.console,
+          self.showLineNumbers || self.highlightCurrentLine,
+          let textStorage = self.textStorage,
+          let context = UIGraphicsGetCurrentContext() else {
+      super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
       return
     }
+    let selectedRange = self.textView?.selectedRange
     let atts: [NSAttributedString.Key : Any] = [
       .font : self.codingFont,
       .foregroundColor : self.codingTextColor
     ]
     var gutterRect = CGRect.zero
+    var lineRect: CGRect? = nil
     var lineNumber = 0
+    var drewLineHighlight = false
+    context.saveGState()
     self.enumerateLineFragments(forGlyphRange: glyphsToShow) {
       rect, usedRect, textContainer, glyphRange, stop in
+        lineRect = rect
         let charRange = self.characterRange(forGlyphRange: glyphRange, actualGlyphRange: nil)
-        let lineRange = (textStorage.string as NSString).paragraphRange(for: charRange)
-        // Only draw line numbers for the line's first line fragment. Subsequent fragments
-        // are wrapped portions of the line and don't get the line number.
-        if charRange.location == lineRange.location {
+        if self.showLineNumbers {
+          let lineRange = (textStorage.string as NSString).paragraphRange(for: charRange)
           gutterRect = CGRect(x: 0, y: rect.origin.y,
                               width: CodeEditorTextView.gutterWidth, height: rect.size.height)
                          .offsetBy(dx: origin.x, dy: origin.y)
-          lineNumber = self.lineNumber(for: charRange, in: textStorage)
-          let ln = NSString(format: "%ld", UInt64(lineNumber + 1))
-          let size = ln.size(withAttributes: atts)
-          ln.draw(in: gutterRect.offsetBy(dx: gutterRect.width - 4 - size.width,
-                                          dy: (gutterRect.height - size.height) / 2.0),
-                  withAttributes: atts)
+          // Only draw line numbers for the line's first line fragment. Subsequent fragments
+          // are wrapped portions of the line and don't get the line number.
+          if charRange.location == lineRange.location {
+            lineNumber = self.lineNumber(for: charRange, in: textStorage)
+            let ln = NSString(format: "%ld", UInt64(lineNumber + 1))
+            let size = ln.size(withAttributes: atts)
+            ln.draw(in: gutterRect.offsetBy(dx: gutterRect.width - 4 - size.width,
+                                            dy: (gutterRect.height - size.height) / 2.0),
+                    withAttributes: atts)
+          }
+        }
+        if self.highlightCurrentLine && !drewLineHighlight,
+           let selectedRange = selectedRange,
+           (selectedRange.location <= charRange.location &&
+            (selectedRange.location + selectedRange.length) >= charRange.location) ||
+           (selectedRange.location >= charRange.location &&
+            selectedRange.location < (charRange.location + charRange.length)) {
+          drewLineHighlight = true
+          context.setFillColor(Self.lineHighlightColor.cgColor)
+          let lrect = CGRect(x: self.showLineNumbers ? gutterRect.width : 0,
+                             y: rect.origin.y + rect.size.height/2.0,
+                             width: rect.size.width - 2,
+                             height: rect.size.height + 2)
+          context.fill(lrect)
         }
     }
     // Deal with the special case of an empty last line where enumerateLineFragmentsForGlyphRange
     // has no line fragments to draw.
     // Doesn't work: if NSMaxRange(glyphsToShow) > self.numberOfGlyphs {
-    if textStorage.string.isEmpty || textStorage.string.hasSuffix("\n") {
-      let ln = NSString(format: "%ld", UInt64(lineNumber + 2))
-      let size = ln.size(withAttributes: atts)
-      gutterRect = gutterRect.offsetBy(dx: 0.0, dy: gutterRect.height)
-      ln.draw(in: gutterRect.offsetBy(dx: gutterRect.width - 4 - size.width,
-                                      dy: (gutterRect.height - size.height) / 2.0),
-              withAttributes: atts)
+    if self.showLineNumbers &&
+        (textStorage.string.isEmpty || textStorage.string.hasSuffix("\n")) {
+        let ln = NSString(format: "%ld", UInt64(lineNumber + 2))
+        let size = ln.size(withAttributes: atts)
+        gutterRect = gutterRect.offsetBy(dx: 0.0, dy: gutterRect.height)
+        ln.draw(in: gutterRect.offsetBy(dx: gutterRect.width - 4 - size.width,
+                                        dy: (gutterRect.height - size.height) / 2.0),
+                withAttributes: atts)
     }
+    if self.highlightCurrentLine && !drewLineHighlight,
+       let selectedRange = selectedRange,
+       let lineRect = lineRect,
+       textStorage.mutableString.range(
+         of: "\n",
+         options: [],
+         range: NSRange(
+                  location: selectedRange.location,
+                  length: textStorage.length - selectedRange.location)).location == NSNotFound {
+      var rect = lineRect
+      if textStorage.string.hasSuffix("\n") {
+        rect = rect.offsetBy(dx: 0, dy: rect.height)
+      }
+      context.setFillColor(Self.lineHighlightColor.cgColor)
+      let lrect = CGRect(x: self.showLineNumbers ? gutterRect.width : 0,
+                         y: rect.origin.y + rect.size.height/2.0,
+                         width: rect.size.width - 2,
+                         height: rect.size.height + 2)
+      context.fill(lrect)
+    }
+    context.restoreGState()
+    super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
   }
 }

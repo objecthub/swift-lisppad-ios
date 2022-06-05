@@ -103,6 +103,9 @@ struct CodeEditor: UIViewRepresentable {
     if textView.showLineNumbers != self.settings.showLineNumbers {
       textView.showLineNumbers = self.settings.showLineNumbers
     }
+    if textView.highlightCurrentLine != self.settings.highlightCurrentLine {
+      textView.highlightCurrentLine = self.settings.highlightCurrentLine
+    }
     if self.editorType != textView.textStorageDelegate.editorType {
       textView.textStorageDelegate.editorType = self.editorType
       textView.textStorageDelegate.highlight(textView.textStorage)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1 (2022-05-29)
+
+- TODO
+
 ## 1.3.0 (2022-03-02)
 
 - Allow setting font in preferences; allow for more granular choice of font sizes

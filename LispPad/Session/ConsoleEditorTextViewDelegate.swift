@@ -26,7 +26,9 @@ final class ConsoleEditorTextViewDelegate: EditorTextViewDelegate {
   
   init(text: Binding<String>, selectedRange: Binding<NSRange>, calculatedHeight: Binding<CGFloat>) {
     self.calculatedHeight = calculatedHeight
-    super.init(text: text, selectedRange: selectedRange)
+    super.init(text: text,
+               selectedRange: selectedRange,
+               lastSelectedRange: selectedRange.wrappedValue)
   }
   
   override public var highlightMatchingParen: Bool {

@@ -23,13 +23,12 @@ import LispKit
 
 final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   
+  static let textColor = UIColor(named: "CodeEditorTextColor") ??
+                           UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1)
+    
   private static let initialIdentCharacters = CharacterSet(charactersIn: "!$%&*/:<=>?^_~@")
   private static let subsequentIdentCharacters = CharacterSet(charactersIn: "+-.")
   private static let digitCharacters = CharacterSet(charactersIn: "0123456789")
-  
-  let textColor = UIColor(named: "CodeEditorTextColor") ??
-                  UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1)
-  let codeBackground = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.25)
   
   /// Is this powering the console input?
   let console: Bool
@@ -69,7 +68,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     var stringStart = Int.min
     var numberStart = Int.min
     var symbolStart = Int.min
-    textStorage.addAttribute(.foregroundColor, value: self.textColor, range: range)
+    textStorage.addAttribute(.foregroundColor, value: Self.textColor, range: range)
     while start < end {
       let ch = str.character(at: start)
       if symbolStart < 0 {
@@ -250,7 +249,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   private func highlightMarkdownSyntax(_ textStorage: NSTextStorage,
                                        _ str: NSString,
                                        _ range: NSRange) {
-    textStorage.addAttribute(.foregroundColor, value: self.textColor, range: range)
+    textStorage.addAttribute(.foregroundColor, value: Self.textColor, range: range)
     var start = range.location
     let end = range.location + range.length
     var escaped = false
@@ -590,7 +589,7 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
       case .other:
         break
     }
-    textStorage.addAttribute(.foregroundColor, value: self.textColor, range: range)
+    textStorage.addAttribute(.foregroundColor, value: Self.textColor, range: range)
   }
   
   private func extendedParagraphRange(in str: NSString, editedRange: NSRange) -> NSRange {

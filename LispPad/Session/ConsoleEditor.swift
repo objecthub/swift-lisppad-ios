@@ -55,6 +55,7 @@ struct ConsoleEditor: UIViewRepresentable {
                                       defineAction: self.defineAction)
     textView.delegate = context.coordinator
     textView.showLineNumbers = false
+    textView.highlightCurrentLine = false
     textView.isScrollEnabled = false
     textView.isEditable = true
     textView.isSelectable = true

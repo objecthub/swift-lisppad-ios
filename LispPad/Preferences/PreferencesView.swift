@@ -109,6 +109,7 @@ struct PreferencesView: View {
         }
         Section(header: Text("Interface")) {
           Toggle("Show line numbers", isOn: $settings.showLineNumbers)
+          Toggle("Highlight current line", isOn: $settings.highlightCurrentLine)
           Toggle("Highlight matching parenthesis", isOn: $settings.highlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.extendedKeyboard)
         }

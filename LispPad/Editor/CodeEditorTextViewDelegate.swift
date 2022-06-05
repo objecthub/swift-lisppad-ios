@@ -26,7 +26,9 @@ class CodeEditorTextViewDelegate: EditorTextViewDelegate {
   
   init(text: Binding<String>, selectedRange: Binding<NSRange>, fileManager: FileManager) {
     self.fileManager = fileManager
-    super.init(text: text, selectedRange: selectedRange)
+    super.init(text: text,
+               selectedRange: selectedRange,
+               lastSelectedRange: selectedRange.wrappedValue)
   }
   
   public func scrollViewDidScroll(_ scrollView: UIScrollView) {

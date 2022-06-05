@@ -57,6 +57,7 @@ final class UserSettings: ObservableObject {
   private static let indentSizeKey = "Editor.indentSize"
   private static let showLineNumbersKey = "Editor.showLineNumbers"
   private static let highlightMatchingParenKey = "Editor.highlightMatchingParen"
+  private static let highlightCurrentLineKey = "Editor.highlightCurrentLine"
   private static let extendedKeyboardKey = "Editor.extendedKeyboard"
   private static let maxRecentFilesKey = "Editor.maxRecentFiles"
   private static let schemeAutoIndentKey = "Editor.schemeAutoIndent"
@@ -325,6 +326,12 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var highlightCurrentLine: Bool {
+    didSet {
+      UserDefaults.standard.set(self.highlightCurrentLine, forKey: Self.highlightCurrentLineKey)
+    }
+  }
+  
   @Published var extendedKeyboard: Bool {
     didSet {
       UserDefaults.standard.set(self.extendedKeyboard, forKey: Self.extendedKeyboardKey)
@@ -547,6 +554,8 @@ final class UserSettings: ObservableObject {
     self.showLineNumbers = UserDefaults.standard.boolean(forKey: Self.showLineNumbersKey)
     self.highlightMatchingParen = UserDefaults.standard.boolean(forKey:
                                                                   Self.highlightMatchingParenKey)
+    self.highlightCurrentLine = UserDefaults.standard.boolean(forKey: Self.highlightCurrentLineKey,
+                                                              false)
     self.extendedKeyboard = UserDefaults.standard.boolean(forKey: Self.extendedKeyboardKey)
     self.maxRecentFiles = UserDefaults.standard.int(forKey: Self.maxRecentFilesKey, 10)
     self.schemeAutoIndent = UserDefaults.standard.boolean(forKey: Self.schemeAutoIndentKey)
