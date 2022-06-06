@@ -138,9 +138,17 @@ struct SearchField: View {
         .cornerRadius(12)
         Button(action: {
           if !self.searchText.isEmpty {
-            self.lastSearchText = self.searchText
-            self.lastReplaceText = self.replaceText
-            _ = self.search(self.searchText, .backward)
+            let term = self.searchText
+            let repl = self.replaceText
+            self.histManager.rememberSearch(
+              SearchHistoryEntry(searchText: term,
+                                 replaceText: self.replaceMode ? repl : nil))
+            let more = self.search(term, .backward)
+            withAnimation(.default) {
+              self.lastSearchText = term
+              self.lastReplaceText = repl
+              self.showNext = more
+            }
           }
         }, label: {
           Image(systemName: "chevron.backward")
@@ -153,10 +161,15 @@ struct SearchField: View {
           if !self.searchText.isEmpty {
             let term = self.searchText
             let repl = self.replaceText
+            self.histManager.rememberSearch(
+              SearchHistoryEntry(searchText: term,
+                                 replaceText: self.replaceMode ? repl : nil))
             let more = self.search(self.searchText, .forward)
-            self.lastSearchText = term
-            self.lastReplaceText = repl
-            self.showNext = more
+            withAnimation(.default) {
+              self.lastSearchText = term
+              self.lastReplaceText = repl
+              self.showNext = more
+            }
           }
         }, label: {
           Image(systemName: "chevron.forward")
