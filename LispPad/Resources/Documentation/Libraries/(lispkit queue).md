@@ -2,6 +2,10 @@
 
 Library `(lispkit queue)` provides an implementation for mutable queues, i.e. mutable FIFO buffers.
 
+**queue-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `queue` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all queue objects.
+
 **(make-queue)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns a new empty queue.

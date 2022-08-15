@@ -1,5 +1,18 @@
 # LispKit Core
 
+Library `(lispkit core)` provides a foundational API for
+
+- [primitive procedures](#primitives),
+- [definitions](#definitions) \(including an [import mechanism](#importing-definitions)\),
+- [procedures](#procedures) \(including support for [optional arguments](#procedures-with-optional-arguments) and [tagged procedures](#tagged-procedures)\),
+- [delayed execution](#delayed-execution),
+- [multiple return values](#multiple-values),
+- [symbols](#symbols),
+- [booleans](#booleans),
+- [environments](#environments),
+- [syntax errors](#syntax-errors), and
+- [loading source files](#loading-source-files) and support for [conditional compilation](#conditional-and-inclusion-compilation).
+
 ## Primitives
 
 **(eval _expr_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -266,6 +279,10 @@ Returns a procedure accepting an arbitrary amount of arguments and evaluating _e
 **(procedure-name _proc_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the name of procedure _proc_ as a string, or `#f` if _proc_ does not have a name.
+
+**(procedure-rename _proc name_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Creates a copy of procedure _proc_ with _name_ as name. _name_ is either a string or a symbol. If it is not possible to create a renamed procedure, `procedure-rename` returns `#f`.
 
 **(procedure-arity _proc_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 

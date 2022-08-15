@@ -143,6 +143,11 @@ These procedures apply the Unicode full string uppercasing, lowercasing, titleca
 
 Procedure `string-normalize-diacritics` transforms the given string _str_ by normalizing diacritics and returning the result as a newly allocated string.
 
+```scheme
+(string-normalize-diacritics "Meet Chloë at São Paulo Café")
+⇒  "Meet Chloe at Sao Paulo Cafe"
+```
+
 **(string-normalize-separators _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(string-normalize-separators _str sep_)**  
 **(string-normalize-separators _str sep cset_)**  
@@ -174,7 +179,7 @@ Procedure `string-decode-named-chars` returns a new string, replacing named XML 
 **(string-copy _str start_)**  
 **(string-copy _str start end_)**  
 
-Returns a newly allocated copy of the part of the given string _str_ between _start_ and _end_.
+Returns a newly allocated copy of the part of the given string _str_ between _start_ and _end_. The default for _start_ is 0, for _end_ it is the length of _str_. Calling `string-copy` is equivalent to calling `substring` with the same arguments. `substring` is provided primarily for backward compatibility.
 
 **(string-split _str sep allow-empty?_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -251,7 +256,15 @@ Replaces the first occurence of string _sub_ in string _str_ between indices _st
 **(string-insert! _str repl start_)**  
 **(string-insert! _str repl start end_)**  
 
-Replaces the part of string _str_ between index _start_ and _end_ with string _repl_. The default for _start_ is 0, for _end_ it is `(+ (string-length str) 1)`.
+Replaces the part of string _str_ between index _start_ and _end_ with string _repl_. The default for _start_ is 0, for _end_ it is _start_ (i.e. if not provided, _end_ is equals to _start_). If both _start_ and _end_ are not provided, `string-insert!` inserts _repl_ at the beginning of _str_. If _start_ is provided alone (without _end_), `string-insert!` inserts _repl_ at position _start_.
+
+```scheme
+(define s "Zenger is my name")
+(string-insert! s "Matthias ")
+s  ⇒  "Matthias Zenger is my name"
+(string-insert! s "has always been" 16 18)
+s  ⇒  "Matthias Zenger has always been my name"
+```
 
 **(string-append! _str other ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>   
 

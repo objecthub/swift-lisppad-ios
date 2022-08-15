@@ -60,6 +60,10 @@ A displayable string representation can be generated via procedure `text-table->
 
 ## API
 
+**text-table-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `text-table` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all text table objects.
+
 **(text-table? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a text table object; returns `#f` otherwise.

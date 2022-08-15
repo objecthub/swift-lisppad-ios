@@ -82,6 +82,10 @@ Returns the type name (a string) associated with the type represented by the rec
 
 Returns a list of the symbols naming the fields in members of the type represented by the record type descriptor _rtd_. The returned value is `equal?` to the _fields_ argument given in the call to `make-record-type` that created the type represented by _rtd_.
 
+**(record-type-tag _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns the type tag, i.e. an uninterned symbol, representing the type of records defined by _rtd_. The result of `record-type-tag` can be used together with procedure `type-of` of library `(lispkit type)`.
+
 **(make-record _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns an uninitialized instance of the record type for which _rtd_ is the record type descriptor.

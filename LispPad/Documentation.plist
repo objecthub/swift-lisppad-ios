@@ -14,6 +14,8 @@
 		<string>(lispkit archive zip).md</string>
 		<key>lispkit base</key>
 		<string>(lispkit base).md</string>
+		<key>lispkit bitset</key>
+		<string>(lispkit bitset).md</string>
 		<key>lispkit box</key>
 		<string>(lispkit box).md</string>
 		<key>lispkit core</key>
@@ -30,6 +32,8 @@
 		<string>(lispkit math util).md</string>
 		<key>lispkit math stats</key>
 		<string>(lispkit math stats).md</string>
+		<key>lispkit math matrix</key>
+		<string>(lispkit math matrix).md</string>
 		<key>lispkit list</key>
 		<string>(lispkit list).md</string>
 		<key>lispkit hashtable</key>
@@ -62,6 +66,8 @@
 		<string>(lispkit draw).md</string>
 		<key>lispkit draw turtle</key>
 		<string>(lispkit draw turtle).md</string>
+		<key>lispkit draw chart bar</key>
+		<string>(lispkit draw chart bar).md</string>
 		<key>lispkit datatype</key>
 		<string>(lispkit datatype).md</string>
 		<key>lispkit object</key>
@@ -78,6 +84,8 @@
 		<string>(lispkit set).md</string>
 		<key>lispkit stack</key>
 		<string>(lispkit stack).md</string>
+		<key>lispkit styled-text</key>
+		<string>(lispkit styled-text).md</string>
 		<key>lispkit queue</key>
 		<string>(lispkit queue).md</string>
 		<key>lispkit heap</key>
@@ -185,6 +193,8 @@
 		<string>srfi/srfi-112.html</string>
 		<key>srfi 113</key>
 		<string>srfi/srfi-113.html</string>
+		<key>srfi 118</key>
+		<string>srfi/srfi-118.html</string>
 		<key>srfi 121</key>
 		<string>srfi/srfi-121.html</string>
 		<key>srfi 125</key>
@@ -203,6 +213,8 @@
 		<string>srfi/srfi-135.html</string>
 		<key>srfi 137</key>
 		<string>srfi/srfi-137.html</string>
+		<key>srfi 141</key>
+		<string>srfi/srfi-141.html</string>
 		<key>srfi 142</key>
 		<string>srfi/srfi-142.html</string>
 		<key>srfi 143</key>
@@ -213,6 +225,8 @@
 		<string>srfi/srfi-145.html</string>
 		<key>srfi 146</key>
 		<string>srfi/srfi-146.html</string>
+		<key>srfi 149</key>
+		<string>srfi/srfi-149.html</string>
 		<key>srfi 151</key>
 		<string>srfi/srfi-151.html</string>
 		<key>srfi 152</key>
@@ -283,6 +297,8 @@
 		<string>srfi/srfi-229.html</string>
 		<key>srfi 230</key>
 		<string>srfi/srfi-230.html</string>
+		<key>srfi 232</key>
+		<string>srfi/srfi-232.html</string>
 		<key>srfi sicp</key>
 		<string>srfi/srfi-216.html</string>
 		<key>scheme bitwise</key>

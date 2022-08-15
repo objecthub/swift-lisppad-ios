@@ -1,6 +1,8 @@
 # LispKit Type
 
-Library `(lispkit type)` provides a simple, lightweight type abstraction mechanism. It allows for creating new types at runtime that are disjoint from all existing types. The library provides two different types of APIs: a purely procedural API for type creation and management, as well as a declarative API. The procedural API does not have an explicit representation of types. The declarative API introduces extensible types which do have a runtime representation.
+Library `(lispkit type)` provides a simple, lightweight type abstraction mechanism. It allows for creating new types at runtime that are disjoint from all existing types. The library provides two different types of APIs: a purely procedural API for type creation and management, as well as a declarative API which allows for introducing extensible types in a declarative fashion.
+
+A core feature of the type abstraction mechanism is a means that allows for determining the type of any LispKit value. Procedure `type-of` implements this type introspection feature. It returns a _type tag_, i.e. a symbol representing the type, for any given object.
 
 
 ## Usage of the procedural API
@@ -10,24 +12,31 @@ New types are created with function `make-type`. `make-type` accepts one argumen
 The following line introduces a new type for _intervals_:
 
 ```scheme
-(define-values (new-interval interval? interval-ref make-interval-subtype)
-               (make-type 'interval))
+(define-values (interval-type-tag
+                new-interval
+                interval?
+                interval-ref
+                make-interval-subtype)
+  (make-type 'interval))
 ```
 
-`(make-type 'interval)` returns four functions:
+`(make-type 'interval)` returns five values:
 
-   - `new-interval` is a procedure which takes one argument, the internal representation of the interval, and returns a new object of the new interval type
+   - `interval-type-tag` is an uninterned symbol with the string representation `"interval"` which represents the new type.
+   - `new-interval` is a procedure which takes one argument, the internal representation of the interval, and returns a new object of the new interval type.
    - `interval?` is a type test predicate which accepts one argument and returns `#t` if the argument is of the new interval type, and `#f` otherwise.
    - `interval-ref` takes one object of the new interval type and returns its internal representation. `interval-ref` is the inverse operation of `new-interval`.
-   - `make-interval-subtype` is a type generator (similar to `make-type`), a function that takes a type label and returns four functions representing a new subtype of the interval type.
+   - `make-interval-subtype` is a type generator (similar to `make-type`), a function that takes a type label and returns five values representing a new subtype of the interval type.
 
 Now it is possible to implement a constructor `make-interval` for intervals:
 
 ```scheme
 (define (make-interval lo hi)
   (if (and (real? lo) (real? hi) (<= lo hi))
-      (new-interval (cons (inexact lo) (inexact hi)))
-      (error "make-interval: illegal arguments" lo hi)))
+      (new-interval (cons (inexact lo)
+                          (inexact hi)))
+      (error "make-interval: illegal arguments"
+             lo hi)))
 ```
 
 `make-interval` first checks that the constructor arguments are valid and then calls `new-interval` to create a new interval object. Interval objects are represented via pairs whose _car_ is the lower bound, and _cdr_ is the upper bound. Nevertheless, pairs and interval objects are distinct values as the following code shows:
@@ -36,9 +45,9 @@ Now it is possible to implement a constructor `make-interval` for intervals:
 (define interval-obj (make-interval 1.0 9.5))
 (define pair-obj (cons 1.0 9.5))
 
-(interval? interval-obj)        ⟾ #t
-(interval? pair-obj)            ⟾ #f
-(equal? interval-obj pair-obj)  ⟾ #f
+(interval? interval-obj)        ⇒ #t
+(interval? pair-obj)            ⇒ #f
+(equal? interval-obj pair-obj)  ⇒ #f
 ```
 
 The type is displayed along with the representation in the textual representation of interval objects: `#interval:(1.0 . 9.5)`.
@@ -57,9 +66,10 @@ Below are a few functions for interval objects. They all use `interval-ref` to e
 The following function calls show that `interval-ref` fails with a type error if its argument is not an interval object.
 
 ```scheme
-(interval-length interval-obj)  ⟾ 8.5
-(interval-empty? '(1.0 . 1.0))  ⟾ 
-    [error] not an instance of type interval: (1.0 . 1.0)
+(interval-length interval-obj)
+⇒ 8.5
+(interval-empty? '(1.0 . 1.0))
+⇒ [error] not an instance of type interval: (1.0 . 1.0)
 ```
 
 
@@ -79,7 +89,7 @@ The syntax for defining a simple, non-extensible type has the following form:
 &nbsp;&nbsp;&nbsp; _name-ref_   
 &nbsp;&nbsp;&nbsp; _functions_`)`
 
-_name_ is a symbol and defines the name of the new type. _name?_ is a predicate for testing whether a given object is of type _name_. _make-name_ defines a constructor which returns a value representing the data of the new type. _name-ref_ is a function to unwrap values of type _name_. It is optional and normally not needed since _functions_ can be declared such that the unwrapping happens implicitly. All functions defined via `define-type` take an object (usually called `self`) of the defined type as their first argument.
+_name_ is a symbol. It defines the name of the new type and the identifier _name_ is bound to a type tag representing the new type. _name?_ is a predicate for testing whether a given object is of type _name_. _make-name_ defines a constructor which returns a value representing the data of the new type. _name-ref_ is a function to unwrap values of type _name_. It is optional and normally not needed since _functions_ can be declared such that the unwrapping happens implicitly. All functions defined via `define-type` take an object (usually called `self`) of the defined type as their first argument.
 
 There are two forms to declare a function as part of `define-type`: one providing access to `self` directly, and one only providing access to the unwrapped data value:
 
@@ -99,7 +109,8 @@ With this new syntax, type `interval` from the section describing the procedural
   ((make-interval lo hi)
     (if (and (real? lo) (real? hi) (<= lo hi))
         (cons (inexact lo) (inexact hi))
-        (error "make-interval: illegal arguments" lo hi)))
+        (error "make-interval: illegal arguments"
+               lo hi)))
   ((interval-length (bounds))
     (- (cdr bounds) (car bounds)))
   ((interval-empty? self)
@@ -145,34 +156,48 @@ It is now possible to define a `tagged-interval` data structure which inherits a
 
 ```scheme
 (define ti (make-tagged-interval 4.0 9.0 'inclusive))
-(tagged-interval? ti)        ⟾ #t
-(interval? ti)               ⟾ #t
-(interval-length ti)         ⟾ 5.0
-(interval-tag ti)            ⟾ inclusive
-(interval-tag interval-obj)  ⟾ [error] not an instance of type tagged-interval: #interval:((1.0 . 9.5))
+(tagged-interval? ti)       ⇒ #t
+(interval? ti)              ⇒ #t
+(interval-length ti)        ⇒ 5.0
+(interval-tag ti)           ⇒ inclusive
+(interval-tag interval-obj)
+⇒ [error] not an instance of type tagged-interval: #interval:((1.0 . 9.5))
 ```
 
 Constructors of extended types, such as `make-tagged-interval` return multiple values: all the parameters for a super-constructor call and one additional value (the last value) representing the data provided by the extended type. In the example above, `make-tagged-interval` returns three values: `lo`, `hi`, and `tag`. After the constructor `make-tagged-interval` is called, the super-constructor is invoked with arguments `lo` and `hi`. The result of `make-tagged-interval` is a `tagged-interval` object consisting of two state values contained in a list: one for the supertype `interval` (consisting of the bounds `(lo . hi)`) and one for the subtype `tagged-interval` (consisting of the tag). This can also be seen when displaying a `tagged-interval` value:
 
 ```
-ti  ⟾ #tagged-interval:((4.0 . 9.0) inclusive)
+ti ⇒ #<tagged-interval (4.0 . 9.0) inclusive>
 ```
 
 This is also the reason why function `interval-tag` gets access to two unwrapped values, `bounds` and `tag`: one (`bounds`) corresponds to the value associated with type `interval`, and the other one (`tag`) corresponds to the value associated with type `tagged-interval`.
 
 
-## API
+## Type introspection
+
+LispKit defines a type tag for every different type of object. The type of objects created with the `make-type` facility are represented with unintered symbols whose string representation matches the type label provided to `make-type`. Enum and record objects come with a corresponding type tag as well. All standard, built-in types use interned symbols as type tags. Procedure `type-of` returns the type tag associated with the value of the argument of `type-of`.
+
+**(type-of _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a type tag, i.e. a symbol, associated with the type of _obj_. 
+
+Type tags of custom types are returned as the first value of `make-type`. Type tags of records can be retrieved via `record-type-tag` from the corresponding record type object. Similarly, type tags of enum objects are accessible via `enum-type-type-tag`. Type tags of native types are typically exported by the libraries providing access to the type. All standard, built-in types are represented by the following interned symbols: `void`, `end-of-file`, `null`, `boolean`, `symbol`, `fixnum`, `bignum`, `rational`, `flonum`, `complex`, `char`, `string`, `bytevector`, `pair`, `mpair`, `array`, `vector`, `gvector`, `values`, `procedure`, `parameter`, `promise`, `environment`, `hashtable`, `port`, `record-type`, and `error`. For undefined values `#f` is returned.
+
+
+## Type management
+
 
 **(make-type _type-label_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Creates a new, unique type, and returns four procedures dealing with this new type:
+Based on a string or symbol _type-label_, creates a new, unique type, and returns a type tag representing the new type as well as five values dealing with this new type:
 
-  1. The first procedure takes one argument returning a new object of the new type wrapping the argument
-  2. The second procedure is a type test predicate which accepts one argument and returns `#t` if the argument is of the new type, and `#f` otherwise.
-  3. The third procedure takes one object of the new type and returns its internal representation (what was passed to the first procedure).
-  4. The fourth procedure is a type generator (similar to `make-type`), a function that takes a type label and returns four functions representing a new subtype of the new type.
+  1. The first value is a type tag, i.e. an uninterned symbol representing the new type which has the same string representation as _type-label_.
+  2. The second value is a unary procedure returning a new object of the new type which is wrapping the argument of the procedure (i.e. the internal representation of the new type).
+  2. The third value is a type test predicate which accepts one argument and returns `#t` if the argument is of the new type, and `#f` otherwise.
+  3. The fourth value is a procedure which takes one object of the new type and returns its internal representation (that was passed to the procedure returned as the second value).
+  4. The fifth value is a type generator procedure (similar to `make-type`), a function that takes a type label and returns five values representing a new subtype of the new type.
 
-_type-label_ is only used for debugging purposes. It is shown when an object's textual representation is used. In particular, calling the third procedure (the type de-referencing function) will result in an error message exposing the type label if the argument is of a different type than expected.
+_type-label_ has two uses: it is used for debugging purposes and determines the string representation of the corresponding type tag. It is shown when an object's textual representation is used. In particular, calling the third procedure (the type de-referencing function) will result in an error message exposing the type label if the argument is of a different type than expected.
 
 **(define-type _name name?_ ((_make-name x ..._) _e ..._) _func_ ...)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
 **(define-type _name name?_ ((_make-name x ..._) _e ..._) _ref_ _func_ ...)**
@@ -198,8 +223,12 @@ Constructors of extended types return multiple values: all the parameters for a 
 
 **object** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>   
 
-The supertype of all extensible types defined via `define-type`.
+The supertype of all extensible types defined via `define-type`. The type tag of `object` can be retrieved via `(type-of object)`.
 
 **(extensible-type? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a value representing an extensible type. For instance, `(extensible-type? object)` returns `#t`.
+Returns `#t` if _obj_ is an instance of an extensible type. For example, `(extensible-type? object)` returns `#t`.
+
+**(extensible-type-tag _etype_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the type tag associated with the extensible type `etype` defined by the `define-type` form.

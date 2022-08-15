@@ -53,10 +53,10 @@ Procedure `channel-select*` allows selecting channels that are chosen programmat
 For example, if a message arrived on _chan3_ above, _meta_ would be `meta3` in that case. This allows one to see which channel a message came from, i.e. if you supply metadata that is the channel itself.
 
 **(channel-select** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
-&nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan -> msg\) body ...\)**  
-&nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan -> msg fail\) body ...\)**  
-  &nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan <- msg\) body ...\)**  
-&nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan <- msg fail\) body ...\)**  
+&nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan -\> msg\) body ...\)**  
+&nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan -\> msg fail\) body ...\)**  
+  &nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan \<- msg\) body ...\)**  
+&nbsp;&nbsp;&nbsp;&nbsp;**\(\(chan \<- msg fail\) body ...\)**  
 &nbsp;&nbsp;&nbsp;&nbsp;**\(else body ...\)\)**  
 
 This is a channel switch that will send or receive on at most one channel, picking whichever clause is able to complete soonest. If no clause is ready, `channel-select` will block until one does, unless `else` is specified which will execute its body instead of blocking. Multiple send and receive clauses can be specified interchangeably, but only one clause will trigger and get executed. Example:
@@ -118,7 +118,7 @@ Or like this:
   (else 'eagain))
 ```  
 
-**(channel-range _channel_ -> _msg body ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(channel-range _channel_ -\> _msg body ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 `channel-range` continuously waits for messages to arrive on _channel_. Once a message _msg_ is available, _body ..._ gets executed and `channel-range` waits again for the next message to arrive. `channel-range` does not terminate unless _channel_ is closed. The following statement is equivalent:
 

@@ -1,0 +1,248 @@
+<!DOCTYPE HTML PUBLIC "" "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>SRFI 118: Simple adjustable-size strings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      div.title h1 { font-size: small; color: blue }
+      div.title { font-size: xx-large; color: blue; font-weight: bold }
+      h1 { font-size: x-large; color: blue }
+      h2 { font-size: large; color: blue }
+      /* So var inside pre gets same font as var in paragraphs. */
+      var { font-family: monospace; }
+      em.non-terminal { }
+      em.non-termina-def { }
+      code.literal { font-style: normal; }
+      code.literal:before { content: "“" }
+      code.literal:after { content: "”" }
+    </style>
+  </head>
+<body>
+
+<H1><a name="lp-srfi-118">Title</a></H1>
+
+Simple adjustable-size strings
+
+<H1>Author</H1>
+
+Per Bothner
+
+<p>
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+118+at+srfi+dotschemers+dot+org">srfi-118@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-118">archive</a>.</p>
+<ul>
+    <li>Received: <a href="https://srfi.schemers.org/srfi-118/srfi-118-1.1.html">2014-12-20</a></li>
+      <li>Draft: 2014-12-20--2015-02-20</li>
+    <li>Revised: <a href="https://srfi.schemers.org/srfi-118/srfi-118-1.2.html">2015-02-15</a></li>
+    <li>Revised: <a href="https://srfi.schemers.org/srfi-118/srfi-118-1.3.html">2015-04-18</a></li>
+    <li>Finalized: <a href="srfi-118.html">2015-07-07</a></li>
+</ul>
+
+
+<h1>Abstract</h1>
+<p>
+Scheme specifies mutable fixed-length strings.
+We add two procedures <code>string-append!</code> and
+<code>string-replace!</code> which allow the size of the string to change.
+We also require that the standard Scheme procedures <code>make-string</code>
+and <code>string-copy</code> return variable-size strings.
+ 
+</p><h1>Rationale</h1>
+<p>
+Historically Scheme has only supported fixed-length strings.
+Conceptually, strings can be <dfn>immutable</dfn> (read-only)
+or <dfn>mutable</dfn> (writable).
+Unfortunately, the usefulness of a fixed-size mutable string is
+extremely minimal: The main use is for a buffer to which one incrementally
+adds more data.  So why not fold that functionality into the string API?
+I.e. why can't you add just data to the end of a string?
+</p><p>
+The implementation difficulty with variable-size strings is you need some kind of
+indirection, so you can re-allocate the data when you run out of space.
+However, many implementation of string already use such indirection for
+various reasons, such as memory management.
+</p><p>
+It is worth noting that some string representations use UTF-8
+or UTF-16 encoding, for reasons of compactness or compatibility with
+other APIs.  The obvious disadvantage is that <code>string-ref</code>
+is no longer a constant-time operation, but there are ways to work
+around that; <code>string-ref</code> isn't really an important operation
+for typical string manipulation.
+Note that in such an implementation a mutable string is inherently
+variable-size. For example, if you replace a 1-byte character with
+a 2-byte character then the stored size changes.  So you might as well
+expose this functionality to the Scheme programmer.
+</p><p>
+Common Lisp supports this functionality with an optional
+fill-pointer, combined with using <code>adjust-array</code> when
+the allocated string fills up.
+</p><p>
+One option is to specify 3 kinds of strings: immutable strings,
+mutable fixed-size strings, and mutable variable-size strings.
+I've argued that the use-case for fixed-size mutable strings is so limited
+(and maybe better supported by character uniform arrays)
+that mutable strings should by default be variable-size.
+Specifically, standard Scheme functions that return mutable strings
+should return variable-size mutable strings.
+An implementation may provide a mechanism to explicitly create
+a fixed-size mutable string (or a character uniform vector); however,
+this specification does not propose or recommend that.
+</p><p>
+It has <a href="http://trac.sacrideo.us/wg/wiki/BuffersCowan">been suggested</a>
+that a more general <q>buffer</q> API might be better than tweaking
+the old-fashioned (and potentially inefficient) integer-index-oriented
+string APIs.  This proposal is much more modest - it just adds two
+new procedures.  Thus it should be much easier to learn,
+and easier to modify Scheme programs to use it.
+
+</p><h1>Specification</h1>
+<p>
+The standard Scheme functions <code>make-string</code>
+and <code>string-copy</code> are specified to return
+variable-size mutable strings by default.
+</p><p>
+The following standard Scheme functions
+may return fixed-sized or variable-sized strings:
+<code>string</code>, <code>string-upcase</code>, <code>string-downcase</code>,
+<code>string-foldcase</code>, <code>substring</code>,
+<code>string-append</code>, and <code>list-&gt;string</code>.
+(These are functions that should have been specified to return immutable
+strings if we didn't have to worry about compatibility.)
+<p>
+We add 2 new functions.  The most frequently used is likely to be
+<code>string-append!</code>, while <code>string-replace!</code>
+handles the general case of in-place replacement of a substring
+with another string of possibly different size.</p>
+
+</p><pre>(<b>string-append!</b> <var>string</var> <var>value</var> ...)
+</pre>
+<blockquote>
+<p>
+The <var>string</var> must be a variable-size mutable string.
+The <code>string-append!</code> procedure extends <var>string</var> by
+appending each <var>value</var> (in order) to the end of <var>string</var>.
+A <var>value</var> can be a character or a string.
+</p><p>
+The following example shows how to process a string using
+<code>string-for-each</code> and incrementally <q>building</q> a result string
+using <code>string-append!</code>:</p>
+<pre>(define (translate-space-to-newline str)
+  (let ((result (make-string 0)))
+    (string-for-each
+     (lambda (ch)
+       (cond ((char=? ch #\Space)
+              (string-append! result #\Newline))
+             ((char=? ch #\Return)) ; Ignore
+             (else
+              (string-append! result ch))))
+     str)
+    result))
+</pre>
+<p>There is no requirement that this procedure execute in constant time,
+even amortised (i.e. average) constant time.
+<p><em>Usage note:</em> Compare with using string ports:</p>
+<pre>(define (translate-space-to-newline str)
+  (let ((out (open-output-string)))
+    (string-for-each
+     (lambda (ch)
+       (cond ((char=? ch #\Space)
+              (write-char #\Newline out))
+             ((char=? ch #\Return)) ; Ignore
+             (else
+              (write-char ch out))))
+     str)
+    (get-output-string out)))
+</pre>
+<p>Using a string port in this situation is probably preferable:
+It is more portable, and you can expect decent performance in most
+implementations.  Using <code>string-append!</code> may be slighly
+more efficient on some implementations, due to lower overhead,
+but that depends on the strategy used by <code>string-append!</code>
+when the allocated buffer is too small.
+The <code>string-append!</code> function is most useful when
+using (reading) a string is interleaved with growing it,
+or when also using <code>string-replace!</code>.
+</blockquote>
+
+<pre>(<b>string-replace!</b> <var>dst</var> <var>dst-start</var> <var>dst-end</var> <var>src</var> [<var>src-start</var> [<var>src-end</var>]])
+</pre>
+<blockquote>
+Replaces the characters of the variable-size string <var>dst</var> (between
+<var>dst-start</var> and <var>dst-end</var>) with the characters of the string
+<var>src</var> (between <var>src-start</var> and <var>src-end</var>).
+The number of characters from <var>src</var> may be different than the
+number replaced in <var>dst</var>, so the string may grow or contract.
+The special case where <var>dst-start</var> is equal to <var>dst-end</var>
+corresponds to insertion; the case where <var>src-start</var> is equal
+to <var>src-end</var> corresponds to deletion.
+The order in which characters are copied is unspecified,
+except that if the source and destination overlap, copying takes
+place as if the source is first copied into a temporary string and
+then into the destination. (This can be achieved without allocating
+storage by making sure to copy in the correct direction in such circumstances.)
+<p>
+When <var>value</var> is a string then
+<code>(string-append! <var>dst</var> <var>value</var>)</code> is equivalent to
+<code>(string-replace! <var>dst</var> (string-length <var>dst</var>) (string-length <var>dst</var>) <var>value</var>)</code>.
+<p>
+<em>Note:</em>
+<a href="https://srfi.schemers.org/srfi-13/srfi-13.html">Srfi-13</a> has
+a nondestructive version, <code>string-replace</code>, which
+takes the arguments in the following order:
+
+<pre>
+  (string-replace <var>dst</var> <var>src</var> <var>dst-start</var> <var>dst-end</var> [<var>src-start</var> [<var>src-end</var>]])
+</pre>
+
+We adopt a different argument order here to be consistent with
+<code>string-copy!</code>, and existing <code>string-replace!</code>
+implementations.
+</blockquote>
+
+<h1>Implementation</h1>
+<p>
+The implementation is trivial, assuming there is some indirection
+between the string object header and the actual stored characters.
+Whenever the character buffer is full, it needs to be replaced with
+a bigger buffer.  If the size of the new buffer is a
+fixed multiple of the size of the old buffer then
+ <code>string-append!</code> has amortized constant execution time.
+(The multiple 1.5 <a href="http://stackoverflow.com/questions/1100311/what-is-the-ideal-growth-rate-for-a-dynamically-allocated-array">seems a good choice</a>.)
+</p><p>
+If you have cheap Smalltalk-style <code>becomes:</code> (which is admittedly
+unlikely these days) then you can use that when you need to grow a string
+beyond its allocated size.
+</p><p>
+Kawa 2.0 implements the functionality of this SRFI.
+
+</p><h1>Copyright</h1>
+<p>
+Copyright (C) Per Bothner 2015</p>
+<p>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:</p>
+<p>
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<hr>
+<address>Author: <a href="mailto:per@bothner.com">Per Bothner</a></address>
+    <address>Editor: <a href="mailto:srfi-editors at srfi dot schemers dot org">Michael Sperber</a></address>
+
+
+</body></html>
+

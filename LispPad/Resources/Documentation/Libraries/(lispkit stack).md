@@ -2,6 +2,10 @@
 
 Library `(lispkit stack)` provides an implementation for mutable stacks, i.e. mutable LIFO buffers.
 
+**stack-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `stack` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all stack objects.
+
 **(make-stack)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns a new empty stack.

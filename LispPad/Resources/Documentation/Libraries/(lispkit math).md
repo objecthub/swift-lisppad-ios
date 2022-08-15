@@ -465,8 +465,9 @@ It is an error if _radix_ is not one of 2, 8, 10, or 16. The procedure `number->
 ```scheme
 (let ((number number)
       (radix radix))
-  (eqv? number (string->number (number->string number radix)
-                               radix)))
+  (eqv? number (string->number
+                 (number->string number radix)
+                 radix)))
 ```
 
 is true. It is an error if no possible result makes this expression true. If omitted, radix defaults to 10.
@@ -476,15 +477,23 @@ The result returned by `number->string` never contains an explicit radix prefix.
 
 The error case can occur only when _z_ is not a complex number or is a complex number with a non-rational real or imaginary part. If _z_ is an inexact number and the radix is 10, then the above expression is normally satisfied by a result containing a decimal point. The unspecified case allows for infinities, NaNs, and unusual representations.
 
-**(string->number _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(string->number _str radix_)**  
+The string representation can be customized via parameters _len_, _prec_, and _noexp_. The absolute value of fixnum _len_ determines the length of the string representation in characters. If _len_ is negative, then the number is left-aligned; for positive _len_, it is right-aligned; if _len_ is zero, no padding is done. _prec_ determines the precision of flonum and complex values (i.e. the number of significant digits; default is 16). _noexp_ is a boolean for disabling the exponential notation (if _noexp_ is set to `#t`).
+
+```scheme
+(number->string pi 10 5 5)   ⇒ "3.1416"
+(number->string pi 10 9 5)   ⇒ "   3.1416"
+(number->string pi 10 -9 5)  ⇒ "3.1416   "
+```
+
+**(string-\>number _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(string-\>number _str radix_)**  
 
 Returns a number of the maximally precise representation expressed by the given string _str_. It is an error if _radix_ is not 2, 8, 10, or 16. If supplied, _radix_ is a default radix that will be overridden if an explicit radix prefix is present in string (e.g. `"#o177"`). If _radix_ is not supplied, then the default radix is 10. If string _str_ is not a syntactically valid notation for a number, or would result in a number that cannot be represented, then `string->number` returns `#f`. An error is never signaled due to the content of string.
 
 ```scheme
-(string->number "100")     ⇒  100
-(string->number "100" 16)  ⇒  256
-(string->number "1e2")     ⇒  100.0
+(string->number "100")     ⇒ 100
+(string->number "100" 16)  ⇒ 256
+(string->number "1e2")     ⇒ 100.0
 ```
 
 ## Bitwise operations
@@ -601,7 +610,7 @@ LispKit supports arbitrarily large exact integers. Internally, it has two differ
 
 Fixnum operations perform integer arithmetic on their fixnum arguments. If any argument is not a fixnum, or if the mathematical result is not representable as a fixnum, it is an error. In particular, this means that fixnum operations may return a mathematically incorrect fixnum in these situations without raising an error.
 
-**(integer->fixnum _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(integer-\>fixnum _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 `integer->fixnum` coerces a given integer _n_ into a fixnum. If _n_ is a fixnum already, _n_ is returned by `integer->fixnum`. If _n_ is a bignum, then the first word of the bignum is returned as the result of `integer->fixnum`.
 
@@ -814,7 +823,7 @@ Returns a random number between fixnum _min_ (inclusive) and fixnum _max_ (exclu
 
 Returns _x_ × 2^_n_, where _n_ is a fixnum with an implementation-dependent range. The significand _x_ is a flonum.
 
-**(real->flonum _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(real-\>flonum _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns the best flonum representation of real number _x_.
 

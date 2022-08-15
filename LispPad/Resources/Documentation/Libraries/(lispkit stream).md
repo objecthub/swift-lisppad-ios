@@ -22,6 +22,10 @@ The object stored in the `stream-car` of a `stream-pair` is a promise that is fo
 
 The design of the API of library `(lispkit stream)` is based on Philip Bewig's SRFI 41. The implementation of the library is LispKit-specific.
 
+**stream-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `stream` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all stream objects.
+
 **stream-null** <span style="float:right;text-align:rigth;">[object]</span>   
 
 `stream-null` is a stream that, when forced, is a single object, distinguishable from all other objects, that represents the null stream. `stream-null` is immutable and unique.

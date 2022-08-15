@@ -1,0 +1,552 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SRFI 149: Basic Syntax-rules Template Extensions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-149">Title</a></H1>
+
+Basic <code>syntax-rules</code> template extensions
+
+<h1>Author</h1>
+
+Marc Nieper-Wi&szlig;kirchen
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+149+at+srfi+dotschemers+dot+org">srfi-149@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-149">archive</a>.</p>
+<ul>
+  <li>Received: 2017-01-01</li>
+  <li>60-day deadline: 2017-03-02</li>
+  <li>Draft #1 published: 2017-01-01</li>
+  <li>Draft #2 published: 2017-01-02</li>
+  <li>Draft #3 published: 2017-05-02</li>
+  <li>Draft #4 published: 2017-07-01</li>
+  <li>Finalized: 2017-07-08</li>
+  <li>Post-finalization note added: 2017-08-07</li>
+</ul>
+
+<h2>Post-finalization note</h2>
+  <p>
+    After finalization of this SRFI, a discussion (starting <a href="https://srfi-email.schemers.org/srfi-149/msg/6057423">here</a> on the mailing list) revealed that the behaviour of this SRFI when a pattern variable in a subtemplate is followed by more instances of <code>&lt;ellipsis&gt;</code> than the subpattern in which it occurs differs from how implementations of the R6RS handle this case.  While this SRFI specifies that the input subform is repeated for the innermost excess instances of <code>&lt;ellipsis&gt;</code>, the implementations of the R6RS repeat for the outermost excess instances.
+  </p>
+
+  <p>
+    There is no obvious reason to prefer one convention over the other as there are interesting macros that work with the former convention and not with the latter convention, and vice-versa.
+  </p>
+
+  <p>
+    However, this means that an implementation supporting the R6RS semantics of <code>syntax-rules</code> can never properly support this SRFI because this SRFI requires that <code>(srfi 149)</code> and <code>(scheme base)</code> export the same <code>syntax-rules</code>.
+  </p>
+
+  <p>
+    Therefore, the author of this SRFI now recommends that implementers ignore this extra requirement so that <code>(srfi 149)</code> may export a version of <code>syntax-rules</code> compatible with this SRFI and <code>(scheme base)</code> may export another.  Instead, it is recommended that implementations provide a feature identifier <code>srfi-149-compatible</code> in case the implementation of <code>syntax-rules</code> in <code>(scheme base)</code> has the semantics as specified in this SRFI.
+  </p>
+
+<h1>Abstract</h1>
+
+<p>
+The rules for valid <code>&lt;template&gt;</code>s of <code>&lt;syntax
+rules&gt;</code> are slightly softened to allow for more than one
+consecutive <code>&lt;ellipsis&gt;</code> in subtemplates, and to
+allow pattern variables in subtemplates to be followed by more
+instances of the identifier <code>&lt;ellipsis&gt;</code> than they are followed in the
+subpattern in which they occur.
+</p>
+
+<h1>Rationale</h1>
+
+<p>
+The pattern language for <code>syntax-rules</code>-macros as defined
+in 4.3.2 of the R7RS, impose two unnatural restrictions on the
+validity of templates in syntax rules.
+</p>
+
+<p>The first restriction is that an instance of
+  the identifier <code>&lt;ellipsis&gt;</code> cannot &mdash; by the formal
+  syntax &mdash; immediately follow a <code>&lt;template
+  element&gt;</code>, which already ends in an instance of
+  the identifier <code>&lt;ellipsis&gt;</code>.
+</p>
+
+<p>For example, the following expression  is formally an error by the R7RS:</p>
+
+<pre>
+ (let-syntax
+     ((my-append
+      (syntax-rules ()
+        ((my-append (a ...) ...) '(a ... ...)))))
+   (my-append (1 2 3) (4 5 6)))
+</pre>
+
+<p>
+  With the extension of the pattern language as described in this
+  SRFI &mdash; which is already supported by many Scheme systems
+  like <a href="http://synthcode.com/wiki/chibi-scheme">Chibi-Scheme</a>
+  and <a href="https://www.gnu.org/software/kawa/">Kawa</a>
+  &mdash; 
+  the example expression ceases to be an error and instead evaluates
+  into the list <code>(1 2 3 4 5 6)</code>.
+</p>
+
+<p>
+  The second unnatural restriction of the pattern language as
+  described in the R7RS is that a difference is made between pattern
+  variables that occur in subpatterns followed by no instance of the
+  identifier <code>&lt;ellipsis&gt;</code> and those that occur in
+  subpatterns followed by one or more instances of the
+  identifier <code>&lt;ellipsis&gt;</code>, while there is no logical reason why such a difference
+  has to be made.
+
+  This implies that a pattern variable of the first kind can be
+  followed by zero or more instances of the
+  identifier <code>&lt;ellipsis&gt;</code> in the template, while a
+  pattern variable of the second kind can only be followed by as many
+  instances of the identifier <code>&lt;ellipsis&gt;</code> as the
+  subpattern in which it occurs is followed.
+</p>
+
+<p>For example, due to this restriction, transformers as specified by
+  the <code>syntax-rules</code>-pattern language of the R7RS cannot
+  naturally be lifted to transformers of lists that apply the original
+  transformer to each element of the list (compare with
+  the <code>map</code>-procedure of Scheme):  If
+  <code>((_ . &lt;pattern&gt;) &lt;template&gt;)</code> is a valid
+  syntax rule of the <code>syntax-rules</code>-pattern language, the "lifted" rule
+  <code>((_ &lt;pattern&gt; ...) (&lt;template&gt; ...))</code> is
+  generally not a valid syntax rule.
+</p>
+
+<p>
+  With the extension of the pattern language as described in this SRFI
+  &mdash; which, again, is already supported by at least Chibi-Scheme and Kawa &mdash;
+  the "lifted" rule is always valid.  A valid example (which evaluates
+  to
+  <code>(((bar 1) (bar 2)) ((baz 3) (baz 4)))</code>) is given by:
+</p>
+
+<pre>
+ (let-syntax
+     ((foo
+      (syntax-rules ()
+        ((foo (a b ...) ...) '(((a b) ...) ...)))))
+   (foo (bar 1 2) (baz 3 4)))
+</pre>
+
+<p><i>Note: There is at least one logical explanation for the presence
+    of the second restriction in the R7RS: Allowing pattern variables
+    with non-zero ellipsis count to have extra ellipses in the
+    template has an ambiguous meaning without further specification
+    (which is given below), in contrast to allowing this for
+    zero-ellipsis variables, which is unambiguous.  The ambiguity is
+    in which of the ellipses in the template should iterate and which
+    should replicate.  In other words, which ones should be considered
+    the ellipses that correspond to the ellipses in the pattern, and
+    which ones should be considered the extra ellipses.  The R7RS
+    doesn't specify it because it doesn't have to since in in the R7RS,
+    for any variable, either all of the ellipses in the template
+    iterate (because the number of ellipses in the pattern and
+    template match), or they all replicate (because there were no
+    ellipses for this variable in the pattern).</i></p>
+
+<h1>Specification</h1>
+
+<p>A Scheme system that supports this SRFI should provide the
+  library <code>(srfi 149)</code> so that Scheme code can detect
+  (using <code>cond-expand</code>) whether the extensions proposed by
+  this SRFI are supported by the Scheme system.  The only export
+  of <code>(srfi 149)</code> shall be <code>syntax-rules</code> with the same binding as
+  <code>syntax-rules</code> from <code>(scheme base)</code>.  Should
+  this SRFI at some point formally become part of a new Scheme report
+  (<em>e.g.</em> <i>R7RS-large</i>), the library <code>(srfi
+  149)</code> becomes obsolete and feature detection should be based
+  on the feature identifier that defines the Scheme report in
+  question.
+</p>
+
+<h2>Syntax</h2>
+
+<p>In section 7.1.5 of the R7RS, the rule for <code>&lt;template
+    element&gt;</code> is changed into the following rule:
+</p>
+
+<pre>
+ &lt;template element&gt;
+   &xrarr; &lt;template&gt;
+   &xrarr; &lt;template element&gt; &lt;ellipsis&gt;
+</pre>
+
+<h2>Semantics</h2>
+
+<p>The rules in 4.3.2 of the R7RS are extended as follows:</p>
+
+<ul>
+  <li>
+    <p>
+      Pattern variables that occur in subpatterns followed by zero or
+      more instances of the identifier &lt;ellipsis&gt; are allowed only in
+      subtemplates that are followed by as many or more instances of
+      <code>&lt;ellipsis&gt;</code>.
+    </p>
+  </li>
+  <li>
+    <p>If a pattern variable in a subtemplate is followed by more
+      instances of <code>&lt;ellipsis&gt;</code> than the subpattern
+      in which it occurs is followed, the input elements by which it
+      is replaced in the output are repeated for the innermost excess instances
+      of <code>&lt;ellipsis&gt;</code>. <i>(Note: This resolves the ambiguity mentioned above.)</i>
+    </p>
+  </li>
+  <li>
+    <p>It is an error if a subtemplate immediately followed by an
+      instance of <code>&lt;ellipsis&gt;</code> does not contain at
+      least one pattern variable such that the subpattern in which it occurs 
+      is followed by as many instances
+      of <code>&lt;ellipsis&gt;</code>.
+    </p>
+  </li>
+  <li>
+    <p>
+    If a template element is immediately followed by more than one
+    instance of the identifier <code>&lt;ellipsis&gt;</code>, the
+    semantics are analogous to when the instances
+    of <code>&lt;ellipsis&gt;</code> are not in immediate succession
+    but belonging to nested subtemplates.
+    </p>
+  </li>
+</ul>
+
+<h1>Implementation</h1>
+
+<p>
+While it is technically not impossible to implement
+the <code>syntax-rules</code> of this SRFI as a custom macro
+transformer (see <a href="https://srfi.schemers.org/srfi-147">SRFI
+147</a>) in a portable way on an R7RS system, the benefits of such an
+implementation are negligible when weighted against the complexity of
+programming such a portable solution (and against its inherent slowness).
+</p>
+
+<p>
+  Therefore, this SRFI uses Chibi-Scheme's implementation
+  of <code>syntax-rules</code> to provide a sample implementation.
+  The advantage of Chibi-Scheme's implementation (besides the fact
+  that this R7RS system is widely known and used) is that it is a
+  portable solution as long as <code>er-macro-transformer</code> is
+  available on the host system.
+</p>
+
+<p>
+  The following is the relevant part of the source
+  file <a href="https://raw.githubusercontent.com/ashinn/chibi-scheme/master/lib/init-7.scm">init-7.scm</a>
+  of Chibi-Scheme (please note
+  Chibi-Scheme's <a href="https://raw.githubusercontent.com/ashinn/chibi-scheme/master/COPYING">copyright
+  information and licensing terms</a>):
+</p>
+
+<pre>
+ (define (syntax-rules-transformer expr rename compare)
+   (let ((ellipsis-specified? (identifier? (cadr expr)))
+   (count 0)
+   (_er-macro-transformer (rename 'er-macro-transformer))
+   (_lambda (rename 'lambda))      (_let (rename 'let))
+   (_begin (rename 'begin))        (_if (rename 'if))
+   (_and (rename 'and))            (_or (rename 'or))
+   (_eq? (rename 'eq?))            (_equal? (rename 'equal?))
+   (_car (rename 'car))            (_cdr (rename 'cdr))
+   (_cons (rename 'cons))          (_pair? (rename 'pair?))
+   (_null? (rename 'null?))        (_expr (rename 'expr))
+   (_rename (rename 'rename))      (_compare (rename 'compare))
+   (_quote (rename 'syntax-quote)) (_apply (rename 'apply))
+   (_append (rename 'append))      (_map (rename 'map))
+   (_vector? (rename 'vector?))    (_list? (rename 'list?))
+   (_len (rename'len))             (_length (rename 'length*))
+   (_- (rename '-))   (_>= (rename '>=))   (_error (rename 'error))
+   (_ls (rename 'ls)) (_res (rename 'res)) (_i (rename 'i))
+   (_reverse (rename 'reverse))
+   (_vector->list (rename 'vector->list))
+   (_list->vector (rename 'list->vector))
+   (_cons3 (rename 'cons-source))
+   (_underscore (rename '_)))
+     (define ellipsis (if ellipsis-specified? (cadr expr) (rename '...)))
+     (define lits (if ellipsis-specified? (car (cddr expr)) (cadr expr)))
+     (define forms (if ellipsis-specified? (cdr (cddr expr)) (cddr expr)))
+     (define (next-symbol s)
+       (set! count (+ count 1))
+       (rename (string->symbol (string-append s (%number->string count)))))
+     (define (expand-pattern pat tmpl)
+       (let lp ((p (cdr pat))
+    (x (list _cdr _expr))
+    (dim 0)
+    (vars '())
+    (k (lambda (vars)
+         (list _cons (expand-template tmpl vars) #f))))
+   (let ((v (next-symbol "v.")))
+     (list
+      _let (list (list v x))
+      (cond
+       ((identifier? p)
+        (if (any (lambda (l) (compare p l)) lits)
+      (list _and
+      (list _compare v (list _rename (list _quote p)))
+      (k vars))
+      (if (compare p _underscore)
+          (k vars)
+          (list _let (list (list p v)) (k (cons (cons p dim) vars))))))
+       ((ellipsis? p)
+        (cond
+         ((not (null? (cdr (cdr p))))
+    (cond
+     ((any (lambda (x) (and (identifier? x) (compare x ellipsis)))
+           (cddr p))
+      (error "multiple ellipses" p))
+     (else
+      (let ((len (length* (cdr (cdr p))))
+      (_lp (next-symbol "lp.")))
+        `(,_let ((,_len (,_length ,v)))
+           (,_and (,_>= ,_len ,len)
+            (,_let ,_lp ((,_ls ,v)
+             (,_i (,_- ,_len ,len))
+             (,_res (,_quote ())))
+             (,_if (,_>= 0 ,_i)
+           ,(lp `(,(cddr p)
+            (,(car p) ,(car (cdr p))))
+                `(,_cons ,_ls
+                   (,_cons (,_reverse ,_res)
+                     (,_quote ())))
+                dim
+                vars
+                k)
+           (,_lp (,_cdr ,_ls)
+                 (,_- ,_i 1)
+                 (,_cons3 (,_car ,_ls)
+              ,_res
+              ,_ls))))))))))
+         ((identifier? (car p))
+    (list _and (list _list? v)
+          (list _let (list (list (car p) v))
+          (k (cons (cons (car p) (+ 1 dim)) vars)))))
+         (else
+    (let* ((w (next-symbol "w."))
+           (_lp (next-symbol "lp."))
+           (new-vars (all-vars (car p) (+ dim 1)))
+           (ls-vars (map (lambda (x)
+               (next-symbol
+          (string-append
+           (symbol->string
+            (identifier->symbol (car x)))
+           "-ls")))
+             new-vars))
+           (once
+      (lp (car p) (list _car w) (+ dim 1) '()
+          (lambda (_)
+            (cons
+             _lp
+             (cons
+        (list _cdr w)
+        (map (lambda (x l)
+               (list _cons (car x) l))
+             new-vars
+             ls-vars)))))))
+      (list
+       _let
+       _lp (cons (list w v)
+           (map (lambda (x) (list x (list _quote '()))) ls-vars))
+       (list _if (list _null? w)
+       (list _let (map (lambda (x l)
+             (list (car x) (list _reverse l)))
+           new-vars
+           ls-vars)
+             (k (append new-vars vars)))
+       (list _and (list _pair? w) once)))))))
+       ((pair? p)
+        (list _and (list _pair? v)
+        (lp (car p)
+      (list _car v)
+      dim
+      vars
+      (lambda (vars)
+        (lp (cdr p) (list _cdr v) dim vars k)))))
+       ((vector? p)
+        (list _and
+        (list _vector? v)
+        (lp (vector->list p) (list _vector->list v) dim vars k)))
+       ((null? p) (list _and (list _null? v) (k vars)))
+       (else (list _and (list _equal? v p) (k vars))))))))
+     (define (ellipsis-escape? x) (and (pair? x) (compare ellipsis (car x))))
+     (define (ellipsis? x)
+       (and (pair? x) (pair? (cdr x)) (compare ellipsis (cadr x))))
+     (define (ellipsis-depth x)
+       (if (ellipsis? x)
+     (+ 1 (ellipsis-depth (cdr x)))
+     0))
+     (define (ellipsis-tail x)
+       (if (ellipsis? x)
+     (ellipsis-tail (cdr x))
+     (cdr x)))
+     (define (all-vars x dim)
+       (let lp ((x x) (dim dim) (vars '()))
+   (cond ((identifier? x)
+    (if (any (lambda (lit) (compare x lit)) lits)
+        vars
+        (cons (cons x dim) vars)))
+         ((ellipsis? x) (lp (car x) (+ dim 1) (lp (cddr x) dim vars)))
+         ((pair? x) (lp (car x) dim (lp (cdr x) dim vars)))
+         ((vector? x) (lp (vector->list x) dim vars))
+         (else vars))))
+     (define (free-vars x vars dim)
+       (let lp ((x x) (free '()))
+   (cond
+    ((identifier? x)
+     (if (and (not (memq x free))
+        (cond ((assq x vars) => (lambda (cell) (>= (cdr cell) dim)))
+        (else #f)))
+         (cons x free)
+         free))
+    ((pair? x) (lp (car x) (lp (cdr x) free)))
+    ((vector? x) (lp (vector->list x) free))
+    (else free))))
+     (define (expand-template tmpl vars)
+       (let lp ((t tmpl) (dim 0))
+   (cond
+    ((identifier? t)
+     (cond
+      ((find (lambda (v) (eq? t (car v))) vars)
+       => (lambda (cell)
+      (if (<= (cdr cell) dim)
+          t
+          (error "too few ...'s"))))
+      (else
+       (list _rename (list _quote t)))))
+    ((pair? t)
+     (cond
+      ((ellipsis-escape? t)
+       (list _quote
+       (if (pair? (cdr t))
+           (if (pair? (cddr t)) (cddr t) (cadr t))
+           (cdr t))))
+      ((ellipsis? t)
+       (let* ((depth (ellipsis-depth t))
+        (ell-dim (+ dim depth))
+        (ell-vars (free-vars (car t) vars ell-dim)))
+         (cond
+    ((null? ell-vars)
+     (error "too many ...'s"))
+    ((and (null? (cdr (cdr t))) (identifier? (car t)))
+     ;; shortcut for (var ...)
+     (lp (car t) ell-dim))
+    (else
+     (let* ((once (lp (car t) ell-dim))
+      (nest (if (and (null? (cdr ell-vars))
+               (identifier? once)
+               (eq? once (car vars)))
+          once ;; shortcut
+          (cons _map
+          (cons (list _lambda ell-vars once)
+                ell-vars))))
+      (many (do ((d depth (- d 1))
+           (many nest
+           (list _apply _append many)))
+          ((= d 1) many))))
+       (if (null? (ellipsis-tail t))
+           many ;; shortcut
+           (list _append many (lp (ellipsis-tail t) dim))))))))
+      (else (list _cons3 (lp (car t) dim) (lp (cdr t) dim) (list _quote t)))))
+    ((vector? t) (list _list->vector (lp (vector->list t) dim)))
+    ((null? t) (list _quote '()))
+    (else t))))
+     (list
+      _er-macro-transformer
+      (list _lambda (list _expr _rename _compare)
+      (list
+       _car
+       (cons
+        _or
+        (append
+         (map
+    (lambda (clause) (expand-pattern (car clause) (cadr clause)))
+    forms)
+         (list
+    (list _cons
+          (list _error "no expansion for"
+          (list (rename 'strip-syntactic-closures) _expr))
+          #f)))))))))
+
+ (define-syntax syntax-rules/aux
+   (er-macro-transformer syntax-rules-transformer))
+
+ (define-syntax syntax-rules
+   (er-macro-transformer
+    (lambda (expr rename compare)
+      (if (identifier? (cadr expr))
+    (list (rename 'let) (list (list (cadr expr) #t))
+    (cons (rename 'syntax-rules/aux) (cdr expr)))
+    (syntax-rules-transformer expr rename compare)))))
+</pre>
+
+<p>
+ The implementation of the library <code>(srfi 149)</code> on a
+ supporting Scheme system is as simple as possible:
+</p>
+
+<pre>
+ (define-library (srfi 149)
+   (export syntax-rules)
+   (import (scheme base)))
+</pre>
+
+<h1>Acknowledgements</h1>
+
+<p>
+The title of this SRFI is a tribute to the title
+of <a href="https://srfi.schemers.org/srfi-46/srfi-46.html">SRFI
+46</a>.
+</p>
+
+<p>
+  I would like to thank Alex Shinn for having made the free software
+  Chibi-Scheme, from which I shamelessly stole the implementation
+  of <code>syntax-rules</code>.  Of course, this does not imply that
+  he necessarily endorses this SRFI.
+</p>
+
+<p>
+  I would also like to thank Al Petrofsky who pointed out that the
+  need of resolving the ambiguity when lifting the second restriction
+  should be made explicit and not just implicit in this SRFI.  I used
+  some of his wording on the mailing list while amending this SRFI.
+</p>
+
+<h1>Copyright</h1>
+Copyright (C) Marc Nieper-Wi&szlig;kirchen (2017).  All Rights Reserved. 
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+

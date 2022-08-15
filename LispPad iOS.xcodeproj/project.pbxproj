@@ -119,6 +119,16 @@
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
+		CCA9E3CF28A926BB00628DE5 /* (lispkit draw chart bar).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */; };
+		CCA9E3D128A9270500628DE5 /* bar-chart-params.png in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D028A9270500628DE5 /* bar-chart-params.png */; };
+		CCA9E3D328A9283300628DE5 /* (lispkit styled-text).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */; };
+		CCA9E3D528A928FD00628DE5 /* (lispkit bitset).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */; };
+		CCA9E3D728A9C68B00628DE5 /* (lispkit math matrix).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */; };
+		CCA9E3D828A9C93500628DE5 /* (lispkit math matrix).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */; };
+		CCA9E3D928A9C94400628DE5 /* (lispkit bitset).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */; };
+		CCA9E3DA28A9C95200628DE5 /* (lispkit draw chart bar).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */; };
+		CCA9E3DB28A9C96600628DE5 /* (lispkit styled-text).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */; };
+		CCA9E3DC28A9C97300628DE5 /* bar-chart-params.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCA9E3D028A9270500628DE5 /* bar-chart-params.png */; };
 		CCAC0F08278F9B3B00E5B6F8 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CCAC0F07278F9B3B00E5B6F8 /* Atomics */; };
 		CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134C272B3AEA0046F474 /* LogFilterView.swift */; };
 		CCBE134F272DE1450046F474 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134E272DE1450046F474 /* WebView.swift */; };
@@ -212,6 +222,10 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CCA9E3DB28A9C96600628DE5 /* (lispkit styled-text).md in Copy Documentation/Libraries */,
+				CCA9E3DA28A9C95200628DE5 /* (lispkit draw chart bar).md in Copy Documentation/Libraries */,
+				CCA9E3D928A9C94400628DE5 /* (lispkit bitset).md in Copy Documentation/Libraries */,
+				CCA9E3D828A9C93500628DE5 /* (lispkit math matrix).md in Copy Documentation/Libraries */,
 				CCEF3E3527CECEB800FB56EB /* (lispkit thread channel).md in Copy Documentation/Libraries */,
 				CCEF3E2E27CA2DF200FB56EB /* (lispkit thread).md in Copy Documentation/Libraries */,
 				CCFA680B27653990009A599C /* (lispkit math util).md in Copy Documentation/Libraries */,
@@ -377,6 +391,7 @@
 			dstPath = Documentation/Libraries/images;
 			dstSubfolderSpec = 7;
 			files = (
+				CCA9E3DC28A9C97300628DE5 /* bar-chart-params.png in Copy Documentation/Libraries/images */,
 				CCEF3E2D27CA2D8500FB56EB /* thread-states.png in Copy Documentation/Libraries/images */,
 			);
 			name = "Copy Documentation/Libraries/images";
@@ -506,6 +521,11 @@
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
+		CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart bar).md"; sourceTree = "<group>"; };
+		CCA9E3D028A9270500628DE5 /* bar-chart-params.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-chart-params.png"; sourceTree = "<group>"; };
+		CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit styled-text).md"; sourceTree = "<group>"; };
+		CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit bitset).md"; sourceTree = "<group>"; };
+		CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit math matrix).md"; sourceTree = "<group>"; };
 		CCBE134C272B3AEA0046F474 /* LogFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFilterView.swift; sourceTree = "<group>"; };
 		CCBE134E272DE1450046F474 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		CCBE1351272E0F410046F474 /* srfi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = srfi; sourceTree = "<group>"; };
@@ -733,6 +753,7 @@
 				CCBF9E6926C890B400654D60 /* (lisppad location).md */,
 				CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */,
 				CC8B953426079FBA00830B4F /* (lispkit base).md */,
+				CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */,
 				CC8B952526079FBA00830B4F /* (lispkit box).md */,
 				CC8B952926079FBA00830B4F /* (lispkit bytevector).md */,
 				CC8B953126079FBA00830B4F /* (lispkit char-set).md */,
@@ -746,6 +767,7 @@
 				CC8B953B26079FBA00830B4F /* (lispkit date-time).md */,
 				CC8B953F26079FBA00830B4F /* (lispkit debug).md */,
 				CC8B954F26079FBA00830B4F /* (lispkit disjoint-set).md */,
+				CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */,
 				CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */,
 				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
 				CC8B953226079FBA00830B4F /* (lispkit dynamic).md */,
@@ -761,6 +783,7 @@
 				CC8B952C26079FBA00830B4F /* (lispkit math).md */,
 				CC624CE02741364E005F15B3 /* (lispkit math stats).md */,
 				CC624CE22741367E005F15B3 /* (lispkit math util).md */,
+				CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */,
 				CC8B954C26079FBA00830B4F /* (lispkit object).md */,
 				CC8B953326079FBA00830B4F /* (lispkit port).md */,
 				CC624CDE27412F74005F15B3 /* (lispkit prolog).md */,
@@ -772,14 +795,15 @@
 				CC8B953926079FBA00830B4F /* (lispkit stack).md */,
 				CC8B953026079FBA00830B4F /* (lispkit stream).md */,
 				CC8B954826079FBA00830B4F /* (lispkit string).md */,
+				CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */,
 				CC8B954126079FBA00830B4F /* (lispkit system os).md */,
 				CC8B953726079FBA00830B4F /* (lispkit system).md */,
 				CC8B952226079FBA00830B4F /* (lispkit test).md */,
+				CCFA680827653915009A599C /* (lispkit text-table).md */,
 				CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */,
 				CCEF3E2F27CA2E7D00FB56EB /* (lispkit thread channel).md */,
 				CC8B952326079FBA00830B4F /* (lispkit type).md */,
 				CC8B953826079FBA00830B4F /* (lispkit vector).md */,
-				CCFA680827653915009A599C /* (lispkit text-table).md */,
 				CCEF3E2B27CA2D1A00FB56EB /* images */,
 			);
 			path = Libraries;
@@ -975,6 +999,7 @@
 			isa = PBXGroup;
 			children = (
 				CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */,
+				CCA9E3D028A9270500628DE5 /* bar-chart-params.png */,
 			);
 			path = images;
 			sourceTree = "<group>";
@@ -1101,17 +1126,22 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCA9E3CF28A926BB00628DE5 /* (lispkit draw chart bar).md in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CCF8F09A27C431A800C2D660 /* iosevka-regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CCF8F09E27C4344100C2D660 /* iosevka-extended.ttf in Resources */,
 				CCF8F0B227C43EE700C2D660 /* Inconsolata-Regular.ttf in Resources */,
+				CCA9E3D328A9283300628DE5 /* (lispkit styled-text).md in Resources */,
+				CCA9E3D128A9270500628DE5 /* bar-chart-params.png in Resources */,
+				CCA9E3D728A9C68B00628DE5 /* (lispkit math matrix).md in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CCF8F0AC27C43C9900C2D660 /* RobotoMono-Regular.ttf in Resources */,
 				CCF8F0BA27C4489B00C2D660 /* FiraCode-Regular.ttf in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CCF8F0A627C4391E00C2D660 /* SourceCodePro-Regular.ttf in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
+				CCA9E3D528A928FD00628DE5 /* (lispkit bitset).md in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1246,6 +1276,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1307,6 +1338,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1334,7 +1366,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 80;
+				CURRENT_PROJECT_VERSION = 90;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1359,7 +1391,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 80;
+				CURRENT_PROJECT_VERSION = 90;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;

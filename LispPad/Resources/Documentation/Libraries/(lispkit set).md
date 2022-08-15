@@ -7,6 +7,10 @@ A set is a data structure for representing collections of objects. Any object ca
 
 ## Constructors
 
+**set-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `set` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all set objects.
+
 **(make-eq-set)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Create a new empty set using `eq?` as equivalence function.

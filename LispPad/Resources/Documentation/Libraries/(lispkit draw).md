@@ -119,11 +119,21 @@ Fills an ellipse given by rectangular _rect_ with the current _fill color_ in th
 
 Draws string _str_ at _location_ in the given font and color in the drawing specified by argument _drawing_ or parameter object `current-drawing` if _drawing_ is not provided. _location_ is either the left, top-most point at which the string is drawn, or it is a rect specifying a bounding box. _color_ specifies the text color. If it is not provided, the text is drawn in black.
 
-**(text-size _text_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(text-size _text font_)**  
-**(text-size _text font dimensions_)**  
+**(text-size _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(text-size _str font_)**  
+**(text-size _str font dimensions_)**  
 
-Returns a size object describing the width and height needed to draw string _html_ using _font_ in a space constrained by _dimensions_. _dimensions_ is either a size object specifying the maximum width and height, or it is a number constraining the width only, assuming infinite hight. If _dimensions_ is omitted, the maximum width and height is infinity.
+Returns a size object describing the width and height needed to draw string _str_ using _font_ in a space constrained by _dimensions_. _dimensions_ is either a size object specifying the maximum width and height, or it is a number constraining the width only, assuming infinite hight. If _dimensions_ is omitted, the maximum width and height is infinity.
+
+**(draw-styled-text _txt location_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(draw-styled-text _txt location drawing_)**  
+
+Draws styled text _txt_ at _location_ in the drawing specified by argument _drawing_ or parameter object `current-drawing` if _drawing_ is not provided. _location_ is either the left, top-most point at which the styled text is drawn, or it is a rect specifying a bounding box.
+
+**(styled-text-size _txt_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(styled-text-size _txt dimensions_)**  
+
+Returns a size object describing the width and height needed to draw styled text _txt_ in a space constrained by _dimensions_. _dimensions_ is either a size object specifying the maximum width and height, or it is a number constraining the width only, assuming infinite hight. If _dimensions_ is omitted, the maximum width and height is infinity.
 
 **(draw-html _html location_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(draw-html _html location drawing_)**  
@@ -335,6 +345,12 @@ Loads an image from the file at the given relative file _path_ and returns the c
 &nbsp;&nbsp;&nbsp;_dir/path.type_
 
 where _dir_ is `"Images"` if it is not provided as a parameter. It then searches the asset paths in their given order for a file matching this relative file path. Once the first matching file is found, the file is loaded as an image file and the image gets returned by `load-image-asset`. It is an error if no matching image was found.
+
+**(bytevector-\>image _bvec_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(bytevector-\>image _bvec start_)**  
+**(bytevector-\>image _bvec start end_)**  
+
+Loads an image from the binary data provided by bytevector _bvec_ between positions _start_ and _end_ and returns the corresponding image object.
 
 **(image-size _image_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

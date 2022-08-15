@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>SRFI 141: Integer division</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+
+<H1><a name="lp-srfi-141">Title</a></H1>
+
+Integer division
+
+<h1>Author</h1>
+
+Taylor Campbell, John Cowan
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+141+at+srfi+dotschemers+dot+org">srfi-141@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="http://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-141">archive</a>.</p>
+<ul>
+  <li>Received: 2016-08-29</li>
+  <li>60-day deadline: 2016-10-28</li>
+  <li>Draft #1 published: 2016-08-29</li>
+  <li>Draft #2 published: 2016-09-22</li>
+  <li>Draft #3 published: 2016-12-01</li>
+  <li>Finalized: 2016-12-14</li>
+</ul>
+
+<h1>Abstract</h1>
+
+<p>
+This SRFI provides a fairly complete set of integral division and
+remainder operators.
+</p>
+
+<h1>Issues</h1>
+
+<p>None at present.</p>
+
+<h1>Rationale</h1>
+
+
+<p>
+Most programming languages provide at least one operation for division,
+and sometimes related operations for computing integral quotients and
+remainders.  (There is at least one (fortunately today defunct)
+programming language that provides addition, subtraction, and division,
+with multiplication notably absent, being expressible as division.)
+Everyone agrees that a pair of operators for computing integral
+quotients <em>q</em> and remainders <em>r</em> from the division of
+a numerator (dividend) <em>n</em> by a denominator (divisor) <em>d</em>,
+should satisfy the relations
+</p>
+<ol><li><em>n</em> = <em>dq</em> + <em>r</em>,
+</li><li>|<em>r</em>| &lt; |<em>d</em>|, and
+</li><li><em>q</em> is an integer.
+</li></ol><p>
+Such a pair of operators will be called a division operator pair.  Many
+programming languages provide only one division operator pair.  Some,
+such as C, leave the semantics unspecified when either or each of the
+numerator and the denominator is negative.  If the numerator and denominator are
+both integers, then the remainder will also be an integer.
+</p>
+<p>
+To describe the semantics of a division operator pair, it suffices to
+define the integer <em>q</em>, from which <em>r</em> can be uniquely
+derived by the relation
+</p>
+<blockquote>
+<p>
+<em>r</em> = <em>n</em> - <em>dq</em>,
+</p>
+</blockquote>
+<p>
+provided that this choice of <em>q</em> induced an <em>r</em>
+satisfying |<em>r</em>| &lt; |<em>d</em>|.  For an extensive
+discussion of five of the six division operator pairs proposed
+here, and some broken but standardized operator pairs that fail
+to satisfy properties (1)-(3), see Raymond T. Boute,
+<a href="http://dl.acm.org/citation.cfm?id=128862">
+"The Euclidean Definition of the Functions DIV and MOD"</a>, ACM TOPLAS
+14(2), April 1992, pp. 127-144.
+</p>
+<p>
+Unfortunately, most programming languages give nondescript names such
+as DIV(IDE), QUOT(IENT), MOD(ULO), and REM(AINDER) to these operations.
+The language should make clear to programmers what division operations
+their programs are performing, especially when negative numerators and
+denominators can arise, but perhaps may not often be tested.
+</p>
+
+<h2 id="RelatedStandards">Related Standards</h2>
+<h3 id="R5RS">R5RS</h3>
+<p>
+The R5RS gives the names <tt>quotient</tt> and <tt>remainder</tt> to the truncating
+division operator pair, and the name <tt>modulo</tt> to the remainder half of
+the flooring division operator pair.  For all these three procedures in
+the R5RS, the numerator may be any integer, and the denominator may be any
+nonzero integer.
+</p>
+<h3 id="R6RS">R6RS</h3>
+<p>
+The R6RS gives the names <tt>div</tt>, <tt>mod</tt>, and <tt>div-and-mod</tt> to the Euclidean division operator
+family, and the names <tt>div0</tt>, <tt>mod0</tt>, and <tt>div0-and-mod0</tt> to the balanced operator family.
+For all six of these procedures, the numerator may be
+any real number, and the denominator may be any nonzero real number.  The R5RS procedures
+are also available in the R5RS compatibility library.
+</p>
+<h3 id="R7RS">R7RS</h3>
+<p>
+The truncate and floor families are part of R7RS-small.  Three of them
+are also available under their R5RS names, for backward compatibility.
+The numerator may be any integer, and the denominator may be any
+nonzero integer.
+</p>
+<h3 id="CommonLisp">Common Lisp</h3>
+<p>
+Common Lisp provides four integral division functions, <tt>floor</tt>, <tt>ceiling</tt>,
+<tt>truncate</tt>, and <tt>round</tt>; and two remainder functions, <tt>mod</tt> and <tt>rem</tt>.  The
+division functions comprise both the quotient and remainder of a
+division operator pair, and return them as two values, of which the
+latter, the remainder, may be implicitly ignored in Common Lisp.  The
+denominator argument is optional in Common Lisp's integral division
+functions; if omitted, it is taken to be 1.  <tt>mod</tt> is the remainder half
+of the flooring division operator pair; <tt>rem</tt> is the remainder half of
+the truncating division operator pair.  Common Lisp does not provide
+any part of the Euclidean division operator pair.
+</p>
+<p>
+For all six of these functions in Common Lisp, the numerator may be any
+real number, and the denominator may be any nonzero real number.  Common
+Lisp also provides four extra functions <tt>ffloor</tt>, <tt>fceiling</tt>, <tt>ftruncate</tt>,
+and <tt>fround</tt>, which differ from their <tt>f</tt>-less variants only in
+floating-point contagion rules.
+</p>
+
+<h1>Specification</h1>
+
+<p>For each of six division operator pairs — floor, ceiling, truncate,
+round, Euclidean and balanced — there is a family of three procedures: one, named
+<tt>&lt;operator&gt;/</tt>, to compute the division and to return both quotient and
+remainder as multiple return values; one, named <tt>&lt;operator&gt;-quotient</tt>,
+to return only the quotient; and one, named <tt>&lt;operator&gt;-remainder</tt>, to
+return only the remainder.  Each division operator pair is specified by
+defining the quotient <em>q</em> in terms of the numerator <em>a</em> and the denominator <em>n</em>.
+Tacitly the remainder <em>r</em> is as above: <em>r</em> = <em>n</em> - <em>dq</em>.
+</p>
+<p>
+It is an error if any of the arguments are not integers (exact or inexact).
+It is also an error to
+supply zero as a denominator to any of these procedures.
+If any argument is inexact, the result is inexact, unless the implementation
+can prove that the inexactness cannot affect the result, as in the case of
+dividing an exact zero by an inexact number.
+</p>
+<p>
+<tt>(floor/ </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(floor-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(floor-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+</p>
+<blockquote>
+<p>
+<em>q</em> = floor(<em>n</em>/<em>d</em>)
+</p>
+</blockquote>
+<p>
+Thus <em>r</em> is negative iff <em>d</em> is negative.
+</p>
+<p>
+<tt>(ceiling/ </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(ceiling-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(ceiling-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+</p>
+<blockquote>
+<p>
+<em>q</em> = ceiling(<em>n</em>/<em>d</em>)
+</p>
+</blockquote>
+<p>
+Thus <em>r</em> is negative iff <em>d</em> is non-negative.
+</p>
+<p>
+If <em>denominator</em> is the number of units in a block, and &lt;numerator&gt; is
+some number of units, then <tt>(ceiling-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt>
+gives the number of blocks needed to cover <em>numerator</em> units.  For
+example, <em>denominator</em> might be the number of bytes in a disk sector, and
+<em>numerator</em> the number of bytes in a file; then the quotient is the
+number of disk sectors needed to store the contents of the file.  For
+another example, <em>denominator</em> might be the number of octets in the
+output of a cryptographic hash function, and <em>numerator</em> the number of
+octets desired in a key for a symmetric cipher, to be derived using
+the cryptographic hash function; then the quotient is the number of
+hash values needed to concatenate to make a key.
+</p>
+<p>
+<tt>(truncate/ </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(truncate-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(truncate-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+</p>
+<blockquote>
+<p>
+<em>q</em> = truncate(<em>n</em>/<em>d</em>)
+</p>
+</blockquote>
+<p>
+Thus <em>r</em> is negative iff <em>n</em> is negative.  However, by any non-unit denominator, the
+quotient of +1, 0, or -1 is 0; that is, three contiguous numerators by
+a common denominator share a common quotient.  Of the other division
+operator pairs, only the round pair exhibits this property.
+</p>
+<p>
+<tt>(round/ </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(round-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(round-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+</p>
+<blockquote>
+<p>
+<em>q</em> = round(<em>n</em>/<em>d</em>)
+</p>
+</blockquote>
+<p>
+The round function rounds to the nearest integer,
+breaking ties by choosing the nearest even integer.
+Nothing general can be said about the sign of <em>r</em>.  Like the truncate
+operator pair, the quotient of +1, 0, or -1 by any non-unit denominator is 0, so
+that three contiguous numerators by a common denominator share a common
+quotient.
+</p>
+<p>
+<tt>(euclidean/ </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(euclidean-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(euclidean-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+</p>
+<blockquote>
+<p>
+If <em>d</em> &gt; 0, <em>q</em> = floor(<em>n</em>/<em>d</em>);
+if <em>d</em> &lt; 0, <em>q</em> = ceiling(<em>n</em>/<em>d</em>).
+</p>
+</blockquote>
+<p>
+This division operator pair satisfies the stronger property
+</p>
+<blockquote>
+<p>
+0 &lt;= <em>r</em> &lt; |<em>d</em>|,
+</p>
+</blockquote>
+<p>
+used often in mathematics.  Thus, for example,
+<tt>(euclidean-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt>
+is always a valid index into a vector whose
+length is at least the absolute value of <em>denominator</em>.
+This division operator pair is so
+named because it is the subject of the Euclidean division algorithm.
+</p>
+<p>
+<tt>(balanced/ </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(balanced-quotient </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+<tt>(balanced-remainder </tt><em>numerator</em> <em>denominator</em><tt>)</tt><br />
+</p>
+<p>
+This division operator pair satisfies the property
+</p>
+<blockquote>
+<p>
+-|<em>d</em>/2| &lt;= <em>r</em> &lt; |<em>d</em>/2|.
+</p>
+</blockquote>
+<p>
+When <em>d</em> is a power of 2, say 2<sup><em>k</em></sup> for some <em>k</em>, this reduces to
+</p>
+<blockquote>
+<p>
+-2<sup>(<em>k</em> - 1)</sup> &lt;= <em>r</em> &lt; 2<sup>(<em>k</em> - 1)</sup>.
+</p>
+</blockquote>
+<p>
+Computer scientists will immediately recognize this as the interval of
+integers representable in two's-complement with <em>k</em> bits.
+</p>
+
+<h1>Implementation</h1>
+
+<p>The implementation is in the repository of this SRFI, and includes the
+following files:</p>
+<ul><li><code>srfi-141-impl.scm</code> - The R5RS-based implementation</li>
+<li><code>srfi-141.scm</code> - Chicken library</li>
+<li><code>srfi-141.sld</code> - R7RS library</li>
+</ul>
+
+
+
+
+<h1>Acknowledgements</h1>
+
+Thanks to Sudarshan S. Chawathe for catching several significant errors.
+
+<h1>Copyright</h1>
+Copyright (C) Taylor Campbell, John Cowan (2016).  All Rights Reserved. 
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+
+<p>
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
+

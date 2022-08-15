@@ -52,6 +52,10 @@ The default logger that is initially created by the logging library. The native 
 
 Parameter object referring to the current logger that is used as a default if no logger object is provided for a logging request. Initially `current-logger` is set to `default-logger`.
 
+**logger-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `logger` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all logger objects.
+
 **(logger? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a logger object, `#f` otherwise.

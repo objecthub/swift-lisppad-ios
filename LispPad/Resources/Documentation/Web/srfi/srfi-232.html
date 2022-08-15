@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 232: Flexible curried procedures</title>
+  <style>pre.example { margin-left: 2em; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<H2><a name="lp-srfi-232">Title</a></H2>
+
+Flexible curried procedures
+
+<h2>Author</h2>
+
+Wolfgang Corcoran-Mathe, based on a design by Jason Hemann
+and Daniel P. Friedman
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+232+at+srfi+dotschemers+dot+org">srfi-232@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-232/">archive</a>.</p>
+<ul>
+  <li>Received: 2022-01-05</li>
+  <li>Draft #1 published: 2022-01-07</li>
+  <li>Draft #2 published: 2022-01-24</li>
+  <li>Draft #3 published: 2022-03-17</li>
+  <li>Draft #4 published: 2022-03-21</li>
+  <li>Draft #5 published: 2022-03-28</li>
+  <li>Finalized: 2022-04-06</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>Scheme lacks a flexible way to create and apply curried procedures.
+This SRFI describes <code>curried</code>, a variant of
+<code>lambda</code> that creates true curried procedures which also
+behave just like ordinary Scheme procedures.  They can be applied to
+their arguments one by one, all at once, or anywhere in between,
+without any novel syntax.  <code>curried</code> also supports
+nullary and variadic procedures, and procedures created with it have
+predictable behavior when applied to surplus arguments.</p>
+
+<h2 id="rationale">Rationale</h2>
+
+<p>Currying is a well-known tactic in functional programming, and
+many languages (e.g. Standard ML and Haskell) provide convenient ways to
+define curried procedures.  True
+currying, though, is somewhat uncommon in Scheme.  Beyond the fundamental
+building block of first-class procedures, Scheme provides little support
+for defining curried procedures, and the clumsiness of applying such
+procedures may deter programmers from using them at all.  Some attempts
+have been made at improving the situation.  The
+&ldquo;higher-order lambda&rdquo; notation of
+<a href="https://srfi.schemers.org/srfi-219/">SRFI 219</a>
+extends the syntax of <code>define</code> with a simple
+shorthand for writing curried procedures.  The complexity of applying
+curried procedures remains, however:
+
+<pre class="example"><code>(define ((add-c x) y)
+  (+ x y))
+
+(add-c 2 3) ⇒ ; error: too many arguments
+
+((add-c 2) 3) ⇒ 5
+</code></pre>
+
+<p>Perhaps because of this clumsiness, Scheme has another form which
+provides something a little like currying.  The <code>cut</code>
+operator, introduced by
+<a href="https://srfi.schemers.org/srfi-26/">SRFI 26</a>, is not a
+currying operator; instead, it allows procedures to be easily
+specialized on given parameters.  However, this is not too difficult
+in ordinary Scheme (<em>cf.</em> Al* Petrofsky's
+<a href="https://srfi-email.schemers.org/srfi-26/msg/2783121/">comment</a>
+to the SRFI 26 mailing list), and, as such, <code>cut</code> is not
+frequently seen in Scheme programs.  <code>cut</code> also introduces a
+novel notation using the tokens <code>&lt;&gt;</code> and
+<code>&lt;...&gt;</code>, which may pose an obstacle for new users.</p>
+
+<p>The <code>curried</code> form described in this SRFI allows the
+creation of true curried procedures which can also be treated as
+normal, uncurried Scheme procedures.  For example, a
+<code>curried</code> procedure of two arguments may be applied to one
+argument to return a new procedure of one argument, or directly to two
+arguments to return its value.  <code>curried</code> also provides
+consistent semantics for nullary and variadic procedures, and
+predictable behavior for cases in which a procedure is
+applied to more arguments than it accepts.  All this is accomplished
+without the introduction of any novel forms; syntactically,
+<code>curried</code> is very similar to <code>lambda</code>, which should
+make it easy to adopt in existing Scheme programs.</p>
+
+<p>This SRFI is not meant to replace SRFIs 26 or 219.  In some
+cases, these existing techniques may be preferable; the
+SRFI 219 notation does much less "under the table" than does
+<code>curried</code>, and <code>cut</code> provides greater flexibility
+in argument specialization.  The <code>curried</code> form provides
+another option, one that will hopefully also prove useful and
+convenient.</p>
+
+<h2 id="specification">Specification</h2>
+
+<p><code>(curried</code> ⟨formals⟩ ⟨body⟩<code>)</code></p>
+
+<p>Syntax: ⟨formals⟩ and ⟨body⟩ are as described in section 4.1.4 of
+the R⁷RS.</p>
+
+<p>Semantics: If ⟨formals⟩ is an empty list, then a
+<code>curried</code> expression evaluates to ⟨body⟩. Otherwise, it
+evaluates to a procedure with the same environment semantics as
+<code>lambda</code> (R⁷RS 4.1.4). The application of a procedure
+created by <code>curried</code> has the following semantics:</p>
+
+<ul>
+  <li><p>If ⟨formals⟩ is of the form
+         (<em>v</em>₁ <em>v₂</em> &hellip; <em>v</em>ₙ), then</p>
+    <ul>
+      <li><p>If the procedure is applied to <em>k</em> arguments, where
+        <em>k</em> &lt; <em>n</em>, then &ldquo;partial application&rdquo;
+        is performed: the result is a procedure with <code>curried</code>
+        semantics with an extended environment in which the formal
+        parameters <em>v</em>₁, <em>v</em>₂, &hellip;, <em>v</em>ₖ are
+        bound to the supplied arguments in order; this procedure can
+        accept further arguments as described in this section.</p>
+        <p>Note that, if <em>k</em> = 0, the result is a procedure
+        which is extensionally the same as the original procedure.</p></li>
+      <li><p>If the procedure is applied to <em>k</em> arguments, where
+        <em>k</em> &gt; <em>n</em>, then ⟨body⟩ is evaluated with the
+        formal parameters <em>v</em>₁, <em>v</em>₂, &hellip;, <em>v</em>ₙ
+        bound to the first <em>n</em> arguments, and the result is applied
+        to the remaining <em>k</em> − <em>n</em> arguments.  It is an
+        error if the value of ⟨body⟩ is not a procedure.</p></li>
+      <li><p>If the procedure is applied to exactly <em>n</em> arguments,
+        then evaluation proceeds as with <code>lambda</code>.</p></li>
+    </ul>
+  </li>
+  <li><p>If ⟨formals⟩ is of the form
+    (<em>v</em>₁ &hellip; <em>v</em>ₙ&nbsp;.&nbsp;<em>v</em>ₙ₊₁), then
+    application proceeds as in the proper list case, except that,
+    if <em>n</em> or more arguments are supplied, then the formal
+    parameters <em>v</em>₁,&nbsp;&hellip;,&nbsp;<em>v</em>ₙ are bound
+    to the first <em>n</em> arguments and <em>v</em>ₙ₊₁ is bound to
+    a list of any remaining arguments, in order.</p></li>
+  <li><p>If ⟨formals⟩ is of the form ⟨variable⟩ (a single identifier),
+    then application proceeds as if the procedure were created with
+    <code>lambda</code>.</p></li>
+</ul>
+
+<p><code>(define-curried (</code>⟨variable⟩ ⟨formals⟩<code>)</code> ⟨body⟩<code>)</code></p>
+
+<p>Equivalent to</p>
+
+<pre><code>(define</code> ⟨variable⟩
+  <code>(curried</code> ⟨formals⟩ ⟨body⟩<code>))
+</code></pre>
+
+<h2 id="examples">Examples</h2>
+
+<h3>Simple currying</h3>
+
+<p>Here, <code>curried</code> is used to create procedures which can
+be concisely parameterized:</p>
+
+<pre class="example"><code>(define-curried (add* x y) (+ x y))
+
+(map (add* 2) '(1 2 3))
+ ⇒ (3 4 5)
+
+(define-curried (fold* proc base lis)
+  (fold proc base lis))
+
+(let ((sum (fold* + 0))
+      (product (fold* * 1))
+      (lis '(1 2 3 4 5)))
+  (list (sum lis) (product lis)))
+ ⇒ (15 120)
+</code></pre>
+
+<h3>Curried polyvariadic procedures</h3>
+
+<p>&ldquo;Polyvariadic&rdquo; refers to a procedure denoted by an
+expression of the form
+<code>(lambda (<em>v</em>₁ &hellip; <em>v</em>ₙ&nbsp;.&nbsp;<em>v</em>ₙ₊₁) ⟨body⟩)</code>.
+A polyvariadic procedure created with <code>curried</code> can be
+partially applied until a procedure of at least one argument
+remains:</p>
+
+<pre class="example"><code>(define foo (curried (a b . rest) (list a b rest)))
+
+((foo 1) 2 3 4) ⇒ (1 2 (3 4))
+
+((foo 'a) 'b) ⇒ (a b ())
+</code></pre>
+
+<h3>Extra arguments</h3>
+
+<p>When a <code>curried</code> procedure is applied to more arguments
+than it accepts, the remaining arguments are passed to the procedure
+body:</p>
+
+<pre class="example"><code>((curried (a)
+   (curried (b)
+     (curried (c) (+ a b c)))) 1 2 3) ⇒ 6
+</code></pre>
+
+<h3>Currying with nullary procedures</h3>
+
+<p>Since nullary <code>curried</code> expressions evaluate to their
+bodies, application &ldquo;passes through&rdquo; any number of
+such expressions:</p>
+
+<pre class="example"><code>((curried () (curried (x y) (+ x y))) 2 3)
+ ⇒ 5
+
+(((curried (x)
+    (curried ()
+      (curried (y z)
+        (list x (* y z))))) 4 5) 6)
+ ⇒ (4 30)
+</code></pre>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation is portable to R⁶RS and R⁷RS
+<code>syntax-rules</code> implementations and can be found
+in the <a href="https://github.com/scheme-requests-for-implementation/srfi-232">repository</a> for this SRFI.</p>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p><code>curried</code> is based heavily on the <code>lambda*</code>
+form created by Jason Hemann and Daniel P. Friedman and described
+elegantly in &ldquo;λ*: Beyond Currying&rdquo;. Their work is
+gratefully acknowledged.</p>
+
+<p>Thanks to the SRFI editor and to those who provided feedback on
+this SRFI via the mailing list or the <code>#scheme</code> IRC
+channel.</p>
+
+<h2 id="references">References</h2>
+
+<p>Jason Hemann &amp; Daniel P. Friedman, &ldquo;λ*: Beyond Currying&rdquo; (2013).
+Available <a href="http://www.schemeworkshop.org/2013/papers/HemannCurrying2013.pdf">on the Web</a>.</p>
+
+<h2 id="copyright">Copyright</h2>
+
+<p>&copy; 2022 Wolfgang Corcoran-Mathe.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>
+

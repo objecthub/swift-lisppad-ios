@@ -139,6 +139,18 @@ is shown here:
 
 ## API
 
+**block-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the markdown `block` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all block objects.
+
+**list-item-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the markdown `list-item` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all list item objects.
+
+**inline-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the markdown `inline` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all inline objects.
+
 **(markdown-blocks? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns `#t` if _obj_ is a proper list of objects _o_ for which `(markdown-block? ` _`o`_`)` returns `#t`; otherwise it returns `#f`.
