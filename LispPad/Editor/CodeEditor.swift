@@ -170,7 +170,8 @@ struct CodeEditor: UIViewRepresentable {
         (keyboardViewEndFrame.height - (textView.window?.safeAreaInsets.bottom ?? 25.0)) : 0.0
       textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
       textView.scrollIndicatorInsets = textView.contentInset
-      textView.scrollRangeToVisible(textView.selectedRange)
+      // Not needed for iOS 15 and iOS 16
+      // textView.scrollRangeToVisible(textView.selectedRange)
     }
   }
   
