@@ -130,8 +130,6 @@
 		CCA9E3DB28A9C96600628DE5 /* (lispkit styled-text).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */; };
 		CCA9E3DC28A9C97300628DE5 /* bar-chart-params.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCA9E3D028A9270500628DE5 /* bar-chart-params.png */; };
 		CCAC0F08278F9B3B00E5B6F8 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CCAC0F07278F9B3B00E5B6F8 /* Atomics */; };
-		CCBC0A692902C8530003EC8C /* DrawMapLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBC0A682902C8530003EC8C /* DrawMapLibrary.swift */; };
-		CCBC0A6B2902CBB30003EC8C /* DisplayMap.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCBC0A6A2902CAC40003EC8C /* DisplayMap.scm */; };
 		CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134C272B3AEA0046F474 /* LogFilterView.swift */; };
 		CCBE134F272DE1450046F474 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134E272DE1450046F474 /* WebView.swift */; };
 		CCBE1354272E10210046F474 /* srfi in Copy Documentation/Web/srfi */ = {isa = PBXBuildFile; fileRef = CCBE1351272E0F410046F474 /* srfi */; };
@@ -342,7 +340,6 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
-				CCBC0A6B2902CBB30003EC8C /* DisplayMap.scm in Copy Root/Examples */,
 				CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */,
 				CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */,
 				CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */,
@@ -529,8 +526,6 @@
 		CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit styled-text).md"; sourceTree = "<group>"; };
 		CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit bitset).md"; sourceTree = "<group>"; };
 		CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit math matrix).md"; sourceTree = "<group>"; };
-		CCBC0A682902C8530003EC8C /* DrawMapLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawMapLibrary.swift; sourceTree = "<group>"; };
-		CCBC0A6A2902CAC40003EC8C /* DisplayMap.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMap.scm; sourceTree = "<group>"; };
 		CCBE134C272B3AEA0046F474 /* LogFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFilterView.swift; sourceTree = "<group>"; };
 		CCBE134E272DE1450046F474 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		CCBE1351272E0F410046F474 /* srfi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = srfi; sourceTree = "<group>"; };
@@ -852,7 +847,6 @@
 				CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */,
 				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
 				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
-				CCBC0A6A2902CAC40003EC8C /* DisplayMap.scm */,
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 			);
@@ -887,7 +881,6 @@
 				CC8B95C82608102300830B4F /* SystemLibrary.swift */,
 				CC8B95B92607FFDA00830B4F /* AudioLibrary.swift */,
 				CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */,
-				CCBC0A682902C8530003EC8C /* DrawMapLibrary.swift */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -1180,7 +1173,6 @@
 				CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */,
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
-				CCBC0A692902C8530003EC8C /* DrawMapLibrary.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
 				CC6598E027292CB6004C9B89 /* LogView.swift in Sources */,
