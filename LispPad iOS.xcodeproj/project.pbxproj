@@ -119,11 +119,6 @@
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
-		CCA9E3CF28A926BB00628DE5 /* (lispkit draw chart bar).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */; };
-		CCA9E3D128A9270500628DE5 /* bar-chart-params.png in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D028A9270500628DE5 /* bar-chart-params.png */; };
-		CCA9E3D328A9283300628DE5 /* (lispkit styled-text).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */; };
-		CCA9E3D528A928FD00628DE5 /* (lispkit bitset).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */; };
-		CCA9E3D728A9C68B00628DE5 /* (lispkit math matrix).md in Resources */ = {isa = PBXBuildFile; fileRef = CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */; };
 		CCA9E3D828A9C93500628DE5 /* (lispkit math matrix).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */; };
 		CCA9E3D928A9C94400628DE5 /* (lispkit bitset).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */; };
 		CCA9E3DA28A9C95200628DE5 /* (lispkit draw chart bar).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */; };
@@ -167,6 +162,8 @@
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
+		CCEEC7B3290DB83700D5BD53 /* DrawMapLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */; };
+		CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */; };
 		CCEF3E2527C45D4200FB56EB /* SourceCodePro-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A327C4385400C2D660 /* SourceCodePro-License.txt */; };
 		CCEF3E2627C45D4200FB56EB /* FiraCode-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */; };
 		CCEF3E2727C45D4200FB56EB /* RobotoMono-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */; };
@@ -340,6 +337,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */,
 				CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */,
 				CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */,
 				CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */,
@@ -574,6 +572,8 @@
 		CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_menu.png; sourceTree = "<group>"; };
 		CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_prefs.png; sourceTree = "<group>"; };
 		CCEA5A302643D62C00D78C62 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawMapLibrary.swift; sourceTree = "<group>"; };
+		CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMap.scm; sourceTree = "<group>"; };
 		CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread).md"; sourceTree = "<group>"; };
 		CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thread-states.png"; sourceTree = "<group>"; };
 		CCEF3E2F27CA2E7D00FB56EB /* (lispkit thread channel).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread channel).md"; sourceTree = "<group>"; };
@@ -849,6 +849,7 @@
 				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
+				CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -881,6 +882,7 @@
 				CC8B95C82608102300830B4F /* SystemLibrary.swift */,
 				CC8B95B92607FFDA00830B4F /* AudioLibrary.swift */,
 				CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */,
+				CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -1126,22 +1128,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCA9E3CF28A926BB00628DE5 /* (lispkit draw chart bar).md in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CCF8F09A27C431A800C2D660 /* iosevka-regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CCF8F09E27C4344100C2D660 /* iosevka-extended.ttf in Resources */,
 				CCF8F0B227C43EE700C2D660 /* Inconsolata-Regular.ttf in Resources */,
-				CCA9E3D328A9283300628DE5 /* (lispkit styled-text).md in Resources */,
-				CCA9E3D128A9270500628DE5 /* bar-chart-params.png in Resources */,
-				CCA9E3D728A9C68B00628DE5 /* (lispkit math matrix).md in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CCF8F0AC27C43C9900C2D660 /* RobotoMono-Regular.ttf in Resources */,
 				CCF8F0BA27C4489B00C2D660 /* FiraCode-Regular.ttf in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CCF8F0A627C4391E00C2D660 /* SourceCodePro-Regular.ttf in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
-				CCA9E3D528A928FD00628DE5 /* (lispkit bitset).md in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1173,6 +1170,7 @@
 				CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */,
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
+				CCEEC7B3290DB83700D5BD53 /* DrawMapLibrary.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
 				CC6598E027292CB6004C9B89 /* LogView.swift in Sources */,
@@ -1366,7 +1364,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
@@ -1391,7 +1389,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 91;
+				CURRENT_PROJECT_VERSION = 92;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
