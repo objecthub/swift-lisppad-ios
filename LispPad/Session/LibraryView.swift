@@ -168,6 +168,7 @@ struct LibraryView: View {
       .offset(y: -8) // Not sure why this is needed
       .ignoresSafeArea()
     }
+    .navigationBarTitleDisplayMode(.inline)
     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarTrailing) {

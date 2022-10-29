@@ -31,6 +31,7 @@ struct EnvironmentDetailView: View {
       MarkdownText(self.docManager.documentation(for: symbol.identifier))
         .padding(16)
     }
+    .navigationBarTitleDisplayMode(.inline)
     .navigationTitle(self.symbol.identifier)
   }
 }
@@ -47,6 +48,7 @@ struct DocumentationNotAvailable: View {
       Text("Documentation")
       Text("not available")
     }
+    .navigationBarTitleDisplayMode(.inline)
     .navigationTitle(self.title)
   }
 }

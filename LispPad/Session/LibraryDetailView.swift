@@ -33,6 +33,7 @@ struct LibraryDetailView: View {
           MarkdownText(block)
             .padding(12)
         }
+        .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(self.libProxy.name)
       case .htmlFile(let url):
         ZStack {
@@ -45,6 +46,7 @@ struct LibraryDetailView: View {
           }
         }
         .ignoresSafeArea()
+        .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(self.libProxy.name)
         .navigationBarBackButtonHidden(false)
         .toolbar {
@@ -70,6 +72,7 @@ struct LibraryDetailView: View {
       default:
         Text("Documentation not available.")
           .padding(12)
+          .navigationBarTitleDisplayMode(.inline)
           .navigationTitle(self.libProxy.name)
     }
   }

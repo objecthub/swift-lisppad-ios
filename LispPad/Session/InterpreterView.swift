@@ -229,6 +229,7 @@ struct InterpreterView: View {
               self.interpreter.console.removeLast()
             }
           },
+          splitViewMode: $splitViewMode,
           console: interpreter.console,
           contentBatch: $interpreter.contentBatch,
           history: $histManager.commandHistory,

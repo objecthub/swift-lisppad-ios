@@ -37,12 +37,14 @@ struct ConsoleView: View {
   @State var logMessageFilter = ""
   @State var filterMessage = true
   @State var filterTag = true
+  @State var redraw = false
   @StateObject var keyboardObserver = KeyboardObserver()
   
   let font: Font
   let infoFont: Font
   let action: () -> Void
   
+  @Binding var splitViewMode: SplitViewMode
   @ObservedObject var console: Console
   @Binding var contentBatch: Int
   @Binding var history: [String]
@@ -245,7 +247,10 @@ struct ConsoleView: View {
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)
         .onAppear {
-          if !input.isEmpty {
+          if UIDevice.current.userInterfaceIdiom != .pad ||
+             self.splitViewMode == .primaryOnly ||
+             self.splitViewMode == .secondaryOnly ||
+             !input.isEmpty {
             self.updateConsole = { textView in
               textView.becomeFirstResponder()
             }

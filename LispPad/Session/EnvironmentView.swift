@@ -83,6 +83,7 @@ struct EnvironmentView: View {
       .padding(.top, -8)
       .resignKeyboardOnDragGesture()
       .listStyle(PlainListStyle())
+      .navigationBarTitleDisplayMode(.inline)
       .navigationTitle("Environment")
       .navigationBarBackButtonHidden(false)
       .toolbar {

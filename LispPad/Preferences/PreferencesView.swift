@@ -48,9 +48,10 @@ struct PreferencesView: View {
             Text("System").tag(UserSettings.systemBackground)
           }
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
-            Text("Console history:")
-            Spacer(minLength: 16)
-            Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
+            HStack(alignment: .center, spacing: 16.0) {
+              Text("Console history:")
+              Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
+            }
           }
           Toggle("Console/Log switcher", isOn: $settings.consoleLogSwitcher)
         }
@@ -68,9 +69,10 @@ struct PreferencesView: View {
           Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.consoleExtendedKeyboard)
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
-            Text("Command history:")
-            Spacer(minLength: 16)
-            Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
+            HStack(alignment: .center, spacing: 16.0) {
+              Text("Command history:")
+              Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
+            }
           }
         }
         Section(header: Text("Scheme Mode")) {
@@ -86,9 +88,10 @@ struct PreferencesView: View {
       Form {
         Section(header: Text("Files")) {
           Stepper(value: $settings.maxRecentFiles, in: 2...40, step: 1) {
-            Text("Recent files:")
-            Spacer(minLength: 16)
-            Text("\(settings.maxRecentFiles)").foregroundColor(.gray)
+            HStack(alignment: .center, spacing: 16.0) {
+              Text("Recent files:")
+              Text("\(settings.maxRecentFiles)").foregroundColor(.gray)
+            }
           }
         }
         Section(header: Text("Text")) {
@@ -102,9 +105,10 @@ struct PreferencesView: View {
             Text("Huge").tag(FontMap.FontSize.huge)
           }
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
-            Text("Indentation size:")
-            Spacer(minLength: 16)
-            Text("\(settings.indentSize)").foregroundColor(.gray)
+            HStack(alignment: .center, spacing: 16.0) {
+              Text("Indentation size:")
+              Text("\(settings.indentSize)").foregroundColor(.gray)
+            }
           }
         }
         Section(header: Text("Interface")) {
@@ -153,9 +157,10 @@ struct PreferencesView: View {
           Toggle("Commands and results", isOn: $settings.logCommands)
           Toggle("Garbage collection", isOn: $settings.logGarbageCollection)
           Stepper(value: $settings.logMaxHistory, in: 500...50000, step: 500) {
-            Text("Log history:")
-            Spacer(minLength: 16)
-            Text("\(settings.logMaxHistory)").foregroundColor(.gray)
+            HStack(alignment: .center, spacing: 16.0) {
+              Text("Log history:")
+              Text("\(settings.logMaxHistory)").foregroundColor(.gray)
+            }
           }
         }
         Section(header: Text("Install Folders")) {
@@ -194,6 +199,7 @@ struct PreferencesView: View {
         SessionLog.standard.setMaxLogEntries(self.settings.logMaxHistory)
       }
     }
+    .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("Preferences")
   }
 }
