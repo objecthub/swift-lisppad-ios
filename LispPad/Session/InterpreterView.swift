@@ -106,10 +106,10 @@ struct InterpreterView: View {
   @State private var showModal: SheetAction? = nil
   @State private var showCard: Bool = false
   @StateObject private var cardContent = MutableBlock()
-  @State private var showLog: Bool = false
   @State private var alertAction: AlertAction? = nil
   @State private var showProgressView: String? = nil
   @State private var navigateToEditor: Bool = false
+  @State private var consoleTab: Int = 1
   
   private var keyboardShortcuts: some View {
     ZStack {
@@ -241,8 +241,8 @@ struct InterpreterView: View {
           showModal: $showModal,
           showCard: $showCard,
           cardContent: cardContent,
-          showLog: $showLog,
-          showProgressView: $showProgressView)
+          showProgressView: $showProgressView,
+          consoleTab: $consoleTab)
         if let header = self.showProgressView {
          ProgressView(header)
           .frame(width: 200, height: 120)
@@ -268,19 +268,38 @@ struct InterpreterView: View {
             Menu {
               Button(action: {
                 withAnimation {
-                  self.showLog.toggle()
+                  self.consoleTab = 0
                 }
               }) {
-                Label(self.showLog ? "Hide Log" : "Show Log",
-                      systemImage: self.showLog ? "xmark" : "scroll")
+                Label("Show Log", systemImage: "scroll")
               }
+              .disabled(self.consoleTab == 0)
               Button(action: {
-                self.presentSheet(.shareConsole)
+                withAnimation {
+                  self.consoleTab = 1
+                }
+              }) {
+                Label("Show Console", systemImage: "terminal")
+              }
+              .disabled(self.consoleTab == 1)
+              /* TODO: Graphics
+              Button(action: {
+                withAnimation {
+                  self.consoleTab = 2
+                }
+              }) {
+                Label("Show Graphics", systemImage: "photo.on.rectangle.angled")
+              }
+              .disabled(self.consoleTab == 2)
+               */
+              Divider()
+              Button(action: {
+                // self.presentSheet(.shareConsole)
+                self.showModal = .shareConsole
               }) {
                 Label("Share Console", systemImage: "square.and.arrow.up")
               }
               .disabled(self.interpreter.console.isEmpty)
-              Divider()
               Button(action: {
                 self.interpreter.console.reset()
               }) {
@@ -312,7 +331,8 @@ struct InterpreterView: View {
             }
           }
           Button(action: {
-            self.presentSheet(.loadFile)
+            // self.presentSheet(.loadFile)
+            self.showModal = .loadFile
           }) {
             Image(systemName: "arrow.down.doc")
               .font(LispPadUI.toolbarFont)
@@ -334,13 +354,14 @@ struct InterpreterView: View {
       ToolbarItemGroup(placement: .principal) {
         Menu {
           Button(action: {
-            self.presentSheet(.showAbout)
+            // self.presentSheet(.showAbout)
+            self.showModal = .showAbout
           }) {
             Label("About…", systemImage: "questionmark.circle")
           }
           Divider()
           Button(action: {
-            if let url = URL(string: "http://lisppad.objecthub.net/lisppadgo.html") {
+            if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
               UIApplication.shared.open(url)
             }
           }) {
@@ -372,10 +393,16 @@ struct InterpreterView: View {
               .scaledToFit()
               .frame(width: 28.0,height: 28.0)
               .padding(.bottom, -3) */
-          Text("LispPad")
-            .font(.body)
-            .bold()
-            .foregroundColor(.primary)
+          HStack(alignment: .center, spacing: 4) {
+            Text("LispPad")
+              .font(.body)
+              .bold()
+              .foregroundColor(.primary)
+            Text(Image(systemName: "chevron.down.circle.fill"))
+              .font(.caption)
+              .bold()
+              .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+          }
         }
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {

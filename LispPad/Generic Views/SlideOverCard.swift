@@ -63,7 +63,7 @@ public struct SlideOverCard<Content: View>: View {
         .zIndex(2)
       }
     }
-    .animation(.spring(response: 0.35, dampingFraction: 1))
+    .animation(.spring(response: 0.35, dampingFraction: 1), value: self.isPresented.wrappedValue)
   }
   
   private var card: some View {
@@ -95,9 +95,7 @@ public struct SlideOverCard<Content: View>: View {
   }
   
   func dismiss() {
-    withAnimation {
-      self.isPresented.wrappedValue = false
-    }
+    self.isPresented.wrappedValue = false
     if let onDismiss = self.onDismiss {
       onDismiss()
     }
@@ -114,20 +112,16 @@ public struct SlideOverCard<Content: View>: View {
     controller.view.backgroundColor = .clear
     controller.modalPresentationStyle = .overFullScreen
     controller.overrideUserInterfaceStyle = style
-    UIApplication.shared.windows.first?.rootViewController?.present(controller, animated: false)
+    UIApplication.shared.currentUIWindow()?.rootViewController?.present(controller, animated: false)
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      withAnimation {
-        isPresented.wrappedValue = true
-      }
+      isPresented.wrappedValue = true
     }
   }
   
   public static func dismiss(isPresented: Binding<Bool>) {
-    withAnimation {
-      isPresented.wrappedValue = false
-    }
+    isPresented.wrappedValue = false
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-      UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: false)
+      UIApplication.shared.currentUIWindow()?.rootViewController?.dismiss(animated: false)
     }
   }
 }

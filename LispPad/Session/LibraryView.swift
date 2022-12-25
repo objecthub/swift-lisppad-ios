@@ -26,150 +26,44 @@ struct LibraryView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var libManager: LibraryManager
   @State var tapped: LibraryManager.LibraryProxy? = nil
-  @State var swiped: LibraryManager.LibraryProxy? = nil
-  @State var swipeOffset: CGFloat = 0.0
   @State var searchText: String = ""
-  @State var showCancel: Bool = false
   @State var showAllLibraries: Bool = true
   
   var body: some View {
-    VStack {
-      HStack {
-        HStack {
-          Image(systemName: "magnifyingglass")
-          TextField("Search", text: $searchText, onEditingChanged: { isEditing in
-            self.showCancel = true
-          }, onCommit: { })
-          .foregroundColor(.primary)
-          .autocapitalization(.none)
-          .disableAutocorrection(true)
-          Button(action: {
-            self.searchText = ""
-          }) {
-            Image(systemName: "xmark.circle.fill")
-            .opacity(searchText == "" ? 0 : 1)
+    List {
+      ForEach(self.libManager.libraries.filter { proxy in 
+        (self.showAllLibraries || proxy.isLoaded) &&
+        (self.searchText.isEmpty ||
+         proxy.name.range(of: self.searchText, options: .caseInsensitive) != nil)
+      }, id: \.name) { proxy in
+        NavigationLink(
+          destination: LazyView(LibraryDetailView(libProxy: proxy)),
+          tag: proxy,
+          selection: self.$tapped) {
+          HStack(spacing: 12) {
+            Text(proxy.name)
+              .font(.body)
+              .foregroundColor(.primary)
+            Spacer()
+            Text(proxy.state)
+              .font(.caption)
+              .foregroundColor(.secondary)
           }
         }
-        .padding(6)
-        .foregroundColor(.secondary)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
-        if self.showCancel  {
-          Button("Cancel") {
-            UIApplication.shared.endEditing(true)
-            self.searchText = ""
-            self.showCancel = false
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+          Button(action: { self.interpreter.import(proxy.components) }) {
+            Image(systemName: "square.and.arrow.down")
           }
-          .foregroundColor(Color(.systemBlue))
         }
+        .disabled(self.docManager.libraryDocumentation(for: proxy.components) == nil)
       }
-      .font(.body)
-      .padding(.horizontal)
-      .padding(.top, self.showCancel ? 9 : 8)
-      .padding(.bottom, self.showCancel ? -1 : 0)
-      .navigationBarHidden(showCancel)
-      // .animation(.default)
-      Divider()
-      ScrollView(.vertical) {
-        LazyVStack(alignment: .leading, spacing: 0) {
-          ForEach(self.libManager.libraries.filter { proxy in 
-            (self.showAllLibraries || proxy.isLoaded) &&
-            (self.searchText.isEmpty || proxy.name.contains(self.searchText))
-          }, id: \.name) { proxy in
-            ZStack {
-              HStack {
-                Color.blue.frame(width: 70).opacity(swiped == proxy ? 1 : 0)
-                Spacer()
-              }
-              HStack {
-                Button(action: {
-                  self.interpreter.import(proxy.components)
-                  withAnimation(.default) {
-                    self.tapped = nil
-                    self.swiped = nil
-                    self.swipeOffset = 0
-                  }
-                }) {
-                  Image(systemName: "square.and.arrow.down")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                }
-                .frame(width: 70)
-                Spacer()
-              }
-              .disabled(!self.interpreter.isReady)
-              NavigationLink(
-                destination: LazyView(LibraryDetailView(libProxy: proxy)),
-                tag: proxy,
-                selection: self.$tapped) {
-                HStack(spacing: 12) {
-                  Text(proxy.name)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                  Spacer()
-                  Text(proxy.state)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                  Image(systemName: "chevron.right")
-                    .font(Font.system(size: 14, weight: .semibold))
-                    .foregroundColor(
-                      Color(self.docManager.libraryDocumentation(for: proxy.components) == nil ?
-                              .systemBackground :
-                              .tertiaryLabel))
-                }
-                .padding(EdgeInsets(top: 13, leading: 16, bottom: 13, trailing: 8))
-                .background(Color(.systemBackground))
-                .contentShape(Rectangle())
-              }
-              .disabled(true)
-              .onTapGesture(count: 1) {
-                if self.docManager.libraryDocumentation(for: proxy.components) != nil {
-                  self.tapped = proxy
-                  withAnimation(.default) {
-                    self.swipeOffset = 0
-                    self.swiped = nil
-                  }
-                }
-              }
-              .offset(x: self.swiped == proxy ? self.swipeOffset : 0)
-              .gesture(
-                DragGesture().onChanged { value in
-                  withAnimation(.default) {
-                    if value.translation.width > 60 {
-                      self.swipeOffset = value.translation.width > 180 ? 180
-                                                                       : value.translation.width
-                      self.swiped = proxy
-                    } else if value.translation.width < 0 {
-                      self.swipeOffset = 0
-                      self.swiped = nil
-                    } else {
-                      self.swipeOffset = value.translation.width
-                    }
-                  }
-                }
-                .onEnded { value in
-                  withAnimation(.default) {
-                    if value.translation.width > 60 {
-                      self.swiped = proxy
-                      self.swipeOffset = 70
-                    } else {
-                      self.swiped = nil
-                      self.swipeOffset = 0
-                    }
-                  }
-                }
-              )
-            }
-            Divider()
-              .padding(.leading, 16)
-          }
-        }
-      }
-      .offset(y: -8) // Not sure why this is needed
-      .ignoresSafeArea()
     }
+    .listStyle(.plain)
+    .searchable(text: $searchText)
+    .resignKeyboardOnDragGesture()
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
+    .navigationBarBackButtonHidden(false)
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {

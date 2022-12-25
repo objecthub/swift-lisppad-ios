@@ -23,35 +23,42 @@ import UIKit
 
 struct LispPadUI {
   
-  private static func choose<T>(iOS14: T, iOS15: T) -> T {
-    if #available(iOS 15, *) {
-      return iOS15
+  private static func choose<T>(iOS15: T, iOS16: T) -> T {
+    if #available(iOS 16, *) {
+      return iOS16
     } else {
-      return iOS14
+      return iOS15
     }
   }
   
   // Padding on top of panels
-  static let panelTopPadding: CGFloat = Self.choose(iOS14: 16, iOS15: 0)
+  static let panelTopPadding: CGFloat = Self.choose(iOS15: 0, iOS16: 0)
   
   // Size of items in the toolbar
-  static let toolbarItemSize: CGFloat = Self.choose(iOS14: 20, iOS15: 16)
+  static let toolbarItemSize: CGFloat = Self.choose(iOS15: 16, iOS16: 16)
   
   // Space between items in toolbar
-  static let toolbarSeparator: CGFloat = Self.choose(iOS14: 16, iOS15: 10)
+  static let toolbarSeparator: CGFloat = Self.choose(iOS15: 10, iOS16: 9)
+  
+  // Color used for menu indicators in toolbar
+  static let menuIndicatorColor: UIColor = UIColor(named: "DarkKeyColor") ?? UIColor.lightGray
   
   // Toolbar item font
   static let toolbarFont: SwiftUI.Font = {
-    if #available(iOS 15, *) {
+    if #available(iOS 16, *) {
+      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
+    } else if #available(iOS 15, *) {
       return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
     } else {
       return .system(size: LispPadUI.toolbarItemSize, weight: .light)
     }
-  }()  
+  }()
   
   // Toolbar item font for switch items
   static let toolbarSwitchFont: SwiftUI.Font = {
-    if #available(iOS 15, *) {
+    if #available(iOS 16, *) {
+      return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
+    } else if #available(iOS 15, *) {
       return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
     } else {
       return .system(size: LispPadUI.toolbarItemSize, weight: .regular)

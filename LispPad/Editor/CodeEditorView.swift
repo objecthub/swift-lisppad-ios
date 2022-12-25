@@ -20,7 +20,7 @@
 
 import SwiftUI
 import MarkdownKit
-import MobileCoreServices
+import UniformTypeIdentifiers
 
 struct CodeEditorView: View {
   
@@ -413,7 +413,8 @@ struct CodeEditorView: View {
           Button(action: {
             self.dismissCard()
             if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
-              UIPasteboard.general.setValue(path, forPasteboardType: kUTTypePlainText as String)
+              UIPasteboard.general.setValue(path,
+                                            forPasteboardType: UTType.utf8PlainText.identifier)
             }
           }) {
             Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
@@ -472,14 +473,50 @@ struct CodeEditorView: View {
           }
           .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
         } label: {
-          Text(self.fileManager.editorDocumentInfo.title)
-            .font(.body)
-            .bold()
-            .foregroundColor(.primary)
+          HStack(alignment: .center, spacing: 4) {
+            Text(self.fileManager.editorDocumentInfo.title)
+              .font(.body)
+              .bold()
+              .foregroundColor(.primary)
+              .truncationMode(.middle)
+            Text(Image(systemName: "chevron.down.circle.fill"))
+              .font(.caption)
+              .bold()
+              .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+          }
         }
       }
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+          Button(action: {
+            self.dismissCard()
+            withAnimation(.default) {
+              self.showSearchField = true
+            }
+          }) {
+            Image(systemName: "magnifyingglass")
+              .font(LispPadUI.toolbarFont)
+          }
+          .disabled(self.showSearchField)
+          Button(action: {
+            self.dismissCard()
+            guard let doc = self.fileManager.editorDocument else {
+              return
+            }
+            if doc.info.editorType == .scheme {
+              if let defs = DefinitionView.parseDefinitions(doc.text) {
+                self.presentSheet(.showDefinitions(defs))
+              }
+            } else if doc.info.editorType == .markdown {
+              if let structure = DocStructureView.parseDocStructure(doc.text) {
+                self.presentSheet(.showDocStructure(structure))
+              }
+            }
+          }) {
+            Image(systemName: "f.cursive")
+              .font(LispPadUI.toolbarFont)
+          }
+          .disabled(self.editorType != .scheme && self.editorType != .markdown)
           Menu {
             Button(action: {
               self.dismissCard()
@@ -536,38 +573,9 @@ struct CodeEditorView: View {
               Label("Search/Replace", systemImage: "repeat")
             }
           } label: {
-            Image(systemName: "text.aligncenter")
+            Image(systemName: "ellipsis.circle")
               .font(LispPadUI.toolbarFont)
           }
-          Button(action: {
-            self.dismissCard()
-            guard let doc = self.fileManager.editorDocument else {
-              return
-            }
-            if doc.info.editorType == .scheme {
-              if let defs = DefinitionView.parseDefinitions(doc.text) {
-                self.presentSheet(.showDefinitions(defs))
-              }
-            } else if doc.info.editorType == .markdown {
-              if let structure = DocStructureView.parseDocStructure(doc.text) {
-                self.presentSheet(.showDocStructure(structure))
-              }
-            }
-          }) {
-            Image(systemName: "f.cursive")
-              .font(LispPadUI.toolbarFont)
-          }
-          .disabled(self.editorType != .scheme && self.editorType != .markdown)
-          Button(action: {
-            self.dismissCard()
-            withAnimation(.default) {
-              self.showSearchField = true
-            }
-          }) {
-            Image(systemName: "magnifyingglass")
-              .font(LispPadUI.toolbarFont)
-          }
-          .disabled(self.showSearchField)
         }
       }
     }

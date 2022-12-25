@@ -19,7 +19,7 @@
 //
 
 import SwiftUI
-import MobileCoreServices
+import UniformTypeIdentifiers
 
 struct ConsoleView: View {
   static let logButtonColor = Color(UIColor(named: "LogSwitchColor") ??
@@ -56,8 +56,8 @@ struct ConsoleView: View {
   @Binding var showModal: InterpreterView.SheetAction?
   @Binding var showCard: Bool
   @ObservedObject var cardContent: MutableBlock
-  @Binding var showLog: Bool
   @Binding var showProgressView: String?
+  @Binding var consoleTab: Int
   
   func errorText(image: String, text: String?) -> Text {
     return text == nil ? Text("") : Text("\n") +
@@ -78,7 +78,7 @@ struct ConsoleView: View {
     .padding(.leading, 4)
     .contextMenu {
       Button(action: {
-        UIPasteboard.general.setValue(text, forPasteboardType: kUTTypePlainText as String)
+        UIPasteboard.general.setValue(text, forPasteboardType: UTType.utf8PlainText.identifier)
       }) {
         Label("Copy Error", systemImage: "doc.on.clipboard")
       }
@@ -210,7 +210,7 @@ struct ConsoleView: View {
             .contextMenu {
               Button(action: {
                 UIPasteboard.general.setValue(entry.text,
-                                              forPasteboardType: kUTTypePlainText as String)
+                                              forPasteboardType: UTType.utf8PlainText.identifier)
               }) {
                 Label("Copy Text", systemImage: "doc.on.clipboard")
               }
@@ -353,64 +353,56 @@ struct ConsoleView: View {
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      GeometryReader { geo in
-        ZStack(alignment: .bottomTrailing) {
-          ScrollView(.vertical, showsIndicators: true) {
-            ScrollViewReader { scrollViewProxy in
-              LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(self.console.content, id: \.id) { entry in
-                  self.consoleRow(entry, width: geo.size.width)
+      TabView(selection: $consoleTab) {
+        LogView(font: self.font,
+                input: $input,
+                showSheet: $showSheet,
+                showModal: $showModal)
+        .tag(0)
+        GeometryReader { geo in
+          ZStack(alignment: .bottomTrailing) {
+            ScrollView(.vertical, showsIndicators: true) {
+              ScrollViewReader { scrollViewProxy in
+                LazyVStack(alignment: .leading, spacing: 0) {
+                  ForEach(self.console.content, id: \.id) { entry in
+                    self.consoleRow(entry, width: geo.size.width)
+                  }
                 }
-              }
-              .onChange(of: self.console.content.count) { _ in
-                if let id = self.console.lastOutputId {
-                  withAnimation {
-                    scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
+                .onChange(of: self.console.content.count) { _ in
+                  if let id = self.console.lastOutputId {
+                    withAnimation {
+                      scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
+                    }
+                  }
+                }
+                .onChange(of: self.contentBatch) { _ in
+                  if let id = self.console.lastOutputId {
+                    withAnimation {
+                      scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
+                    }
+                  }
+                }
+                .onChange(of: self.input.count) { _ in
+                  if let id = self.console.lastOutputId {
+                    withAnimation {
+                      scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
+                    }
                   }
                 }
               }
-              .onChange(of: self.contentBatch) { _ in
-                if let id = self.console.lastOutputId {
-                  withAnimation {
-                    scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
-                  }
-                }
-              }
-              .onChange(of: self.input.count) { _ in
-                if let id = self.console.lastOutputId {
-                  withAnimation {
-                    scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
-                  }
-                }
-              }
-            }
-          }
-          if self.showLog {
-            LogView(font: self.font,
-                    input: $input,
-                    showSheet: $showSheet,
-                    showModal: $showModal,
-                    showLog: $showLog)
-          }
-          if self.settings.consoleLogSwitcher {
-            Button(action: {
-              withAnimation(.easeInOut) {
-                self.showLog.toggle()
-              }
-            }) {
-              Circle()
-                .strokeBorder(Color.blue.opacity(0.6), lineWidth: 1.0, antialiased: true)
-                .background(Circle().fill(ConsoleView.logButtonColor).opacity(0.85))
-                .frame(width: 26, height: 26)
-                .overlay(Image(systemName: self.showLog ? "list.triangle" : "scroll")
-                          .resizable()
-                          .scaledToFit()
-                          .frame(height: self.showLog ? 11 : 13), alignment: .center)
-                .padding(8.2)
             }
           }
         }
+        .tag(1)
+        /* TODO: graphics
+        VStack {
+            Text("Right View")
+        }
+        .tag(2)
+        */
       }
+      .tabViewStyle(.page(indexDisplayMode: .never))
+      .indexViewStyle(.page(backgroundDisplayMode: .interactive))
       .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
         OptionalScrollView {
           MutableMarkdownText(self.cardContent, rightPadding: 26)

@@ -23,78 +23,37 @@ import SwiftUI
 struct EnvironmentView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var envManager: EnvironmentManager
-  
   @State var searchText: String = ""
-  @State var showCancel: Bool = false
   @State var showLispPadRef: Bool = false
   
   var body: some View {
-    VStack {
-      HStack {
-        HStack {
-            Image(systemName: "magnifyingglass")
-            TextField("Search", text: $searchText, onEditingChanged: { isEditing in
-              self.showCancel = true
-            }, onCommit: {
-            })
-            .foregroundColor(.primary)
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-            Button(action: {
-              self.searchText = ""
-            }) {
-              Image(systemName: "xmark.circle.fill")
-              .opacity(searchText == "" ? 0 : 1)
-            }
+    List {
+      ForEach(self.envManager.bindings.filter { symbol in
+        self.searchText.isEmpty ||
+        symbol.identifier.range(of: self.searchText, options: .caseInsensitive) != nil
+      }, id: \.self) { symbol in
+        NavigationLink(
+          destination: LazyView(EnvironmentDetailView(symbol: symbol))) {
+          Text(symbol.description)
+            .font(.body)
         }
-        .padding(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
-        .foregroundColor(.secondary)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
-        if showCancel  {
-          Button("Cancel") {
-            UIApplication.shared.endEditing(true)
-            self.searchText = ""
-            self.showCancel = false
-          }
-          .foregroundColor(Color(.systemBlue))
-        }
+        .disabled(!self.docManager.hasDocumentation(for: symbol.identifier))
       }
-      .font(.body)
-      .padding(.horizontal)
-      .padding(.top, self.showCancel ? 9 : 8)
-      .padding(.bottom, self.showCancel ? -1 : 0)
-      .navigationBarHidden(self.showCancel)
-      // .animation(.default)
-      Divider()
-      List {
-        ForEach(self.envManager.bindings.filter { symbol in
-          self.searchText.isEmpty || symbol.identifier.contains(self.searchText)
-        }, id: \.self) { symbol in
-          NavigationLink(
-            destination: LazyView(EnvironmentDetailView(symbol: symbol))) {
-            Text(symbol.description)
-              .font(.body)
-          }
-          .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 8))
-          .disabled(!self.docManager.hasDocumentation(for: symbol.identifier))
-        }
-      }
-      .padding(.top, -8)
-      .resignKeyboardOnDragGesture()
-      .listStyle(PlainListStyle())
-      .navigationBarTitleDisplayMode(.inline)
-      .navigationTitle("Environment")
-      .navigationBarBackButtonHidden(false)
-      .toolbar {
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            Button(action: {
-              self.showLispPadRef = self.docManager.lispPadRef.url != nil
-            }) {
-              Image(systemName: "info.circle")
-                .font(LispPadUI.toolbarFont)
-            }
+    }
+    .listStyle(.plain)
+    .searchable(text: $searchText)
+    .resignKeyboardOnDragGesture()
+    .navigationBarTitleDisplayMode(.inline)
+    .navigationTitle("Environment")
+    .navigationBarBackButtonHidden(false)
+    .toolbar {
+      ToolbarItemGroup(placement: .navigationBarTrailing) {
+        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+          Button(action: {
+            self.showLispPadRef = self.docManager.lispPadRef.url != nil
+          }) {
+            Image(systemName: "info.circle")
+              .font(LispPadUI.toolbarFont)
           }
         }
       }

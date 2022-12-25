@@ -4,9 +4,21 @@
 //
 //  Created by Matthias Zenger on 27/10/2021.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
 
 import SwiftUI
-import MobileCoreServices
+import UniformTypeIdentifiers
 
 struct LogView: View {
   static let timeFont = Font.system(size: 10.0, weight: .semibold, design: .monospaced)
@@ -16,14 +28,12 @@ struct LogView: View {
   
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var sessionLog: SessionLog
-  @GestureState private var viewOffset: CGFloat = 0.0
   @AppStorage("Log.logShowTime") var showTime: Bool = true
   @AppStorage("Log.logShowTags") var showTags: Bool = false
   @State var showLogFilterPopOver: Bool = false
   @Binding var input: String
   @Binding var showSheet: InterpreterView.SheetAction?
   @Binding var showModal: InterpreterView.SheetAction?
-  @Binding var showLog: Bool
   
   func color(severity: Severity) -> Color {
     switch severity {
@@ -105,7 +115,7 @@ struct LogView: View {
               .contextMenu {
                 Button(action: {
                   UIPasteboard.general.setValue(entry.message,
-                                                forPasteboardType: kUTTypePlainText as String)
+                                                forPasteboardType: UTType.utf8PlainText.identifier)
                 }) {
                   Label("Copy Message", systemImage: "doc.on.clipboard")
                 }
@@ -141,7 +151,6 @@ struct LogView: View {
       }
       .background(Color(.secondarySystemBackground)
                     .ignoresSafeArea(.container, edges: [.leading, .trailing]))
-      .offset(x: 0, y: self.viewOffset/pow(2, abs(self.viewOffset) / 800 + 1))
       VStack(alignment: .leading, spacing: 0) {
         Divider().offset(x: 0.0, y: -1.0)
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
@@ -191,7 +200,7 @@ struct LogView: View {
             Divider()
             Button(action: {
               UIPasteboard.general.setValue(self.sessionLog.exportMessages(),
-                                            forPasteboardType: kUTTypePlainText as String)
+                                            forPasteboardType: UTType.utf8PlainText.identifier)
             }) {
               Label("Copy Messages", systemImage: "doc.on.clipboard")
             }
@@ -224,18 +233,6 @@ struct LogView: View {
         Divider()
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
       }
-      .offset(x: 0, y: self.viewOffset/pow(2, abs(self.viewOffset) / 800 + 1))
-      .gesture(
-        DragGesture()
-          .updating($viewOffset) { value, state, transaction in
-            state = value.translation.height
-          }
-          .onEnded() { value in
-            if value.predictedEndTranslation.height > 200 {
-              self.showLog = false
-            }
-          }
-      )
     }
     .transition(.move(edge: .bottom))
   }

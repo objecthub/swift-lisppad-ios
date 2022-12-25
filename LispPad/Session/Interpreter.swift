@@ -62,7 +62,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
                  includeDocumentPath: "LispKit",
                  assetPath: nil,
                  gcDelay: 5.0,
-                 features: Interpreter.lispKitFeatures)
+                 features: Interpreter.lispKitFeatures,
+                 limitStack: 10000000)
     }
   }
   

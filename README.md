@@ -9,7 +9,7 @@
 
 ## Overview
 
-_LispPad Go_ is a simplified version of the [macOS application _LispPad_](http://lisppad.objecthub.net/) for iPhones and iPads. _LispPad_ is based on the [_LispKit_ framework](http://github.com/objecthub/swift-lispkit) which features a R7RS-compliant implementation of Scheme. The [change log](CHANGELOG.md) provides an overview of the releases.
+_LispPad Go_ is a simplified version of the [macOS application _LispPad_](http://www.lisppad.app) for iPhones and iPads. _LispPad_ is based on the [_LispKit_ framework](http://github.com/objecthub/swift-lispkit) which features a R7RS-compliant implementation of Scheme. The [change log](CHANGELOG.md) provides an overview of the releases.
 
 ## Application overview
 
