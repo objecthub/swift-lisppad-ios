@@ -21,11 +21,12 @@
 import SwiftUI
 
 ///
-/// `PreferencesView` implements the preferences UI of LispPad consisting of three tabs:
-/// "Console", "Editor", and "Syntax".
+/// `PreferencesView` implements the settings UI of LispPad consisting of four tabs:
+/// "Console", "Editor", "Syntax", and "Misc".
 /// 
 struct PreferencesView: View {
   @EnvironmentObject var settings: UserSettings
+  @EnvironmentObject var interpreter: Interpreter
   @Binding var selectedTab: Int
   @State var resetParameters: Bool = false
   
@@ -215,6 +216,9 @@ struct PreferencesView: View {
       .tag(3)
       .onDisappear {
         SessionLog.standard.setMaxLogEntries(self.settings.logMaxHistory)
+        self.interpreter.context?.evaluator.maxCallStack = self.settings.maxCallTrace
+        _ = self.interpreter.context?.evaluator.evalMachine.setStackLimit(to:
+                                                                self.settings.maxStackSize * 1000)
       }
     }
     .navigationBarTitleDisplayMode(.inline)

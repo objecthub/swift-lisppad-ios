@@ -63,7 +63,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
                  assetPath: nil,
                  gcDelay: 5.0,
                  features: Interpreter.lispKitFeatures,
-                 limitStack: 10000000)
+                 limitStack: UserSettings.standard.maxStackSize * 1000)
     }
   }
   
@@ -274,6 +274,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.libManager.reset()
     self.envManager.reset()
     let context = Context(delegate: self)
+    context.evaluator.maxCallStack = UserSettings.standard.maxCallTrace
     // Setup search paths
     if let internalUrl = Bundle.main.resourceURL?
                            .appendingPathComponent(Interpreter.lispPadLibrariesPath,
@@ -449,10 +450,26 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     var res = ""
     var sep = ""
-    for proc in stackTrace {
-      res += sep
-      res += proc.name
-      sep = " ← "
+    if let callTrace = err.callTrace {
+      for call in callTrace {
+        res += sep
+        res += call
+        sep = " ← "
+      }
+      if stackTrace.count > callTrace.count {
+        res += sep
+        if stackTrace.count == callTrace.count + 1 {
+          res += "+1 call"
+        } else {
+          res += "+\(stackTrace.count - callTrace.count) calls"
+        }
+      }
+    } else {
+      for proc in stackTrace {
+        res += sep
+        res += proc.name
+        sep = " ← "
+      }
     }
     return ErrorContext(type: err.descriptor.shortTypeDescription,
                         position: position,
