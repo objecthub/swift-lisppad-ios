@@ -85,6 +85,7 @@ struct MainView: View {
         }
         .splitViewMasterWidthFraction(self.masterWidthFraction)
         .splitViewMode(self.splitViewMode)
+        .ignoresSafeArea()
         .onChange(of: self.splitViewMode) { mode in
           UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
         }

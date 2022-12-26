@@ -27,12 +27,13 @@ import SwiftUI
 struct PreferencesView: View {
   @EnvironmentObject var settings: UserSettings
   @Binding var selectedTab: Int
+  @State var resetParameters: Bool = false
   
   var body: some View {
     TabView(selection: $selectedTab) {
       Form {
         Section(header: Text("Console")) {
-          Picker(selection: $settings.consoleFontSize, label: Text("Font size")) {
+          Picker("Font size", selection: $settings.consoleFontSize) {
             Text("Tiny").tag(FontMap.FontSize.tiny)
             Text("Small").tag(FontMap.FontSize.small)
             Text("Compact").tag(FontMap.FontSize.compact)
@@ -41,21 +42,21 @@ struct PreferencesView: View {
             Text("Large").tag(FontMap.FontSize.large)
             Text("Huge").tag(FontMap.FontSize.huge)
           }
+          .pickerStyle(.menu)
           Toggle("Tight spacing", isOn: $settings.consoleTightSpacing)
-          Picker(selection: $settings.consoleBackgroundColor, label: Text("Graphics background")) {
+          Picker("Graphics background", selection: $settings.consoleBackgroundColor) {
             Text("White").tag(UserSettings.whiteBackground)
             Text("Black").tag(UserSettings.blackBackground)
             Text("System").tag(UserSettings.systemBackground)
           }
+          .pickerStyle(.menu)
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
-            HStack(alignment: .center, spacing: 16.0) {
-              Text("Console history:")
-              Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
-            }
+            Text("Console history: ")
+            Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Input")) {
-          Picker(selection: $settings.inputFontSize, label: Text("Font size")) {
+          Picker("Font size", selection: $settings.inputFontSize) {
             Text("Tiny").tag(FontMap.FontSize.tiny)
             Text("Small").tag(FontMap.FontSize.small)
             Text("Compact").tag(FontMap.FontSize.compact)
@@ -64,14 +65,13 @@ struct PreferencesView: View {
             Text("Large").tag(FontMap.FontSize.large)
             Text("Huge").tag(FontMap.FontSize.huge)
           }
+          .pickerStyle(.menu)
           Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
           Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.consoleExtendedKeyboard)
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
-            HStack(alignment: .center, spacing: 16.0) {
-              Text("Command history:")
-              Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
-            }
+            Text("Command history: ")
+            Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Scheme Mode")) {
@@ -87,14 +87,12 @@ struct PreferencesView: View {
       Form {
         Section(header: Text("Files")) {
           Stepper(value: $settings.maxRecentFiles, in: 2...40, step: 1) {
-            HStack(alignment: .center, spacing: 16.0) {
-              Text("Recent files:")
-              Text("\(settings.maxRecentFiles)").foregroundColor(.gray)
-            }
+            Text("Recent files: ")
+            Text("\(settings.maxRecentFiles)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Text")) {
-          Picker(selection: $settings.editorFontSize, label: Text("Font size")) {
+          Picker("Font size", selection: $settings.editorFontSize) {
             Text("Tiny").tag(FontMap.FontSize.tiny)
             Text("Small").tag(FontMap.FontSize.small)
             Text("Compact").tag(FontMap.FontSize.compact)
@@ -103,11 +101,10 @@ struct PreferencesView: View {
             Text("Large").tag(FontMap.FontSize.large)
             Text("Huge").tag(FontMap.FontSize.huge)
           }
+          .pickerStyle(.menu)
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
-            HStack(alignment: .center, spacing: 16.0) {
-              Text("Indentation size:")
-              Text("\(settings.indentSize)").foregroundColor(.gray)
-            }
+            Text("Indentation size: ")
+            Text("\(settings.indentSize)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Interface")) {
@@ -152,14 +149,33 @@ struct PreferencesView: View {
       }
       .tag(2)
       Form {
+        Section(header: Text("Interpreter")) {
+          HStack {
+            Text("Max stack size [K entries]: ")
+            Spacer()
+            IntField(value: $settings.maxStackSize, min: 10, max: 1000000)
+            .frame(maxWidth: 110)
+          }
+          HStack {
+            Text("Traced procedure calls: ")
+            Spacer()
+            IntField(value: $settings.maxCallTrace, min: 0, max: 1000)
+            .frame(maxWidth: 110)
+          }
+          HStack {
+            Spacer()
+            Button("Reset parameters") {
+              settings.maxStackSize = 10000
+              settings.maxCallTrace = 20
+            }
+          }
+        }
         Section(header: Text("Log")) {
           Toggle("Commands and results", isOn: $settings.logCommands)
           Toggle("Garbage collection", isOn: $settings.logGarbageCollection)
           Stepper(value: $settings.logMaxHistory, in: 500...50000, step: 500) {
-            HStack(alignment: .center, spacing: 16.0) {
-              Text("Log history:")
-              Text("\(settings.logMaxHistory)").foregroundColor(.gray)
-            }
+            Text("Log history: ")
+            Text("\(settings.logMaxHistory)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Install Folders")) {
@@ -173,21 +189,24 @@ struct PreferencesView: View {
               Toggle("On My Device", isOn: $settings.foldersOnDevice)
           }
         }
+        Section(header: Text("Hardware Keyboard")) {
+          Toggle("Disable extended keyboard", isOn: $settings.disableExtendedKeyboard)
+        }
         Section(header: Text("Fonts")) {
-          Picker(selection: $settings.codingFont,
-                 label: Text("Code font")) {
+          Picker("Code font", selection: $settings.codingFont) {
             ForEach(UserSettings.monospacedFontMap.fonts.keys.sorted(by: >),
                     id: \.self,
                     content: { key in
               Text(key).tag(key)
             })
           }
-          Picker(selection: $settings.documentationFontSize,
-                 label: Text("Documentation font size")) {
+          .pickerStyle(.menu)
+          Picker("Documentation font size", selection: $settings.documentationFontSize) {
             Text("Small").tag(UserSettings.smallFontSize)
             Text("Medium").tag(UserSettings.mediumFontSize)
             Text("Large").tag(UserSettings.largeFontSize)
           }
+          .pickerStyle(.menu)
         }
       }
       .tabItem {
@@ -199,6 +218,6 @@ struct PreferencesView: View {
       }
     }
     .navigationBarTitleDisplayMode(.inline)
-    .navigationTitle("Preferences")
+    .navigationTitle("Settings")
   }
 }

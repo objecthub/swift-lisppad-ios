@@ -20,6 +20,7 @@
 
 import Foundation
 import UIKit
+import GameController
 
 final class CodeEditorKeyboard {
   
@@ -51,8 +52,10 @@ final class CodeEditorKeyboard {
   }
   
   private var shouldUseExtendedKeyboard: Bool {
-    return self.console ? UserSettings.standard.consoleExtendedKeyboard
-                        : UserSettings.standard.extendedKeyboard
+    return (self.console ? UserSettings.standard.consoleExtendedKeyboard
+                         : UserSettings.standard.extendedKeyboard) &&
+           (UIDevice.current.userInterfaceIdiom != .pad ||
+            !(UserSettings.standard.disableExtendedKeyboard && GCKeyboard.coalesced != nil))
   }
   
   private func currentEditorType(for textView: CodeEditorTextView) -> FileExtensions.EditorType {

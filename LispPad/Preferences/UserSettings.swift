@@ -75,6 +75,9 @@ final class UserSettings: ObservableObject {
   private static let blockquoteColorKey = "Editor.blockquoteColor"
   private static let codeColorKey = "Editor.codeColor"
   private static let codingFontKey = "General.codingFont"
+  private static let disableExtendedKeyboardKey = "Keyboard.disableExtendedKeyboard"
+  private static let maxStackSizeKey = "Interpreter.maxStackSize"
+  private static let maxCallTraceKey = "Interpreter.maxCallTrace"
   
   // Font sizes
   static let tinyFontSize = "Tiny"
@@ -446,6 +449,25 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var disableExtendedKeyboard: Bool {
+    didSet {
+      UserDefaults.standard.set(self.disableExtendedKeyboard,
+                                forKey: Self.disableExtendedKeyboardKey)
+    }
+  }
+  
+  @Published var maxStackSize: Int {
+    didSet {
+      UserDefaults.standard.set(self.maxStackSize, forKey: Self.maxStackSizeKey)
+    }
+  }
+  
+  @Published var maxCallTrace: Int {
+    didSet {
+      UserDefaults.standard.set(self.maxCallTrace, forKey: Self.maxCallTraceKey)
+    }
+  }
+  
   var consoleGraphicsBackgroundColor: Color {
     return Self.backgroundColorMap[self.consoleBackgroundColor] ?? .clear
   }
@@ -576,5 +598,9 @@ final class UserSettings: ObservableObject {
                                                        red: 0.7, green: 0.3, blue: 0.5)    
     self.codeColor = UserDefaults.standard.color(forKey: Self.codeColorKey, UIColor.gray)
     self.codingFont = UserDefaults.standard.str(forKey: Self.codingFontKey, "System")
+    self.disableExtendedKeyboard = UserDefaults.standard.boolean(forKey:
+                                                                 Self.disableExtendedKeyboardKey)
+    self.maxStackSize = UserDefaults.standard.int(forKey: Self.maxStackSizeKey, 10000)
+    self.maxCallTrace = UserDefaults.standard.int(forKey: Self.maxCallTraceKey, 20)
   }
 }

@@ -43,16 +43,17 @@ struct LogFilterView: View {
   var body: some View {
     NavigationView {
       Form {
-        Picker(selection: $minSeverityFilter, label: Text("Severity")) {
+        Picker("Severity", selection: $minSeverityFilter) {
           Text("Debug").tag(Severity.debug)
           Text("Info").tag(Severity.info)
           Text("Warning").tag(Severity.warning)
           Text("Error").tag(Severity.error)
           Text("Fatal").tag(Severity.fatal)
         }
+        .pickerStyle(.menu)
         TextField("Filter", text: $logMessageFilter)
-        .autocapitalization(.none)
-        .disableAutocorrection(true)
+          .autocapitalization(.none)
+          .disableAutocorrection(true)
         Toggle("Filter Tag", isOn: $filterTag)
         Toggle("Filter Message", isOn: $filterMessage)
       }
@@ -61,22 +62,18 @@ struct LogFilterView: View {
       .toolbar {
         ToolbarItemGroup(placement: .navigationBarLeading) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            Button(action: {
+            Button("Reset", role: .destructive) {
               self.minSeverityFilter = .debug
               self.logMessageFilter = ""
               self.filterMessage = true
               self.filterTag = true
-            }) {
-              Text("Reset")
             }
           }
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            Button(action: {
+            Button("Done") {
               self.showLogFilterPopOver = false
-            }) {
-              Text("Close")
             }
           }
         }

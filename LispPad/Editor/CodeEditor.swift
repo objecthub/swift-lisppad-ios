@@ -163,7 +163,7 @@ struct CodeEditor: UIViewRepresentable {
       DispatchQueue.main.async {
         self.update = nil
       }
-    } else if UIDevice.current.userInterfaceIdiom != .pad {
+    } else /* if UIDevice.current.userInterfaceIdiom != .pad */ {
       let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,
                                                   from: textView.window)
       let bottomInset = keyboardViewEndFrame.height > 25.0 ?
