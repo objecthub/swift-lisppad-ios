@@ -1,6 +1,26 @@
 # Changelog
 
-## 1.3.1 (2022-08-14)
+## 1.3.3 (2022-12-27)
+
+- User interface changes to optimize the look and feel for iOS 16, including revised key bindings
+- Access to the log viewer in the console by swiping right
+- New settings for defining the maximum stack size and the maximum number of active calls to trace upon errors
+- New setting to prevent virtual keyboard extensions to be shown if there is a hardware keyboard
+- Display call stack when errors are shown on the console
+- Limit stack size to prevent application crashes
+- Fixed bug leading to deadlocks when using text ports
+- Fixed bug allowing to execute empty lists
+- Fixed serious bug leading to an infinite loop when iterating through stack traces
+- New procedure in library `(lispkit thread)`: `thread-max-stack`
+- New library: `(lisppad draw map)`
+- New sample code: `DisplayMap.scm`
+- Interpreter now based on LispKit 2.3.1
+
+## 1.3.2 (2022-09-21)
+
+- iOS 16 bug fixes
+
+## 1.3.1 (2022-08-15)
 
 - TODO
 

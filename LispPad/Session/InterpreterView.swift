@@ -139,7 +139,7 @@ struct InterpreterView: View {
                        isActive: $navigateToEditor) {
           EmptyView()
         }
-        .keyboardShortcut("m", modifiers: .command)
+        .keyboardShortcut("s", modifiers: .command)
       }
     }
   }

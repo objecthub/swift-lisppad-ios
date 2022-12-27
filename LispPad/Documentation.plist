@@ -6,6 +6,8 @@
 	<dict>
 		<key>lisppad audio</key>
 		<string>(lisppad audio).md</string>
+		<key>lisppad draw map</key>
+		<string>(lisppad draw map).md</string>
 		<key>lisppad location</key>
 		<string>(lisppad location).md</string>
 		<key>lisppad system</key>

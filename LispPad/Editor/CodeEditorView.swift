@@ -191,7 +191,7 @@ struct CodeEditorView: View {
         }) {
           EmptyView()
         }
-        .keyboardShortcut("m", modifiers: .command)
+        .keyboardShortcut("s", modifiers: .command)
       }
     }
   }
@@ -310,6 +310,13 @@ struct CodeEditorView: View {
         }
         .onAppear {
           self.editorType = self.fileManager.editorDocumentInfo.editorType
+          if UIDevice.current.userInterfaceIdiom != .pad ||
+             self.splitViewMode == .primaryOnly ||
+             self.splitViewMode == .secondaryOnly {
+            self.updateEditor = { textView in
+              textView.becomeFirstResponder()
+            }
+          }
           /*
           self.updateEditor = { textView in
             textView.becomeFirstResponder()

@@ -323,7 +323,7 @@ struct ConsoleView: View {
       }) {
         EmptyView()
       }
-      .keyCommand(UIKeyCommand.inputUpArrow, modifiers: .command, title: "Previous command")
+      .keyCommand(UIKeyCommand.inputUpArrow, modifiers: [.command, .alternate], title: "Previous command")
       Button(action: {
         if self.inputHistoryIndex >= 0 &&
            self.inputHistoryIndex < self.history.count &&
@@ -341,7 +341,7 @@ struct ConsoleView: View {
       }) {
         EmptyView()
       }
-      .keyCommand(UIKeyCommand.inputDownArrow, modifiers: .command, title: "Next command")
+      .keyCommand(UIKeyCommand.inputDownArrow, modifiers: [.command, .alternate], title: "Next command")
     }
     .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
                   .stroke(Color.gray, lineWidth: 0.7)

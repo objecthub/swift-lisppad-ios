@@ -119,6 +119,15 @@ Returns `#t` if _thread_ is in runnable state; otherwise `#f` is returned.
 
 Returns `#t` if _thread_ is in terminated state; otherwise `#f` is returned.
 
+**(thread-max-stack)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(thread-max-stack _limit_)**  
+**(thread-max-stack _thread_)**  
+**(thread-max-stack _thread limit_)**  
+
+Returns the maximum stack size or sets it to a new limit. If no arguments are provided, the maximum stack size of the current thread is returned. If just fixnum _limit_ is provided as an argument, the current thread's maximum stack size is set to _limit_. If just _thread_ is provided as an argument, the maximum stack size of _thread_ is returned. If both _thread_ and _limit_ are provided, then procedure `thread-max-stack` sets the maximum stack size of _thread_ to _limit_.
+
+Changing the stack size while a thread is running is allowed, but it's not always possible to update the limit. The boolean returned by procedure `thread-max-stack` for forms where the maximum stack size is supposed to be updated, indicates whether the update worked. The return value is `#t` in this case.
+
 **(thread-start! _thread_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Makes _thread_ runnable. The _thread_ must be a new thread. `thread-start!` returns the _thread_. Executing the following code either prints `ba` or `ab`.
