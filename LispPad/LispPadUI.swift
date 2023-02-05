@@ -37,6 +37,9 @@ struct LispPadUI {
   // Size of items in the toolbar
   static let toolbarItemSize: CGFloat = Self.choose(iOS15: 16, iOS16: 16)
   
+  // Size of file name in the toolbar
+  static let fileNameFontSize: CGFloat = Self.choose(iOS15: 14, iOS16: 14)
+  
   // Space between items in toolbar
   static let toolbarSeparator: CGFloat = Self.choose(iOS15: 10, iOS16: 9)
   
@@ -62,6 +65,28 @@ struct LispPadUI {
       return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
     } else {
       return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
+    }
+  }()
+  
+  // Small editor file name font
+  static let fileNameFont: SwiftUI.Font = {
+    if #available(iOS 16, *) {
+      return .system(size: LispPadUI.fileNameFontSize, weight: .regular)
+    } else if #available(iOS 15, *) {
+      return .system(size: LispPadUI.fileNameFontSize, weight: .regular)
+    } else {
+      return .system(size: LispPadUI.fileNameFontSize, weight: .light)
+    }
+  }()
+  
+  // Large editor file name font
+  static let largeFileNameFont: SwiftUI.Font = {
+    if #available(iOS 16, *) {
+      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
+    } else if #available(iOS 15, *) {
+      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
+    } else {
+      return .system(size: LispPadUI.toolbarItemSize, weight: .light)
     }
   }()
   

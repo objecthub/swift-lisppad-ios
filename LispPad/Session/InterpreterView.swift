@@ -207,280 +207,284 @@ struct InterpreterView: View {
 
   // The main view
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      self.keyboardShortcuts
-      ZStack {
-        ConsoleView(
-          font: settings.consoleFont,
-          infoFont: settings.consoleInfoFont,
-          action: {
-            let old = self.consoleInput
-            self.consoleInput = ""
-            let input: String
-            if self.interpreter.isReady {
-              input = InterpreterView.canonicalizeInput(old)
-              self.interpreter.console.append(output: .command(input))
-              self.histManager.addCommandEntry(input)
-            } else {
-              input = old
-            }
-            self.interpreter.evaluate(input) {
-              self.consoleInput = old
-              self.interpreter.console.removeLast()
-            }
-          },
-          splitViewMode: $splitViewMode,
-          console: interpreter.console,
-          contentBatch: $interpreter.contentBatch,
-          history: $histManager.commandHistory,
-          input: $consoleInput,
-          selectedInputRange: $consoleInputRange,
-          readingStatus: $interpreter.readingStatus,
-          ready: $interpreter.isReady,
-          showSheet: $showSheet,
-          showModal: $showModal,
-          showCard: $showCard,
-          cardContent: cardContent,
-          showProgressView: $showProgressView,
-          consoleTab: $consoleTab)
-        if let header = self.showProgressView {
-         ProgressView(header)
-          .frame(width: 200, height: 120)
-          .background(Color.secondary.colorInvert())
-          .foregroundColor(Color.primary)
-          .cornerRadius(20)
+    GeometryReader { geometry in
+      VStack(alignment: .leading, spacing: 0) {
+        self.keyboardShortcuts
+        ZStack {
+          ConsoleView(
+            font: settings.consoleFont,
+            infoFont: settings.consoleInfoFont,
+            action: {
+              let old = self.consoleInput
+              self.consoleInput = ""
+              let input: String
+              if self.interpreter.isReady {
+                input = InterpreterView.canonicalizeInput(old)
+                self.interpreter.console.append(output: .command(input))
+                self.histManager.addCommandEntry(input)
+              } else {
+                input = old
+              }
+              self.interpreter.evaluate(input) {
+                self.consoleInput = old
+                self.interpreter.console.removeLast()
+              }
+            },
+            splitViewMode: $splitViewMode,
+            console: interpreter.console,
+            contentBatch: $interpreter.contentBatch,
+            history: $histManager.commandHistory,
+            input: $consoleInput,
+            selectedInputRange: $consoleInputRange,
+            readingStatus: $interpreter.readingStatus,
+            ready: $interpreter.isReady,
+            showSheet: $showSheet,
+            showModal: $showModal,
+            showCard: $showCard,
+            cardContent: cardContent,
+            showProgressView: $showProgressView,
+            consoleTab: $consoleTab)
+          if let header = self.showProgressView {
+           ProgressView(header)
+            .frame(width: 200, height: 120)
+            .background(Color.secondary.colorInvert())
+            .foregroundColor(Color.primary)
+            .cornerRadius(20)
+          }
         }
       }
-    }
-    .navigationBarTitleDisplayMode(.inline)
-    .toolbar {
-      ToolbarItemGroup(placement: .navigationBarLeading) {
-        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-          NavigationControl(splitView: self.splitView,
-                            masterView: true,
-                            splitViewMode: $splitViewMode,
-                            masterWidthFraction: $masterWidthFraction) {
-            self.navigateToEditor = true
-          } splitViewAction: {
-            self.histManager.saveCommandHistory()
-          }
-          if self.interpreter.isReady {
-            Menu {
-              Button(action: {
-                withAnimation {
-                  self.consoleTab = 0
-                }
-              }) {
-                Label("Show Log", systemImage: "scroll")
-              }
-              .disabled(self.consoleTab == 0)
-              Button(action: {
-                withAnimation {
-                  self.consoleTab = 1
-                }
-              }) {
-                Label("Show Console", systemImage: "terminal")
-              }
-              .disabled(self.consoleTab == 1)
-              /* TODO: Graphics
-              Button(action: {
-                withAnimation {
-                  self.consoleTab = 2
-                }
-              }) {
-                Label("Show Graphics", systemImage: "photo.on.rectangle.angled")
-              }
-              .disabled(self.consoleTab == 2)
-               */
-              Divider()
-              Button(action: {
-                // self.presentSheet(.shareConsole)
-                self.showModal = .shareConsole
-              }) {
-                Label("Share Console", systemImage: "square.and.arrow.up")
-              }
-              .disabled(self.interpreter.console.isEmpty)
-              Button(action: {
-                self.interpreter.console.reset()
-              }) {
-                Label("Clear Console", systemImage: "trash")
-              }
-              .disabled(self.interpreter.console.isEmpty)
-              Button(action: {
-                self.showResetActionSheet = true
-              }) {
-                Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
-              }
-              Divider()
-              Button(action: {
-                self.histManager.verifyFileLists()
-                self.showSheet = .organizeFiles
-              }) {
-                Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
-              }
-            } label: {
-              Image(systemName: "terminal")
-                .font(LispPadUI.toolbarFont)
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+            NavigationControl(splitView: self.splitView,
+                              masterView: true,
+                              splitViewMode: $splitViewMode,
+                              masterWidthFraction: $masterWidthFraction) {
+              self.navigateToEditor = true
+            } splitViewAction: {
+              self.histManager.saveCommandHistory()
             }
-          } else {
-            Button(action: {
-              self.alertAction = .abortEvaluation
-            }) {
-              Image(systemName: "stop.circle")
-                .foregroundColor(Color.red)
-                .font(LispPadUI.toolbarFont)
-            }
-          }
-          Button(action: {
-            // self.presentSheet(.loadFile)
-            self.histManager.verifyFileLists()
-            self.showModal = .loadFile
-          }) {
-            Image(systemName: "arrow.down.doc")
-              .font(LispPadUI.toolbarFont)
-          }
-          .contextMenu {
             if self.interpreter.isReady {
-              ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-                if let url = purl.url {
-                  Button(action: { self.execute(url) }) {
-                    Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+              Menu {
+                Button(action: {
+                  withAnimation {
+                    self.consoleTab = 0
+                  }
+                }) {
+                  Label("Show Log", systemImage: "scroll")
+                }
+                .disabled(self.consoleTab == 0)
+                Button(action: {
+                  withAnimation {
+                    self.consoleTab = 1
+                  }
+                }) {
+                  Label("Show Console", systemImage: "terminal")
+                }
+                .disabled(self.consoleTab == 1)
+                /* TODO: Graphics
+                Button(action: {
+                  withAnimation {
+                    self.consoleTab = 2
+                  }
+                }) {
+                  Label("Show Graphics", systemImage: "photo.on.rectangle.angled")
+                }
+                .disabled(self.consoleTab == 2)
+                 */
+                Divider()
+                Button(action: {
+                  // self.presentSheet(.shareConsole)
+                  self.showModal = .shareConsole
+                }) {
+                  Label("Share Console", systemImage: "square.and.arrow.up")
+                }
+                .disabled(self.interpreter.console.isEmpty)
+                Button(action: {
+                  self.interpreter.console.reset()
+                }) {
+                  Label("Clear Console", systemImage: "trash")
+                }
+                .disabled(self.interpreter.console.isEmpty)
+                Button(action: {
+                  self.showResetActionSheet = true
+                }) {
+                  Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
+                }
+                Divider()
+                Button(action: {
+                  self.histManager.verifyFileLists()
+                  self.showSheet = .organizeFiles
+                }) {
+                  Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
+                }
+              } label: {
+                Image(systemName: "terminal")
+                  .font(LispPadUI.toolbarFont)
+              }
+            } else {
+              Button(action: {
+                self.alertAction = .abortEvaluation
+              }) {
+                Image(systemName: "stop.circle")
+                  .foregroundColor(Color.red)
+                  .font(LispPadUI.toolbarFont)
+              }
+            }
+            Button(action: {
+              // self.presentSheet(.loadFile)
+              self.histManager.verifyFileLists()
+              self.showModal = .loadFile
+            }) {
+              Image(systemName: "arrow.down.doc")
+                .font(LispPadUI.toolbarFont)
+            }
+            .contextMenu {
+              if self.interpreter.isReady {
+                ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                  if let url = purl.url {
+                    Button(action: { self.execute(url) }) {
+                      Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+                    }
                   }
                 }
               }
             }
+            .disabled(!self.interpreter.isReady)
           }
-          .disabled(!self.interpreter.isReady)
         }
-      }
-      ToolbarItemGroup(placement: .principal) {
-        Menu {
-          Button(action: {
-            // self.presentSheet(.showAbout)
-            self.showModal = .showAbout
-          }) {
-            Label("About…", systemImage: "questionmark.circle")
-          }
-          Divider()
-          Button(action: {
-            if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
-              UIApplication.shared.open(url)
+        ToolbarItemGroup(placement: .principal) {
+          Menu {
+            Button(action: {
+              // self.presentSheet(.showAbout)
+              self.showModal = .showAbout
+            }) {
+              Label("About…", systemImage: "questionmark.circle")
             }
-          }) {
-            Label("Manual…", systemImage: "book")
-          }
-          Button(action: {
-            self.showSheet = .showShortcuts
-          }) {
-            Label("Keyboard Shortcuts…", systemImage: "keyboard")
-          }
-          Button(action: {
-            if let url = self.docManager.r7rsSpec.url {
-              self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+            Divider()
+            Button(action: {
+              if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
+                UIApplication.shared.open(url)
+              }
+            }) {
+              Label("Manual…", systemImage: "book")
             }
-          }) {
-            Label("Language Spec…", systemImage: "doc.richtext")
-          }
-          Button(action: {
-            if let url = self.docManager.lispPadRef.url {
-              self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+            Button(action: {
+              self.showSheet = .showShortcuts
+            }) {
+              Label("Keyboard Shortcuts…", systemImage: "keyboard")
             }
-          }) {
-            Label("Library Reference…", systemImage: "doc.richtext")
+            Button(action: {
+              if let url = self.docManager.r7rsSpec.url {
+                self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+              }
+            }) {
+              Label("Language Spec…", systemImage: "doc.richtext")
+            }
+            Button(action: {
+              if let url = self.docManager.lispPadRef.url {
+                self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+              }
+            }) {
+              Label("Library Reference…", systemImage: "doc.richtext")
+            }
+          } label: {
+            /* Let's not display a logo here for now.
+               Image("SmallLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 28.0,height: 28.0)
+                .padding(.bottom, -3) */
+            HStack(alignment: .center, spacing: 4) {
+              if geometry.size.width >= 380 {
+                Text("LispPad")
+                  .font(.body)
+                  .bold()
+                  .foregroundColor(.primary)
+              }
+              Text(Image(systemName: "chevron.down.circle.fill"))
+                .font(.caption)
+                .bold()
+                .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+            }
           }
-        } label: {
-          /* Let's not display a logo here for now.
-             Image("SmallLogo")
-              .resizable()
-              .scaledToFit()
-              .frame(width: 28.0,height: 28.0)
-              .padding(.bottom, -3) */
-          HStack(alignment: .center, spacing: 4) {
-            Text("LispPad")
-              .font(.body)
-              .bold()
-              .foregroundColor(.primary)
-            Text(Image(systemName: "chevron.down.circle.fill"))
-              .font(.caption)
-              .bold()
-              .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+        }
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+            NavigationLink(destination: LazyView(
+                            PreferencesView(selectedTab: $selectedPreferencesTab))) {
+              Image(systemName: "gearshape")
+                .font(LispPadUI.toolbarFont)
+            }
+            NavigationLink(destination: LazyView(
+                             LibraryView(libManager: interpreter.libManager))) {
+              Image(systemName: "building.columns")
+                .font(LispPadUI.toolbarFont)
+            }
+            .disabled(!self.docManager.initialized)
+            NavigationLink(destination: LazyView(
+                             EnvironmentView(envManager: interpreter.envManager))) {
+              Image(systemName: "square.stack.3d.up")
+                .font(LispPadUI.toolbarFont)
+            }
+            .disabled(!self.docManager.initialized)
           }
         }
       }
-      ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-          NavigationLink(destination: LazyView(
-                          PreferencesView(selectedTab: $selectedPreferencesTab))) {
-            Image(systemName: "gearshape")
-              .font(LispPadUI.toolbarFont)
-          }
-          NavigationLink(destination: LazyView(
-                           LibraryView(libManager: interpreter.libManager))) {
-            Image(systemName: "building.columns")
-              .font(LispPadUI.toolbarFont)
-          }
-          .disabled(!self.docManager.initialized)
-          NavigationLink(destination: LazyView(
-                           EnvironmentView(envManager: interpreter.envManager))) {
-            Image(systemName: "square.stack.3d.up")
-              .font(LispPadUI.toolbarFont)
-          }
-          .disabled(!self.docManager.initialized)
+      .sheet(item: $showModal, content: self.sheetView)
+      .fullScreenCover(item: $showSheet, content: self.sheetView)
+      .actionSheet(isPresented: $showResetActionSheet) {
+        ActionSheet(title: Text("Reset"),
+                    message: Text("Clear console and reset interpreter?"),
+                    buttons: [.destructive(Text("Reset interpreter"), action: {
+                                _ = self.interpreter.reset()
+                              }),
+                              .destructive(Text("Reset console & interpreter"), action: {
+                                self.interpreter.console.reset()
+                                _ = self.interpreter.reset()
+                              }),
+                              .cancel()])
+      }
+      .alert(item: $alertAction) { alertAction in
+        switch alertAction {
+          case .abortEvaluation:
+            return Alert(title: Text("Terminate evaluation?"),
+                         primaryButton: .cancel(),
+                         secondaryButton: .destructive(Text("Terminate"), action: {
+                           self.interpreter.context?.evaluator.abort()
+                         }))
+          case .notSaved:
+            return Alert(title: Text("Document not saved"),
+                         message: Text("Could not save the currently open document. " +
+                                        "Retry saving using a different name or path."),
+                         dismissButton: .default(Text("OK")))
+          case .openURL(let url):
+            return self.notSavedAlert(
+                     save: { self.showSheet = .saveBeforeOpen(url) },
+                     discard: {
+                      self.fileManager.loadEditorDocument(
+                        source: url,
+                        makeUntitled: false,
+                        action: { success in
+                          if success {
+                            self.switchToEditor()
+                          }})
+                     })
         }
       }
-    }
-    .sheet(item: $showModal, content: self.sheetView)
-    .fullScreenCover(item: $showSheet, content: self.sheetView)
-    .actionSheet(isPresented: $showResetActionSheet) {
-      ActionSheet(title: Text("Reset"),
-                  message: Text("Clear console and reset interpreter?"),
-                  buttons: [.destructive(Text("Reset interpreter"), action: {
-                              _ = self.interpreter.reset()
-                            }),
-                            .destructive(Text("Reset console & interpreter"), action: {
-                              self.interpreter.console.reset()
-                              _ = self.interpreter.reset()
-                            }),
-                            .cancel()])
-    }
-    .alert(item: $alertAction) { alertAction in
-      switch alertAction {
-        case .abortEvaluation:
-          return Alert(title: Text("Terminate evaluation?"),
-                       primaryButton: .cancel(),
-                       secondaryButton: .destructive(Text("Terminate"), action: {
-                         self.interpreter.context?.evaluator.abort()
-                       }))
-        case .notSaved:
-          return Alert(title: Text("Document not saved"),
-                       message: Text("Could not save the currently open document. " +
-                                      "Retry saving using a different name or path."),
-                       dismissButton: .default(Text("OK")))
-        case .openURL(let url):
-          return self.notSavedAlert(
-                   save: { self.showSheet = .saveBeforeOpen(url) },
-                   discard: {
-                    self.fileManager.loadEditorDocument(
-                      source: url,
-                      makeUntitled: false,
-                      action: { success in
-                        if success {
-                          self.switchToEditor()
-                        }})
-                   })
-      }
-    }
-    .onChange(of: self.urlToOpen) { optUrl in
-      if let url = optUrl {
-        if (self.fileManager.editorDocumentInfo.new) &&
-           !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-          self.alertAction = .openURL(url)
-        } else {
-          self.switchToEditor()
-          self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
-        }
-        DispatchQueue.main.async {
-          self.urlToOpen = nil
+      .onChange(of: self.urlToOpen) { optUrl in
+        if let url = optUrl {
+          if (self.fileManager.editorDocumentInfo.new) &&
+             !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+            self.alertAction = .openURL(url)
+          } else {
+            self.switchToEditor()
+            self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
+          }
+          DispatchQueue.main.async {
+            self.urlToOpen = nil
+          }
         }
       }
     }

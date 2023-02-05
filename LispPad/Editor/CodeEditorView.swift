@@ -198,61 +198,30 @@ struct CodeEditorView: View {
   }
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      if self.showSearchField {
-        VStack(alignment: .leading, spacing: 0) {
-          SearchField(searchText: $searchText,
-                      replaceText: $replaceText,
-                      showSearchField: $showSearchField,
-                      replaceMode: $replaceModeSearch,
-                      caseSensitive: $caseSensitiveSearch,
-                      search: { str, direction in
-                        self.dismissCard()
-                        if let doc = self.fileManager.editorDocument {
-                          let text = NSString(string: doc.text)
-                          let pos = direction == .first ? 0 : doc.selectedRange.location +
-                                                              (doc.selectedRange.length > 0 ? 1 : 0)
-                          let result = direction == .backward
-                            ? text.range(of: str,
-                                         options:
-                                           self.caseSensitiveSearch
-                                             ? [.diacriticInsensitive, .backwards]
-                                             : [.diacriticInsensitive, .backwards, .caseInsensitive],
-                                         range: NSRange(location: 0, length: pos),
-                                         locale: nil)
-                            : text.range(of: str,
-                                         options: self.caseSensitiveSearch
-                                                    ? [.diacriticInsensitive]
-                                                    : [.diacriticInsensitive, .caseInsensitive],
-                                         range: NSRange(location: pos, length: text.length - pos),
-                                         locale: nil)
-                          if result.location != NSNotFound {
-                            self.editorPosition = result
-                            return true
-                          } else {
-                            return false
-                          }
-                        } else {
-                          return false
-                        }
-                      },
-                      replace: { str, repl, cont in
-                        self.dismissCard()
-                        self.updateEditor = { textView in
-                          let formerRange = textView.selectedRange
-                          if formerRange.length > 0 {
-                            if let range = textView.selectedTextRange {
-                              textView.replace(range, withText: repl)
-                            } else {
-                              textView.textStorage.replaceCharacters(in: textView.selectedRange,
-                                                                     with: repl)
-                            }
-                          }
-                          if let cont = cont {
-                            let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
-                            let text = textView.text as NSString
-                            let result = text.range(
-                                           of: str,
+    GeometryReader { geometry in
+      VStack(alignment: .leading, spacing: 0) {
+        if self.showSearchField {
+          VStack(alignment: .leading, spacing: 0) {
+            SearchField(searchText: $searchText,
+                        replaceText: $replaceText,
+                        showSearchField: $showSearchField,
+                        replaceMode: $replaceModeSearch,
+                        caseSensitive: $caseSensitiveSearch,
+                        search: { str, direction in
+                          self.dismissCard()
+                          if let doc = self.fileManager.editorDocument {
+                            let text = NSString(string: doc.text)
+                            let pos = direction == .first ? 0 : doc.selectedRange.location +
+                                                                (doc.selectedRange.length > 0 ? 1 : 0)
+                            let result = direction == .backward
+                              ? text.range(of: str,
+                                           options:
+                                             self.caseSensitiveSearch
+                                               ? [.diacriticInsensitive, .backwards]
+                                               : [.diacriticInsensitive, .backwards, .caseInsensitive],
+                                           range: NSRange(location: 0, length: pos),
+                                           locale: nil)
+                              : text.range(of: str,
                                            options: self.caseSensitiveSearch
                                                       ? [.diacriticInsensitive]
                                                       : [.diacriticInsensitive, .caseInsensitive],
@@ -260,115 +229,217 @@ struct CodeEditorView: View {
                                            locale: nil)
                             if result.location != NSNotFound {
                               self.editorPosition = result
-                              cont(true)
+                              return true
+                            } else {
+                              return false
+                            }
+                          } else {
+                            return false
+                          }
+                        },
+                        replace: { str, repl, cont in
+                          self.dismissCard()
+                          self.updateEditor = { textView in
+                            let formerRange = textView.selectedRange
+                            if formerRange.length > 0 {
+                              if let range = textView.selectedTextRange {
+                                textView.replace(range, withText: repl)
+                              } else {
+                                textView.textStorage.replaceCharacters(in: textView.selectedRange,
+                                                                       with: repl)
+                              }
+                            }
+                            if let cont = cont {
+                              let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
+                              let text = textView.text as NSString
+                              let result = text.range(
+                                             of: str,
+                                             options: self.caseSensitiveSearch
+                                                        ? [.diacriticInsensitive]
+                                                        : [.diacriticInsensitive, .caseInsensitive],
+                                             range: NSRange(location: pos, length: text.length - pos),
+                                             locale: nil)
+                              if result.location != NSNotFound {
+                                self.editorPosition = result
+                                cont(true)
+                              } else {
+                                self.editorPosition = NSRange(location: formerRange.location,
+                                                              length: NSString(string: repl).length)
+                                cont(false)
+                              }
                             } else {
                               self.editorPosition = NSRange(location: formerRange.location,
                                                             length: NSString(string: repl).length)
-                              cont(false)
                             }
-                          } else {
-                            self.editorPosition = NSRange(location: formerRange.location,
-                                                          length: NSString(string: repl).length)
                           }
-                        }
-                      },
-                      replaceAll: { str, repl in
-                        self.dismissCard()
-                        self.notSavedAlertAction = .replaceAll(str, repl)
-                      })
-          Divider()
-        }
-        .transition(.move(edge: .top))
-      }
-      self.keyboardShortcuts
-      CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
-                             set: { if let doc = self.fileManager.editorDocument {doc.text = $0}}),
-                 selectedRange: .init(
-                                  get: { self.fileManager.editorDocument?.selectedRange ??
-                                           NSRange(location: 0, length: 0) },
-                                  set: { if let doc = self.fileManager.editorDocument {
-                                           doc.selectedRange = $0
-                                       }}),
-                 position: $editorPosition,
-                 forceUpdate: $forceEditorUpdate,
-                 update: $updateEditor,
-                 editorType: $editorType,
-                 keyboardObserver: self.keyboardObserver,
-                 defineAction: { block in
-                  self.showCard = true
-                  self.cardContent.block = block
-                 })
-        .multilineTextAlignment(.leading)
-        .ignoresSafeArea(edges: .bottom)
-        .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
-          OptionalScrollView {
-            MutableMarkdownText(self.cardContent, rightPadding: 26)
-              .modifier(self.globals.services)
-              .padding(.horizontal, 10)
-              .padding(.top, 10)
-              .padding(.bottom, -10)
+                        },
+                        replaceAll: { str, repl in
+                          self.dismissCard()
+                          self.notSavedAlertAction = .replaceAll(str, repl)
+                        })
+            Divider()
           }
+          .transition(.move(edge: .top))
         }
-        .onAppear {
-          self.editorType = self.fileManager.editorDocumentInfo.editorType
-          if UIDevice.current.userInterfaceIdiom != .pad ||
-             self.splitViewMode == .primaryOnly ||
-             self.splitViewMode == .secondaryOnly {
+        self.keyboardShortcuts
+        CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
+                               set: { if let doc = self.fileManager.editorDocument {doc.text = $0}}),
+                   selectedRange: .init(
+                                    get: { self.fileManager.editorDocument?.selectedRange ??
+                                             NSRange(location: 0, length: 0) },
+                                    set: { if let doc = self.fileManager.editorDocument {
+                                             doc.selectedRange = $0
+                                         }}),
+                   position: $editorPosition,
+                   forceUpdate: $forceEditorUpdate,
+                   update: $updateEditor,
+                   editorType: $editorType,
+                   keyboardObserver: self.keyboardObserver,
+                   defineAction: { block in
+                    self.showCard = true
+                    self.cardContent.block = block
+                   })
+          .multilineTextAlignment(.leading)
+          .ignoresSafeArea(edges: .bottom)
+          .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
+            OptionalScrollView {
+              MutableMarkdownText(self.cardContent, rightPadding: 26)
+                .modifier(self.globals.services)
+                .padding(.horizontal, 10)
+                .padding(.top, 10)
+                .padding(.bottom, -10)
+            }
+          }
+          .onAppear {
+            self.editorType = self.fileManager.editorDocumentInfo.editorType
+            if UIDevice.current.userInterfaceIdiom != .pad ||
+               self.splitViewMode == .primaryOnly ||
+               self.splitViewMode == .secondaryOnly {
+              self.updateEditor = { textView in
+                textView.becomeFirstResponder()
+              }
+            }
+            /*
             self.updateEditor = { textView in
               textView.becomeFirstResponder()
             }
+            */
           }
-          /*
-          self.updateEditor = { textView in
-            textView.becomeFirstResponder()
+          .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
+            self.editorType = self.fileManager.editorDocumentInfo.editorType
           }
-          */
+      }
+      .navigationBarTitleDisplayMode(.inline)
+      .navigationBarBackButtonHidden(true)
+      .toolbar {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
+            NavigationControl(splitView: self.splitView,
+                              masterView: false,
+                              splitViewMode: $splitViewMode,
+                              masterWidthFraction: $masterWidthFraction) {
+              self.dismissCard()
+              self.presentationMode.wrappedValue.dismiss()
+            } splitViewAction: {
+              self.fileManager.editorDocument?.saveFile()
+              self.histManager.saveSearchHistory()
+              self.histManager.saveFilesHistory()
+              self.histManager.saveFavorites()
+            }
+            Menu {
+              Button(action: {
+                self.dismissCard()
+                if (self.fileManager.editorDocumentInfo.new) &&
+                   !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+                  self.notSavedAlertAction = .newFile
+                } else {
+                  self.fileManager.newEditorDocument()
+                }
+              }) {
+                Label("New", systemImage: "square.and.pencil")
+              }
+              Button(action: {
+                self.dismissCard()
+                self.histManager.verifyFileLists()
+                if (self.fileManager.editorDocumentInfo.new) &&
+                   !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+                  self.notSavedAlertAction = .editFile
+                } else {
+                  self.presentSheet(.editFile)
+                }
+              }) {
+                Label("Open…", systemImage: "tray.and.arrow.up")
+              }
+              Button(action: {
+                self.dismissCard()
+                self.fileManager.editorDocument?.saveFile { success in
+                  self.presentSheet(.saveFile)
+                }
+              }) {
+                Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
+                      systemImage: "tray.and.arrow.down")
+              }
+              Button(action: {
+                self.dismissCard()
+                self.histManager.verifyFileLists()
+                self.showSheet = .organizeFiles
+              }) {
+                Label("Organize…", systemImage: "doc.text.magnifyingglass")
+              }
+              if !self.histManager.recentlyEdited.isEmpty {
+                Divider()
+                ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                  if let url = purl.url {
+                    Button(action: {
+                      self.dismissCard()
+                      if purl.fileExists {
+                        self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
+                      } else {
+                        self.histManager.verifyRecentFiles()
+                        self.showFileNotFoundAlert = true
+                      }
+                    }) {
+                      Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+                    }
+                  }
+                }
+              }
+            } label: {
+              Image(systemName: "doc")
+                .font(LispPadUI.toolbarFont)
+            }
+            .alert(isPresented: $showFileNotFoundAlert, content: self.fileNotFoundAlert)
+            if self.interpreter.isReady {
+              Button(action: self.runInterpreter) {
+                Image(systemName: self.editorType == .scheme ? "play" : "display")
+                  .font(LispPadUI.toolbarFont)
+              }
+              .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
+            } else {
+              Button(action: self.stopInterpreter) {
+                Image(systemName: "stop.circle")
+                  .foregroundColor(Color.red)
+                  .font(LispPadUI.toolbarFont)
+              }
+              .alert(isPresented: $showAbortAlert, content: self.abortAlert)
+            }
+          }
         }
-        .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
-          self.editorType = self.fileManager.editorDocumentInfo.editorType
-        }
-    }
-    .navigationBarTitleDisplayMode(.inline)
-    .navigationBarBackButtonHidden(true)
-    .toolbar {
-      ToolbarItemGroup(placement: .navigationBarLeading) {
-        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
-          NavigationControl(splitView: self.splitView,
-                            masterView: false,
-                            splitViewMode: $splitViewMode,
-                            masterWidthFraction: $masterWidthFraction) {
-            self.dismissCard()
-            self.presentationMode.wrappedValue.dismiss()
-          } splitViewAction: {
-            self.fileManager.editorDocument?.saveFile()
-            self.histManager.saveSearchHistory()
-            self.histManager.saveFilesHistory()
-            self.histManager.saveFavorites()
-          }
+        ToolbarItemGroup(placement: .principal) {
           Menu {
             Button(action: {
               self.dismissCard()
-              if (self.fileManager.editorDocumentInfo.new) &&
-                 !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-                self.notSavedAlertAction = .newFile
-              } else {
-                self.fileManager.newEditorDocument()
+              if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
+                UIPasteboard.general.setValue(path,
+                                              forPasteboardType: UTType.utf8PlainText.identifier)
               }
             }) {
-              Label("New", systemImage: "square.and.pencil")
+              Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
+                    systemImage: PortableURL(self.fileManager
+                                               .editorDocument?.fileURL)?.base?.imageName ?? "link")
             }
-            Button(action: {
-              self.dismissCard()
-              self.histManager.verifyFileLists()
-              if (self.fileManager.editorDocumentInfo.new) &&
-                 !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-                self.notSavedAlertAction = .editFile
-              } else {
-                self.presentSheet(.editFile)
-              }
-            }) {
-              Label("Open…", systemImage: "tray.and.arrow.up")
-            }
+            .disabled(self.fileManager.editorDocumentInfo.new)
+            Divider()
             Button(action: {
               self.dismissCard()
               self.fileManager.editorDocument?.saveFile { success in
@@ -380,274 +451,212 @@ struct CodeEditorView: View {
             }
             Button(action: {
               self.dismissCard()
-              self.histManager.verifyFileLists()
-              self.showSheet = .organizeFiles
+              self.presentSheet(.renameFile)
             }) {
-              Label("Organize…", systemImage: "doc.text.magnifyingglass")
+              Label("Rename", systemImage: "pencil")
             }
-            if !self.histManager.recentlyEdited.isEmpty {
-              Divider()
-              ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-                if let url = purl.url {
-                  Button(action: {
-                    self.dismissCard()
-                    if purl.fileExists {
-                      self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
-                    } else {
-                      self.histManager.verifyRecentFiles()
-                      self.showFileNotFoundAlert = true
-                    }
-                  }) {
-                    Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+            .disabled(self.fileManager.editorDocumentInfo.new)
+            Button(action: {
+              self.dismissCard()
+              if let doc = self.fileManager.editorDocument, !doc.info.new {
+                doc.saveFile { success in
+                  if success {
+                    self.fileManager.loadEditorDocument(
+                      source: doc.fileURL,
+                      makeUntitled: true,
+                      action: { success in
+                        if !success {
+                          self.notSavedAlertAction = .couldNotDuplicate
+                        }
+                      })
+                  } else {
+                    self.notSavedAlertAction = .couldNotDuplicate
                   }
                 }
               }
+            }) {
+              Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
             }
+            .disabled(self.fileManager.editorDocumentInfo.new)
+            Divider()
+            Button(action: {
+              self.dismissCard()
+              self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
+            }) {
+              if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
+                Label("Unstar", systemImage: "star.fill")
+              } else {
+                Label("Star", systemImage: "star")
+              }
+            }
+            .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
           } label: {
-            Image(systemName: "doc")
-              .font(LispPadUI.toolbarFont)
-          }
-          .alert(isPresented: $showFileNotFoundAlert, content: self.fileNotFoundAlert)
-          if self.interpreter.isReady {
-            Button(action: self.runInterpreter) {
-              Image(systemName: self.editorType == .scheme ? "play" : "display")
-                .font(LispPadUI.toolbarFont)
-            }
-            .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
-          } else {
-            Button(action: self.stopInterpreter) {
-              Image(systemName: "stop.circle")
-                .foregroundColor(Color.red)
-                .font(LispPadUI.toolbarFont)
-            }
-            .alert(isPresented: $showAbortAlert, content: self.abortAlert)
-          }
-        }
-      }
-      ToolbarItemGroup(placement: .principal) {
-        Menu {
-          Button(action: {
-            self.dismissCard()
-            if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
-              UIPasteboard.general.setValue(path,
-                                            forPasteboardType: UTType.utf8PlainText.identifier)
-            }
-          }) {
-            Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
-                  systemImage: PortableURL(self.fileManager
-                                             .editorDocument?.fileURL)?.base?.imageName ?? "link")
-          }
-          .disabled(self.fileManager.editorDocumentInfo.new)
-          Divider()
-          Button(action: {
-            self.dismissCard()
-            self.fileManager.editorDocument?.saveFile { success in
-              self.presentSheet(.saveFile)
-            }
-          }) {
-            Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
-                  systemImage: "tray.and.arrow.down")
-          }
-          Button(action: {
-            self.dismissCard()
-            self.presentSheet(.renameFile)
-          }) {
-            Label("Rename", systemImage: "pencil")
-          }
-          .disabled(self.fileManager.editorDocumentInfo.new)
-          Button(action: {
-            self.dismissCard()
-            if let doc = self.fileManager.editorDocument, !doc.info.new {
-              doc.saveFile { success in
-                if success {
-                  self.fileManager.loadEditorDocument(
-                    source: doc.fileURL,
-                    makeUntitled: true,
-                    action: { success in
-                      if !success {
-                        self.notSavedAlertAction = .couldNotDuplicate
-                      }
-                    })
-                } else {
-                  self.notSavedAlertAction = .couldNotDuplicate
-                }
+            HStack(alignment: .center, spacing: 4) {
+              if geometry.size.width >= 380 {
+                Text(self.fileManager.editorDocumentInfo.title)
+                  .font(geometry.size.width < 540 ? LispPadUI.fileNameFont
+                                                  : LispPadUI.largeFileNameFont)
+                  .bold()
+                  .foregroundColor(.primary)
+                  .truncationMode(.middle)
+                  .multilineTextAlignment(.center)
+                  .lineLimit(2)
+                  .fixedSize(horizontal: false, vertical: true)
+                  .frame(maxWidth: geometry.size.width - 290)
               }
+              Text(Image(systemName: "chevron.down.circle.fill"))
+                .font(.caption)
+                .bold()
+                .foregroundColor(Color(LispPadUI.menuIndicatorColor))
             }
-          }) {
-            Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
-          }
-          .disabled(self.fileManager.editorDocumentInfo.new)
-          Divider()
-          Button(action: {
-            self.dismissCard()
-            self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
-          }) {
-            if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
-              Label("Unstar", systemImage: "star.fill")
-            } else {
-              Label("Star", systemImage: "star")
-            }
-          }
-          .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
-        } label: {
-          HStack(alignment: .center, spacing: 4) {
-            Text(self.fileManager.editorDocumentInfo.title)
-              .font(.body)
-              .bold()
-              .foregroundColor(.primary)
-              .truncationMode(.middle)
-            Text(Image(systemName: "chevron.down.circle.fill"))
-              .font(.caption)
-              .bold()
-              .foregroundColor(Color(LispPadUI.menuIndicatorColor))
           }
         }
-      }
-      ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-          Button(action: {
-            self.dismissCard()
-            withAnimation(.default) {
-              self.showSearchField = true
-            }
-          }) {
-            Image(systemName: "magnifyingglass")
-              .font(LispPadUI.toolbarFont)
-          }
-          .disabled(self.showSearchField)
-          Button(action: {
-            self.dismissCard()
-            guard let doc = self.fileManager.editorDocument else {
-              return
-            }
-            if doc.info.editorType == .scheme {
-              if let defs = DefinitionView.parseDefinitions(doc.text) {
-                self.presentSheet(.showDefinitions(defs))
-              }
-            } else if doc.info.editorType == .markdown {
-              if let structure = DocStructureView.parseDocStructure(doc.text) {
-                self.presentSheet(.showDocStructure(structure))
-              }
-            }
-          }) {
-            Image(systemName: "f.cursive")
-              .font(LispPadUI.toolbarFont)
-          }
-          .disabled(self.editorType != .scheme && self.editorType != .markdown)
-          Menu {
-            Button(action: {
-              self.dismissCard()
-              self.updateEditor = { textView in
-                textView.undoManager?.undo()
-              }
-            }) {
-              Label("Undo", systemImage: "arrow.uturn.backward")
-            }
-            Button(action: {
-              self.dismissCard()
-              self.updateEditor = { textView in
-                textView.undoManager?.redo()
-              }
-            }) {
-              Label("Redo", systemImage: "arrow.uturn.forward")
-            }
-            Divider()
-            Group {
-              Button(action: self.autoIndentEditor) {
-                Label("Auto Indent", systemImage: "list.bullet.indent")
-              }
-              .disabled(self.editorType != .scheme)
-              Button(action: self.indentEditor) {
-                Label("Increase Indent", systemImage: "increase.indent")
-              }
-              Button(action: self.outdentEditor) {
-                Label("Decrease Indent", systemImage: "decrease.indent")
-              }
-            }
-            Divider()
-            Group {
-              Button(action: self.commentEditor) {
-                Label("Comment", systemImage: "text.bubble")
-              }
-              .disabled(self.editorType != .scheme)
-              Button(action: self.uncommentEditor) {
-                Label("Uncomment", systemImage: "bubble.left")
-              }
-              .disabled(self.editorType != .scheme)
-            }
-            Divider()
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
             Button(action: {
               self.dismissCard()
               withAnimation(.default) {
-                if self.showSearchField {
-                  self.replaceModeSearch.toggle()
-                } else {
-                  self.replaceModeSearch = true
-                  self.showSearchField = true
+                self.showSearchField = true
+              }
+            }) {
+              Image(systemName: "magnifyingglass")
+                .font(LispPadUI.toolbarFont)
+            }
+            .disabled(self.showSearchField)
+            Button(action: {
+              self.dismissCard()
+              guard let doc = self.fileManager.editorDocument else {
+                return
+              }
+              if doc.info.editorType == .scheme {
+                if let defs = DefinitionView.parseDefinitions(doc.text) {
+                  self.presentSheet(.showDefinitions(defs))
+                }
+              } else if doc.info.editorType == .markdown {
+                if let structure = DocStructureView.parseDocStructure(doc.text) {
+                  self.presentSheet(.showDocStructure(structure))
                 }
               }
             }) {
-              Label("Search/Replace", systemImage: "repeat")
+              Image(systemName: "f.cursive")
+                .font(LispPadUI.toolbarFont)
             }
-          } label: {
-            Image(systemName: "ellipsis.circle")
-              .font(LispPadUI.toolbarFont)
+            .disabled(self.editorType != .scheme && self.editorType != .markdown)
+            Menu {
+              Button(action: {
+                self.dismissCard()
+                self.updateEditor = { textView in
+                  textView.undoManager?.undo()
+                }
+              }) {
+                Label("Undo", systemImage: "arrow.uturn.backward")
+              }
+              Button(action: {
+                self.dismissCard()
+                self.updateEditor = { textView in
+                  textView.undoManager?.redo()
+                }
+              }) {
+                Label("Redo", systemImage: "arrow.uturn.forward")
+              }
+              Divider()
+              Group {
+                Button(action: self.autoIndentEditor) {
+                  Label("Auto Indent", systemImage: "list.bullet.indent")
+                }
+                .disabled(self.editorType != .scheme)
+                Button(action: self.indentEditor) {
+                  Label("Increase Indent", systemImage: "increase.indent")
+                }
+                Button(action: self.outdentEditor) {
+                  Label("Decrease Indent", systemImage: "decrease.indent")
+                }
+              }
+              Divider()
+              Group {
+                Button(action: self.commentEditor) {
+                  Label("Comment", systemImage: "text.bubble")
+                }
+                .disabled(self.editorType != .scheme)
+                Button(action: self.uncommentEditor) {
+                  Label("Uncomment", systemImage: "bubble.left")
+                }
+                .disabled(self.editorType != .scheme)
+              }
+              Divider()
+              Button(action: {
+                self.dismissCard()
+                withAnimation(.default) {
+                  if self.showSearchField {
+                    self.replaceModeSearch.toggle()
+                  } else {
+                    self.replaceModeSearch = true
+                    self.showSearchField = true
+                  }
+                }
+              }) {
+                Label("Search/Replace", systemImage: "repeat")
+              }
+            } label: {
+              Image(systemName: "ellipsis.circle")
+                .font(LispPadUI.toolbarFont)
+            }
           }
         }
       }
-    }
-    .sheet(item: $showModal, content: self.sheetView)
-    .fullScreenCover(item: $showSheet, content: self.sheetView)
-    .alert(item: $notSavedAlertAction) { alertAction in
-      switch alertAction {
-        case .newFile:
-          return self.notSavedAlert(
-                   save: { self.showSheet = .saveBeforeNew },
-                   discard: { self.fileManager.editorDocument?.text = ""
-                              self.fileManager.editorDocument?.saveFile { succ in
-                                self.forceEditorUpdate = true
-                            }})
-        case .editFile:
-          return self.notSavedAlert(
-                   save: { self.showSheet = .saveBeforeEdit },
-                   discard: { self.fileManager.editorDocument?.text = ""
-                              self.presentSheet(.editFile) })
-        case .openFile(let url):
-          return self.notSavedOnOpenAlert(
-                   save: { self.showSheet = .saveBeforeOpen(url) },
-                   discard: {
-                    self.fileManager.loadEditorDocument(
-                      source: url,
-                      makeUntitled: false,
-                      action: { success in })
-                   })
-        case .notSaved:
-          return self.couldNotSave()
-        case .couldNotDuplicate:
-          return self.couldNotDuplicate()
-        case .replaceAll(let str, let repl):
-          return self.replaceAll(str, repl)
-          
-      }
-    }
-    .onChange(of: self.urlToOpen) { optUrl in
-      if let url = optUrl {
-        if (self.fileManager.editorDocumentInfo.new) &&
-           !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-          self.notSavedAlertAction = .openFile(url)
-        } else {
-          self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
-        }
-        DispatchQueue.main.async {
-          self.urlToOpen = nil
+      .sheet(item: $showModal, content: self.sheetView)
+      .fullScreenCover(item: $showSheet, content: self.sheetView)
+      .alert(item: $notSavedAlertAction) { alertAction in
+        switch alertAction {
+          case .newFile:
+            return self.notSavedAlert(
+                     save: { self.showSheet = .saveBeforeNew },
+                     discard: { self.fileManager.editorDocument?.text = ""
+                                self.fileManager.editorDocument?.saveFile { succ in
+                                  self.forceEditorUpdate = true
+                              }})
+          case .editFile:
+            return self.notSavedAlert(
+                     save: { self.showSheet = .saveBeforeEdit },
+                     discard: { self.fileManager.editorDocument?.text = ""
+                                self.presentSheet(.editFile) })
+          case .openFile(let url):
+            return self.notSavedOnOpenAlert(
+                     save: { self.showSheet = .saveBeforeOpen(url) },
+                     discard: {
+                      self.fileManager.loadEditorDocument(
+                        source: url,
+                        makeUntitled: false,
+                        action: { success in })
+                     })
+          case .notSaved:
+            return self.couldNotSave()
+          case .couldNotDuplicate:
+            return self.couldNotDuplicate()
+          case .replaceAll(let str, let repl):
+            return self.replaceAll(str, repl)
+            
         }
       }
-    }
-    .onDisappear {
-      self.fileManager.editorDocument?.saveFile()
-      self.histManager.saveSearchHistory()
-      self.histManager.saveFilesHistory()
-      self.histManager.saveFavorites()
+      .onChange(of: self.urlToOpen) { optUrl in
+        if let url = optUrl {
+          if (self.fileManager.editorDocumentInfo.new) &&
+             !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+            self.notSavedAlertAction = .openFile(url)
+          } else {
+            self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
+          }
+          DispatchQueue.main.async {
+            self.urlToOpen = nil
+          }
+        }
+      }
+      .onDisappear {
+        self.fileManager.editorDocument?.saveFile()
+        self.histManager.saveSearchHistory()
+        self.histManager.saveFilesHistory()
+        self.histManager.saveFavorites()
+      }
     }
   }
   
