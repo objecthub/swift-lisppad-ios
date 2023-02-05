@@ -98,6 +98,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
         } else {
           self.copyFile(to: url, complete: complete)
         }
+        self.fileManager?.histManager.trackRecentFile(url)
       } else {
         complete(nil)
       }
@@ -117,6 +118,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
       }
       return
     }
+    self.fileManager?.histManager.trackCurrentFile(url)
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
       let fileCoordinator = NSFileCoordinator(filePresenter: self)
@@ -151,6 +153,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
       }
       return
     }
+    self.fileManager?.histManager.trackCurrentFile(url)
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
       let fileCoordinator = NSFileCoordinator(filePresenter: self)

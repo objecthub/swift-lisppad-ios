@@ -43,14 +43,14 @@ struct PreferencesView: View {
             Text("Large").tag(FontMap.FontSize.large)
             Text("Huge").tag(FontMap.FontSize.huge)
           }
-          .pickerStyle(.menu)
+          .defaultPickerStyle()
           Toggle("Tight spacing", isOn: $settings.consoleTightSpacing)
           Picker("Graphics background", selection: $settings.consoleBackgroundColor) {
             Text("White").tag(UserSettings.whiteBackground)
             Text("Black").tag(UserSettings.blackBackground)
             Text("System").tag(UserSettings.systemBackground)
           }
-          .pickerStyle(.menu)
+          .defaultPickerStyle()
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
             Text("Console history: ")
             Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
@@ -66,7 +66,7 @@ struct PreferencesView: View {
             Text("Large").tag(FontMap.FontSize.large)
             Text("Huge").tag(FontMap.FontSize.huge)
           }
-          .pickerStyle(.menu)
+          .defaultPickerStyle()
           Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
           Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.consoleExtendedKeyboard)
@@ -87,6 +87,7 @@ struct PreferencesView: View {
       .tag(0)
       Form {
         Section(header: Text("Files")) {
+          Toggle("Remember last edited file", isOn: $settings.rememberLastEditedFile)
           Stepper(value: $settings.maxRecentFiles, in: 2...40, step: 1) {
             Text("Recent files: ")
             Text("\(settings.maxRecentFiles)").foregroundColor(.gray)
@@ -102,7 +103,7 @@ struct PreferencesView: View {
             Text("Large").tag(FontMap.FontSize.large)
             Text("Huge").tag(FontMap.FontSize.huge)
           }
-          .pickerStyle(.menu)
+          .defaultPickerStyle()
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
             Text("Indentation size: ")
             Text("\(settings.indentSize)").foregroundColor(.gray)
@@ -201,13 +202,13 @@ struct PreferencesView: View {
               Text(key).tag(key)
             })
           }
-          .pickerStyle(.menu)
+          .defaultPickerStyle()
           Picker("Documentation font size", selection: $settings.documentationFontSize) {
             Text("Small").tag(UserSettings.smallFontSize)
             Text("Medium").tag(UserSettings.mediumFontSize)
             Text("Large").tag(UserSettings.largeFontSize)
           }
-          .pickerStyle(.menu)
+          .defaultPickerStyle()
         }
       }
       .tabItem {
@@ -223,5 +224,15 @@ struct PreferencesView: View {
     }
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("Settings")
+  }
+}
+
+extension Picker {
+  @ViewBuilder func defaultPickerStyle() -> some View {
+    if #available(iOS 16.0, *) {
+      self.pickerStyle(.menu)
+    } else {
+      self
+    }
   }
 }

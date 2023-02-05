@@ -26,14 +26,17 @@ import LispKit
 /// state object in `LispPadApp`.
 /// 
 final class LispPadGlobals: ObservableObject {
-  let histManager = HistoryManager()
-  let fileManager = FileManager()
+  let histManager: HistoryManager
+  let fileManager: FileManager
   let docManager = DocumentationManager()
   let interpreter = Interpreter()
   
+  
   init() {
     Context.simplifiedDescriptions = true
-    self.fileManager.histManager = self.histManager
+    let histManager = HistoryManager()
+    self.histManager = histManager
+    self.fileManager = FileManager(histManager: histManager)
   }
 
   var services: Services {

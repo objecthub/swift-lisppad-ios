@@ -313,6 +313,7 @@ struct InterpreterView: View {
               }
               Divider()
               Button(action: {
+                self.histManager.verifyFileLists()
                 self.showSheet = .organizeFiles
               }) {
                 Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
@@ -332,6 +333,7 @@ struct InterpreterView: View {
           }
           Button(action: {
             // self.presentSheet(.loadFile)
+            self.histManager.verifyFileLists()
             self.showModal = .loadFile
           }) {
             Image(systemName: "arrow.down.doc")

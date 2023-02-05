@@ -119,6 +119,7 @@ struct CodeEditorView: View {
   @State var showSheet: SheetAction? = nil
   @State var showModal: SheetAction? = nil
   @State var showAbortAlert = false
+  @State var showFileNotFoundAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
   @State var updateEditor: ((CodeEditorTextView) -> Void)? = nil
@@ -358,6 +359,7 @@ struct CodeEditorView: View {
             }
             Button(action: {
               self.dismissCard()
+              self.histManager.verifyFileLists()
               if (self.fileManager.editorDocumentInfo.new) &&
                  !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                 self.notSavedAlertAction = .editFile
@@ -378,6 +380,7 @@ struct CodeEditorView: View {
             }
             Button(action: {
               self.dismissCard()
+              self.histManager.verifyFileLists()
               self.showSheet = .organizeFiles
             }) {
               Label("Organize…", systemImage: "doc.text.magnifyingglass")
@@ -388,7 +391,12 @@ struct CodeEditorView: View {
                 if let url = purl.url {
                   Button(action: {
                     self.dismissCard()
-                    self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
+                    if purl.fileExists {
+                      self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
+                    } else {
+                      self.histManager.verifyRecentFiles()
+                      self.showFileNotFoundAlert = true
+                    }
                   }) {
                     Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
                   }
@@ -399,6 +407,7 @@ struct CodeEditorView: View {
             Image(systemName: "doc")
               .font(LispPadUI.toolbarFont)
           }
+          .alert(isPresented: $showFileNotFoundAlert, content: self.fileNotFoundAlert)
           if self.interpreter.isReady {
             Button(action: self.runInterpreter) {
               Image(systemName: self.editorType == .scheme ? "play" : "display")
@@ -425,7 +434,8 @@ struct CodeEditorView: View {
             }
           }) {
             Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
-                  systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
+                  systemImage: PortableURL(self.fileManager
+                                             .editorDocument?.fileURL)?.base?.imageName ?? "link")
           }
           .disabled(self.fileManager.editorDocumentInfo.new)
           Divider()
@@ -913,6 +923,10 @@ struct CodeEditorView: View {
                  secondaryButton: .destructive(Text("Terminate"), action: {
                    self.interpreter.context?.evaluator.abort()
                  }))
+  }
+  
+  private func fileNotFoundAlert() -> Alert {
+    return Alert(title: Text("File not found"))
   }
   
   private func presentSheet(_ action: SheetAction) {

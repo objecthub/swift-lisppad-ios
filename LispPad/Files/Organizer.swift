@@ -133,9 +133,10 @@ struct Organizer: View {
 }
 
 struct Organizer_Previews: PreviewProvider {
+  static var histManager = HistoryManager()
   static var previews: some View {
     Organizer()
-      .environmentObject(FileManager())
-      .environmentObject(HistoryManager())
+      .environmentObject(FileManager(histManager: histManager))
+      .environmentObject(Self.histManager)
   }
 }

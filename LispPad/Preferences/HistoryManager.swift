@@ -23,6 +23,7 @@ import SwiftUI
 final class HistoryManager: ObservableObject {
   private static let commandHistoryUserDefaultsKey = "Console.history"
   private static let filesHistoryUserDefaultsKey = "Files.history"
+  private static let currentFileUserDefaultsKey = "Files.current"
   private static let searchHistoryUserDefaultsKey = "Files.searchHistory"
   private static let favoritesUserDefaultsKey = "Files.favorites"
   private static let maxFavoritesUserDefaultsKey = "Files.maxFavorites"
@@ -39,13 +40,23 @@ final class HistoryManager: ObservableObject {
              as? [String] ?? ["(string-append (os-name) \" \" (os-release))"]
   }()
   
+  @Published var currentlyEdited: PortableURL? = {
+    if let data = UserDefaults.standard.value(forKey:
+                    HistoryManager.currentFileUserDefaultsKey) as? Data,
+       let purl = try? PropertyListDecoder().decode(PortableURL?.self, from: data) {
+      return purl.itemExists ? purl : nil
+    } else {
+      return nil
+    }
+  }()
+  
   @Published var recentlyEdited: [PortableURL] = {
     if let data = UserDefaults.standard.value(forKey:
                     HistoryManager.filesHistoryUserDefaultsKey) as? Data,
        let purls = try? PropertyListDecoder().decode(Array<PortableURL>.self, from: data) {
       var res: [PortableURL] = []
       for purl in purls {
-        if purl.itemExists {
+        if purl.itemExists && !purl.isInTrash {
           res.append(purl)
         }
       }
@@ -61,7 +72,7 @@ final class HistoryManager: ObservableObject {
        let purls = try? PropertyListDecoder().decode(Array<PortableURL>.self, from: data) {
       var res: [PortableURL] = []
       for purl in purls {
-        if purl.itemExists {
+        if purl.itemExists && !purl.isInTrash {
           res.append(purl)
         }
       }
@@ -89,30 +100,58 @@ final class HistoryManager: ObservableObject {
       let purl = PortableURL(url: url)
       _ = self?.removeRecentFile(purl)
       _ = self?.removeFavorite(purl)
+      if purl == self?.currentlyEdited {
+        self?.trackCurrentFile(nil)
+      }
     }
     self.documentsTracker?.onMove = { [weak self] oldURL, newURL in
       let oldPurl = PortableURL(url: oldURL)
       let newPurl = PortableURL(url: newURL)
+      let keepTracking = newPurl.itemExists && !newPurl.isInTrash
       if let i = self?.removeRecentFile(oldPurl) {
-        self?.recentlyEdited.insert(newPurl, at: i)
+        if keepTracking {
+          self?.recentlyEdited.insert(newPurl, at: i)
+        }
       }
       if let i = self?.removeFavorite(oldPurl) {
-        self?.favoriteFiles.insert(newPurl, at: i)
+        if keepTracking {
+          self?.favoriteFiles.insert(newPurl, at: i)
+        }
+      }
+      if oldPurl == self?.currentlyEdited {
+        if keepTracking {
+          self?.trackCurrentFile(newURL)
+        } else {
+          self?.trackCurrentFile(nil)
+        }
       }
     }
     self.icloudTracker?.onDelete = { [weak self] url in
       let purl = PortableURL(url: url)
       _ = self?.removeRecentFile(purl)
       _ = self?.removeFavorite(purl)
+      if purl == self?.currentlyEdited {
+        self?.trackCurrentFile(nil)
+      }
     }
     self.icloudTracker?.onMove = { [weak self] oldURL, newURL in
       let oldPurl = PortableURL(url: oldURL)
       let newPurl = PortableURL(url: newURL)
+      let keepTracking = newPurl.itemExists && !newPurl.isInTrash
       if let i = self?.removeRecentFile(oldPurl) {
-        self?.recentlyEdited.insert(newPurl, at: i)
+        if keepTracking {
+          self?.recentlyEdited.insert(newPurl, at: i)
+        }
       }
       if let i = self?.removeFavorite(oldPurl) {
-        self?.favoriteFiles.insert(newPurl, at: i)
+        if keepTracking {
+          self?.favoriteFiles.insert(newPurl, at: i)
+        }
+      }
+      if oldPurl == self?.currentlyEdited {
+        if keepTracking {
+          self?.trackCurrentFile(newURL)
+        }
       }
     }
   }
@@ -180,7 +219,25 @@ final class HistoryManager: ObservableObject {
   
   private var filesHistoryRequiresSaving: Bool = false
   
+  func trackCurrentFile(_ url: URL?) {
+    if let url = url {
+      let purl = PortableURL(url: url)
+      if purl != self.currentlyEdited {
+        self.currentlyEdited = purl
+        UserDefaults.standard.set(try? self.encoder.encode(self.currentlyEdited),
+                                  forKey: HistoryManager.currentFileUserDefaultsKey)
+      }
+    } else if self.currentlyEdited != nil {
+      self.currentlyEdited = nil
+      UserDefaults.standard.set(try? self.encoder.encode(self.currentlyEdited),
+                                forKey: HistoryManager.currentFileUserDefaultsKey)
+    }
+  }
+  
   func trackRecentFile(_ url: URL) {
+    guard !Foundation.FileManager.default.isInTrash(url) else {
+      return
+    }
     let purl = PortableURL(url: url)
     _ = self.removeRecentFile(purl)
     self.recentlyEdited.insert(purl, at: 0)
@@ -199,6 +256,19 @@ final class HistoryManager: ObservableObject {
       }
     }
     return nil
+  }
+  
+  func verifyRecentFiles() {
+    var recentFiles: [PortableURL] = []
+    for purl in self.recentlyEdited {
+      if purl.fileExists {
+        recentFiles.append(purl)
+      }
+    }
+    if recentFiles.count < self.recentlyEdited.count {
+      self.recentlyEdited = recentFiles
+      self.filesHistoryRequiresSaving = true
+    }
   }
   
   func saveFilesHistory() {
@@ -319,12 +389,30 @@ final class HistoryManager: ObservableObject {
     }
   }
   
+  func verifyFavorites() {
+    var favorites: [PortableURL] = []
+    for purl in self.favoriteFiles {
+      if purl.fileExists {
+        favorites.append(purl)
+      }
+    }
+    if favorites.count < self.favoriteFiles.count {
+      self.favoriteFiles = favorites
+      self.favoritesRequiresSaving = true
+    }
+  }
+  
   func saveFavorites() {
     if self.favoritesRequiresSaving {
       UserDefaults.standard.set(try? self.encoder.encode(self.favoriteFiles),
                                 forKey: HistoryManager.favoritesUserDefaultsKey)
       self.favoritesRequiresSaving = false
     }
+  }
+  
+  func verifyFileLists() {
+    self.verifyRecentFiles()
+    self.verifyFavorites()
   }
 }
 

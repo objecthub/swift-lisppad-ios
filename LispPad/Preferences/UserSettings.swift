@@ -58,6 +58,7 @@ final class UserSettings: ObservableObject {
   private static let highlightMatchingParenKey = "Editor.highlightMatchingParen"
   private static let highlightCurrentLineKey = "Editor.highlightCurrentLine"
   private static let extendedKeyboardKey = "Editor.extendedKeyboard"
+  private static let rememberLastEditedFileKey = "Editor.rememberLastEditedFile"  
   private static let maxRecentFilesKey = "Editor.maxRecentFiles"
   private static let schemeAutoIndentKey = "Editor.schemeAutoIndent"
   private static let schemeHighlightSyntaxKey = "Editor.schemeHighlightSyntax"
@@ -334,6 +335,12 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var rememberLastEditedFile: Bool {
+    didSet {
+      UserDefaults.standard.set(self.rememberLastEditedFile, forKey: Self.rememberLastEditedFileKey)
+    }
+  }
+  
   @Published var maxRecentFiles: Int {
     didSet {
       UserDefaults.standard.set(self.maxRecentFiles, forKey: Self.maxRecentFilesKey)
@@ -570,6 +577,8 @@ final class UserSettings: ObservableObject {
     self.highlightCurrentLine = UserDefaults.standard.boolean(forKey: Self.highlightCurrentLineKey,
                                                               false)
     self.extendedKeyboard = UserDefaults.standard.boolean(forKey: Self.extendedKeyboardKey)
+    self.rememberLastEditedFile = UserDefaults.standard.boolean(forKey:
+                                                                  Self.rememberLastEditedFileKey)
     self.maxRecentFiles = UserDefaults.standard.int(forKey: Self.maxRecentFilesKey, 10)
     self.schemeAutoIndent = UserDefaults.standard.boolean(forKey: Self.schemeAutoIndentKey)
     self.schemeHighlightSyntax = UserDefaults.standard.boolean(forKey:

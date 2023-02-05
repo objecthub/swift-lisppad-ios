@@ -28,7 +28,7 @@ import LispKit
 class FileManager: ObservableObject {
   
   /// The history manager.
-  var histManager: HistoryManager? = nil
+  var histManager: HistoryManager
   
   /// The default iOS file manager.
   let sysFileManager = Foundation.FileManager.default
@@ -98,7 +98,8 @@ class FileManager: ObservableObject {
   
   /// Constructor, responsible for defining the named resources as well as for setting them
   /// up initially.
-  init() {
+  init(histManager: HistoryManager) {
+    self.histManager = histManager
     DispatchQueue.global(qos: .default).async {
       let sysFileManager = Foundation.FileManager()
       if let url = PortableURL.Base.icloud.url {
@@ -130,15 +131,12 @@ class FileManager: ObservableObject {
       }
     }
     self.usageRootDirectories.append(NamedRef(name: "Recent", image: "clock") { [weak self] in
-      return self?.histManager?.recentlyEdited ?? []
+      return self?.histManager.recentlyEdited ?? []
     })
     self.usageRootDirectories.append(NamedRef(name: "Favorites", image: "star") { [weak self] in
-      return self?.histManager?.favoriteFiles ?? []
+      return self?.histManager.favoriteFiles ?? []
     })
-    if let appDir = PortableURL.Base.application.url {
-      self.applicationSupportURL = appDir
-      self.newEditorDocument()
-    }
+    self.applicationSupportURL = PortableURL.Base.application.url
     self.baseURLs.append((URL(fileURLWithPath: LispKitContext.rootDirectory,
                               relativeTo: LispKitContext.bundle!.bundleURL.absoluteURL), 0))
     self.baseURLs.append((URL(fileURLWithPath: "Root",
@@ -151,6 +149,13 @@ class FileManager: ObservableObject {
     }
     if let url = PortableURL.Base.application.url {
       self.baseURLs.append((url, 4))
+    }
+    if UserSettings.standard.rememberLastEditedFile,
+       let purl = histManager.currentlyEdited,
+       let url = purl.absoluteURL {
+      self.loadEditorDocument(source: url, makeUntitled: purl.base == .application, action: nil)
+    } else {
+      self.newEditorDocument()
     }
   }
   
@@ -414,20 +419,21 @@ class FileManager: ObservableObject {
           _ = try? self.sysFileManager.removeItem(at: targetUrl)
           try self.sysFileManager.copyItem(at: sourceUrl, to: targetUrl)
         }
-        self.histManager?.trackRecentFile(sourceUrl)
+        self.histManager.trackRecentFile(sourceUrl)
       } catch {
         return
       }
     }
     if let document = self.editorDocument, document.fileURL != targetUrl {
       if !document.info.new {
-        self.histManager?.trackRecentFile(document.fileURL)
+        self.histManager.trackRecentFile(document.fileURL)
       }
       document.saveFile { success in
         document.close(completionHandler: { success in
           self.editorDocument = TextDocument(fileURL: targetUrl)
           self.editorDocument?.fileManager = self
           self.editorDocument?.recomputeInfo(for: targetUrl, new: makeUntitled)
+          self.histManager.trackCurrentFile(targetUrl)
           self.editorDocument?.loadFile(action: { success in
             if success {
               self.updateEditorDocumentLoadDate(sourceUrl)
@@ -445,6 +451,7 @@ class FileManager: ObservableObject {
       self.editorDocument = TextDocument(fileURL: targetUrl)
       self.editorDocument?.fileManager = self
       self.editorDocument?.recomputeInfo(for: targetUrl, new: makeUntitled)
+      self.histManager.trackCurrentFile(targetUrl)
       self.editorDocument?.loadFile(action: { success in
         if success {
           self.updateEditorDocumentLoadDate(sourceUrl)
@@ -466,4 +473,19 @@ struct FileType: OptionSet {
   static let directory = FileType(rawValue: 1 << 1)
   static let collection = FileType(rawValue: 1 << 2)
   static let all: FileType = [.file, .directory, .collection]
+}
+
+extension Foundation.FileManager {
+  public func isInTrash(_ url: URL) -> Bool {
+    /* let trashDirs = Foundation.FileManager.default.urls(for: .trashDirectory, in: .userDomainMask)
+    for trashDir in trashDirs {
+      var relationship: URLRelationship = .other
+      try? self.getRelationship(&relationship, ofDirectoryAt: trashDir, toItemAt: url)
+      if relationship == .contains {
+        return true
+      }
+    }
+    return false */
+    return url.path.contains("/.Trash/")
+  }
 }

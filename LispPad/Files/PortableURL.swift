@@ -293,6 +293,13 @@ enum PortableURL: Hashable, Codable, Identifiable, CustomStringConvertible {
              && dir.boolValue
   }
   
+  var isInTrash: Bool {
+    guard let url = self.absoluteURL else {
+      return false
+    }
+    return Foundation.FileManager.default.isInTrash(url)
+  }
+  
   var mutable: Bool {
     switch self {
       case .absolute(_),
