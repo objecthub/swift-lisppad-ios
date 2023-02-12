@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 228: Composing Comparators</title>
+  <style>pre.example { margin-left: 2em; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<H2><a name="lp-srfi-228">Title</a></H2>
+
+Composing Comparators
+
+<h2>Author</h2>
+
+Daphne Preston-Kendal
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+228+at+srfi+dotschemers+dot+org">srfi-228@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-228">archive</a>.</p>
+<ul>
+  <li>Received: 2021-08-28</li>
+  <li>Draft #1 published: 2021-08-31</li>
+  <li>Draft #2 published: 2022-02-26</li>
+  <li>Draft #3 published: 2022-11-14</li>
+  <li>Draft #4 published: 2022-11-30</li>
+  <li>Draft #5 published: 2022-12-09</li>
+  <li>Finalized: 2022-12-10</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>Further procedures for defining <a href="https://srfi.schemers.org/srfi-128/">SRFI 128</a> comparators.
+
+<p>Best enjoyed in combination with <a href="https://srfi.schemers.org/srfi-162/">SRFI 162</a>.
+
+<h2 id="rationale">Rationale</h2>
+
+<p>A typical pattern for defining comparison behaviour for record types and other user-defined Scheme types is some form of lexicographical order over their member slots. The comparator abstraction of SRFI 128 has useful potential for reducing the code bulk of defining such comparison behaviours. This library is intended to take advantage of that potential.
+
+<h2 id="specification">Specification</h2>
+
+<p>All identifiers defined in this SRFI are exported in the <code>(srfi 228)</code> library. The identifiers in this library are not retroactively added to the exports of any other SRFI library. However, as in the case of SRFI 162, it is hoped and intended that they will simply be added to the existing comparator libraries of RnRSes and Scheme implementations, rather than being in a separate library.
+
+<h3 id=constructors>Constructors</h3>
+
+<dl>
+  <dt><code>(make-wrapper-comparator</code> <var>type-test</var> <var>unwrap</var> <var>contents-comparator</var><code>)</code> (Procedure)
+    <dd>
+      <p>Returns a comparator which compares values satisfying the predicate <var>type-test</var> by first calling the given <var>unwrap</var> procedure on them, then comparing the output of that procedure with the given <var>contents-comparator</var>. The hash function of the wrapper comparator returns the same value as the <var>contents-comparator</var> run on the unwrapped value.</p>
+
+  <dt><code>(make-product-comparator</code> <var>comparator</var> ... <code>)</code> (Procedure)
+    <dd>
+      <p>Returns a comparator which compares values satisfying the type tests of all of the given <var>comparator</var>s by comparing them with each of the given comparators in turn, left to right, and returning the result of the first non-equal comparison. If all the given comparators consider two values equal, the product comparator also considers them equal.</p>
+      <p>The product comparator is formally defined as follows. The domain of the product comparator is the intersection of the domains of all the given <var>comparator</var>s. The product comparator is then a comparator whose
+      <ul>
+        <li><b>type test</b> returns <code>#t</code> if all of the <var>comparator</var>s’ type tests are satisfied by the given value, otherwise returning <code>#f</code>;
+        <li><b>equality predicate</b> returns <code>#t</code> if the given values are equal according to the equality predicates of all the <var>comparator</var>s, otherwise returning <code>#f</code>;
+        <li><b>ordering predicate</b>, given two arguments <var>a b</var>, compares them using each of the <var>comparator</var>s from left to right thus:
+          <ul>
+            <li>if the current comparator’s ordering predicate returns true, the ordering predicate of the product comparator returns <code>#t</code>;
+            <li>if the current comparator’s equality predicate returns true, the next comparator is checked; or
+            <li>if there are no more comparators left, the ordering predicate of the product comparator returns <code>#f</code>;
+          </ul>
+          and whose
+        <li><b>hash function</b> hashes together the results of applying each of the <var>comparator</var>s’ hash functions to the given value in an implementation-defined way.
+      </ul>
+      <p>If the ordering predicate or the hash function of any of the given comparators does not exist, the corresponding procedure in the product comparator will also not exist.</p>
+      <p>If there are no <var>comparator</var>s given, this procedure returns the <code>comparator-one</code>, or a new comparator with identical behaviour to it.</p>
+      <p><i>Note:</i> This procedure actually creates comparators which are more general than a comparator over a product type – for example, because each <var>comparator</var> has its own type test, it can be used to combine a comparator for one type with that of a subtype; or if more than one <var>comparator</var> looks at the same component of a type. However, in most cases it is expected that this procedure will be used together with <code>make-wrapper-comparator</code> to create comparators over record types, i.e. product types, hence the name.</p>
+
+  <dt><code>(make-sum-comparator</code> <var>comparator</var> ... <code>)</code> (Procedure)
+    <dd>
+      <p>Returns a comparator which compares values satisfying the type-tests of any of the given comparators, such that values which satisfy the type-test of a given comparator are ordered before any values satisfying the type-tests of any comparators appear to the right of it, and values satisfying the same comparator’s type-test are tested for ordering and equality according that comparator.</p>
+      <p>The sum comparator is formally defined as follows. The domain of the sum comparator is the union of the domains of all the given <var>comparator</var>s. The <dfn>relevant comparator</dfn> for a given value is the leftmost of the given <var>comparator</var>s whose type test answers true for that value. The sum comparator is then a comparator whose
+      <ul>
+        <li><b>type test</b> returns <code>#t</code> if there exists a relevant comparator for the given value, or otherwise <code>#f</code>;
+        <li><b>equality predicate</b> finds the relevant comparators for both of the values it is given. If the values have two different relevant comparators, it returns <code>#f</code>; otherwise, it returns the value of the equality predicate of the relevant comparator applied to the two values.
+        <li><b>ordering predicate</b> finds the relevant comparators for both of the values (<var>a b</var>) it is given. If the relevant comparator for <var>a</var> is to the left of the relevant comparator for <var>b</var>, it returns <code>#t</code>. If the two values have the same relevant comparator, it returns the value returned by the ordering predicate of that comparator applied to the two values. In all other cases, returns <code>#f</code>.
+        <li><b>hash function</b> returns the value returned by the hash function of the relevant comparator for the value it is given.
+      </ul>
+      <p>If the ordering predicate or the hash function of any of the given comparators does not exist, the corresponding procedure in the sum comparator will also not exist.</p>
+      <p>If there are no <var>comparator</var>s given, this procedure returns the <code>comparator-zero</code>, or a new comparator with identical behaviour to it.</p>
+</dl>
+
+<h3 id=base-cases>Base Cases</h3>
+
+<dl>
+  <dt><code>comparator-one</code> (Comparator)
+    <dd>
+      <p>A comparator which has all values in its domain and considers all values to be equal. Specifically, its:
+      <ul>
+        <li><b>type test</b> always returns <code>#t</code>;
+        <li><b>equality predicate</b> always returns <code>#t</code>;
+        <li><b>ordering predicate</b> always returns <code>#f</code>; and whose
+        <li><b>hash function</b> always returns <code>0</code>.
+      </ul>
+  <dt><code>comparator-zero</code> (Comparator)
+    <dd>
+      <p>A comparator whose type test always returns <code>#f</code>. Since this comparator has no values in its domain, it is always an error to invoke its equality predicate, ordering predicate, or hash function.
+</dl>
+
+<h2 id=examples>Examples</h2>
+
+<p>Personal names are often sorted lexicographically and case-insensitively by the last name, then the first name if the last names are the same. The following example shows how <code>make-wrapper-comparator</code> and <code>make-product-comparator</code> can be used to create a comparator which orders a record type of personal names in this way.
+
+<pre><code>(define-record-type Person
+  (make-person first-name last-name)
+  person?
+  (first-name person-first-name)
+  (last-name person-last-name))
+
+(define person-name-comparator
+  (make-product-comparator
+   (make-wrapper-comparator person? person-last-name string-ci-comparator)
+   (make-wrapper-comparator person? person-first-name string-ci-comparator)))
+
+(&lt;? person-name-comparator
+    (make-person "John" "Cowan")
+    (make-person "Daphne" "Preston-Kendal")) ;=> #t
+
+(>? person-name-comparator
+    (make-person "Tom" "Smith")
+    (make-person "John" "Smith")) ;=> #t</code></pre>
+
+<p>This example can be extended with nested comparators to sort a catalogue in which CDs appear at the end of the list after books:
+
+<pre><code>(define-record-type Book
+  (make-book author title)
+  book?
+  (author book-author)
+  (title book-title))
+
+(define book-comparator
+  (make-product-comparator
+   (make-wrapper-comparator book? book-author person-name-comparator)
+   (make-wrapper-comparator book? book-title string-ci-comparator)))
+
+(define-record-type CD
+  (make-cd artist title)
+  cd?
+  (artist cd-artist)
+  (title cd-title))
+
+(define cd-comparator
+  (make-product-comparator
+   (make-wrapper-comparator cd? cd-artist person-name-comparator)
+   (make-wrapper-comparator cd? cd-title string-ci-comparator)))
+
+(define item-comparator
+  (make-sum-comparator book-comparator cd-comparator))
+
+(list-sort (lambda (a b) (&lt;? item-comparator a b))
+           (list (make-cd (make-person "The" "Beatles") "Abbey Road")
+                 (make-book (make-person "Jacob" "Grimm") "Deutsche Grammatik")
+                 (make-book (make-person "William" "Shakespeare") "Sonnets")
+                 (make-book (make-person "William" "Shakespeare") "A Midsummer Night’s Dream")
+                 (make-cd (make-person "Bob" "Dylan") "Blonde on Blonde")
+                 (make-cd (make-person "The" "Beatles") "Revolver")))
+;; => ({Book {Person "Jacob" "Grimm"} "Deutsche Grammatik"}
+;;     {Book {Person "William" "Shakespeare"} "A Midsummer Night’s Dream"}
+;;     {Book {Person "William" "Shakespeare"} "Sonnets"}
+;;     {CD {Person "The" "Beatles"} "Abbey Road"}
+;;     {CD {Person "The" "Beatles"} "Revolver"}
+;;     {CD {Person "Bob" "Dylan"} "Blonde on Blonde"})</code></pre>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>A portable sample implementation and test suite for R7RS may be found <a href="https://github.com/scheme-requests-for-implementation/srfi-228">in the repository</a> for this SRFI.
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p><code>make-sum-comparator</code>, and by extension the inspiration for the name of <code>make-product-comparator</code>, is originally from Adam Nelson’s Schemepunk.
+
+<p>Shiro Kawai requested a clearer definition of the individual procedures of sum and product comparators. He also suggested defining the base cases of <code>make-product-comparator</code> and <code>make-sum-comparator</code>. Jakob Wuhrer produced a detailed analysis showing the correct behaviour of the base cases <code>comparator-one</code> and <code>comparator-zero</code>, and also pointed out bugs in the sample implementation.
+
+<p>Lassi Kortela and Marc Nieper-Wißkirchen pointed out that the names <code>make-product-comparator</code> and <code>make-sum-comparator</code> are confusing and, in the former case, slightly incorrect in the analogy to product types of type theory. However, since nobody on the list could come up with a better name which makes clear what the two comparator compositions do, and their relationship to one another, the names were retained.
+
+<p>Arthur Gleckler was extraordinarily patient. He also turned the examples above into the initial version of the test suite for this SRFI’s sample implementation.
+
+<h2 id=future-work>Future Work</h2>
+
+<p>The author hopes that a future SRFI will add a procedure for creating comparators yielding lexicographical order over any sequence type by delegating to a common iteration protocol. An idea to do this using <code>fold</code> procedures foundered on two grounds: the first and more intrinsic one is that <code>fold</code> called on two sequences, one of which is a prefix of the other, cannot determine which of the two is longer, and a sort using <code>fold</code>-based iteration would incorrectly consider them equal; the second is that there is currently an inconsistency among Scheme libraries in what order the <var>kons</var> procedure argument to <code>fold</code> receives the accumulator and the next values in the sequence (compare <a href="https://srfi.schemers.org/srfi-1/srfi-1.html#fold">SRFI 1 <code>fold</code></a> with <a href="https://srfi.schemers.org/srfi-133/srfi-133.html#vector-fold">SRFI 133 <code>vector-fold</code></a>). <a href="https://srfi.schemers.org/srfi-158/">SRFI 158</a> generators were rejected on the ground that their sequences cannot contain any arbitrary Scheme datum.
+
+<p>Earlier drafts of this SRFI contained a procedure to convert a SRFI 128 comparator into a set of Scheme comparison procedures. This was dropped because a satisfactory interface, with sufficient efficiency and usability, could not be found. Thanks are due nonetheless to John Cowan and Marc Nieper-Wißkirchen for their suggestions to resolve this issue. Likewise, it is hoped that a future SRFI will respond to this need.
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2021 Daphne Preston-Kendal.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+<hr>
+<address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

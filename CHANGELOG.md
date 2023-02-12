@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.4 (2023-02-11)
+
+- Improved management of recent files and favorites.
+- Remember last edited file (can be switched off in the settings)
+- Improved display of file names in the editor
+- Fixed bug affecting bytevector copy procedures in library `(lispkit bytevector)`
+- Extended library: `(lispkit graph)`
+- New libraries: `(srfi 228)`, `(srfi 233)`, and `(srfi 236)`
+- Interpreter now based on LispKit 2.3.2
+
 ## 1.3.3 (2022-12-27)
 
 - User interface changes to optimize the look and feel for iOS 16, including revised key bindings
@@ -22,7 +32,13 @@
 
 ## 1.3.1 (2022-08-15)
 
-- TODO
+- Performance improvements: Optimized code generation for lambdas without captured expressions
+- Fixed division by zero issues with truncate and floor procedures
+- Made procedure open-file of library `(lispkit system)` work on iOS
+- Extended libraries: `(lispkit core)`, `(lispkit string)`, `(lispkit math)`, `(lispkit type)`, `(lispkit enum)`, `(lispkit draw)`, and `(lispkit clos)`
+- New libraries: `(lispkit math matrix)`, `(lispkit bitset)`, `(lispkit styled-text)`, `(lispkit draw chart bar)`, `(srfi 118)`, `(srfi 141)`, `(srfi 149)`, and `(srfi 232)`
+- New sample code: `ObjectOrientation.scm`, `DrawBarCharts.scm`, and `StyledTextDoc.scm`
+- Interpreter now based on LispKit 2.3.0
 
 ## 1.3.0 (2022-03-02)
 

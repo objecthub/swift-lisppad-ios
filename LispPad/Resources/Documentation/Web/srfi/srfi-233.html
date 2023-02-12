@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 233: INI files</title>
+  <style>pre.example { margin-left: 2em; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<H2><a name="lp-srfi-233">Title</a></H2>
+
+INI files
+
+<h2>Author</h2>
+
+John Cowan (text), Arvydas Silanskas (code)
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+233+at+srfi+dotschemers+dot+org">srfi-233@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-233/">archive</a>.</p>
+<ul>
+  <li>Received: 2022-08-03</li>
+  <li>Draft #1 published: 2022-08-10</li>
+  <li>Draft #2 published: 2022-09-26</li>
+  <li>Draft #3 published: 2022-10-04</li>
+  <li>Finalized: 2022-10-13</li>
+  <li>Revised to fix errata:
+      <ul>
+        <li>2022-10-28 (Use symbols, not strings, for sections and
+          keys, and <code>#f</code> for the section before the first
+          section name has been read, and for keys not delimited from
+          values.  This was agreed upon during the discussion before
+          finalization, but the authors and editor somehow missed
+          making the necessary changes.  In the process of fixing
+          this, the example was simplified slightly.)</li></ul></li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>An INI file is a configuration file that consists of key-value
+pairs for properties, and sections that group the properties. The
+name of these configuration files comes from the filename extension
+<code>INI</code>, short for initialization.
+The format has become an informal standard in many contexts of configuration.
+This SRFI provides access to the contents of an INI file.
+</p>
+
+<h2 id="rationale">Rationale</h2>
+
+<p>Although INI files have been declared obsolete on several different occasions,
+their simplicity has kept them in use in many environments.
+Although the format is not well specified, it is also quite forgiving;
+it can readily be edited by hand, which is both an advantage and a disadvantage.
+This library does not impose any rules beyond the simplest ones: for example,
+there are a variety of conventions for nested sections in the wild,
+but it is up to users of the library to interpret a specific convention.
+Similarly, there is no enforcement of the convention that all keys within
+a section must be unique, or of case-sensitivity or insensitivity.
+Rather, the library attempts to extract as much information as possible from
+INI files that may be quite unconventionally formatted.
+</p>
+
+<h2 id="specification">Specification</h2>
+
+<p>An INI file is a simple line-based configuration format.  There are many variations;
+this SRFI provides support for at least the following:</p>
+<ul>
+<li><p>Comments begin with <code>;</code> and are removed from lines.
+The comment delimiter can be overridden.</p>
+</li>
+<li><p>Blank lines and leading and trailing whitespace are ignored.
+For the purposes of this SRFI, "whitespace" means any sequence of spaces and/or tabs.</p>
+</li>
+<li><p>The beginning of a section is marked by a line beginning with <code>[</code> and ending with <code>]</code>.
+Sections do not nest.  The name of a section is the characters between the brackets.</p>
+</li>
+<li><p>Other lines containing <code>=</code> are treated as key-value pairs within the current section or, if
+they precede any section line, as key-value pairs belonging to a section
+whose name is <code>#f</code>.
+Whitespace immediately before or after the <code>=</code> is ignored.
+If there is more than one key-value separator, all but the first are considered part of the value.
+The key-value separator can be overridden.</p>
+</li>
+<li><p>Any other lines are treated as keys whose value is <code>#f</code>.</p>
+</li>
+</ul>
+<p>The following two procedures are provided:</p>
+<p><code>(make-ini-file-generator</code>&nbsp;<em>inport</em> [ <em>key-value-sep</em> [ <em>comment-delim</em> ] ]<code>)</code></p>
+<p>Returns a generator that reads one or more lines from
+the textual input port <em>inport</em> and returns a list of two symbols and a string:
+the current section name, the key, and the value.  If no section names have been read, the
+section name is <code>#f</code>.  When the port returns an end-of-file object,
+the generator returns an end-of-file object.
+It is an error to mutate any of the strings and lists returned.</p>
+<p>The character <em>key-value-sep</em>, which defaults to <code>#\=</code>, specifies the separator
+between a key and the corresponding value.  The character <em>comment-delim</em>, which defaults
+to <code>#\;</code>, specifies the delimiter before a comment.
+It is an error if either of them is whitespace or a newline.</p>
+<p>Note that it is the user's responsibility to close the port.</p>
+<p><code>(make-ini-file-accumulator</code>&nbsp;<em>outport</em> [ <em>value-delim</em> [ <em>comment-delim</em> ] ]<code>)</code></p>
+<p>Returns an accumulator that writes to
+the textual output port <em>outport</em>.
+<ul>
+<li><p>If the argument passed to the accumulator
+is a list of three elements, a key-value line, preceded if necessary by a section line,
+is written.</p></li>
+<li><p>If the argument is a single string,
+it is prefixed by the comment delimiter and a single space and written out.</p></li>
+</ul>
+<p>In either case, the accumulator returns an unspecified value.
+It is an error if any of these strings contains a newline.
+If the argument is an end-of-file object, the end-of-file object is returned.
+It is an error to call the accumulator after that.</p>
+<p>Note that it is the user's responsibility to close the port.</p>
+<p>The <em>key-value-sep</em> and <em>comment-delim</em> are treated the same as in <code>make-ini-file-generator</code>.
+<h2 id="example">Example</h2>
+<p>The following is an example of an INI file:
+
+<pre>
+; Be sure to update the following line
+last_modified_date=2022-08-10
+
+[other]
+quiet=/qa
+
+[install]
+allusers=true
+applicationusers=allusers
+clientauditingport=6420
+databasedb=boe120
+enablelogfile=true
+install.lp.fr.selected=true
+installswitch=server
+nsport=6400
+website_metabase_number=true
+
+[features]
+remove=wcadotnet,webapplicationcontainer
+</pre>
+
+<p>Calling <code>make-ini-file-generator</code> on
+a character input stream containing this example will
+return a generator which generates the following lists:
+
+<pre>
+(#f last_modified_date 2022-08-10)
+(other quiet "/qa")
+(install allusers "true")
+(install applicationusers "allusers")
+(install clientauditingport "6420")
+(install databasedb "boe120")
+(install enablelogfile "true")
+(install install.lp.fr.selected "true")
+(install installswitch "server")
+(install nsport "6400")
+(install website_metabase_number "true")
+(features remove "wcadotnet,webapplicationcontainer")
+</pre>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation is in the <a href="https://github.com/scheme-requests-for-implementation/srfi-233">SRFI 233 repository</a>.</p>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>Thanks to the participants on the SRFI 233 mailing list.</p>
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2022 John Cowan, Arvydas Silanskas.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

@@ -36,6 +36,8 @@
 		<string>(lispkit math stats).md</string>
 		<key>lispkit math matrix</key>
 		<string>(lispkit math matrix).md</string>
+		<key>lispkit graph</key>
+		<string>(lispkit graph).md</string>
 		<key>lispkit list</key>
 		<string>(lispkit list).md</string>
 		<key>lispkit hashtable</key>
@@ -295,12 +297,18 @@
 		<string>srfi/srfi-224.html</string>
 		<key>srfi 227</key>
 		<string>srfi/srfi-227.html</string>
+		<key>srfi 228</key>
+		<string>srfi/srfi-228.html</string>
 		<key>srfi 229</key>
 		<string>srfi/srfi-229.html</string>
 		<key>srfi 230</key>
 		<string>srfi/srfi-230.html</string>
 		<key>srfi 232</key>
 		<string>srfi/srfi-232.html</string>
+		<key>srfi 233</key>
+		<string>srfi/srfi-233.html</string>
+		<key>srfi 236</key>
+		<string>srfi/srfi-236.html</string>
 		<key>srfi sicp</key>
 		<string>srfi/srfi-216.html</string>
 		<key>scheme bitwise</key>

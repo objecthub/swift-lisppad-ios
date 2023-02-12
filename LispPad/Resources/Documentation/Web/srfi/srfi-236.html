@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 236: Evaluating expressions in an unspecified order</title>
+  <style>pre.example { margin-left: 2em; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<H2><a name="lp-srfi-236">Title</a></H2>
+
+Evaluating expressions in an unspecified order
+
+<h2>Author</h2>
+
+Marc Nieper-Wi&szlig;kirchen
+
+  <h2 id="status">Status</h2>
+
+  <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+236+at+srfi+dotschemers+dot+org">srfi-236@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-236/">archive</a>.</p>
+  <ul>
+    <li>Received: 2022-09-11</li>
+    <li>Draft #1 published: 2022-09-22</li>
+    <li>Draft #2 published: 2022-10-25</li>
+    <li>Finalized: 2022-11-22</li>
+  </ul>
+  <h2 id="abstract">Abstract</h2>
+
+  <p>This SRFI defines the <code>independently</code> syntax, which can be
+  used to combine side effects into one expression without
+  specifying their relative order.</p>
+
+  <h2 id="rationale">Rationale</h2>
+
+  <p>The purpose of the <code>begin</code> expression type in the
+    existing Scheme standards is two-fold.  Firstly, it can be used to
+    combine several expressions into one expression.  Secondly, it is
+    used to sequence the side effects of these expressions by
+    specifying an evaluation order.</p>
+
+  <p>In many use cases, only the first property is needed while any
+    specific sequence order would be arbitrary.  Thus, many Scheme
+    programs written with <code>begin</code> overspecify the
+    underlying algorithm.  As Scheme is a language to write down
+    algorithms as much as it is a practical programming language,
+    this SRFI introduces the <code>independently</code> syntax, which is
+    similar to <code>begin</code> but without any specific
+    evaluation order (and thus no return value(s)).</p>
+
+  <p>The practical side of the <code>independently</code> syntax is that
+    it allows a compiler to reorder expressions freely and that it
+    helps documenting code.  If expressions appear inside
+    an <code>independently</code> form, the programmer expresses the fact
+    that the relative order of these expressions does not matter.
+    This can make imperatively-written programs easier to
+    understand.</p>
+
+  <p>As the result of an <code>independently</code> expression is
+    unspecified, an <code>independently</code> expression, contrary to
+    a <code>begin</code> expression, need not contain any
+    expression.  This can make an <code>independently</code> expression
+    useful for macro writers.</p>
+
+  <h2 id="specification">Specification</h2>
+
+  <h3>Example</h3>
+
+  <p>The following procedure could have been written
+    with <code>begin</code> instead of <code>independently</code> but it
+    would have been an overspecification of the underlying
+    algorithmic content.</p>
+
+  <pre>(define set-car+cdr!
+(lambda (p x y)
+  (assert (pair? p))
+  (independently
+    (set-car! p x)
+    (set-cdr! p y))))</pre>
+
+  <h3>Syntax</h3>
+
+  <p><code>(independently &langle;expression&rangle; &hellip;)</code></p>
+
+  <p>Evaluates the &langle;expressions&rangle;s in an unspecified
+    order and discards their return values.  The result of
+    the <code>independently</code> expression is unspecified.</p>
+
+  <p><i>Note:</i> Although the order of evaluation is otherwise
+    unspecified, the effect of any concurrent evaluation of the
+    &langle;expressions&rangle; is constrained to be consistent with
+    some sequential order of evaluation. The order of evaluation may
+    be chosen differently for each evaluation of
+    the <code>independently</code> form.</p>
+
+  <h3>Library name</h3>
+
+  <p>The <a href="https://srfi.schemers.org/srfi-97/">SRFI 97</a>-conformant
+    library name of this SRFI is <code>(srfi :236 independently)</code>.</p>
+
+  <h2 id="implementation">Implementation</h2>
+
+  <p>The following is an R<sup>6</sup>RS implementation.</p>
+
+  <pre>(library (srfi :236 independently)
+(export independently)
+(import (rnrs))
+(define-syntax independently
+  (lambda (stx)
+    (syntax-case stx ()
+      [(_ expr ...)
+       (with-syntax ([(tmp ...) (generate-temporaries #'(expr ...))])
+         #'(let ([tmp (begin expr #f)] ...) (values)))]
+      [_ (syntax-violation 'independently "invalid syntax" stx)]))))</pre>
+
+  <p>And here is an R<sup>7</sup>RS (small) implementation.</p>
+
+  <pre>(define-library (srfi 236)
+(export independently)
+(import (scheme base))
+(begin
+  (define-syntax independently
+    (syntax-rules ()
+((independently expr ...)
+ (independently-aux (expr ...)))))
+  (define-syntax independently-aux
+    (syntax-rules ()
+((independently-aux () (expr tmp) ...)
+ (let ((tmp (begin expr #f)) ...) (values)))
+((independently-aux (expr . exprs) . binds)
+ (independently-aux exprs (expr tmp) . binds))))))</pre>
+
+  <h2 id="acknowledgements">Acknowledgements</h2>
+
+  <p>Thanks go to the members of the Scheme Working Group 2 for
+    discussing the idea of the <code>independently</code> expression
+    with me.  The name <code>independently</code> was suggested by
+    Lassi Kortela.  Special thanks to Göran Weinholt, who tested the
+    previous sample implementation on his Loko compiler and on Chez
+    Scheme.</p>
+
+  <h2 id="copyright">Copyright</h2>
+  <p>&copy; 2022  Marc Nieper-Wi&szlig;kirchen.</p>
+
+  <p>
+    Permission is hereby granted, free of charge, to any person
+    obtaining a copy of this software and associated documentation files
+    (the "Software"), to deal in the Software without restriction,
+    including without limitation the rights to use, copy, modify, merge,
+    publish, distribute, sublicense, and/or sell copies of the Software,
+    and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:</p>
+
+  <p>
+    The above copyright notice and this permission notice (including the
+    next paragraph) shall be included in all copies or substantial
+    portions of the Software.</p>
+  <p>
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+    ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.</p>
+
+<hr>
+<address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

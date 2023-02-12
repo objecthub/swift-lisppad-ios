@@ -62,7 +62,7 @@ struct AboutView: View {
             .padding(.top, 12)
         }
         .padding(.trailing, 20)
-        .frame(width: 170, height: 110, alignment: .center)
+        .frame(width: 185, height: 110, alignment: .center)
         .padding(.leading, 8)
       }
       .padding(.top, 32)
