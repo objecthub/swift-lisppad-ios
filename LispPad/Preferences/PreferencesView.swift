@@ -52,8 +52,7 @@ struct PreferencesView: View {
           }
           .defaultPickerStyle()
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
-            Text("Console history: ")
-            Text("\(settings.maxConsoleHistory)").foregroundColor(.gray)
+            Text("Console history: ") + Text(" \(settings.maxConsoleHistory)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Input")) {
@@ -71,8 +70,7 @@ struct PreferencesView: View {
           Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.consoleExtendedKeyboard)
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
-            Text("Command history: ")
-            Text("\(settings.maxCommandHistory)").foregroundColor(.gray)
+            Text("Command history: ") + Text(" \(settings.maxCommandHistory)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Scheme Mode")) {
@@ -89,8 +87,7 @@ struct PreferencesView: View {
         Section(header: Text("Files")) {
           Toggle("Remember last edited file", isOn: $settings.rememberLastEditedFile)
           Stepper(value: $settings.maxRecentFiles, in: 2...40, step: 1) {
-            Text("Recent files: ")
-            Text("\(settings.maxRecentFiles)").foregroundColor(.gray)
+            Text("Recent files: ") + Text(" \(settings.maxRecentFiles)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Text")) {
@@ -105,8 +102,7 @@ struct PreferencesView: View {
           }
           .defaultPickerStyle()
           Stepper(value: $settings.indentSize, in: 1...8, step: 1) {
-            Text("Indentation size: ")
-            Text("\(settings.indentSize)").foregroundColor(.gray)
+            Text("Indentation size: ") + Text(" \(settings.indentSize)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Interface")) {
@@ -176,8 +172,7 @@ struct PreferencesView: View {
           Toggle("Commands and results", isOn: $settings.logCommands)
           Toggle("Garbage collection", isOn: $settings.logGarbageCollection)
           Stepper(value: $settings.logMaxHistory, in: 500...50000, step: 500) {
-            Text("Log history: ")
-            Text("\(settings.logMaxHistory)").foregroundColor(.gray)
+            Text("Log history: ") + Text(" \(settings.logMaxHistory)").foregroundColor(.gray)
           }
         }
         Section(header: Text("Install Folders")) {

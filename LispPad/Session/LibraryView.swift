@@ -50,29 +50,25 @@ struct LibraryView: View {
               .foregroundColor(.secondary)
           }
         }
+        .disabled(self.docManager.libraryDocumentation(for: proxy.components) == nil)
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
           Button(action: { self.interpreter.import(proxy.components) }) {
             Image(systemName: "square.and.arrow.down")
-          }
+          }.tint(.blue)
         }
-        .disabled(self.docManager.libraryDocumentation(for: proxy.components) == nil)
       }
+    }
+    .refreshable {
+      self.libManager.updateLibraries()
     }
     .listStyle(.plain)
     .searchable(text: $searchText)
-    .resignKeyboardOnDragGesture()
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
     .navigationBarBackButtonHidden(false)
     .toolbar {
       ToolbarItemGroup(placement: .navigationBarTrailing) {
         HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-          Button(action: {
-            self.libManager.updateLibraries()
-          }) {
-            Image(systemName: "arrow.clockwise")
-              .font(LispPadUI.toolbarFont)
-          }
           Menu {
             Button(action: {
               self.showAllLibraries = true
