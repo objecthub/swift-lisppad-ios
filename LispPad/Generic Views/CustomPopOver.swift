@@ -35,13 +35,13 @@ struct CustomPopOver<Content: View, PopoverContent: View>: View {
     )
   }
   
-  struct Wrapper<Content: View> : UIViewControllerRepresentable {
+  struct Wrapper<C: View> : UIViewControllerRepresentable {
     @Binding var showPopover: Bool
     let popoverSize: CGSize?
-    let popoverContent: () -> Content
+    let popoverContent: () -> C
     
-    func makeUIViewController(context: UIViewControllerRepresentableContext<Wrapper<Content>>)
-                                -> WrapperViewController<Content> {
+    func makeUIViewController(context: UIViewControllerRepresentableContext<Wrapper<C>>)
+                                -> WrapperViewController<C> {
       return WrapperViewController(
           popoverSize: popoverSize,
           popoverContent: popoverContent) {
@@ -49,8 +49,8 @@ struct CustomPopOver<Content: View, PopoverContent: View>: View {
       }
     }
     
-    func updateUIViewController(_ uiViewController: WrapperViewController<Content>,
-                                context: UIViewControllerRepresentableContext<Wrapper<Content>>) {
+    func updateUIViewController(_ uiViewController: WrapperViewController<C>,
+                                context: UIViewControllerRepresentableContext<Wrapper<C>>) {
       uiViewController.updateSize(popoverSize)
       if showPopover {
         uiViewController.showPopover()
@@ -60,15 +60,15 @@ struct CustomPopOver<Content: View, PopoverContent: View>: View {
     }
   }
   
-  class WrapperViewController<PopoverContent: View>: UIViewController,
-                                                     UIPopoverPresentationControllerDelegate {
+  class WrapperViewController<PC: View>: UIViewController,
+                                         UIPopoverPresentationControllerDelegate {
     var popoverSize: CGSize?
-    let popoverContent: () -> PopoverContent
+    let popoverContent: () -> PC
     let onDismiss: () -> Void
     var popoverVC: UIViewController?
     
     init(popoverSize: CGSize?,
-         popoverContent: @escaping () -> PopoverContent,
+         popoverContent: @escaping () -> PC,
          onDismiss: @escaping() -> Void) {
       self.popoverSize = popoverSize
       self.popoverContent = popoverContent

@@ -2,7 +2,7 @@
 
 all: update
 
-update: select
+update:
 	carthage update --platform iOS --use-xcframeworks
 
 select:
