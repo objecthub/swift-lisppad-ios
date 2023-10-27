@@ -22,10 +22,13 @@ import SwiftUI
 import MarkdownKit
 
 struct MarkdownText: View {
-  @StateObject private var intrinsicContentSize = MutableSize()
+  @State private var textSize: CGSize? = nil
+  private var intrinsicContentSize = MutableSize()
   private let mutableBlock = MutableBlock()
+  private let rightPadding: Int
   
-  init(_ markdownText: Block?) {
+  init(_ markdownText: Block?, rightPadding: Int = 0) {
+    self.rightPadding = rightPadding
     self.mutableBlock.block = markdownText
   }
   
@@ -36,20 +39,23 @@ struct MarkdownText: View {
                                        geometry.safeAreaInsets.leading -
                                        geometry.safeAreaInsets.trailing,
                        intrinsicContentSize: self.intrinsicContentSize,
-                       rightPadding: 0)
+                       rightPadding: self.rightPadding)
     }
-    .frame(idealWidth: self.intrinsicContentSize.size?.width,
-           idealHeight: self.intrinsicContentSize.size?.height)
+    .frame(idealWidth: self.textSize?.width, idealHeight: self.textSize?.height)
     .fixedSize(horizontal: false, vertical: true)
+    .onReceive(self.intrinsicContentSize.$size) { size in
+      self.textSize = size
+    }
   }
 }
 
 struct MutableMarkdownText: View {
-  @StateObject private var intrinsicContentSize = MutableSize()
+  @State private var textSize: CGSize? = nil
   @ObservedObject private var mutableBlock: MutableBlock
-  let rightPadding: Int
+  private var intrinsicContentSize = MutableSize()
+  private let rightPadding: Int
   
-  init(_ mutableBlock: MutableBlock, rightPadding: Int) {
+  init(_ mutableBlock: MutableBlock, rightPadding: Int = 0) {
     self.mutableBlock = mutableBlock
     self.rightPadding = rightPadding
   }
@@ -63,9 +69,11 @@ struct MutableMarkdownText: View {
                        intrinsicContentSize: self.intrinsicContentSize,
                        rightPadding: self.rightPadding)
     }
-    .frame(idealWidth: self.intrinsicContentSize.size?.width,
-           idealHeight: self.intrinsicContentSize.size?.height)
+    .frame(idealWidth: self.textSize?.width, idealHeight: self.textSize?.height)
     .fixedSize(horizontal: false, vertical: true)
+    .onReceive(self.intrinsicContentSize.$size) { size in
+      self.textSize = size
+    }
   }
 }
 
@@ -199,7 +207,7 @@ struct MarkdownTextView: UIViewRepresentable {
   }
   
   func makeUIView(context: Context) -> TextView {
-    let view = TextView()
+    let view = TextView(usingTextLayoutManager: false)
     view.textColor = .label
     view.backgroundColor = .clear
     view.textContainerInset = .zero

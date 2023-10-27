@@ -21,7 +21,8 @@
 import SwiftUI
 
 struct RichText: View {
-  @StateObject var intrinsicContentSize = MutableSize()
+  @State private var textSize: CGSize? = nil
+  private var intrinsicContentSize = MutableSize()
   private let text: NSAttributedString
   private let interpretAttributes: Bool
   
@@ -52,9 +53,11 @@ struct RichText: View {
         intrinsicContentSize: self.intrinsicContentSize
       )
     }
-    .frame(idealWidth: self.intrinsicContentSize.size?.width,
-           idealHeight: self.intrinsicContentSize.size?.height)
+    .frame(idealWidth: self.textSize?.width, idealHeight: self.textSize?.height)
     .fixedSize(horizontal: false, vertical: true)
+    .onReceive(self.intrinsicContentSize.$size) { size in
+      self.textSize = size
+    }
   }
 }
 
@@ -100,7 +103,7 @@ struct AttributedText: UIViewRepresentable {
   }
   
   func makeUIView(context: Context) -> TextView {
-    let view = TextView()
+    let view = TextView(usingTextLayoutManager: false)
     view.textColor = .label
     view.backgroundColor = .clear
     view.textContainerInset = .zero

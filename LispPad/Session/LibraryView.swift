@@ -25,21 +25,17 @@ struct LibraryView: View {
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var libManager: LibraryManager
-  @State var tapped: LibraryManager.LibraryProxy? = nil
   @State var searchText: String = ""
   @State var showAllLibraries: Bool = true
   
   var body: some View {
-    List {
-      ForEach(self.libManager.libraries.filter { proxy in 
-        (self.showAllLibraries || proxy.isLoaded) &&
-        (self.searchText.isEmpty ||
-         proxy.name.range(of: self.searchText, options: .caseInsensitive) != nil)
-      }, id: \.name) { proxy in
-        NavigationLink(
-          destination: LazyView(LibraryDetailView(libProxy: proxy)),
-          tag: proxy,
-          selection: self.$tapped) {
+      List(self.libManager.libraries.filter { proxy in 
+             (self.showAllLibraries || proxy.isLoaded) &&
+             (self.searchText.isEmpty ||
+                proxy.name.range(of: self.searchText, options: .caseInsensitive) != nil)
+           },
+           id: \.name) { proxy in
+        NavigationLink(value: proxy) {
           HStack(spacing: 12) {
             Text(proxy.name)
               .font(.body)
@@ -57,35 +53,37 @@ struct LibraryView: View {
           }.tint(.blue)
         }
       }
-    }
-    .refreshable {
-      self.libManager.updateLibraries()
-    }
-    .listStyle(.plain)
-    .searchable(text: $searchText)
-    .navigationBarTitleDisplayMode(.inline)
-    .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
-    .navigationBarBackButtonHidden(false)
-    .toolbar {
-      ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-          Menu {
-            Button(action: {
-              self.showAllLibraries = true
-            }) {
-              Label("All", systemImage: self.showAllLibraries ? "checkmark" : "")
-            }
-            Button(action: {
-              self.showAllLibraries = false
-            }) {
-              Label("Loaded", systemImage: self.showAllLibraries ? "" : "checkmark")
-            }
-          } label: {
-            Image(systemName: "slider.horizontal.3")
-              .font(LispPadUI.toolbarFont)
-          }
-        }
-      }
+     .refreshable {
+       self.libManager.updateLibraries()
+     }
+     .listStyle(.plain)
+     .searchable(text: $searchText)
+     .navigationBarTitleDisplayMode(.inline)
+     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
+     .navigationBarBackButtonHidden(false)
+     .toolbar {
+       ToolbarItemGroup(placement: .navigationBarTrailing) {
+         HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+           Menu {
+             Button(action: {
+               self.showAllLibraries = true
+             }) {
+               Label("All", systemImage: self.showAllLibraries ? "checkmark" : "")
+             }
+             Button(action: {
+               self.showAllLibraries = false
+             }) {
+               Label("Loaded", systemImage: self.showAllLibraries ? "" : "checkmark")
+             }
+           } label: {
+             Image(systemName: "slider.horizontal.3")
+               .font(LispPadUI.toolbarFont)
+           }
+         }
+       }
+     }
+    .navigationDestination(for: LibraryManager.LibraryProxy.self) { proxy in
+      LibraryDetailView(libProxy: proxy)
     }
   }
 }

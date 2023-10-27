@@ -24,6 +24,12 @@ import MarkdownKit
 
 struct InterpreterView: View {
   
+  enum NavigationTargets: Hashable {
+    case libraryBrowser
+    case environmentBrowser
+    case settings
+  }
+  
   enum SheetAction: Identifiable {
     case loadFile
     case organizeFiles
@@ -130,16 +136,11 @@ struct InterpreterView: View {
       }
       .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
       if !self.splitView {
-        NavigationLink(destination: CodeEditorView(splitView: self.splitView,
-                                                   splitViewMode: $splitViewMode,
-                                                   masterWidthFraction: $masterWidthFraction,
-                                                   urlToOpen: $urlToOpen,
-                                                   editorPosition: $editorPosition,
-                                                   forceEditorUpdate: $forceEditorUpdate),
-                       isActive: $navigateToEditor) {
+        Button(action: self.switchToEditor) {
           EmptyView()
         }
-        .keyboardShortcut("s", modifiers: .command)
+        .keyCommand("s", modifiers: .command, title: "Switch to editor")
+        //.keyboardShortcut("s", modifiers: .command)
       }
     }
   }
@@ -412,24 +413,31 @@ struct InterpreterView: View {
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            NavigationLink(destination: LazyView(
-                            PreferencesView(selectedTab: $selectedPreferencesTab))) {
+            NavigationLink(value: NavigationTargets.settings) {
               Image(systemName: "gearshape")
                 .font(LispPadUI.toolbarFont)
             }
-            NavigationLink(destination: LazyView(
-                             LibraryView(libManager: interpreter.libManager))) {
+            NavigationLink(value: NavigationTargets.libraryBrowser) {
               Image(systemName: "building.columns")
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(!self.docManager.initialized)
-            NavigationLink(destination: LazyView(
-                             EnvironmentView(envManager: interpreter.envManager))) {
+            NavigationLink(value: NavigationTargets.environmentBrowser) {
               Image(systemName: "square.stack.3d.up")
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(!self.docManager.initialized)
           }
+        }
+      }
+      .navigationDestination(for: NavigationTargets.self) { target in
+        switch target {
+          case .libraryBrowser:
+            LibraryView(libManager: interpreter.libManager)
+          case .environmentBrowser:
+            EnvironmentView(envManager: interpreter.envManager)
+          case .settings:
+            PreferencesView(selectedTab: $selectedPreferencesTab)
         }
       }
       .sheet(item: $showModal, content: self.sheetView)
@@ -472,6 +480,14 @@ struct InterpreterView: View {
                           }})
                      })
         }
+      }
+      .navigationDestination(isPresented: $navigateToEditor) {
+        CodeEditorView(splitView: self.splitView,
+                       splitViewMode: $splitViewMode,
+                       masterWidthFraction: $masterWidthFraction,
+                       urlToOpen: $urlToOpen,
+                       editorPosition: $editorPosition,
+                       forceEditorUpdate: $forceEditorUpdate)
       }
       .onChange(of: self.urlToOpen) { optUrl in
         if let url = optUrl {

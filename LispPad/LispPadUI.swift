@@ -48,46 +48,22 @@ struct LispPadUI {
   
   // Toolbar item font
   static let toolbarFont: SwiftUI.Font = {
-    if #available(iOS 16, *) {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
-    } else if #available(iOS 15, *) {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
-    } else {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .light)
-    }
+    return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
   }()
   
   // Toolbar item font for switch items
   static let toolbarSwitchFont: SwiftUI.Font = {
-    if #available(iOS 16, *) {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
-    } else if #available(iOS 15, *) {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
-    } else {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
-    }
+    return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
   }()
   
   // Small editor file name font
   static let fileNameFont: SwiftUI.Font = {
-    if #available(iOS 16, *) {
-      return .system(size: LispPadUI.fileNameFontSize, weight: .regular)
-    } else if #available(iOS 15, *) {
-      return .system(size: LispPadUI.fileNameFontSize, weight: .regular)
-    } else {
-      return .system(size: LispPadUI.fileNameFontSize, weight: .light)
-    }
+    return .system(size: LispPadUI.fileNameFontSize, weight: .regular)
   }()
   
   // Large editor file name font
   static let largeFileNameFont: SwiftUI.Font = {
-    if #available(iOS 16, *) {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
-    } else if #available(iOS 15, *) {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
-    } else {
-      return .system(size: LispPadUI.toolbarItemSize, weight: .light)
-    }
+    return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
   }()
   
   static func configure() {

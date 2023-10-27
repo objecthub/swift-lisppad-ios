@@ -168,6 +168,25 @@ struct LogView: View {
           }
           .frame(maxHeight: 25, alignment: .center)
           Spacer(minLength: 0)
+          Button(action: {
+            self.showLogFilterPopOver = true
+          }) {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+              .font(LogView.iconFont)
+              .padding(.horizontal, 4)
+          }
+          .popover(isPresented: self.$showLogFilterPopOver) {
+            LogFilterView(showLogFilterPopOver: $showLogFilterPopOver,
+                          minSeverityFilter: self.settings.logSeverityFilter,
+                          logMessageFilter: self.settings.logMessageFilter,
+                          filterMessage: self.settings.logFilterMessages,
+                          filterTag: self.settings.logFilterTags)
+            .frame(idealWidth: 280, idealHeight: 220)
+            .environmentObject(self.settings)
+            .environmentObject(self.sessionLog)
+            .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
+          }
+          /* Not needed anymore as of macOS 16.4
           CustomPopOver(showPopover: $showLogFilterPopOver,
                         popoverSize: CGSize(width: 280, height: 220)) {
             LogFilterView(showLogFilterPopOver: $showLogFilterPopOver,
@@ -186,6 +205,7 @@ struct LogView: View {
                 .padding(.horizontal, 4)
             }
           }
+          */
           Menu {
             Button(action: {
               self.showTime.toggle()

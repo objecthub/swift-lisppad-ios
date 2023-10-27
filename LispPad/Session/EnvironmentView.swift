@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import LispKit
 
 struct EnvironmentView: View {
   @EnvironmentObject var docManager: DocumentationManager
@@ -32,8 +33,7 @@ struct EnvironmentView: View {
         self.searchText.isEmpty ||
         symbol.identifier.range(of: self.searchText, options: .caseInsensitive) != nil
       }, id: \.self) { symbol in
-        NavigationLink(
-          destination: LazyView(EnvironmentDetailView(symbol: symbol))) {
+        NavigationLink(value: symbol) {
           Text(symbol.description)
             .font(.body)
         }
@@ -60,6 +60,9 @@ struct EnvironmentView: View {
     }
     .fullScreenCover(isPresented: $showLispPadRef) {
       DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)
+    }
+    .navigationDestination(for: Symbol.self) { symbol in
+      EnvironmentDetailView(symbol: symbol)
     }
   }
 }

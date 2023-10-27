@@ -44,33 +44,34 @@ struct AboutView: View {
 
   var body: some View {
     Sheet(backgroundColor: Color(.tertiarySystemBackground)) {
-      HStack(alignment: .center, spacing: 16) {
-        Image("SmallLogo")
-          .resizable()
-          .scaledToFit()
-          .frame(width: 100, height: 100)
-        VStack(alignment: .leading, spacing: 4) {
-          Text("LispPad")
-            .font(.title2)
-            .padding(.top, 12)
-          (Text("Version ") +
-           Text(AboutView.appVersion ?? "?") +
-           Text(" (") + Text(AboutView.buildVersion ?? "?") + Text(")"))
+      VStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 16) {
+          Image("SmallLogo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 100, height: 100)
+          VStack(alignment: .leading, spacing: 4) {
+            Text("LispPad")
+              .font(.title2)
+              .padding(.top, 12)
+            (Text("Version ") +
+             Text(AboutView.appVersion ?? "?") +
+             Text(" (") + Text(AboutView.buildVersion ?? "?") + Text(")"))
             .font(.footnote)
-          Text(AboutView.copyright ?? "Copyright © Matthias Zenger. All rights reserved.")
-            .font(.caption)
-            .padding(.top, 12)
+            Text(AboutView.copyright ?? "Copyright © Matthias Zenger. All rights reserved.")
+              .font(.caption)
+              .padding(.top, 12)
+          }
+          .padding(.trailing, 20)
+          .frame(width: 185, height: 110, alignment: .center)
+          .padding(.leading, 8)
         }
-        .padding(.trailing, 20)
-        .frame(width: 185, height: 110, alignment: .center)
-        .padding(.leading, 8)
-      }
-      .padding(.top, 32)
-      .padding(.bottom, 16)
-      ScrollView(.vertical) {
-        RichText(self.aboutText)
-          .padding(.horizontal, 24)
-      }
+        .padding(.top, 32)
+        ScrollView(.vertical) {
+          RichText(self.aboutText)
+            .padding(.horizontal, 24)
+        }
+      }.transition(.identity)
     }
   }
 }

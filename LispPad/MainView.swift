@@ -61,7 +61,7 @@ struct MainView: View {
       ZStack {
         Color("NavigationBarColor").ignoresSafeArea()
         SplitView {
-          NavigationView {
+          NavigationStack {
             InterpreterView(splitView: true,
                             splitViewMode: $splitViewMode,
                             masterWidthFraction: $masterWidthFraction,
@@ -69,10 +69,9 @@ struct MainView: View {
                             editorPosition: $editorPosition,
                             forceEditorUpdate: $forceEditorUpdate)
           }
-          .navigationViewStyle(.stack)
           .modifier(self.globals.services)
         } detail: {
-          NavigationView {
+          NavigationStack {
             CodeEditorView(splitView: true,
                            splitViewMode: $splitViewMode,
                            masterWidthFraction: $masterWidthFraction,
@@ -80,7 +79,6 @@ struct MainView: View {
                            editorPosition: $editorPosition,
                            forceEditorUpdate: $forceEditorUpdate)
           }
-          .navigationViewStyle(.stack)
           .modifier(self.globals.services)
         }
         .splitViewMasterWidthFraction(self.masterWidthFraction)
@@ -94,7 +92,7 @@ struct MainView: View {
         }
       }
     } else {
-      NavigationView {
+      NavigationStack {
         InterpreterView(splitView: false,
                         splitViewMode: $splitViewMode,
                         masterWidthFraction: $masterWidthFraction,
@@ -102,7 +100,6 @@ struct MainView: View {
                         editorPosition: $editorPosition,
                         forceEditorUpdate: $forceEditorUpdate)
       }
-      .navigationViewStyle(.stack)
       .modifier(self.globals.services)
     }
   }

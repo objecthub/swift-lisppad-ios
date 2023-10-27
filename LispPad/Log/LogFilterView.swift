@@ -42,7 +42,7 @@ struct LogFilterView: View {
   
   var body: some View {
     NavigationView {
-      Form {
+      List {
         Picker("Severity", selection: $minSeverityFilter) {
           Text("Debug").tag(Severity.debug)
           Text("Info").tag(Severity.info)
@@ -57,6 +57,8 @@ struct LogFilterView: View {
         Toggle("Filter Tag", isOn: $filterTag)
         Toggle("Filter Message", isOn: $filterMessage)
       }
+      .listStyle(.grouped)
+      //.scrollDisabled(true)
       .navigationBarTitleDisplayMode(.inline)
       .navigationTitle("Log Filter")
       .toolbar {
