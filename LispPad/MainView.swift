@@ -34,16 +34,32 @@ struct MainView: View {
   // UserDefault keys
   static let splitViewModeKey = "SplitView.mode"
   static let splitViewWidthFractionKey = "SplitView.widthFraction"
-
+  
+  /// Is this executing on an iPad?
+  static let splitView = UIDevice.current.userInterfaceIdiom == .pad
+  
   /// The current split view mode of the application. This state is persisted between
   /// application runs.
-  @State private var splitViewMode: SplitViewMode =
-    SplitViewMode(rawValue: UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ??
-    .normal
-
+  @State private var splitViewMode: SideBySideMode = {
+    let mode = SideBySideMode(rawValue:
+                 UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? .normal
+    if MainView.splitView {
+      return mode
+    } else {
+      switch mode {
+        case .normal, .leftOnRight, .leftOnLeft:
+          return .leftOnLeft
+        case .swapped:
+          return .rightOnLeft
+        case .rightOnRight, .rightOnLeft:
+          return .rightOnRight
+      }
+    }
+  }()
+  
   /// The current master width fraction (i.e. the width of the left-most view in a split
   /// view environment). This state is persisted between application runs.
-  @State private var masterWidthFraction: Double = {
+  @State private var masterWidthFraction: CGFloat = {
     let fraction = UserDefaults.standard.double(forKey: MainView.splitViewWidthFractionKey)
     return fraction > 0.0 && fraction < 1.0 ? fraction : 0.5
   }()
@@ -55,56 +71,47 @@ struct MainView: View {
   /// Setting this to `true` will force an editor update. The variable is automatically reset.
   @State private var forceEditorUpdate: Bool = false
   
-  /// The definition of the view.
-  var body: some View {
-    if self.splitView {
-      ZStack {
-        Color("NavigationBarColor").ignoresSafeArea()
-        SplitView {
-          NavigationStack {
-            InterpreterView(splitView: true,
-                            splitViewMode: $splitViewMode,
-                            masterWidthFraction: $masterWidthFraction,
-                            urlToOpen: $urlToOpen,
-                            editorPosition: $editorPosition,
-                            forceEditorUpdate: $forceEditorUpdate)
-          }
-          .modifier(self.globals.services)
-        } detail: {
-          NavigationStack {
-            CodeEditorView(splitView: true,
-                           splitViewMode: $splitViewMode,
-                           masterWidthFraction: $masterWidthFraction,
-                           urlToOpen: $urlToOpen,
-                           editorPosition: $editorPosition,
-                           forceEditorUpdate: $forceEditorUpdate)
-          }
-          .modifier(self.globals.services)
-        }
-        .splitViewMasterWidthFraction(self.masterWidthFraction)
-        .splitViewMode(self.splitViewMode)
-        .ignoresSafeArea()
-        .onChange(of: self.splitViewMode) { mode in
-          UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
-        }
-        .onChange(of: self.masterWidthFraction) { fraction in
-          UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
-        }
-      }
-    } else {
-      NavigationStack {
-        InterpreterView(splitView: false,
-                        splitViewMode: $splitViewMode,
-                        masterWidthFraction: $masterWidthFraction,
-                        urlToOpen: $urlToOpen,
-                        editorPosition: $editorPosition,
-                        forceEditorUpdate: $forceEditorUpdate)
-      }
-      .modifier(self.globals.services)
-    }
-  }
+  /// All state powering the interpreter; it is initialized here to make sure that changes to
+  /// the view tree do not result in interpreter state getting reset.
+  @StateObject private var interpreterState = InterpreterState()
   
-  private var splitView: Bool {
-    return UIDevice.current.userInterfaceIdiom == .pad
+  /// View definition
+  var body: some View {
+    ZStack {
+      Color("NavigationBarColor").ignoresSafeArea()
+      SideBySide(
+        mode: self.$splitViewMode,
+        fraction: self.$masterWidthFraction,
+        visibleThickness: 0.5,
+        left: {
+          NavigationStack {
+            InterpreterView(splitView: MainView.splitView,
+                            splitViewMode: self.$splitViewMode,
+                            masterWidthFraction: self.$masterWidthFraction,
+                            urlToOpen: self.$urlToOpen,
+                            state: self.interpreterState)
+          }
+          .modifier(self.globals.services)
+        },
+        right: {
+          NavigationStack {
+            CodeEditorView(splitView: MainView.splitView,
+                           splitViewMode: self.$splitViewMode,
+                           masterWidthFraction: self.$masterWidthFraction,
+                           urlToOpen: self.$urlToOpen,
+                           editorPosition: self.$editorPosition,
+                           forceEditorUpdate: self.$forceEditorUpdate)
+          }
+          .modifier(self.globals.services)
+        }
+      )
+      .ignoresSafeArea()
+      .onChange(of: self.splitViewMode) { mode in
+        UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+      }
+      .onChange(of: self.masterWidthFraction) { fraction in
+        UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
+      }
+    }
   }
 }

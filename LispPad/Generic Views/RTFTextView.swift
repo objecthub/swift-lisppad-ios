@@ -21,8 +21,6 @@
 import SwiftUI
 
 struct RTFTextView: View {
-  @Environment(\.presentationMode) var presentationMode
-
   let text: NSAttributedString
 
   init(_ fileUrl: URL?) {

@@ -24,12 +24,14 @@ import MarkdownKit
 
 struct InterpreterView: View {
   
+  // Navigation targets
   enum NavigationTargets: Hashable {
     case libraryBrowser
     case environmentBrowser
     case settings
   }
   
+  // Sheet identifiers
   enum SheetAction: Identifiable {
     case loadFile
     case organizeFiles
@@ -68,6 +70,7 @@ struct InterpreterView: View {
     }
   }
   
+  // Alert identifiers
   enum AlertAction: Identifiable {
     case abortEvaluation
     case notSaved
@@ -92,30 +95,25 @@ struct InterpreterView: View {
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var settings: UserSettings
-
+  
   // Parameters
   let splitView: Bool
-
-  // External state
-  @Binding var splitViewMode: SplitViewMode
-  @Binding var masterWidthFraction: Double
-  @Binding var urlToOpen: URL?
-  @Binding var editorPosition: NSRange?
-  @Binding var forceEditorUpdate: Bool
   
-  // Internal state
-  @State private var consoleInput = ""
-  @State private var consoleInputRange = NSRange(location: 0, length: 0)
-  @State private var showResetActionSheet = false
-  @State private var selectedPreferencesTab = 0
-  @State private var showSheet: SheetAction? = nil
-  @State private var showModal: SheetAction? = nil
-  @State private var showCard: Bool = false
-  @StateObject private var cardContent = MutableBlock()
-  @State private var alertAction: AlertAction? = nil
-  @State private var showProgressView: String? = nil
-  @State private var navigateToEditor: Bool = false
-  @State private var consoleTab: Int = 1
+  // External state
+  @Binding var splitViewMode: SideBySideMode
+  @Binding var masterWidthFraction: CGFloat
+  @Binding var urlToOpen: URL?
+  @ObservedObject var state: InterpreterState
+  
+  // Control flow
+  @State var showResetActionSheet = false
+  @State var showSheet: SheetAction? = nil
+  @State var showModal: SheetAction? = nil
+  @State var alertAction: AlertAction? = nil
+  @State var showCard: Bool = false
+  @StateObject var cardContent = MutableBlock()
+  
+  // Views
   
   private var keyboardShortcuts: some View {
     ZStack {
@@ -216,8 +214,8 @@ struct InterpreterView: View {
             font: settings.consoleFont,
             infoFont: settings.consoleInfoFont,
             action: {
-              let old = self.consoleInput
-              self.consoleInput = ""
+              let old = self.state.consoleInput
+              self.state.consoleInput = ""
               let input: String
               if self.interpreter.isReady {
                 input = InterpreterView.canonicalizeInput(old)
@@ -227,25 +225,22 @@ struct InterpreterView: View {
                 input = old
               }
               self.interpreter.evaluate(input) {
-                self.consoleInput = old
+                self.state.consoleInput = old
                 self.interpreter.console.removeLast()
               }
             },
-            splitViewMode: $splitViewMode,
+            splitViewMode: self.$splitViewMode,
             console: interpreter.console,
             contentBatch: $interpreter.contentBatch,
             history: $histManager.commandHistory,
-            input: $consoleInput,
-            selectedInputRange: $consoleInputRange,
+            state: self.state,
             readingStatus: $interpreter.readingStatus,
             ready: $interpreter.isReady,
-            showSheet: $showSheet,
-            showModal: $showModal,
-            showCard: $showCard,
-            cardContent: cardContent,
-            showProgressView: $showProgressView,
-            consoleTab: $consoleTab)
-          if let header = self.showProgressView {
+            showSheet: self.$showSheet,
+            showModal: self.$showModal,
+            showCard: self.$showCard,
+            cardContent: self.cardContent)
+          if let header = self.state.showProgressView {
            ProgressView(header)
             .frame(width: 200, height: 120)
             .background(Color.secondary.colorInvert())
@@ -258,32 +253,28 @@ struct InterpreterView: View {
       .toolbar {
         ToolbarItemGroup(placement: .navigationBarLeading) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            NavigationControl(splitView: self.splitView,
-                              masterView: true,
-                              splitViewMode: $splitViewMode,
-                              masterWidthFraction: $masterWidthFraction) {
-              self.navigateToEditor = true
-            } splitViewAction: {
-              self.histManager.saveCommandHistory()
-            }
+            SideBySideNavigator(leftSide: true,
+                                allowSplit: self.splitView,
+                                mode: self.$splitViewMode,
+                                fraction: self.$masterWidthFraction)
             if self.interpreter.isReady {
               Menu {
                 Button(action: {
                   withAnimation {
-                    self.consoleTab = 0
+                    self.state.consoleTab = 0
                   }
                 }) {
                   Label("Show Log", systemImage: "scroll")
                 }
-                .disabled(self.consoleTab == 0)
+                .disabled(self.state.consoleTab == 0)
                 Button(action: {
                   withAnimation {
-                    self.consoleTab = 1
+                    self.state.consoleTab = 1
                   }
                 }) {
                   Label("Show Console", systemImage: "terminal")
                 }
-                .disabled(self.consoleTab == 1)
+                .disabled(self.state.consoleTab == 1)
                 /* TODO: Graphics
                 Button(action: {
                   withAnimation {
@@ -437,12 +428,12 @@ struct InterpreterView: View {
           case .environmentBrowser:
             EnvironmentView(envManager: interpreter.envManager)
           case .settings:
-            PreferencesView(selectedTab: $selectedPreferencesTab)
+            PreferencesView(selectedTab: self.$state.selectedPreferencesTab)
         }
       }
-      .sheet(item: $showModal, content: self.sheetView)
-      .fullScreenCover(item: $showSheet, content: self.sheetView)
-      .actionSheet(isPresented: $showResetActionSheet) {
+      .sheet(item: self.$showModal, content: self.sheetView)
+      .fullScreenCover(item: self.$showSheet, content: self.sheetView)
+      .actionSheet(isPresented: self.$showResetActionSheet) {
         ActionSheet(title: Text("Reset"),
                     message: Text("Clear console and reset interpreter?"),
                     buttons: [.destructive(Text("Reset interpreter"), action: {
@@ -454,7 +445,7 @@ struct InterpreterView: View {
                               }),
                               .cancel()])
       }
-      .alert(item: $alertAction) { alertAction in
+      .alert(item: self.$alertAction) { alertAction in
         switch alertAction {
           case .abortEvaluation:
             return Alert(title: Text("Terminate evaluation?"),
@@ -480,14 +471,6 @@ struct InterpreterView: View {
                           }})
                      })
         }
-      }
-      .navigationDestination(isPresented: $navigateToEditor) {
-        CodeEditorView(splitView: self.splitView,
-                       splitViewMode: $splitViewMode,
-                       masterWidthFraction: $masterWidthFraction,
-                       urlToOpen: $urlToOpen,
-                       editorPosition: $editorPosition,
-                       forceEditorUpdate: $forceEditorUpdate)
       }
       .onChange(of: self.urlToOpen) { optUrl in
         if let url = optUrl {
@@ -515,12 +498,13 @@ struct InterpreterView: View {
   }
   
   private func switchToEditor() {
-    if self.splitView {
-      if self.splitViewMode == .primaryOnly {
-        self.splitViewMode = .secondaryOnly
-      }
-    } else {
-      self.navigateToEditor = true
+    switch self.splitViewMode {
+      case .normal, .swapped, .leftOnLeft, .leftOnRight:
+        return
+      case .rightOnRight:
+        self.splitViewMode = .leftOnLeft
+      case .rightOnLeft:
+        self.splitViewMode = .leftOnRight
     }
   }
   
@@ -536,14 +520,15 @@ struct InterpreterView: View {
   }
 
   private func selectExpression() {
-    if let range = TextFormatter.selectEnclosingExpr(string: self.consoleInput as NSString,
-                                                     selectedRange: self.consoleInputRange) {
-      self.consoleInputRange = range
+    if let range = TextFormatter.selectEnclosingExpr(string: self.state.consoleInput as NSString,
+                                                     selectedRange: self.state.consoleInputRange) {
+      self.state.consoleInputRange = range
     }
   }
 
   private func defineIdentifier() {
-    if let name = TextFormatter.selectedName(in: self.consoleInput, for: self.consoleInputRange),
+    if let name = TextFormatter.selectedName(in: self.state.consoleInput,
+                                             for: self.state.consoleInputRange),
        let documentation = self.docManager.documentation(for: name) {
       self.showCard = true
       self.cardContent.block = documentation

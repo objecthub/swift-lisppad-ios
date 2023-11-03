@@ -44,7 +44,7 @@ struct DefinitionView: View {
     }
   }
 
-  @Environment(\.presentationMode) var presentationMode
+  @Environment(\.dismiss) var dismiss
   let defitions: Definitions
   @Binding var position: NSRange?
 
@@ -56,7 +56,7 @@ struct DefinitionView: View {
           Section(header: Text("Values")) {
             ForEach(self.defitions.values, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.presentationMode.wrappedValue.dismiss() }) {
+                               self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
@@ -66,7 +66,7 @@ struct DefinitionView: View {
           Section(header: Text("Syntax")) {
             ForEach(self.defitions.syntax, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.presentationMode.wrappedValue.dismiss() }) {
+                               self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
@@ -76,7 +76,7 @@ struct DefinitionView: View {
           Section(header: Text("Records")) {
             ForEach(self.defitions.records, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.presentationMode.wrappedValue.dismiss() }) {
+                               self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
@@ -86,7 +86,7 @@ struct DefinitionView: View {
           Section(header: Text("Types")) {
             ForEach(self.defitions.types, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.presentationMode.wrappedValue.dismiss() }) {
+                               self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
@@ -95,7 +95,7 @@ struct DefinitionView: View {
       }
       .padding(.top, LispPadUI.panelTopPadding)
       Button(action: {
-        self.presentationMode.wrappedValue.dismiss()
+        self.dismiss()
       }) {
         ExitButton()
       }

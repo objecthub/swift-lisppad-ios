@@ -21,7 +21,7 @@
 import SwiftUI
 
 struct Sheet<Content: View>: View {
-  @Environment(\.presentationMode) var presentationMode
+  @Environment(\.dismiss) var dismiss
 
   let backgroundColor: Color?
   let content: Content
@@ -40,7 +40,7 @@ struct Sheet<Content: View>: View {
         self.content
       }
       Button(action: {
-        self.presentationMode.wrappedValue.dismiss()
+        self.dismiss()
       }) {
         ExitButton()
       }

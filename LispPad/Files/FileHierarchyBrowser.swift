@@ -37,7 +37,6 @@ struct FileHierarchyBrowser: View {
   }
 
   // Extract state from the environment
-  @Environment(\.presentationMode) var presentationMode
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
   

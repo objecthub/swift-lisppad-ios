@@ -122,6 +122,11 @@
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
+		CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F56F2AF38BBE0009A97E /* Split.swift */; };
+		CCA5F5722AF38BCA0009A97E /* SplitConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */; };
+		CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5732AF38BD00009A97E /* Splitter.swift */; };
+		CCA5F5762AF38BDE0009A97E /* SideBySide.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5752AF38BDE0009A97E /* SideBySide.swift */; };
+		CCA5F5782AF455CD0009A97E /* InterpreterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5772AF455CD0009A97E /* InterpreterState.swift */; };
 		CCA9E3D828A9C93500628DE5 /* (lispkit math matrix).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */; };
 		CCA9E3D928A9C94400628DE5 /* (lispkit bitset).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */; };
 		CCA9E3DA28A9C95200628DE5 /* (lispkit draw chart bar).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */; };
@@ -530,6 +535,11 @@
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
+		CCA5F56F2AF38BBE0009A97E /* Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Split.swift; sourceTree = "<group>"; };
+		CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitConfig.swift; sourceTree = "<group>"; };
+		CCA5F5732AF38BD00009A97E /* Splitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Splitter.swift; sourceTree = "<group>"; };
+		CCA5F5752AF38BDE0009A97E /* SideBySide.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SideBySide.swift; sourceTree = "<group>"; };
+		CCA5F5772AF455CD0009A97E /* InterpreterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterpreterState.swift; sourceTree = "<group>"; };
 		CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart bar).md"; sourceTree = "<group>"; };
 		CCA9E3D028A9270500628DE5 /* bar-chart-params.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-chart-params.png"; sourceTree = "<group>"; };
 		CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit styled-text).md"; sourceTree = "<group>"; };
@@ -677,6 +687,7 @@
 				CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */,
 				CC302E5026FE93F900835745 /* LispPadUI.swift */,
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
+				CCA5F56E2AF38B940009A97E /* Navigation */,
 				CC84C27525FE7B1100758581 /* Session */,
 				CC6598CB27240983004C9B89 /* Log */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
@@ -723,6 +734,7 @@
 				CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */,
 				CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */,
 				CC84C26125FE6BFF00758581 /* InterpreterView.swift */,
+				CCA5F5772AF455CD0009A97E /* InterpreterState.swift */,
 				CC84C27125FE791000758581 /* ConsoleView.swift */,
 				CC890A55267E829100FA8BAA /* ConsoleEditor.swift */,
 				CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */,
@@ -908,6 +920,17 @@
 				CC8B95BD26080EA700830B4F /* bensound-license.txt */,
 			);
 			path = Audio;
+			sourceTree = "<group>";
+		};
+		CCA5F56E2AF38B940009A97E /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				CCA5F5752AF38BDE0009A97E /* SideBySide.swift */,
+				CCA5F56F2AF38BBE0009A97E /* Split.swift */,
+				CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */,
+				CCA5F5732AF38BD00009A97E /* Splitter.swift */,
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 		CCBE1350272E0E770046F474 /* Web */ = {
@@ -1196,6 +1219,7 @@
 				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
 				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
 				CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */,
+				CCA5F5722AF38BCA0009A97E /* SplitConfig.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
 				CCC85659261B18C80080B96E /* SearchField.swift in Sources */,
 				CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */,
@@ -1213,6 +1237,7 @@
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,
+				CCA5F5762AF38BDE0009A97E /* SideBySide.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
 				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
@@ -1220,12 +1245,14 @@
 				CCBE134F272DE1450046F474 /* WebView.swift in Sources */,
 				CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */,
 				CCEA5A0D263977C400D78C62 /* Move.swift in Sources */,
+				CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,
 				CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */,
 				CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */,
 				CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
+				CCA5F5782AF455CD0009A97E /* InterpreterState.swift in Sources */,
 				CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */,
 				CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
@@ -1234,6 +1261,7 @@
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
 				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
+				CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */,
 				CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
 				CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */,

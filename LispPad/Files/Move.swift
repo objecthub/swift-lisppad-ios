@@ -32,7 +32,6 @@ struct Move: View {
     }
   }
   
-  @Environment(\.presentationMode) var presentationMode
   @EnvironmentObject var fileManager: FileManager
   
   @Binding var showShareSheet: Bool

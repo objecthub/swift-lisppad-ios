@@ -34,7 +34,7 @@ struct DocStructureView: View {
     let headers: [Header]
   }
 
-  @Environment(\.presentationMode) var presentationMode
+  @Environment(\.dismiss) var dismiss
   let structure: DocStructure
   @Binding var position: NSRange?
 
@@ -45,7 +45,7 @@ struct DocStructureView: View {
         if self.structure.headers.count > 0 {
           ForEach(self.structure.headers) { header in
             Button(action: { self.position = header.range
-                             self.presentationMode.wrappedValue.dismiss() }) {
+                             self.dismiss() }) {
               HStack {
                 Image(systemName: self.image(for: header.level))
                 Spacer().frame(minWidth: 16.0, maxWidth: CGFloat(header.level) * 16.0)
@@ -58,7 +58,7 @@ struct DocStructureView: View {
       }
       .padding(.top)
       Button(action: {
-        self.presentationMode.wrappedValue.dismiss()
+        self.dismiss()
       }) {
         ExitButton()
       }

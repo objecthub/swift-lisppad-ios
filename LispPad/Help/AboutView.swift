@@ -21,8 +21,6 @@
 import SwiftUI
 
 struct AboutView: View {
-  @Environment(\.presentationMode) var presentationMode
-
   static let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
   static let buildVersion = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
   static let copyright = Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String

@@ -1,9 +1,8 @@
 //
-//  MarkdownViewer.swift
+//  InterpreterState.swift
 //  LispPad
 //
-//  Created by Matthias Zenger on 11/05/2021.
-//  Copyright © 2021 Matthias Zenger. All rights reserved.
+//  Created by Matthias Zenger on 02/11/2023.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,15 +19,12 @@
 
 import Foundation
 import SwiftUI
-import LispKit
 import MarkdownKit
 
-struct MarkdownViewer: View {
-  let markdown: Block
-
-  var body: some View {
-    ScrollSheet {
-      MarkdownText(self.markdown)
-    }
-  }
+class InterpreterState: ObservableObject {
+  @Published var consoleInput = ""
+  @Published var consoleInputRange = NSRange(location: 0, length: 0)
+  @Published var consoleTab: Int = 1
+  @Published var selectedPreferencesTab = 0
+  @Published var showProgressView: String? = nil
 }

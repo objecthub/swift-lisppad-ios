@@ -90,8 +90,6 @@ struct CodeEditorView: View {
       }
     }
   }
-  
-  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var docManager: DocumentationManager
@@ -102,8 +100,8 @@ struct CodeEditorView: View {
 
   let splitView: Bool
 
-  @Binding var splitViewMode: SplitViewMode
-  @Binding var masterWidthFraction: Double
+  @Binding var splitViewMode: SideBySideMode
+  @Binding var masterWidthFraction: CGFloat
   @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
   @Binding var forceEditorUpdate: Bool
@@ -188,7 +186,7 @@ struct CodeEditorView: View {
       if !self.splitView {
         Button(action: {
           self.dismissCard()
-          self.presentationMode.wrappedValue.dismiss()
+          self.splitViewMode.toggle()
         }) {
           EmptyView()
         }
@@ -312,12 +310,13 @@ struct CodeEditorView: View {
           }
           .onAppear {
             self.editorType = self.fileManager.editorDocumentInfo.editorType
-            if UIDevice.current.userInterfaceIdiom != .pad ||
-               self.splitViewMode == .primaryOnly ||
-               self.splitViewMode == .secondaryOnly {
-              self.updateEditor = { textView in
-                textView.becomeFirstResponder()
-              }
+            switch self.splitViewMode {
+              case .rightOnRight, .rightOnLeft:
+                self.updateEditor = { textView in
+                  textView.becomeFirstResponder()
+                }
+              default:
+                break
             }
             /*
             self.updateEditor = { textView in
@@ -334,18 +333,10 @@ struct CodeEditorView: View {
       .toolbar {
         ToolbarItemGroup(placement: .navigationBarLeading) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
-            NavigationControl(splitView: self.splitView,
-                              masterView: false,
-                              splitViewMode: $splitViewMode,
-                              masterWidthFraction: $masterWidthFraction) {
-              self.dismissCard()
-              self.presentationMode.wrappedValue.dismiss()
-            } splitViewAction: {
-              self.fileManager.editorDocument?.saveFile()
-              self.histManager.saveSearchHistory()
-              self.histManager.saveFilesHistory()
-              self.histManager.saveFavorites()
-            }
+            SideBySideNavigator(leftSide: false,
+                                allowSplit: self.splitView,
+                                mode: self.$splitViewMode,
+                                fraction: self.$masterWidthFraction)
             Menu {
               Button(action: {
                 self.dismissCard()
@@ -907,12 +898,17 @@ struct CodeEditorView: View {
       self.interpreter.console.append(output: .command("<execute code from editor>"))
       self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
                                 url: self.fileManager.editorDocument?.fileURL)
-      if self.splitView && self.splitViewMode == .secondaryOnly {
-        withAnimation(.linear) {
-          self.splitViewMode = .primaryOnly
-        }
-      } else if !self.splitView {
-        self.presentationMode.wrappedValue.dismiss()
+      switch self.splitViewMode {
+        case .rightOnRight:
+          withAnimation {
+            self.splitViewMode = .leftOnLeft
+          }
+        case .rightOnLeft:
+          withAnimation {
+            self.splitViewMode = .leftOnRight
+          }
+        default:
+          break
       }
     } else if self.editorType == .markdown {
       let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")

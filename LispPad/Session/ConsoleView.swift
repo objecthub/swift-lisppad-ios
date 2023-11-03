@@ -44,20 +44,17 @@ struct ConsoleView: View {
   let infoFont: Font
   let action: () -> Void
   
-  @Binding var splitViewMode: SplitViewMode
+  @Binding var splitViewMode: SideBySideMode
   @ObservedObject var console: Console
   @Binding var contentBatch: Int
   @Binding var history: [String]
-  @Binding var input: String
-  @Binding var selectedInputRange: NSRange
+  @ObservedObject var state: InterpreterState
   @Binding var readingStatus: Interpreter.ReadingStatus
   @Binding var ready: Bool
   @Binding var showSheet: InterpreterView.SheetAction?
   @Binding var showModal: InterpreterView.SheetAction?
   @Binding var showCard: Bool
   @ObservedObject var cardContent: MutableBlock
-  @Binding var showProgressView: String?
-  @Binding var consoleTab: Int
   
   func errorText(image: String, text: String?) -> Text {
     return text == nil ? Text("") : Text("\n") +
@@ -130,7 +127,7 @@ struct ConsoleView: View {
                 }
                 Divider()
                 Button(action: {
-                  self.showProgressView = "Saving image…"
+                  self.state.showProgressView = "Saving image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
                     if let betterImage = iconImage(for: drawing,
@@ -143,13 +140,13 @@ struct ConsoleView: View {
                     }
                     let imageManager = ImageManager()
                     _ = try? imageManager.writeImageToLibrary(res, async: true)
-                    self.showProgressView = nil
+                    self.state.showProgressView = nil
                   }
                 }) {
                   Label("Save Image", systemImage: "photo.on.rectangle.angled")
                 }
                 Button(action: {
-                  self.showProgressView = "Printing image…"
+                  self.state.showProgressView = "Printing image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
                     if let betterImage = iconImage(for: drawing,
@@ -164,7 +161,7 @@ struct ConsoleView: View {
                     printInfo.jobName = "Printing LispPad image…"
                     printInfo.outputType = .general
                     DispatchQueue.main.async {
-                      self.showProgressView = nil
+                      self.state.showProgressView = nil
                       let printController = UIPrintInteractionController.shared
                       printController.printInfo = printInfo
                       printController.printingItem = res
@@ -175,7 +172,7 @@ struct ConsoleView: View {
                   Label("Print Image", systemImage: "printer")
                 }
                 Button(action: {
-                  self.showProgressView = "Sharing image…"
+                  self.state.showProgressView = "Sharing image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     if let betterImage = iconImage(for: drawing,
                                                    width: 1500,
@@ -187,7 +184,7 @@ struct ConsoleView: View {
                     } else {
                       self.presentSheet(.shareImage(image))
                     }
-                    self.showProgressView = nil
+                    self.state.showProgressView = nil
                   }
                 }) {
                   Label("Share Image", systemImage: "square.and.arrow.up")
@@ -216,7 +213,7 @@ struct ConsoleView: View {
               }
               if entry.text.count <= 800 {
                 Button(action: {
-                  self.input = entry.text
+                  self.state.consoleInput = entry.text
                 }) {
                   Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
                 }
@@ -234,10 +231,10 @@ struct ConsoleView: View {
   
   var control: some View {
     HStack(alignment: .bottom, spacing: 0) {
-      ConsoleEditor(text: $input,
-                    selectedRange: $selectedInputRange,
-                    calculatedHeight: $dynamicHeight,
-                    update: $updateConsole,
+      ConsoleEditor(text: self.$state.consoleInput,
+                    selectedRange: self.$state.consoleInputRange,
+                    calculatedHeight: self.$dynamicHeight,
+                    update: self.$updateConsole,
                     keyboardObserver: self.keyboardObserver,
                     defineAction: { block in
                       self.showCard = true
@@ -247,12 +244,11 @@ struct ConsoleView: View {
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)
         .onAppear {
-          if UIDevice.current.userInterfaceIdiom != .pad ||
-             self.splitViewMode == .primaryOnly ||
-             self.splitViewMode == .secondaryOnly ||
-             !input.isEmpty {
+          if !self.state.consoleInput.isEmpty {
             self.updateConsole = { textView in
-              textView.becomeFirstResponder()
+              DispatchQueue.main.async {
+                textView.becomeFirstResponder()
+              }
             }
           }
         }
@@ -262,7 +258,7 @@ struct ConsoleView: View {
         self.action()
       }) {
         if !self.ready && self.readingStatus == .accept {
-          if self.input.isEmpty {
+          if self.state.consoleInput.isEmpty {
             Image(systemName: "questionmark.circle.fill")
               .resizable()
               .scaledToFit()
@@ -275,7 +271,7 @@ struct ConsoleView: View {
               .frame(height: 24.5)
               .foregroundColor(.red)
           }
-        } else if self.input.isEmpty {
+        } else if self.state.consoleInput.isEmpty {
           Image(systemName: "pencil.circle.fill")
             .resizable()
             .scaledToFit()
@@ -288,16 +284,16 @@ struct ConsoleView: View {
         }
       }
       .keyCommand("\r", modifiers: .command, title: "Execute command")
-      .disabled(self.input.isEmpty || (!self.ready && self.readingStatus != .accept))
+      .disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
       .contextMenu {
         if self.ready {
           ForEach(self.history, id: \.self) { entry in
             Button(entry) {
-              self.input = entry
+              self.state.consoleInput = entry
             }
           }
         }
-        Button(action: { self.input = "" }) {
+        Button(action: { self.state.consoleInput = "" }) {
           Label("Clear Input", systemImage: "xmark.circle.fill")
         }
       }
@@ -309,16 +305,16 @@ struct ConsoleView: View {
       Button(action: {
         if self.inputHistoryIndex >= 0 &&
            self.inputHistoryIndex < self.history.count &&
-           self.history[self.inputHistoryIndex] != self.input {
+           self.history[self.inputHistoryIndex] != self.state.consoleInput {
           self.inputHistoryIndex = -1
           self.inputBuffer = nil
         }
         if self.inputHistoryIndex + 1 < self.history.count {
           if self.inputBuffer == nil {
-            self.inputBuffer = self.input
+            self.inputBuffer = self.state.consoleInput
           }
           self.inputHistoryIndex += 1
-          self.input = self.history[self.inputHistoryIndex]
+          self.state.consoleInput = self.history[self.inputHistoryIndex]
         }
       }) {
         EmptyView()
@@ -327,14 +323,14 @@ struct ConsoleView: View {
       Button(action: {
         if self.inputHistoryIndex >= 0 &&
            self.inputHistoryIndex < self.history.count &&
-           self.history[self.inputHistoryIndex] != self.input {
+           self.history[self.inputHistoryIndex] != self.state.consoleInput {
           self.inputHistoryIndex = -1
           self.inputBuffer = nil
         } else if self.inputHistoryIndex > 0 {
           self.inputHistoryIndex -= 1
-          self.input = self.history[self.inputHistoryIndex]
+          self.state.consoleInput = self.history[self.inputHistoryIndex]
         } else if self.inputHistoryIndex == 0 {
-          self.input = self.inputBuffer ?? ""
+          self.state.consoleInput = self.inputBuffer ?? ""
           self.inputHistoryIndex = -1
           self.inputBuffer = nil
         }
@@ -353,11 +349,11 @@ struct ConsoleView: View {
   
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      TabView(selection: $consoleTab) {
+      TabView(selection: self.$state.consoleTab) {
         LogView(font: self.font,
-                input: $input,
-                showSheet: $showSheet,
-                showModal: $showModal)
+                input: self.$state.consoleInput,
+                showSheet: self.$showSheet,
+                showModal: self.$showModal)
         .tag(0)
         GeometryReader { geo in
           ZStack(alignment: .bottomTrailing) {
@@ -368,7 +364,7 @@ struct ConsoleView: View {
                     self.consoleRow(entry, width: geo.size.width)
                   }
                 }
-                .onChange(of: self.console.content.count) { _ in
+                .onChange(of: self.console.content) { _ in
                   if let id = self.console.lastOutputId {
                     withAnimation {
                       scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
@@ -382,7 +378,7 @@ struct ConsoleView: View {
                     }
                   }
                 }
-                .onChange(of: self.input.count) { _ in
+                .onChange(of: self.state.consoleInput) { _ in
                   if let id = self.console.lastOutputId {
                     withAnimation {
                       scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
@@ -403,7 +399,9 @@ struct ConsoleView: View {
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
       .indexViewStyle(.page(backgroundDisplayMode: .interactive))
-      .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
+      .slideOverCard(isPresented: self.$showCard, onDismiss: {
+        self.cardContent.block = nil
+       }) {
         OptionalScrollView {
           MutableMarkdownText(self.cardContent, rightPadding: 26)
             .modifier(self.globals.services)
@@ -416,6 +414,7 @@ struct ConsoleView: View {
       Divider()
         .ignoresSafeArea(.container, edges: [.leading, .trailing])
       self.control
+        .transition(.identity)
     }
   }
   

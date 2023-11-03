@@ -21,7 +21,7 @@
 import SwiftUI
 
 struct Open: View {
-  @Environment(\.presentationMode) var presentationMode
+  @Environment(\.dismiss) var dismiss
   @EnvironmentObject var fileManager: FileManager
   
   @State var showShareSheet: Bool = false
@@ -59,7 +59,7 @@ struct Open: View {
               }
               Spacer()
               Button(action: {
-                self.presentationMode.wrappedValue.dismiss()
+                self.dismiss()
               }) {
                 Text("Cancel")
               }
@@ -81,7 +81,7 @@ struct Open: View {
                                      selectedUrls: $selectedUrls,
                                      onSelection: { url in
                                        if let action = self.onSelection, action(url, false) {
-                                         self.presentationMode.wrappedValue.dismiss()
+                                         self.dismiss()
                                        }
                                      })
                   .font(.body)
@@ -99,7 +99,7 @@ struct Open: View {
                                      selectedUrls: $selectedUrls,
                                      onSelection: { url in
                                        if let action = self.onSelection, action(url, true) {
-                                         self.presentationMode.wrappedValue.dismiss()
+                                         self.dismiss()
                                        }
                                      })
                   .font(.body)
@@ -117,7 +117,7 @@ struct Open: View {
                                      selectedUrls: $selectedUrls,
                                      onSelection: { url in
                                        if let action = self.onSelection, action(url, false) {
-                                         self.presentationMode.wrappedValue.dismiss()
+                                         self.dismiss()
                                        }
                                      })
                   .font(.body)
@@ -162,8 +162,7 @@ struct Open: View {
                 // Handle general failure
               }
             } else {
-              
-              self.presentationMode.wrappedValue.dismiss()
+              self.dismiss()
             }
           }
         case .failure(_):

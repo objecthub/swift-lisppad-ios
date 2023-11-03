@@ -31,7 +31,7 @@ struct SaveAs: View {
     }
   }
   
-  @Environment(\.presentationMode) var presentationMode
+  @Environment(\.dismiss) var dismiss
   @EnvironmentObject var fileManager: FileManager
   
   @State var showShareSheet: Bool = false
@@ -86,7 +86,7 @@ struct SaveAs: View {
       } else if item == .file && (self.firstSave || url != self.url) {
         self.alertAction = .overrideFile
       } else {
-        self.presentationMode.wrappedValue.dismiss()
+        self.dismiss()
         self.onSave(url)
       }
     }
@@ -99,7 +99,7 @@ struct SaveAs: View {
         HStack(alignment: .top, spacing: 16) {
           Spacer()
           Button(action: {
-            self.presentationMode.wrappedValue.dismiss()
+            self.dismiss()
           }) {
             Text("Cancel")
           }
@@ -164,7 +164,7 @@ struct SaveAs: View {
                        secondaryButton: .destructive(Text("Overwrite"), action: {
                         if !self.fileName.isEmpty,
                            let url = self.folder?.appendingPathComponent(self.fileName) {
-                          self.presentationMode.wrappedValue.dismiss()
+                          self.dismiss()
                           self.onSave(url)
                         }
                        }))

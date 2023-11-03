@@ -32,16 +32,16 @@ struct LispPadUI {
   }
   
   // Padding on top of panels
-  static let panelTopPadding: CGFloat = Self.choose(iOS15: 0, iOS16: 0)
+  static let panelTopPadding: CGFloat = 0
   
   // Size of items in the toolbar
-  static let toolbarItemSize: CGFloat = Self.choose(iOS15: 16, iOS16: 16)
+  static let toolbarItemSize: CGFloat = 16
   
   // Size of file name in the toolbar
-  static let fileNameFontSize: CGFloat = Self.choose(iOS15: 14, iOS16: 14)
+  static let fileNameFontSize: CGFloat = 14
   
   // Space between items in toolbar
-  static let toolbarSeparator: CGFloat = Self.choose(iOS15: 10, iOS16: 9)
+  static let toolbarSeparator: CGFloat = 8
   
   // Color used for menu indicators in toolbar
   static let menuIndicatorColor: UIColor = UIColor(named: "DarkKeyColor") ?? UIColor.lightGray
@@ -53,7 +53,7 @@ struct LispPadUI {
   
   // Toolbar item font for switch items
   static let toolbarSwitchFont: SwiftUI.Font = {
-    return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
+    return .system(size: LispPadUI.toolbarItemSize, weight: .medium)
   }()
   
   // Small editor file name font

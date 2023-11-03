@@ -21,7 +21,7 @@
 import SwiftUI
 
 struct Organizer: View {
-  @Environment(\.presentationMode) var presentationMode
+  @Environment(\.dismiss) var dismiss
   @EnvironmentObject var fileManager: FileManager
   
   @State var showShareSheet: Bool = false
@@ -121,8 +121,7 @@ struct Organizer: View {
                 // Handle general failure
               }
             } else {
-              
-              self.presentationMode.wrappedValue.dismiss()
+              self.dismiss()
             }
           }
         case .failure(_):
