@@ -21,11 +21,28 @@
 import Foundation
 import UIKit
 import LispKit
+import PhotosUI
 
 ///
 /// This class implements the LispPad-specific library `(lisppad system)`.
 ///
 public final class SystemLibrary: NativeLibrary {
+  internal weak var interpreter: Interpreter? = nil
+  
+  private let bursts: Symbol            // Assets with multiple high-speed photos
+  private let cinematicVideos: Symbol   // Videos with a shallow depth of field and focus transitions
+  private let depthEffectPhotos: Symbol // Photos with depth information
+  private let images: Symbol            // Images including Live Photos
+  private let livePhotos: Symbol        // Live Photos
+  private let panoramas: Symbol         // Panorama photos
+  private let screenRecordings: Symbol  // Screen recordings
+  private let screenshots: Symbol       // Screenshots
+  private let slomoVideos: Symbol       // Slow-motion videos
+  private let timelapseVideos: Symbol   // Time-lapse videos
+  private let videos: Symbol            // Videos
+  private let or: Symbol                // Or operator
+  private let and: Symbol               // And operator
+  private let not: Symbol               // Not operator
   
   /// Name of the library.
   public override class var name: [String] {
@@ -34,13 +51,28 @@ public final class SystemLibrary: NativeLibrary {
   
   /// Initialization
   public required init(in context: Context) throws {
+    self.bursts = context.symbols.intern("bursts")
+    self.cinematicVideos = context.symbols.intern("cinematic-videos")
+    self.depthEffectPhotos = context.symbols.intern("depth-effect-photos")
+    self.images = context.symbols.intern("images")
+    self.livePhotos = context.symbols.intern("live-photos")
+    self.panoramas = context.symbols.intern("panoramas")
+    self.screenRecordings = context.symbols.intern("screen-recordings")
+    self.screenshots = context.symbols.intern("screenshots")
+    self.slomoVideos = context.symbols.intern("slomo-videos")
+    self.timelapseVideos = context.symbols.intern("timelapse-videos")
+    self.videos = context.symbols.intern("videos")
+    self.and = context.symbols.intern("and")
+    self.or = context.symbols.intern("or")
+    self.not = context.symbols.intern("not")
     try super.init(in: context)
   }
-    
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("open-in-files-app", self.openInFilesApp))
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
+    self.define(Procedure("load-bitmap-from-library", self.loadBitmapFromLibrary))
     self.define(Procedure("project-directory", self.projectDirectory))
     self.define(Procedure("icloud-directory", self.icloudDirectory))
     self.define(Procedure("screen-size", self.screenSize))
@@ -69,6 +101,84 @@ public final class SystemLibrary: NativeLibrary {
     let imageManager = ImageManager()
     try imageManager.writeImageToLibrary(imageBox.value)
     return .true
+  }
+  
+  private func photoFilter(_ expr: Expr) throws -> PHPickerFilter {
+    switch expr {
+      case .symbol(let sym):
+        switch sym {
+          case self.bursts:
+            return .bursts
+          case self.cinematicVideos:
+            return .cinematicVideos
+          case self.depthEffectPhotos:
+            return .depthEffectPhotos
+          case self.images:
+            return .images
+          case self.livePhotos:
+            return .livePhotos
+          case self.panoramas:
+            return .panoramas
+          case self.screenRecordings:
+            return .screenRecordings
+          case self.screenshots:
+            return .screenshots
+          case self.slomoVideos:
+            return .slomoVideos
+          case self.timelapseVideos:
+            return .timelapseVideos
+          case self.videos:
+            return .videos
+          default:
+            throw RuntimeError.custom("error", "not a valid photos filter", [expr])
+        }
+      case .pair(.symbol(self.not), .pair(let operand, .null)):
+        return PHPickerFilter.not(try self.photoFilter(operand))
+      case .pair(.symbol(self.and), var list):
+        var filters: [PHPickerFilter] = []
+        while case .pair(let head, let tail) = list {
+          filters.append(try self.photoFilter(head))
+          list = tail
+        }
+        guard case .null = list else {
+          throw RuntimeError.custom("error", "not a valid 'and' photos filter", [expr])
+        }
+        return PHPickerFilter.all(of: filters)
+      case .pair(.symbol(self.or), var list):
+        var filters: [PHPickerFilter] = []
+        while case .pair(let head, let tail) = list {
+          filters.append(try self.photoFilter(head))
+          list = tail
+        }
+        guard case .null = list else {
+          throw RuntimeError.custom("error", "not a valid 'or' photos filter", [expr])
+        }
+        return PHPickerFilter.any(of: filters)
+      default:
+        throw RuntimeError.custom("error", "not a valid photos filter expression", [expr])
+    }
+  }
+  
+  private func loadBitmapFromLibrary(_ maxImages: Expr?, _ filter: Expr?) throws -> Expr {
+    let n: Int = try maxImages?.asInt(above: 1, below: 1000) ?? 1
+    let f: PHPickerFilter = filter == nil ? .images : try self.photoFilter(filter!)
+    let imageManager = ImageManager()
+    DispatchQueue.main.sync {
+      self.interpreter?.showPhotosPicker = Interpreter.PhotosPickerConfig(
+        maxSelectionCount: n,
+        matching: f,
+        imageManager: imageManager)
+    }
+    let images = try imageManager.loadImagesFromLibrary()
+    var res: [Expr] = []
+    for image in images {
+      if let image {
+        res.append(.object(NativeImage(image)))
+      } else {
+        res.append(.false)
+      }
+    }
+    return .makeList(Arguments(res))
   }
   
   private func projectDirectory() -> Expr {

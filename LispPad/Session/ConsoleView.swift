@@ -140,7 +140,9 @@ struct ConsoleView: View {
                     }
                     let imageManager = ImageManager()
                     _ = try? imageManager.writeImageToLibrary(res, async: true)
-                    self.state.showProgressView = nil
+                    DispatchQueue.main.async {
+                      self.state.showProgressView = nil
+                    }
                   }
                 }) {
                   Label("Save Image", systemImage: "photo.on.rectangle.angled")
@@ -184,7 +186,9 @@ struct ConsoleView: View {
                     } else {
                       self.presentSheet(.shareImage(image))
                     }
-                    self.state.showProgressView = nil
+                    DispatchQueue.main.async {
+                      self.state.showProgressView = nil
+                    }
                   }
                 }) {
                   Label("Share Image", systemImage: "square.and.arrow.up")
@@ -299,9 +303,6 @@ struct ConsoleView: View {
       }
       .padding(.trailing, 3)
       .offset(y: -3)
-      //.gesture(DragGesture().onEnded { _ in
-      //  UIApplication.shared.endEditing(true)
-      //})
       Button(action: {
         if self.inputHistoryIndex >= 0 &&
            self.inputHistoryIndex < self.history.count &&

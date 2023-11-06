@@ -21,6 +21,7 @@
 import Foundation
 import Combine
 import LispKit
+import PhotosUI
 
 final class Interpreter: ContextDelegate, ObservableObject {
   
@@ -67,6 +68,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
+  struct PhotosPickerConfig: Equatable {
+    let maxSelectionCount: Int
+    let matching: PHPickerFilter
+    let imageManager: ImageManager
+  }
+  
   /// Class initializer
   private static func initClass() {
     // Register internal libraries
@@ -93,6 +100,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var isReady: Bool = false
   @Published var readingStatus: ReadingStatus = .reject
   @Published var contentBatch: Int = 0
+  @Published var showPhotosPicker: PhotosPickerConfig? = nil
   
   /// Dependencies
   let console = Console()
@@ -565,6 +573,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
   
   /// This is called whenever a new library is loaded
   func loaded(library lib: Library, by: LispKit.LibraryManager) {
+    if let sysLibrary = lib as? SystemLibrary {
+      sysLibrary.interpreter = self
+    }
     DispatchQueue.main.sync {
       self.libManager.add(library: lib)
     }

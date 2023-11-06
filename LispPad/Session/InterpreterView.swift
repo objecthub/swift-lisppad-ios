@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import LispKit
 import MarkdownKit
 
@@ -32,7 +33,7 @@ struct InterpreterView: View {
   }
   
   // Sheet identifiers
-  enum SheetAction: Identifiable {
+  enum SheetAction: Identifiable, Equatable {
     case loadFile
     case organizeFiles
     case shareConsole
@@ -112,6 +113,8 @@ struct InterpreterView: View {
   @State var alertAction: AlertAction? = nil
   @State var showCard: Bool = false
   @StateObject var cardContent = MutableBlock()
+  @State var showPhotosPicker: Bool = false
+  @State var pickedPhotos: [PhotosPickerItem] = []
   
   // Views
   
@@ -442,6 +445,13 @@ struct InterpreterView: View {
       }
       .sheet(item: self.$showModal, content: self.sheetView)
       .fullScreenCover(item: self.$showSheet, content: self.sheetView)
+      .photosPicker(isPresented: self.$showPhotosPicker,
+                    selection: self.$pickedPhotos,
+                    maxSelectionCount: self.interpreter.showPhotosPicker?.maxSelectionCount ?? 1,
+                    selectionBehavior: .default,
+                    matching: self.interpreter.showPhotosPicker?.matching ?? .images,
+                    preferredItemEncoding: .automatic,
+                    photoLibrary: .shared())
       .alert(item: self.$alertAction) { alertAction in
         switch alertAction {
           case .abortEvaluation:
@@ -467,6 +477,41 @@ struct InterpreterView: View {
                             self.switchToEditor()
                           }})
                      })
+        }
+      }
+      .onChange(of: self.interpreter.showPhotosPicker) { value in
+        if value != nil {
+          self.showPhotosPicker = true
+          self.pickedPhotos = [.init(itemIdentifier: "___")]
+        }
+      }
+      .onChange(of: self.pickedPhotos) { selectedPhotos in
+        if selectedPhotos.isEmpty {
+          self.interpreter.showPhotosPicker?.imageManager.completeLoadImageFromLibrary()
+          self.interpreter.showPhotosPicker = nil
+        } else if self.interpreter.showPhotosPicker == nil ||
+                    (selectedPhotos.count == 1 && selectedPhotos[0].itemIdentifier == "___") {
+          // Don't do anything
+        } else {
+          Task {
+            do {
+              var res: [UIImage?] = []
+              for photo in selectedPhotos {
+                if let data = try await photo.loadTransferable(type: Data.self) {
+                  res.append(UIImage(data: data))
+                } else {
+                  res.append(nil)
+                }
+              }
+              self.interpreter.showPhotosPicker?
+                .imageManager.completeLoadImageFromLibrary(images: res)
+            } catch let e {
+              self.interpreter.showPhotosPicker?
+                .imageManager.completeLoadImageFromLibrary(error: e)
+            }
+            self.interpreter.showPhotosPicker = nil
+            self.pickedPhotos = []
+          }
         }
       }
       .onChange(of: self.urlToOpen) { optUrl in

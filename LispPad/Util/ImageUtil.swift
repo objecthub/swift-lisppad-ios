@@ -19,17 +19,20 @@
 //
 
 import UIKit
+import PhotosUI
+import SwiftUI
 import LispKit
 
 class ImageManager: NSObject {
   let condition = NSCondition()
   var completed = false
+  var images: [UIImage?] = []
   var error: Error? = nil
   
   func writeImageToLibrary(_ image: UIImage, async: Bool = false) throws {
     UIImageWriteToSavedPhotosAlbum(image,
                                    self,
-                                   #selector(image(_:didFinishSavingWithError:contextInfo:)),
+                                   #selector(imageSaved(_:didFinishSavingWithError:contextInfo:)),
                                    nil)
     if !async {
       self.condition.lock()
@@ -45,9 +48,34 @@ class ImageManager: NSObject {
     }
   }
   
-  @objc func image(_ image: UIImage,
-                   didFinishSavingWithError error: Error?,
-                   contextInfo: UnsafeRawPointer) {
+  func loadImagesFromLibrary() throws -> [UIImage?] {
+    self.condition.lock()
+    defer {
+      self.condition.unlock()
+    }
+    while !self.completed {
+      self.condition.wait()
+    }
+    if let error = self.error {
+      throw error
+    }
+    return self.images
+  }
+  
+  func completeLoadImageFromLibrary(images: [UIImage?] = [], error: Error? = nil) {
+    self.condition.lock()
+    defer {
+      self.condition.unlock()
+    }
+    self.images = images
+    self.error = error
+    self.completed = true
+    self.condition.signal()
+  }
+  
+  @objc func imageSaved(_ image: UIImage,
+                        didFinishSavingWithError error: Error?,
+                        contextInfo: UnsafeRawPointer) {
     self.condition.lock()
     defer {
       self.condition.unlock()
