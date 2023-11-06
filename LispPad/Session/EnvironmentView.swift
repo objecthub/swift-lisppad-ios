@@ -42,7 +42,7 @@ struct EnvironmentView: View {
     }
     .listStyle(.plain)
     .searchable(text: $searchText)
-    .resignKeyboardOnDragGesture()
+    .scrollDismissesKeyboard(.interactively)
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("Environment")
     .navigationBarBackButtonHidden(false)

@@ -54,7 +54,7 @@ public struct ExitButton: View {
   let size: CGFloat
   
   init(size: CGFloat? = nil) {
-    self.size = size ?? (UIDevice.current.userInterfaceIdiom == .pad ? 28.0 : 24.0)
+    self.size = size ?? 25.0
   }
   
   public var body: some View {

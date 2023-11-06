@@ -53,43 +53,58 @@ struct DefinitionView: View {
       Color(.systemGroupedBackground).ignoresSafeArea()
       Form {
         if self.defitions.values.count > 0 {
-          Section(header: Text("Values")) {
+          Section {
             ForEach(self.defitions.values, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
+          } header: {
+            Text("Values")
+              .padding(.top, 20)
           }
         }
         if self.defitions.syntax.count > 0 {
-          Section(header: Text("Syntax")) {
+          Section {
             ForEach(self.defitions.syntax, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
+          } header: {
+            Text("Syntax")
+              .padding(.top, self.defitions.values.count == 0 ? 20 : 0)
           }
         }
         if self.defitions.records.count > 0 {
-          Section(header: Text("Records")) {
+          Section {
             ForEach(self.defitions.records, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
+          } header: {
+            Text("Records")
+              .padding(.top, self.defitions.values.count + self.defitions.syntax.count == 0
+                               ? 20 : 0)
           }
         }
         if self.defitions.types.count > 0 {
-          Section(header: Text("Types")) {
+          Section {
             ForEach(self.defitions.types, id: \.1) { tuple in
               Button(action: { self.position = NSRange(location: tuple.1, length: 0)
                                self.dismiss() }) {
                 Text(tuple.0).font(.body)
               }
             }
+          } header: {
+            Text("Types")
+              .padding(.top, self.defitions.values.count + self.defitions.syntax.count
+                               + self.defitions.records.count == 0
+                               ? 20 : 0)
           }
         }
       }

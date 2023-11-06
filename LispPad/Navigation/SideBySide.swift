@@ -99,6 +99,8 @@ enum SideBySideMode: Int {
 }
 
 struct SideBySideNavigator: View {
+  static let lightColor: Color = Color(UIColor(named: "KeyColor") ?? UIColor.lightText)
+  
   let leftSide: Bool
   let allowSplit: Bool
   @Binding var mode: SideBySideMode
@@ -149,7 +151,7 @@ struct SideBySideNavigator: View {
       } label: {
         Image(systemName: "arrow.left.and.right.square")
           .foregroundColor(.primary)
-          .font(LispPadUI.toolbarSwitchFont)
+          .font(LispPadUI.toolbarSwitchFont)          
       } primaryAction: {
         self.mode.expand(left: self.leftSide)
       }
@@ -166,7 +168,7 @@ struct SideBySideNavigator: View {
                 .foregroundColor(.primary)
                 .font(LispPadUI.toolbarSwitchFont)
               Image(systemName: "pencil")
-                .foregroundColor(.white)
+                .foregroundColor(SideBySideNavigator.lightColor)
                 .font(.system(size: 10, weight: .bold))
                 .offset(x: 3, y: 1.6)
             }
@@ -176,7 +178,7 @@ struct SideBySideNavigator: View {
                 .foregroundColor(.primary)
                 .font(LispPadUI.toolbarSwitchFont)
               Image(systemName: "terminal")
-                .foregroundColor(.white)
+                .foregroundColor(SideBySideNavigator.lightColor)
                 .font(.system(size: 16, weight: .medium))
                 .offset(x: 3, y: 1.8)
             }

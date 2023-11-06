@@ -22,16 +22,14 @@ import Combine
 import SwiftUI
 import UIKit
 
+
 extension UIApplication {
   
   func currentUIWindow() -> UIWindow? {
-      let connectedScenes = UIApplication.shared.connectedScenes
-          .filter { $0.activationState == .foregroundActive }
-          .compactMap { $0 as? UIWindowScene }
-      let window = connectedScenes.first?
-          .windows
-          .first { $0.isKeyWindow }
-      return window
+    let connectedScenes = self.connectedScenes
+        .filter { $0.activationState == .foregroundActive }
+        .compactMap { $0 as? UIWindowScene }
+    return connectedScenes.first?.windows.first { $0.isKeyWindow }
   }
   
   func endEditing(_ force: Bool) {

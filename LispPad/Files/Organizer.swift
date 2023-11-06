@@ -42,7 +42,7 @@ struct Organizer: View {
         } else if self.urlToMove == nil {
           Sheet {
             Form {
-              Section(header: Text("Usage")) {
+              Section {
                 FileHierarchyBrowser(self.fileManager.usageRootDirectories,
                                      options: [.organizer],
                                      showShareSheet: $showShareSheet,
@@ -53,9 +53,12 @@ struct Organizer: View {
                                      editName: $editName,
                                      selectedUrls: $selectedUrls,
                                      onSelection: { url in })
-                  .font(.body)
+                .font(.body)
+              } header: {
+                Text("Usage")
+                  .padding(.top, 20)
               }
-              Section(header: Text("Locations")) {
+              Section {
                 FileHierarchyBrowser(self.fileManager.userRootDirectories,
                                      options: [.mutable, .organizer],
                                      showShareSheet: $showShareSheet,
@@ -67,8 +70,10 @@ struct Organizer: View {
                                      selectedUrls: $selectedUrls,
                                      onSelection: { url in })
                   .font(.body)
+              } header: {
+                Text("Locations")
               }
-              Section(header: Text("System")) {
+              Section {
                 FileHierarchyBrowser(self.fileManager.systemRootDirectories,
                                      options: [.organizer],
                                      showShareSheet: $showShareSheet,
@@ -80,6 +85,8 @@ struct Organizer: View {
                                      selectedUrls: $selectedUrls,
                                      onSelection: { url in })
                   .font(.body)
+              } header: {
+                Text("System")
               }
             }
             .transition(.move(edge: .top))

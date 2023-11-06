@@ -287,7 +287,6 @@ struct InterpreterView: View {
                  */
                 Divider()
                 Button(action: {
-                  // self.presentSheet(.shareConsole)
                   self.showModal = .shareConsole
                 }) {
                   Label("Share Console", systemImage: "square.and.arrow.up")
@@ -307,7 +306,7 @@ struct InterpreterView: View {
                 Divider()
                 Button(action: {
                   self.histManager.verifyFileLists()
-                  self.showSheet = .organizeFiles
+                  self.showModal = .organizeFiles
                 }) {
                   Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
                 }
@@ -325,7 +324,6 @@ struct InterpreterView: View {
               }
             }
             Button(action: {
-              // self.presentSheet(.loadFile)
               self.histManager.verifyFileLists()
               self.showModal = .loadFile
             }) {
@@ -349,7 +347,6 @@ struct InterpreterView: View {
         ToolbarItemGroup(placement: .principal) {
           Menu {
             Button(action: {
-              // self.presentSheet(.showAbout)
               self.showModal = .showAbout
             }) {
               Label("About…", systemImage: "questionmark.circle")
@@ -363,7 +360,7 @@ struct InterpreterView: View {
               Label("Manual…", systemImage: "book")
             }
             Button(action: {
-              self.showSheet = .showShortcuts
+              self.showModal = .showShortcuts
             }) {
               Label("Keyboard Shortcuts…", systemImage: "keyboard")
             }
@@ -549,13 +546,5 @@ struct InterpreterView: View {
       }
     }
     return res
-  }
-  
-  private func presentSheet(_ action: SheetAction) {
-    if UIDevice.current.userInterfaceIdiom == .pad {
-      self.showModal = action
-    } else {
-      self.showSheet = action
-    }
   }
 }

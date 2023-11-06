@@ -373,7 +373,7 @@ struct CodeEditorView: View {
               Button(action: {
                 self.dismissCard()
                 self.histManager.verifyFileLists()
-                self.showSheet = .organizeFiles
+                self.showModal = .organizeFiles
               }) {
                 Label("Organize…", systemImage: "doc.text.magnifyingglass")
               }
@@ -935,10 +935,10 @@ struct CodeEditorView: View {
   }
   
   private func presentSheet(_ action: SheetAction) {
-    if UIDevice.current.userInterfaceIdiom == .pad {
+    // if UIDevice.current.userInterfaceIdiom == .pad {
       self.showModal = action
-    } else {
-      self.showSheet = action
-    }
+    // } else {
+    //  self.showSheet = action
+    // }
   }
 }

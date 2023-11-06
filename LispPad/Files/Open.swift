@@ -47,9 +47,71 @@ struct Open: View {
         ShareSheet(activityItems: [url])
           .transition(.move(edge: .top))
       } else if self.urlToMove == nil {
-        ZStack {
+        ZStack(alignment: .top) {
           Color(.systemGroupedBackground).ignoresSafeArea()
-          VStack(alignment: .center, spacing: 0.0) {
+          Form {
+            Section {
+              FileHierarchyBrowser(self.fileManager.usageRootDirectories,
+                                   options: self.directories ? [.directories] : [.files],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in
+                                     if let action = self.onSelection, action(url, false) {
+                                       self.dismiss()
+                                     }
+                                   })
+                .font(.body)
+            } header: {
+              Text("Usage")
+                .padding(.top, 44)
+            }
+            Section {
+              FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                                   options: self.directories ? [.directories, .mutable, .organizer]
+                                                             : [.files, .mutable, .organizer],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in
+                                     if let action = self.onSelection, action(url, true) {
+                                       self.dismiss()
+                                     }
+                                   })
+                .font(.body)
+            } header: {
+              Text("Locations")
+            }
+            Section {
+              FileHierarchyBrowser(self.fileManager.systemRootDirectories,
+                                   options: self.directories ? [.directories, .organizer]
+                                                             : [.files, .organizer],
+                                   showShareSheet: $showShareSheet,
+                                   showFileImporter: $showFileImporter,
+                                   urlToMove: $urlToMove,
+                                   selectedUrl: $selectedUrl,
+                                   editUrl: $editUrl,
+                                   editName: $editName,
+                                   selectedUrls: $selectedUrls,
+                                   onSelection: { url in
+                                     if let action = self.onSelection, action(url, false) {
+                                       self.dismiss()
+                                     }
+                                   })
+                .font(.body)
+            } header: {
+              Text("System")
+            }
+          }
+          VStack(alignment: .center, spacing: 0) {
             HStack {
               Button(action: {
                 self.showFileImporter = true
@@ -66,63 +128,9 @@ struct Open: View {
             }
             .font(.body)
             .padding(.horizontal)
-            .padding(.top, 12)
-            .padding(.bottom, 8)
-            Form {
-              Section(header: Text("Usage")) {
-                FileHierarchyBrowser(self.fileManager.usageRootDirectories,
-                                     options: self.directories ? [.directories] : [.files],
-                                     showShareSheet: $showShareSheet,
-                                     showFileImporter: $showFileImporter,
-                                     urlToMove: $urlToMove,
-                                     selectedUrl: $selectedUrl,
-                                     editUrl: $editUrl,
-                                     editName: $editName,
-                                     selectedUrls: $selectedUrls,
-                                     onSelection: { url in
-                                       if let action = self.onSelection, action(url, false) {
-                                         self.dismiss()
-                                       }
-                                     })
-                  .font(.body)
-              }
-              Section(header: Text("Locations")) {
-                FileHierarchyBrowser(self.fileManager.userRootDirectories,
-                                     options: self.directories ? [.directories, .mutable, .organizer]
-                                                               : [.files, .mutable, .organizer],
-                                     showShareSheet: $showShareSheet,
-                                     showFileImporter: $showFileImporter,
-                                     urlToMove: $urlToMove,
-                                     selectedUrl: $selectedUrl,
-                                     editUrl: $editUrl,
-                                     editName: $editName,
-                                     selectedUrls: $selectedUrls,
-                                     onSelection: { url in
-                                       if let action = self.onSelection, action(url, true) {
-                                         self.dismiss()
-                                       }
-                                     })
-                  .font(.body)
-              }
-              Section(header: Text("System")) {
-                FileHierarchyBrowser(self.fileManager.systemRootDirectories,
-                                     options: self.directories ? [.directories, .organizer]
-                                                               : [.files, .organizer],
-                                     showShareSheet: $showShareSheet,
-                                     showFileImporter: $showFileImporter,
-                                     urlToMove: $urlToMove,
-                                     selectedUrl: $selectedUrl,
-                                     editUrl: $editUrl,
-                                     editName: $editName,
-                                     selectedUrls: $selectedUrls,
-                                     onSelection: { url in
-                                       if let action = self.onSelection, action(url, false) {
-                                         self.dismiss()
-                                       }
-                                     })
-                  .font(.body)
-              }
-            }
+            .padding(.vertical, 12)
+            .background(Color(.secondarySystemBackground).opacity(0.85))
+            // Divider()
           }
         }
         .transition(.move(edge: .top))

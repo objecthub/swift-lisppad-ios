@@ -41,7 +41,7 @@ struct LispPadUI {
   static let fileNameFontSize: CGFloat = 14
   
   // Space between items in toolbar
-  static let toolbarSeparator: CGFloat = 8
+  static let toolbarSeparator: CGFloat = 9
   
   // Color used for menu indicators in toolbar
   static let menuIndicatorColor: UIColor = UIColor(named: "DarkKeyColor") ?? UIColor.lightGray

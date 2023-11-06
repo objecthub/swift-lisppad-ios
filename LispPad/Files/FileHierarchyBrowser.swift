@@ -328,7 +328,8 @@ struct FileHierarchyBrowser: View {
     List(self.roots,
          children: \.children,
          rowContent: self.rowContent)
-    .resignKeyboardOnDragGesture()
     .listStyle(DefaultListStyle())
+    .scrollDismissesKeyboard(.interactively)
+    //.resignKeyboardOnDragGesture()
   }
 }

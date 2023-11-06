@@ -61,8 +61,8 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.isSelectable = true
     textView.isUserInteractionEnabled = true
     textView.contentInsetAdjustmentBehavior = .automatic
-    textView.keyboardDismissMode = UIDevice.current.userInterfaceIdiom == .pad ? .none
-                                                                               : .interactive
+    textView.keyboardDismissMode = // UIDevice.current.userInterfaceIdiom == .pad ? .none :
+                                   .interactive
     textView.smartQuotesType = .no
     textView.smartDashesType = .no
     textView.smartInsertDeleteType = .no

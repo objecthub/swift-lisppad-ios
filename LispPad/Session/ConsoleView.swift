@@ -299,9 +299,9 @@ struct ConsoleView: View {
       }
       .padding(.trailing, 3)
       .offset(y: -3)
-      .gesture(DragGesture().onEnded { _ in
-        UIApplication.shared.endEditing(true)
-      })
+      //.gesture(DragGesture().onEnded { _ in
+      //  UIApplication.shared.endEditing(true)
+      //})
       Button(action: {
         if self.inputHistoryIndex >= 0 &&
            self.inputHistoryIndex < self.history.count &&
@@ -387,6 +387,7 @@ struct ConsoleView: View {
                 }
               }
             }
+            .scrollDismissesKeyboard(.interactively)
           }
         }
         .tag(1)
@@ -410,7 +411,7 @@ struct ConsoleView: View {
             .padding(.bottom, -10)
         }
       }
-      .resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
+      //.resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
       Divider()
         .ignoresSafeArea(.container, edges: [.leading, .trailing])
       self.control
@@ -419,10 +420,10 @@ struct ConsoleView: View {
   }
   
   private func presentSheet(_ action: InterpreterView.SheetAction) {
-    if UIDevice.current.userInterfaceIdiom == .pad {
+    // if UIDevice.current.userInterfaceIdiom == .pad {
       self.showModal = action
-    } else {
-      self.showSheet = action
-    }
+    // } else {
+    //  self.showSheet = action
+    // }
   }
 }

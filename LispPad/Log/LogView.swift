@@ -186,26 +186,6 @@ struct LogView: View {
             .environmentObject(self.sessionLog)
             .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
           }
-          /* Not needed anymore as of macOS 16.4
-          CustomPopOver(showPopover: $showLogFilterPopOver,
-                        popoverSize: CGSize(width: 280, height: 220)) {
-            LogFilterView(showLogFilterPopOver: $showLogFilterPopOver,
-                          minSeverityFilter: self.settings.logSeverityFilter,
-                          logMessageFilter: self.settings.logMessageFilter,
-                          filterMessage: self.settings.logFilterMessages,
-                          filterTag: self.settings.logFilterTags)
-              .environmentObject(self.settings)
-              .environmentObject(self.sessionLog)
-          } label: {
-            Button(action: {
-              self.showLogFilterPopOver = true
-            }) {
-              Image(systemName: "line.3.horizontal.decrease.circle")
-                .font(LogView.iconFont)
-                .padding(.horizontal, 4)
-            }
-          }
-          */
           Menu {
             Button(action: {
               self.showTime.toggle()
@@ -258,10 +238,10 @@ struct LogView: View {
   }
   
   private func presentSheet(_ action: InterpreterView.SheetAction) {
-    if UIDevice.current.userInterfaceIdiom == .pad {
+    // if UIDevice.current.userInterfaceIdiom == .pad {
       self.showModal = action
-    } else {
-      self.showSheet = action
-    }
+    // } else {
+    //  self.showSheet = action
+    //}
   }
 }

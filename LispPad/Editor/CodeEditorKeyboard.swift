@@ -77,10 +77,11 @@ final class CodeEditorKeyboard {
       let equals = self.keyboardButton("Key.equals", tag: .equals, to: textView)
       let question = self.keyboardButton("Key.questionmark", tag: .question, to: textView)
       let hash = self.keyboardButton("Key.hash", tag: .hash, to: textView)
-      return UIBarButtonItemGroup(barButtonItems: [dash, times, quote, doubleQuote,
-                                                   parenLeft, parenRight, equals,
-                                                   question, hash],
-                                  representativeItem: nil)
+      return .movableGroup(customizationIdentifier: "Scheme keyboard",
+                           representativeItem: nil,
+                           items: [dash, times, quote, doubleQuote,
+                                   parenLeft, parenRight, equals,
+                                   question, hash])
     } else {
       let dash = self.keyboardButton("Key.dash", tag: .dash, to: textView)
       let times = self.keyboardButton("Key.star", tag: .times, to: textView)
@@ -91,10 +92,11 @@ final class CodeEditorKeyboard {
       let backquote = self.keyboardButton("Key.backquote", tag: .backquote, to: textView)
       let underscore = self.keyboardButton("Key.underscore", tag: .underscore, to: textView)
       let hash = self.keyboardButton("Key.hash", tag: .hash, to: textView)
-      return UIBarButtonItemGroup(barButtonItems: [dash, times, quote, doubleQuote,
-                                                   parenLeft, parenRight, backquote,
-                                                   underscore, hash],
-                                  representativeItem: nil)
+      return .movableGroup(customizationIdentifier: "Text keyboard",
+                           representativeItem: nil,
+                           items: [dash, times, quote, doubleQuote,
+                                   parenLeft, parenRight, backquote,
+                                   underscore, hash])
     }
   }
   

@@ -19,7 +19,6 @@
 		CC248F8D2958C8E000FFAAF0 /* IntField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC248F8C2958C8E000FFAAF0 /* IntField.swift */; };
 		CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5026FE93F900835745 /* LispPadUI.swift */; };
 		CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5A2700828600835745 /* SlideOverCard.swift */; };
-		CC327C38260D399400BD7E32 /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C37260D399400BD7E32 /* LazyView.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
 		CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C46260E1D5100BD7E32 /* ShareSheet.swift */; };
@@ -33,9 +32,7 @@
 		CC327C5C2611201100BD7E32 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
 		CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33237E260A8E6900AD3307 /* DocumentationManager.swift */; };
 		CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5157B626DA84AB0056B05B /* FileObserver.swift */; };
-		CC55DD7A26469A8F001AAD10 /* SplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7926469A8F001AAD10 /* SplitView.swift */; };
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
-		CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7D26481279001AAD10 /* NavigationControl.swift */; };
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
 		CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD8126492307001AAD10 /* DocStructureView.swift */; };
 		CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */; };
@@ -46,14 +43,12 @@
 		CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CC27240997004C9B89 /* SessionLog.swift */; };
 		CC6598D82725859C004C9B89 /* log.sld in Copy Root/Libraries/lispkit */ = {isa = PBXBuildFile; fileRef = CC6598D52725846D004C9B89 /* log.sld */; };
 		CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC6598D227258405004C9B89 /* log.sld */; };
-		CC6598DE272628A7004C9B89 /* CustomPopOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598DD272628A7004C9B89 /* CustomPopOver.swift */; };
 		CC6598E027292CB6004C9B89 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598DF27292CB6004C9B89 /* LogView.swift */; };
 		CC7A558F2997D43C0014D600 /* (lispkit graph).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A558E2997D3000014D600 /* (lispkit graph).md */; };
 		CC7A55912997D5700014D600 /* sample-graph.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC7A55902997D4E60014D600 /* sample-graph.png */; };
 		CC7A62BE275D375C009F72E4 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7A62BD275D375C009F72E4 /* Console.swift */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
 		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
-		CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24D25FE59EE00758581 /* ContentView.swift */; };
 		CC84C25025FE59F000758581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C24F25FE59F000758581 /* Assets.xcassets */; };
 		CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C25225FE59F000758581 /* Preview Assets.xcassets */; };
 		CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26125FE6BFF00758581 /* InterpreterView.swift */; };
@@ -138,7 +133,6 @@
 		CCBE1354272E10210046F474 /* srfi in Copy Documentation/Web/srfi */ = {isa = PBXBuildFile; fileRef = CCBE1351272E0F410046F474 /* srfi */; };
 		CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
-		CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
 		CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */; };
@@ -423,7 +417,6 @@
 		CC302E5026FE93F900835745 /* LispPadUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadUI.swift; sourceTree = "<group>"; };
 		CC302E5A2700828600835745 /* SlideOverCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideOverCard.swift; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
-		CC327C37260D399400BD7E32 /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
 		CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResignKeyboard.swift; sourceTree = "<group>"; };
 		CC327C46260E1D5100BD7E32 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
@@ -437,9 +430,7 @@
 		CC327C5B2611201100BD7E32 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };
 		CC33237E260A8E6900AD3307 /* DocumentationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationManager.swift; sourceTree = "<group>"; };
 		CC5157B626DA84AB0056B05B /* FileObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileObserver.swift; sourceTree = "<group>"; };
-		CC55DD7926469A8F001AAD10 /* SplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitView.swift; sourceTree = "<group>"; };
 		CC55DD7B2646B4C4001AAD10 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
-		CC55DD7D26481279001AAD10 /* NavigationControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationControl.swift; sourceTree = "<group>"; };
 		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
 		CC55DD8126492307001AAD10 /* DocStructureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocStructureView.swift; sourceTree = "<group>"; };
 		CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
@@ -453,7 +444,6 @@
 		CC6598CC27240997004C9B89 /* SessionLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionLog.swift; sourceTree = "<group>"; };
 		CC6598D227258405004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
 		CC6598D52725846D004C9B89 /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
-		CC6598DD272628A7004C9B89 /* CustomPopOver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPopOver.swift; sourceTree = "<group>"; };
 		CC6598DF27292CB6004C9B89 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		CC7A558E2997D3000014D600 /* (lispkit graph).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit graph).md"; sourceTree = "<group>"; };
 		CC7A55902997D4E60014D600 /* sample-graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sample-graph.png"; sourceTree = "<group>"; };
@@ -461,7 +451,6 @@
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
 		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
-		CC84C24D25FE59EE00758581 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CC84C24F25FE59F000758581 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CC84C25225FE59F000758581 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		CC84C25425FE59F000758581 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -550,7 +539,6 @@
 		CCBE1351272E0F410046F474 /* srfi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = srfi; sourceTree = "<group>"; };
 		CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CCBF9E6926C890B400654D60 /* (lisppad location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad location).md"; sourceTree = "<group>"; };
-		CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideBySideViewController.swift; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyBrowser.swift; sourceTree = "<group>"; };
@@ -973,11 +961,7 @@
 		CCC8564326198A500080B96E /* Generic Views */ = {
 			isa = PBXGroup;
 			children = (
-				CC327C37260D399400BD7E32 /* LazyView.swift */,
-				CC55DD7926469A8F001AAD10 /* SplitView.swift */,
 				CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */,
-				CCC7A9D926CC776100F05361 /* SideBySideViewController.swift */,
-				CC55DD7D26481279001AAD10 /* NavigationControl.swift */,
 				CCC85658261B18C70080B96E /* SearchField.swift */,
 				CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */,
 				CCFBC5CA2605F50B00E29F99 /* RichText.swift */,
@@ -989,7 +973,6 @@
 				CCE5701C26AC7E75008DF3D0 /* Sheet.swift */,
 				CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */,
 				CC302E5A2700828600835745 /* SlideOverCard.swift */,
-				CC6598DD272628A7004C9B89 /* CustomPopOver.swift */,
 				CCBE134E272DE1450046F474 /* WebView.swift */,
 				CC248F8C2958C8E000FFAAF0 /* IntField.swift */,
 			);
@@ -1061,7 +1044,6 @@
 			isa = PBXGroup;
 			children = (
 				CC84C24B25FE59EE00758581 /* LispPadDocument.swift */,
-				CC84C24D25FE59EE00758581 /* ContentView.swift */,
 				CC327C502610A3C800BD7E32 /* CodeEditorView.swift */,
 				CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */,
 				CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */,
@@ -1196,7 +1178,6 @@
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
-				CC327C38260D399400BD7E32 /* LazyView.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
 				CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
@@ -1215,7 +1196,6 @@
 				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
 				CC6598E027292CB6004C9B89 /* LogView.swift in Sources */,
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,
-				CC55DD7E26481279001AAD10 /* NavigationControl.swift in Sources */,
 				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
 				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
 				CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */,
@@ -1248,7 +1228,6 @@
 				CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,
 				CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */,
-				CC84C24E25FE59EE00758581 /* ContentView.swift in Sources */,
 				CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */,
 				CC327C5C2611201100BD7E32 /* Characters.swift in Sources */,
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
@@ -1262,15 +1241,12 @@
 				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
 				CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */,
-				CCC7A9DA26CC776100F05361 /* SideBySideViewController.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
 				CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */,
 				CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */,
 				CC233D5926696C970038016C /* ImageUtil.swift in Sources */,
-				CC55DD7A26469A8F001AAD10 /* SplitView.swift in Sources */,
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,
-				CC6598DE272628A7004C9B89 /* CustomPopOver.swift in Sources */,
 				CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */,
 				CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */,
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,
