@@ -343,6 +343,18 @@ struct InterpreterView: View {
             }
             .disabled(!self.interpreter.isReady)
           }
+          .actionSheet(isPresented: self.$showResetActionSheet) {
+            ActionSheet(title: Text("Reset"),
+                        message: Text("Clear console and reset interpreter?"),
+                        buttons: [.destructive(Text("Reset interpreter"), action: {
+                                    _ = self.interpreter.reset()
+                                  }),
+                                  .destructive(Text("Reset console & interpreter"), action: {
+                                    self.interpreter.console.reset()
+                                    _ = self.interpreter.reset()
+                                  }),
+                                  .cancel()])
+          }
         }
         ToolbarItemGroup(placement: .principal) {
           Menu {
@@ -430,18 +442,6 @@ struct InterpreterView: View {
       }
       .sheet(item: self.$showModal, content: self.sheetView)
       .fullScreenCover(item: self.$showSheet, content: self.sheetView)
-      .actionSheet(isPresented: self.$showResetActionSheet) {
-        ActionSheet(title: Text("Reset"),
-                    message: Text("Clear console and reset interpreter?"),
-                    buttons: [.destructive(Text("Reset interpreter"), action: {
-                                _ = self.interpreter.reset()
-                              }),
-                              .destructive(Text("Reset console & interpreter"), action: {
-                                self.interpreter.console.reset()
-                                _ = self.interpreter.reset()
-                              }),
-                              .cancel()])
-      }
       .alert(item: self.$alertAction) { alertAction in
         switch alertAction {
           case .abortEvaluation:
