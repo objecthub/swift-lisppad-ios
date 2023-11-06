@@ -71,6 +71,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   struct PhotosPickerConfig: Equatable {
     let maxSelectionCount: Int
     let matching: PHPickerFilter
+    let dataOnly: Bool
     let imageManager: ImageManager
   }
   

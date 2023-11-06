@@ -492,6 +492,22 @@ struct InterpreterView: View {
         } else if self.interpreter.showPhotosPicker == nil ||
                     (selectedPhotos.count == 1 && selectedPhotos[0].itemIdentifier == "___") {
           // Don't do anything
+        } else if self.interpreter.showPhotosPicker?.dataOnly ?? false {
+          Task {
+            do {
+              var res: [Data?] = []
+              for photo in selectedPhotos {
+                res.append(try await photo.loadTransferable(type: Data.self))
+              }
+              self.interpreter.showPhotosPicker?
+                .imageManager.completeLoadImageFromLibrary(data: res)
+            } catch let e {
+              self.interpreter.showPhotosPicker?
+                .imageManager.completeLoadImageFromLibrary(error: e)
+            }
+            self.interpreter.showPhotosPicker = nil
+            self.pickedPhotos = []
+          }
         } else {
           Task {
             do {

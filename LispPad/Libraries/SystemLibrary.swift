@@ -72,7 +72,8 @@ public final class SystemLibrary: NativeLibrary {
   public override func declarations() {
     self.define(Procedure("open-in-files-app", self.openInFilesApp))
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
-    self.define(Procedure("load-bitmap-from-library", self.loadBitmapFromLibrary))
+    self.define(Procedure("load-bitmaps-from-library", self.loadBitmapsFromLibrary))
+    self.define(Procedure("load-bytevectors-from-library", self.loadBytevectorsFromLibrary))
     self.define(Procedure("project-directory", self.projectDirectory))
     self.define(Procedure("icloud-directory", self.icloudDirectory))
     self.define(Procedure("screen-size", self.screenSize))
@@ -159,7 +160,9 @@ public final class SystemLibrary: NativeLibrary {
     }
   }
   
-  private func loadBitmapFromLibrary(_ maxImages: Expr?, _ filter: Expr?) throws -> Expr {
+  private func loadFromLibrary(_ maxImages: Expr?,
+                               _ filter: Expr?,
+                               _ dataOnly: Bool) throws -> ImageManager {
     let n: Int = try maxImages?.asInt(above: 1, below: 1000) ?? 1
     let f: PHPickerFilter = filter == nil ? .images : try self.photoFilter(filter!)
     let imageManager = ImageManager()
@@ -167,13 +170,35 @@ public final class SystemLibrary: NativeLibrary {
       self.interpreter?.showPhotosPicker = Interpreter.PhotosPickerConfig(
         maxSelectionCount: n,
         matching: f,
+        dataOnly: dataOnly,
         imageManager: imageManager)
     }
+    return imageManager
+  }
+  
+  private func loadBitmapsFromLibrary(_ maxImages: Expr?, _ filter: Expr?) throws -> Expr {
+    let imageManager = try self.loadFromLibrary(maxImages, filter, false)
     let images = try imageManager.loadImagesFromLibrary()
     var res: [Expr] = []
     for image in images {
       if let image {
         res.append(.object(NativeImage(image)))
+      } else {
+        res.append(.false)
+      }
+    }
+    return .makeList(Arguments(res))
+  }
+  
+  private func loadBytevectorsFromLibrary(_ maxImages: Expr?, _ filter: Expr?) throws -> Expr {
+    let imageManager = try self.loadFromLibrary(maxImages, filter, true)
+    let data = try imageManager.loadDataFromLibrary()
+    var res: [Expr] = []
+    for d in data {
+      if let d {
+        var a = [UInt8](repeating: 0, count: d.count)
+        (d as NSData).getBytes(&a, length: data.count)
+        res.append(.bytes(MutableBox(a)))
       } else {
         res.append(.false)
       }
