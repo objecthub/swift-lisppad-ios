@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import QuickLook
 
 struct Organizer: View {
   @Environment(\.dismiss) var dismiss
@@ -32,6 +33,7 @@ struct Organizer: View {
   @State var editUrl: URL? = nil
   @State var editName: String = ""
   @State var selectedUrls: Set<URL> = []
+  @State var previewUrl: URL? = nil
   
   var body: some View {
     ZStack {
@@ -52,6 +54,7 @@ struct Organizer: View {
                                      editUrl: $editUrl,
                                      editName: $editName,
                                      selectedUrls: $selectedUrls,
+                                     previewUrl: $previewUrl,
                                      onSelection: { url in })
                 .font(.body)
               } header: {
@@ -68,6 +71,7 @@ struct Organizer: View {
                                      editUrl: $editUrl,
                                      editName: $editName,
                                      selectedUrls: $selectedUrls,
+                                     previewUrl: $previewUrl,
                                      onSelection: { url in })
                   .font(.body)
               } header: {
@@ -83,6 +87,7 @@ struct Organizer: View {
                                      editUrl: $editUrl,
                                      editName: $editName,
                                      selectedUrls: $selectedUrls,
+                                     previewUrl: $previewUrl,
                                      onSelection: { url in })
                   .font(.body)
               } header: {
@@ -135,6 +140,7 @@ struct Organizer: View {
           break
       }
     }
+    .quickLookPreview(self.$previewUrl)
   }
 }
 

@@ -102,6 +102,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var readingStatus: ReadingStatus = .reject
   @Published var contentBatch: Int = 0
   @Published var showPhotosPicker: PhotosPickerConfig? = nil
+  @Published var previewUrl: URL? = nil
   
   /// Dependencies
   let console = Console()

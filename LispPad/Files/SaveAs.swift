@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import QuickLook
 
 struct SaveAs: View {
   
@@ -42,10 +43,12 @@ struct SaveAs: View {
   @State var editUrl: URL? = nil
   @State var editName: String = ""
   @State var selectedUrls: Set<URL> = []
+  @State var previewUrl: URL? = nil
   @State var alertAction: AlertAction? = nil
-  
   @State var fileName: String = "Untitled.scm"
   @State var folder: URL? = nil
+  @State var headerSize: CGSize = .zero
+  
   let title: String
   let url: URL?
   let firstSave: Bool
@@ -93,63 +96,76 @@ struct SaveAs: View {
   }
   
   var body: some View {
-    ZStack {
+    ZStack(alignment: .top) {
       Color(.systemGroupedBackground).ignoresSafeArea()
+      Form {
+        Section {
+          TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)
+            .autocapitalization(.none)
+            .disableAutocorrection(true)
+        } header: {
+          Text("File")
+            .padding(.top, self.headerSize.height)
+        }
+        if !self.lockFolder {
+          Section {
+            FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                                 options: [.directories, .mutable],
+                                 showShareSheet: $showShareSheet,
+                                 showFileImporter: $showFileImporter,
+                                 urlToMove: $urlToMove,
+                                 selectedUrl: $selectedUrl,
+                                 editUrl: $editUrl,
+                                 editName: $editName,
+                                 selectedUrls: $selectedUrls,
+                                 previewUrl: $previewUrl,
+                                 onSelection: { url in
+                                   self.selectedUrls.removeAll()
+                                   self.selectedUrls.insert(url)
+                                 })
+              .font(.body)
+              .onChange(of: self.selectedUrls) { value in
+                if let folder = self.selectedUrls.first {
+                  self.folder = folder
+                }
+              }
+          } header: {
+            Text("Locations")
+          }
+        }
+      }
       VStack(alignment: .leading, spacing: 0) {
         HStack(alignment: .top, spacing: 16) {
           Spacer()
-          Button(action: {
+          Button {
             self.dismiss()
-          }) {
+          } label: {
             Text("Cancel")
           }
           Button(action: self.tapSave) {
-            Text("Save")
+            Text("Save").bold()
           }
           .disabled(self.folder == nil || self.fileName.isEmpty)
         }
         .font(.body)
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .padding(.top, 6)
-        HStack(alignment: .top, spacing: 16) {
+        .padding()
+        VStack(alignment: .leading, spacing: 8) {
           self.targetDescription
-            .font(.footnote)
-            .foregroundColor(.secondary)
-          Spacer(minLength: 0)
         }
-        .padding(EdgeInsets(top: -19, leading: 20, bottom: 8, trailing: 16))
-        Form {
-          Section(header: Text("File")) {
-            TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)
-              .autocapitalization(.none)
-              .disableAutocorrection(true)
-          }
-          if !self.lockFolder {
-            Section(header: Text("Locations")) {
-              FileHierarchyBrowser(self.fileManager.userRootDirectories,
-                                   options: [.directories, .mutable],
-                                   showShareSheet: $showShareSheet,
-                                   showFileImporter: $showFileImporter,
-                                   urlToMove: $urlToMove,
-                                   selectedUrl: $selectedUrl,
-                                   editUrl: $editUrl,
-                                   editName: $editName,
-                                   selectedUrls: $selectedUrls,
-                                   onSelection: { url in
-                                     self.selectedUrls.removeAll()
-                                     self.selectedUrls.insert(url)
-                                   })
-                .font(.body)
-                .onChange(of: self.selectedUrls) { value in
-                  if let folder = self.selectedUrls.first {
-                    self.folder = folder
-                  }
-                }
-            }
-          }
-        }
+        .font(.footnote)
+        .foregroundColor(.secondary)
+        .padding(EdgeInsets(top: -16, leading: 20, bottom: 16, trailing: 16))
+        Divider()
       }
+      .background(
+        GeometryReader { geometry in
+          Color(.secondarySystemBackground).opacity(0.85)
+            .onAppear {
+              self.headerSize = geometry.size
+            }.onChange(of: geometry.size) { newSize in
+              self.headerSize = newSize
+            }
+        })
     }
     .alert(item: $alertAction) { alertAction in
       switch alertAction {
@@ -170,6 +186,7 @@ struct SaveAs: View {
                        }))
       }
     }
+    .quickLookPreview(self.$previewUrl)
     // .fileMover(isPresented: $showFileMover,
     //              file: self.selectedUrl,
     //              onCompletion: { res in self.selectedUrl = nil })

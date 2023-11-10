@@ -418,36 +418,35 @@ struct CodeEditorView: View {
         }
         ToolbarItemGroup(placement: .principal) {
           Menu {
-            Button(action: {
+            Button {
               self.dismissCard()
               if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
-                UIPasteboard.general.setValue(path,
-                                              forPasteboardType: UTType.utf8PlainText.identifier)
+                UIPasteboard.general.string = path
               }
-            }) {
+            } label: {
               Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
                     systemImage: PortableURL(self.fileManager
                                                .editorDocument?.fileURL)?.base?.imageName ?? "link")
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
             Divider()
-            Button(action: {
+            Button {
               self.dismissCard()
               self.fileManager.editorDocument?.saveFile { success in
                 self.presentSheet(.saveFile)
               }
-            }) {
+            } label: {
               Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
                     systemImage: "tray.and.arrow.down")
             }
-            Button(action: {
+            Button {
               self.dismissCard()
               self.presentSheet(.renameFile)
-            }) {
+            } label: {
               Label("Rename", systemImage: "pencil")
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
-            Button(action: {
+            Button {
               self.dismissCard()
               if let doc = self.fileManager.editorDocument, !doc.info.new {
                 doc.saveFile { success in
@@ -465,15 +464,15 @@ struct CodeEditorView: View {
                   }
                 }
               }
-            }) {
+            } label: {
               Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
             Divider()
-            Button(action: {
+            Button {
               self.dismissCard()
               self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
-            }) {
+            } label: {
               if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
                 Label("Unstar", systemImage: "star.fill")
               } else {
@@ -481,6 +480,18 @@ struct CodeEditorView: View {
               }
             }
             .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
+            if let url = self.fileManager.editorDocument?.fileURL {
+              ShareLink(item: url)
+                .disabled(self.fileManager.editorDocumentInfo.new)
+            }
+            Button {
+              if let url = self.fileManager.editorDocument?.fileURL {
+                UIPasteboard.general.string = url.path
+              }
+            } label: {
+              Label("Copy Path", systemImage: "doc.on.clipboard")
+            }
+            .disabled(self.fileManager.editorDocumentInfo.new)
           } label: {
             HStack(alignment: .center, spacing: 4) {
               if geometry.size.width >= 380 {

@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import QuickLook
 
 struct Open: View {
   @Environment(\.dismiss) var dismiss
@@ -32,6 +33,7 @@ struct Open: View {
   @State var editUrl: URL? = nil
   @State var editName: String = ""
   @State var selectedUrls: Set<URL> = []
+  @State var previewUrl: URL? = nil
   
   let directories: Bool
   let onSelection: ((URL, Bool) -> Bool)?
@@ -60,6 +62,7 @@ struct Open: View {
                                    editUrl: $editUrl,
                                    editName: $editName,
                                    selectedUrls: $selectedUrls,
+                                   previewUrl: $previewUrl,
                                    onSelection: { url in
                                      if let action = self.onSelection, action(url, false) {
                                        self.dismiss()
@@ -81,6 +84,7 @@ struct Open: View {
                                    editUrl: $editUrl,
                                    editName: $editName,
                                    selectedUrls: $selectedUrls,
+                                   previewUrl: $previewUrl,
                                    onSelection: { url in
                                      if let action = self.onSelection, action(url, true) {
                                        self.dismiss()
@@ -101,6 +105,7 @@ struct Open: View {
                                    editUrl: $editUrl,
                                    editName: $editName,
                                    selectedUrls: $selectedUrls,
+                                   previewUrl: $previewUrl,
                                    onSelection: { url in
                                      if let action = self.onSelection, action(url, false) {
                                        self.dismiss()
@@ -123,7 +128,7 @@ struct Open: View {
               Button(action: {
                 self.dismiss()
               }) {
-                Text("Cancel")
+                Text("Cancel").bold()
               }
             }
             .font(.body)
@@ -177,5 +182,6 @@ struct Open: View {
           break
       }
     }
+    .quickLookPreview(self.$previewUrl)
   }
 }

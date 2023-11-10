@@ -74,17 +74,13 @@ struct ConsoleView: View {
     .fixedSize(horizontal: false, vertical: true)
     .padding(.leading, 4)
     .contextMenu {
-      Button(action: {
-        UIPasteboard.general.setValue(text, forPasteboardType: UTType.utf8PlainText.identifier)
-      }) {
+      Button {
+        UIPasteboard.general.string = text
+      } label: {
         Label("Copy Error", systemImage: "doc.on.clipboard")
       }
       Divider()
-      Button(action: {
-        self.presentSheet(.shareText(text))
-      }) {
-        Label("Share Error", systemImage: "square.and.arrow.up")
-      }
+      ShareLink("Share Error…", item: text)
     }
   }
   
@@ -173,7 +169,7 @@ struct ConsoleView: View {
                 }) {
                   Label("Print Image", systemImage: "printer")
                 }
-                Button(action: {
+                Button {
                   self.state.showProgressView = "Sharing image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     if let betterImage = iconImage(for: drawing,
@@ -190,8 +186,8 @@ struct ConsoleView: View {
                       self.state.showProgressView = nil
                     }
                   }
-                }) {
-                  Label("Share Image", systemImage: "square.and.arrow.up")
+                } label: {
+                  Label("Share Image…", systemImage: "square.and.arrow.up")
                 }
               }
           }
@@ -223,11 +219,7 @@ struct ConsoleView: View {
                 }
               }
               Divider()
-              Button(action: {
-                self.presentSheet(.shareText(entry.text))
-              }) {
-                Label("Share Text", systemImage: "square.and.arrow.up")
-              }
+              ShareLink("Share Text…", item: entry.text)
             }
       }
     }

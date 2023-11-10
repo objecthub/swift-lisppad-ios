@@ -164,16 +164,25 @@ struct InterpreterView: View {
           Color(.secondarySystemBackground).ignoresSafeArea()
           ShareSheet(activityItems: [self.interpreter.console.description as NSString])
         }
+        .transition(.move(edge: .top))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
       case .shareImage(let image):
         ZStack {
           Color(.secondarySystemBackground).ignoresSafeArea()
           ShareSheet(activityItems: [image])
         }
+        .transition(.move(edge: .top))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
       case .shareText(let text):
         ZStack {
           Color(.secondarySystemBackground).ignoresSafeArea()
           ShareSheet(activityItems: [text as NSString])
         }
+        .transition(.move(edge: .top))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
       case .showAbout:
         AboutView()
           .modifier(self.globals.services)
@@ -262,19 +271,19 @@ struct InterpreterView: View {
                                 fraction: self.$masterWidthFraction)
             if self.interpreter.isReady {
               Menu {
-                Button(action: {
+                Button {
                   withAnimation {
                     self.state.consoleTab = 0
                   }
-                }) {
+                } label: {
                   Label("Show Log", systemImage: "scroll")
                 }
                 .disabled(self.state.consoleTab == 0)
-                Button(action: {
+                Button {
                   withAnimation {
                     self.state.consoleTab = 1
                   }
-                }) {
+                } label: {
                   Label("Show Console", systemImage: "terminal")
                 }
                 .disabled(self.state.consoleTab == 1)
@@ -289,28 +298,28 @@ struct InterpreterView: View {
                 .disabled(self.consoleTab == 2)
                  */
                 Divider()
-                Button(action: {
+                Button {
                   self.showModal = .shareConsole
-                }) {
-                  Label("Share Console", systemImage: "square.and.arrow.up")
+                } label: {
+                  Label("Share Console…", systemImage: "square.and.arrow.up")
                 }
                 .disabled(self.interpreter.console.isEmpty)
-                Button(action: {
+                Button {
                   self.interpreter.console.reset()
-                }) {
+                } label: {
                   Label("Clear Console", systemImage: "trash")
                 }
                 .disabled(self.interpreter.console.isEmpty)
-                Button(action: {
+                Button {
                   self.showResetActionSheet = true
-                }) {
+                } label: {
                   Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
                 }
                 Divider()
-                Button(action: {
+                Button {
                   self.histManager.verifyFileLists()
                   self.showModal = .organizeFiles
-                }) {
+                } label: {
                   Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
                 }
               } label: {
@@ -445,6 +454,7 @@ struct InterpreterView: View {
       }
       .sheet(item: self.$showModal, content: self.sheetView)
       .fullScreenCover(item: self.$showSheet, content: self.sheetView)
+      .quickLookPreview(self.$interpreter.previewUrl)
       .photosPicker(isPresented: self.$showPhotosPicker,
                     selection: self.$pickedPhotos,
                     maxSelectionCount: self.interpreter.showPhotosPicker?.maxSelectionCount ?? 1,

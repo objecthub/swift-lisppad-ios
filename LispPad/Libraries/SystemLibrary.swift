@@ -71,6 +71,7 @@ public final class SystemLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("open-in-files-app", self.openInFilesApp))
+    self.define(Procedure("preview-file", self.previewFile))
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("load-bitmaps-from-library", self.loadBitmapsFromLibrary))
     self.define(Procedure("load-bytevectors-from-library", self.loadBytevectorsFromLibrary))
@@ -90,6 +91,16 @@ public final class SystemLibrary: NativeLibrary {
       DispatchQueue.main.async {
         UIApplication.shared.open(url)
       }
+    }
+    return .void
+  }
+  
+  private func previewFile(expr: Expr) throws -> Expr {
+    let path = self.context.fileHandler.path(
+                 try expr.asPath(),
+                 relativeTo: self.context.evaluator.currentDirectoryPath)
+    DispatchQueue.main.async {
+      self.interpreter?.previewUrl = URL(filePath: path)
     }
     return .void
   }

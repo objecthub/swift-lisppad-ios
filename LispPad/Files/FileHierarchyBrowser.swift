@@ -67,6 +67,9 @@ struct FileHierarchyBrowser: View {
   /// Selection support
   @Binding var selectedUrls: Set<URL>
   
+  /// Preview support
+  @Binding var previewUrl: URL?
+  
   /// Constructor
   init(_ namedRefs: [NamedRef],
        options: Options,
@@ -77,6 +80,7 @@ struct FileHierarchyBrowser: View {
        editUrl: Binding<URL?>,
        editName: Binding<String>,
        selectedUrls: Binding<Set<URL>>,
+       previewUrl: Binding<URL?>,
        onSelection: ((URL) -> Void)? = nil) {
     self.options = options
     self.onSelection = onSelection
@@ -87,6 +91,7 @@ struct FileHierarchyBrowser: View {
     self._editUrl = editUrl
     self._editName = editName
     self._selectedUrls = selectedUrls
+    self._previewUrl = previewUrl
     var roots: [FileHierarchy] = []
     for namedRef in namedRefs {
       if let r = FileHierarchy(
@@ -123,6 +128,119 @@ struct FileHierarchyBrowser: View {
     return false
   }
   
+  @ViewBuilder
+  func attachMenu<T: View>(_ hierarchy: FileHierarchy,
+                           @ViewBuilder content: () -> T) -> some View {
+    content()
+      .contextMenu {
+        if self.editUrl == nil {
+          if self.options.contains(.mutable) && (hierarchy.kind != .file) {
+            Button(action: {
+              if let url = hierarchy.url,
+                 let dir = self.fileManager.makeDirectory(at: url) {
+                hierarchy.container?.reset()
+                self.editName = dir.lastPathComponent
+                self.editUrl = dir
+              }
+            }) {
+              Label("New Folder", systemImage: "folder.badge.plus")
+            }
+            .disabled(hierarchy.type == .collection)
+            if self.options.contains(.organizer) {
+              Button(action: {
+                self.showFileImporter = true
+                self.selectedUrl = hierarchy.url
+              }) {
+                Label("Import Files…", systemImage: "square.and.arrow.down.on.square")
+              }
+              Divider()
+            }
+          }
+          if self.options.contains(.mutable) &&
+              (hierarchy.kind == .file || hierarchy.kind == .directory) {
+            Button(action: {
+              self.editName = hierarchy.name
+              self.editUrl = hierarchy.url
+            }) {
+              Label("Rename", systemImage: "pencil")
+            }
+            if self.options.contains(.organizer) {
+              Button(action: {
+                if let parent = hierarchy.parent,
+                   let url = hierarchy.url {
+                  if self.fileManager.duplicate(url) {
+                    parent.reset()
+                    self.refresher.updateView()
+                  }
+                }
+              }) {
+                Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
+              }
+              Button(action: {
+                if let url = hierarchy.url {
+                  withAnimation(.default) {
+                    self.urlToMove = (url, false)
+                  }
+                }
+              }) {
+                Label("Move…", systemImage: "folder")
+              }
+            }
+          }
+          if hierarchy.kind == .file || hierarchy.kind == .directory {
+            Button(action: {
+              if let url = hierarchy.url {
+                withAnimation(.default) {
+                  self.urlToMove = (url, true)
+                }
+              }
+            }) {
+              Label("Copy…", systemImage: "doc.on.doc")
+            }
+          }
+          if self.options.contains([.mutable, .organizer]) &&
+              (hierarchy.kind == .file || hierarchy.kind == .directory) {
+            Button(action: {
+              if let parent = hierarchy.parent,
+                 let url = hierarchy.url {
+                self.fileManager.delete(url) { success in
+                  if success {
+                    parent.reset()
+                    self.refresher.updateView()
+                  }
+                }
+              }
+            }) {
+              Label("Delete", systemImage: "trash")
+                .foregroundColor(.red)
+            }
+          }
+          Divider()
+          if hierarchy.parent != nil {
+            Button(action: {
+              self.histManager.toggleFavorite(hierarchy.url)
+            }) {
+              if self.histManager.isFavorite(hierarchy.url) {
+                Label("Unstar", systemImage: "star.fill")
+              } else {
+                Label("Star", systemImage: "star")
+              }
+            }
+          }
+          if hierarchy.kind == .file, let url = hierarchy.url {
+            ShareLink(item: url)
+          }
+          Button {
+            if let url = hierarchy.url {
+              UIPasteboard.general.string = url.path
+            }
+          } label: {
+            Label("Copy Path", systemImage: "doc.on.clipboard")
+          }
+        }
+      }
+  }
+  
   func rowContent(_ hierarchy: FileHierarchy) -> some View {
     HStack {
       if self.editUrl != nil && self.editUrl == hierarchy.url {
@@ -133,8 +251,7 @@ struct FileHierarchyBrowser: View {
             Label("", systemImage: hierarchy.systemImage)
               .foregroundColor(.red)
               .padding(.trailing, -8)
-              .padding(.top, -2)
-            TextField("", text: $editName, onEditingChanged: { isEditing in }, onCommit: {
+            TextField("", text: $editName, onCommit: {
               if !self.editName.isEmpty,
                  let url = self.editUrl {
                 if let doc = self.fileManager.editorDocument,
@@ -164,14 +281,15 @@ struct FileHierarchyBrowser: View {
             })
             .autocapitalization(.none)
             .disableAutocorrection(true)
-            Button(action: {
+            .padding(.top, -1.5)
+            Button {
               self.editName = ""
-            }) {
+            } label: {
               Image(systemName: "xmark.circle.fill")
                 .foregroundColor(.gray)
                 .opacity(self.editName.isEmpty ? 0 : 1)
             }
-            .buttonStyle(BorderlessButtonStyle())
+            .buttonStyle(.borderless)
             Spacer(minLength: 4)
             Button(action: {
               self.editUrl = nil
@@ -180,142 +298,76 @@ struct FileHierarchyBrowser: View {
               Image(systemName: "arrow.uturn.backward.circle.fill")
                 .foregroundColor(.gray)
             }
-            .buttonStyle(BorderlessButtonStyle())
+            .buttonStyle(.borderless)
             .padding(.trailing, 4)
           }
         }
       } else {
-        Button(action: {
-          if let action = self.onSelection,
-             let url = hierarchy.url {
-            action(url)
+        if (hierarchy.type == .file) && !self.options.contains(.files) ||
+            (hierarchy.type == .directory) && !self.options.contains(.directories) ||
+            self.onSelection == nil ||
+            self.editUrl != nil {
+          self.attachMenu(hierarchy) {
+            ZStack {
+              if self.isSelected(hierarchy) {
+                RoundedRectangle(cornerRadius: 8)
+                  .fill(Color(UIColor.tertiarySystemFill))
+              }
+              HStack {
+                Label {
+                  Text(hierarchy.name)
+                    .foregroundColor(.primary)
+                } icon: {
+                  Image(systemName: hierarchy.systemImage)
+                    .foregroundColor(self.isSelectedContainer(hierarchy) ? .green : .primary)
+                }
+                Spacer()
+                if hierarchy.type == .file {
+                  Button {
+                    self.previewUrl = hierarchy.url
+                  } label: {
+                    Image(systemName: "eye")
+                      .foregroundColor(.gray)
+                  }
+                  .buttonStyle(.borderless)
+                  .padding(.trailing, -4)
+                }
+              }
+            }
           }
-        }) {
-          ZStack {
-            if self.isSelected(hierarchy) {
-              RoundedRectangle(cornerRadius: 8)
-                .fill(Color(UIColor.tertiarySystemFill))
-            }
-            HStack {
-              Label(title: {
-                      Text(hierarchy.name)
-                        .foregroundColor(.primary)
-                    },
-                    icon: {
-                      Image(systemName: hierarchy.systemImage)
-                        .foregroundColor(self.isSelectedContainer(hierarchy) ? .green : .primary)
-                    })
-              Spacer()
-            }
-          }
-        }
-        .disabled((hierarchy.type == .file) && !self.options.contains(.files) ||
-                    (hierarchy.type == .directory) && !self.options.contains(.directories) ||
-                    self.onSelection == nil ||
-                    self.editUrl != nil)
-        .contextMenu {
-          if self.editUrl == nil {
-            if self.options.contains(.mutable) && (hierarchy.kind != .file) {
-              Button(action: {
-                if let url = hierarchy.url,
-                   let dir = self.fileManager.makeDirectory(at: url) {
-                  hierarchy.container?.reset()
-                  self.editName = dir.lastPathComponent
-                  self.editUrl = dir
+        } else {
+          self.attachMenu(hierarchy) {
+            Button {
+              if let action = self.onSelection,
+                 let url = hierarchy.url {
+                action(url)
+              }
+            } label: {
+              ZStack {
+                if self.isSelected(hierarchy) {
+                  RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(UIColor.tertiarySystemFill))
                 }
-              }) {
-                Label("New Folder", systemImage: "folder.badge.plus")
-              }
-              .disabled(hierarchy.type == .collection)
-              if self.options.contains(.organizer) {
-                Button(action: {
-                  self.showFileImporter = true
-                  self.selectedUrl = hierarchy.url
-                }) {
-                  Label("Import Files…", systemImage: "square.and.arrow.down.on.square")
-                }
-                Divider()
-              }
-            }
-            if self.options.contains(.mutable) &&
-                (hierarchy.kind == .file || hierarchy.kind == .directory) {
-              Button(action: {
-                self.editName = hierarchy.name
-                self.editUrl = hierarchy.url
-              }) {
-                Label("Rename", systemImage: "pencil")
-              }
-              if self.options.contains(.organizer) {
-                Button(action: {
-                  if let parent = hierarchy.parent,
-                     let url = hierarchy.url {
-                    if self.fileManager.duplicate(url) {
-                      parent.reset()
-                      self.refresher.updateView()
+                HStack {
+                  Label {
+                    Text(hierarchy.name)
+                      .foregroundColor(.primary)
+                  } icon: {
+                    Image(systemName: hierarchy.systemImage)
+                      .foregroundColor(self.isSelectedContainer(hierarchy) ? .green : .primary)
+                  }
+                  Spacer()
+                  if hierarchy.type == .file {
+                    Button {
+                      self.previewUrl = hierarchy.url
+                    } label: {
+                      Image(systemName: "eye")
+                        .foregroundColor(.gray)
                     }
-                  }
-                }) {
-                  Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
-                }
-                Button(action: {
-                  if let url = hierarchy.url {
-                    withAnimation(.default) {
-                      self.urlToMove = (url, false)
-                    }
-                  }
-                }) {
-                  Label("Move…", systemImage: "folder")
-                }
-              }
-            }
-            if hierarchy.kind == .file || hierarchy.kind == .directory {
-              Button(action: {
-                if let url = hierarchy.url {
-                  withAnimation(.default) {
-                    self.urlToMove = (url, true)
+                    .buttonStyle(.borderless)
+                    .padding(.trailing, -4)
                   }
                 }
-              }) {
-                Label("Copy…", systemImage: "doc.on.doc")
-              }
-            }
-            if self.options.contains([.mutable, .organizer]) &&
-                (hierarchy.kind == .file || hierarchy.kind == .directory) {
-              Button(action: {
-                if let parent = hierarchy.parent,
-                   let url = hierarchy.url {
-                  self.fileManager.delete(url) { success in
-                    if success {
-                      parent.reset()
-                      self.refresher.updateView()
-                    }
-                  }
-                }
-              }) {
-                Label("Delete", systemImage: "trash")
-                  .foregroundColor(.red)
-              }
-            }
-            if hierarchy.parent != nil || hierarchy.kind == .file || hierarchy.kind == .directory {
-              Divider()
-            }
-            if hierarchy.parent != nil {
-              Button(action: {
-                self.histManager.toggleFavorite(hierarchy.url)
-              }) {
-                if self.histManager.isFavorite(hierarchy.url) {
-                  Label("Unstar", systemImage: "star.fill")
-                } else {
-                  Label("Star", systemImage: "star")
-                }
-              }
-            }
-            if hierarchy.kind == .file {
-              Button(action: {
-                self.selectedUrl = hierarchy.url
-                self.showShareSheet = true
-              }) {
-                Label("Share", systemImage: "square.and.arrow.up")
               }
             }
           }
@@ -328,8 +380,7 @@ struct FileHierarchyBrowser: View {
     List(self.roots,
          children: \.children,
          rowContent: self.rowContent)
-    .listStyle(DefaultListStyle())
+    .listStyle(.automatic)
     .scrollDismissesKeyboard(.interactively)
-    //.resignKeyboardOnDragGesture()
   }
 }

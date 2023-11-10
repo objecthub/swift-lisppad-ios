@@ -25,7 +25,6 @@ struct EnvironmentView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var envManager: EnvironmentManager
   @State var searchText: String = ""
-  @State var showLispPadRef: Bool = false
   
   var body: some View {
     List {
@@ -46,21 +45,6 @@ struct EnvironmentView: View {
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("Environment")
     .navigationBarBackButtonHidden(false)
-    .toolbar {
-      ToolbarItemGroup(placement: .navigationBarTrailing) {
-        HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-          Button(action: {
-            self.showLispPadRef = self.docManager.lispPadRef.url != nil
-          }) {
-            Image(systemName: "info.circle")
-              .font(LispPadUI.toolbarFont)
-          }
-        }
-      }
-    }
-    .fullScreenCover(isPresented: $showLispPadRef) {
-      DocumentView(title: docManager.lispPadRef.name, url: docManager.lispPadRef.url!)
-    }
     .navigationDestination(for: Symbol.self) { symbol in
       EnvironmentDetailView(symbol: symbol)
     }

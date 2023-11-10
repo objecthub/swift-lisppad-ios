@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import QuickLook
 
 struct Move: View {
   
@@ -41,18 +42,20 @@ struct Move: View {
   @State var editUrl: URL? = nil
   @State var editName: String = ""
   @State var selectedUrls: Set<URL> = []
+  @State var previewUrl: URL? = nil
   @State var alertAction: AlertAction? = nil
-  
   @State var fileName: String = "Untitled.scm"
   @State var folder: URL? = nil
+  @State var headerSize: CGSize = .zero
   
   var sourceDescription: Text {
     if let portableURL = PortableURL(self.urlToMove?.0) {
-      return Text("MOVE:\n") +
+      return Text((self.urlToMove?.1 ?? false) ? "COPY:\n" : "MOVE:\n") +
              Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
              Text("  \(portableURL.relativePath)").bold()
     } else {
-      return Text("MOVE:\n?")
+      return Text((self.urlToMove?.1 ?? false) ? "COPY:\n" : "MOVE:\n") +
+      Text("?").bold()
     }
   }
   
@@ -63,7 +66,8 @@ struct Move: View {
                Text(Image(systemName: portableURL.base?.imageName ?? "folder")) + 
                Text("  \(portableURL.relativePath)").bold()
       }
-      return Text("TO:\n?")
+      return Text("TO:\n") +
+             Text("?").bold()
     } else {
       return Text("Select destination folder below")
     }
@@ -79,12 +83,12 @@ struct Move: View {
       } else if item == .file && newUrl != oldUrl {
         self.alertAction = .overrideFile
       } else {
-        self.moveFile(to: newUrl)
+        self.moveOrCopyFile(to: newUrl)
       }
     }
   }
   
-  func moveFile(to newUrl: URL) {
+  func moveOrCopyFile(to newUrl: URL) {
     if let (oldUrl, copy) = self.urlToMove {
       if copy {
         self.fileManager.copy(oldUrl, to: newUrl) { canonicalNewUrl in
@@ -111,43 +115,18 @@ struct Move: View {
   }
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      HStack(alignment: .top, spacing: 16) {
-        Spacer()
-        Button(action: {
-          withAnimation(.default) {
-            self.urlToMove = nil
-          }
-        }) {
-          Text("Cancel")
-        }
-        Button(action: self.tapSave) {
-          Text("Save")
-        }
-        .disabled(self.folder == nil || self.fileName.isEmpty)
-      }
-      .font(.body)
-      .padding()
-      //.ignoresSafeArea()
-      .background(Color(.systemGroupedBackground))
-      HStack(alignment: .top, spacing: 16) {
-        VStack(alignment: .leading, spacing: 8) {
-          self.sourceDescription
-          self.targetDescription
-        }
-        Spacer(minLength: 0)
-      }
-      .font(.footnote)
-      .foregroundColor(.secondary)
-      .padding(EdgeInsets(top: -16, leading: 20, bottom: 16, trailing: 16))
-      .background(Color(.systemGroupedBackground))
+    ZStack(alignment: .top) {
+      Color(.systemGroupedBackground).ignoresSafeArea()
       Form {
-        Section(header: Text("File")) {
+        Section {
           TextField("", text: $fileName, onEditingChanged: { isEditing in }, onCommit: self.tapSave)
             .autocapitalization(.none)
             .disableAutocorrection(true)
+        } header: {
+          Text("File")
+            .padding(.top, self.headerSize.height)
         }
-        Section(header: Text("Folder")) {
+        Section {
           FileHierarchyBrowser(self.fileManager.userRootDirectories,
                                options: [.directories, .mutable],
                                showShareSheet: $showShareSheet,
@@ -157,18 +136,56 @@ struct Move: View {
                                editUrl: $editUrl,
                                editName: $editName,
                                selectedUrls: $selectedUrls,
+                               previewUrl: $previewUrl,
                                onSelection: { url in
-                                 self.selectedUrls.removeAll()
-                                 self.selectedUrls.insert(url)
-                               })
-            .font(.body)
-            .onChange(of: self.selectedUrls) { value in
-              if let folder = self.selectedUrls.first {
-                self.folder = folder
-              }
+            self.selectedUrls.removeAll()
+            self.selectedUrls.insert(url)
+          })
+          .font(.body)
+          .onChange(of: self.selectedUrls) { value in
+            if let folder = self.selectedUrls.first {
+              self.folder = folder
             }
+          }
+        } header: {
+          Text("Folder")
         }
       }
+      VStack(alignment: .leading, spacing: 0) {
+        HStack(alignment: .top, spacing: 16) {
+          Spacer()
+          Button {
+            withAnimation {
+              self.urlToMove = nil
+            }
+          } label: {
+            Text("Cancel")
+          }
+          Button(action: self.tapSave) {
+            Text("Save").bold()
+          }
+          .disabled(self.folder == nil || self.fileName.isEmpty)
+        }
+        .font(.body)
+        .padding()
+        VStack(alignment: .leading, spacing: 8) {
+          self.sourceDescription
+          self.targetDescription
+        }
+        .font(.footnote)
+        .foregroundColor(.secondary)
+        .padding(EdgeInsets(top: -16, leading: 20, bottom: 16, trailing: 16))
+        Divider()
+      }
+      .background(
+        GeometryReader { geometry in
+          Color(.secondarySystemBackground).opacity(0.85)
+            .onAppear {
+              self.headerSize = geometry.size
+            }.onChange(of: geometry.size) { newSize in
+              self.headerSize = newSize
+            }
+        })
     }
     .alert(item: $alertAction) { alertAction in
       switch alertAction {
@@ -183,7 +200,7 @@ struct Move: View {
                        secondaryButton: .destructive(Text("Overwrite"), action: {
                         if !self.fileName.isEmpty,
                            let url = self.folder?.appendingPathComponent(self.fileName) {
-                          self.moveFile(to: url)
+                          self.moveOrCopyFile(to: url)
                         }
                        }))
         case .failedMovingFile:
@@ -204,6 +221,7 @@ struct Move: View {
                        }))
       }
     }
+    .quickLookPreview(self.$previewUrl)
     .onAppear {
       if let url = self.urlToMove?.0 {
         self.fileName = url.lastPathComponent

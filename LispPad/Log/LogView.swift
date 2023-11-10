@@ -113,25 +113,20 @@ struct LogView: View {
                   .font(self.font)
               }
               .contextMenu {
-                Button(action: {
-                  UIPasteboard.general.setValue(entry.message,
-                                                forPasteboardType: UTType.utf8PlainText.identifier)
-                }) {
+                Button {
+                  UIPasteboard.general.string = entry.message
+                } label: {
                   Label("Copy Message", systemImage: "doc.on.clipboard")
                 }
                 if entry.message.count <= 800 {
-                  Button(action: {
+                  Button {
                     self.input = entry.message
-                  }) {
+                  } label: {
                     Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
                   }
                 }
                 Divider()
-                Button(action: {
-                  self.presentSheet(.shareText(entry.message))
-                }) {
-                  Label("Share Message", systemImage: "square.and.arrow.up")
-                }
+                ShareLink("Share Message…", item: entry.message)
               }
               .padding(.leading, 6)
               .padding(.vertical, 1)
@@ -187,37 +182,36 @@ struct LogView: View {
             .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
           }
           Menu {
-            Button(action: {
+            Button {
               self.showTime.toggle()
-            }) {
+            } label: {
               Label("Show Time", systemImage: self.showTime ? "checkmark.square" : "square")
             }
-            Button(action: {
+            Button {
               self.showTags.toggle()
-            }) {
+            } label: {
               Label("Show Tag", systemImage: self.showTags ? "checkmark.square" : "square")
             }
             Divider()
-            Button(action: {
-              UIPasteboard.general.setValue(self.sessionLog.exportMessages(),
-                                            forPasteboardType: UTType.utf8PlainText.identifier)
-            }) {
+            Button {
+              UIPasteboard.general.string = self.sessionLog.exportMessages()
+            } label: {
               Label("Copy Messages", systemImage: "doc.on.clipboard")
             }
-            Button(action: {
+            Button {
               self.presentSheet(.shareText(self.sessionLog.exportMessages()))
-            }) {
-              Label("Share Messages", systemImage: "square.and.arrow.up.on.square")
+            } label: {
+              Label("Share Messages…", systemImage: "square.and.arrow.up.on.square")
             }
-            Button(action: {
+            Button {
               self.presentSheet(.shareText(self.sessionLog.export()))
-            }) {
-              Label("Share Log", systemImage: "square.and.arrow.up")
+            } label: {
+              Label("Share Log…", systemImage: "square.and.arrow.up")
             }
             Divider()
-            Button(action: {
+            Button {
               self.sessionLog.clear(all: true)
-            }) {
+            } label: {
               Label("Clear Log", systemImage: "trash")
             }
           } label: {
