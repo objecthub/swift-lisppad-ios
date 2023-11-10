@@ -56,44 +56,45 @@ struct SearchField: View {
               }
           } else {
             Menu {
-              Button(action: {
-                withAnimation(.default) {
+              Button {
+                withAnimation {
                   self.replaceMode = !self.replaceMode
                   self.showNext = false
                   self.lastSearchText = ""
                   self.lastReplaceText = ""
                 }
-              }) {
+              } label: {
                 Label("Replace",
                       systemImage: self.replaceMode ? "checkmark.square" : "square")
               }
-              Button(action: {
+              Button {
                 self.caseSensitive.toggle()
-              }) {
+              } label: {
                 Label("Case Sensitive",
                       systemImage: self.caseSensitive ? "checkmark.square" : "square")
               }
               if !self.histManager.searchHistory.isEmpty {
-                Divider()
-              }
-              ForEach(self.histManager.searchHistory, id: \.self) { entry in
-                Button(action: {
-                  withAnimation(.default) {
-                    self.searchText = entry.searchText
-                    if let replaceText = entry.replaceText {
-                      self.replaceText = replaceText
-                      self.replaceMode = true
-                    } else {
-                      self.replaceMode = false
+                Section("SEARCH HISTORY") {
+                  ForEach(self.histManager.searchHistory, id: \.self) { entry in
+                    Button {
+                      withAnimation {
+                        self.searchText = entry.searchText
+                        if let replaceText = entry.replaceText {
+                          self.replaceText = replaceText
+                          self.replaceMode = true
+                        } else {
+                          self.replaceMode = false
+                        }
+                        self.showNext = false
+                        self.lastSearchText = ""
+                        self.lastReplaceText = ""
+                      }
+                    } label: {
+                      Label(title: { Text(entry.description) },
+                            icon: { Image(systemName: entry.searchOnly ? "magnifyingglass"
+                                          : "repeat") })
                     }
-                    self.showNext = false
-                    self.lastSearchText = ""
-                    self.lastReplaceText = ""
                   }
-                }) {
-                  Label(title: { Text(entry.description) },
-                        icon: { Image(systemName: entry.searchOnly ? "magnifyingglass"
-                                                                   : "repeat") })
                 }
               }
             } label: {

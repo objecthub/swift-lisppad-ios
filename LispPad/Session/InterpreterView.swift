@@ -304,7 +304,7 @@ struct InterpreterView: View {
                   Label("Share Console…", systemImage: "square.and.arrow.up")
                 }
                 .disabled(self.interpreter.console.isEmpty)
-                Button {
+                Button(role: .destructive) {
                   self.interpreter.console.reset()
                 } label: {
                   Label("Clear Console", systemImage: "trash")
@@ -343,11 +343,13 @@ struct InterpreterView: View {
                 .font(LispPadUI.toolbarFont)
             }
             .contextMenu {
-              if self.interpreter.isReady {
-                ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-                  if let url = purl.url {
-                    Button(action: { self.execute(url) }) {
-                      Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+              if self.interpreter.isReady && !self.histManager.recentlyEdited.isEmpty {
+                Section("RECENT FILES") {
+                  ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                    if let url = purl.url {
+                      Button(action: { self.execute(url) }) {
+                        Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+                      }
                     }
                   }
                 }
@@ -370,36 +372,36 @@ struct InterpreterView: View {
         }
         ToolbarItemGroup(placement: .principal) {
           Menu {
-            Button(action: {
+            Button {
               self.showModal = .showAbout
-            }) {
+            } label: {
               Label("About…", systemImage: "questionmark.circle")
             }
             Divider()
-            Button(action: {
+            Button {
               if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
                 UIApplication.shared.open(url)
               }
-            }) {
+            } label: {
               Label("Manual…", systemImage: "book")
             }
-            Button(action: {
+            Button {
               self.showModal = .showShortcuts
-            }) {
+            } label: {
               Label("Keyboard Shortcuts…", systemImage: "keyboard")
             }
-            Button(action: {
+            Button {
               if let url = self.docManager.r7rsSpec.url {
                 self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
               }
-            }) {
+            } label: {
               Label("Language Spec…", systemImage: "doc.richtext")
             }
-            Button(action: {
+            Button {
               if let url = self.docManager.lispPadRef.url {
                 self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
               }
-            }) {
+            } label: {
               Label("Library Reference…", systemImage: "doc.richtext")
             }
           } label: {

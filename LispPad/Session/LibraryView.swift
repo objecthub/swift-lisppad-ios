@@ -26,11 +26,11 @@ struct LibraryView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var libManager: LibraryManager
   @State var searchText: String = ""
-  @State var showAllLibraries: Bool = true
+  @State var showLoadedLibraries: Bool = true
   
   var body: some View {
       List(self.libManager.libraries.filter { proxy in 
-             (self.showAllLibraries || proxy.isLoaded) &&
+             (!self.showLoadedLibraries || proxy.isLoaded) &&
              (self.searchText.isEmpty ||
                 proxy.name.range(of: self.searchText, options: .caseInsensitive) != nil)
            },
@@ -59,21 +59,14 @@ struct LibraryView: View {
      .listStyle(.plain)
      .searchable(text: $searchText)
      .navigationBarTitleDisplayMode(.inline)
-     .navigationTitle(self.showAllLibraries ? "Libraries" : "Loaded Libraries")
+     .navigationTitle(self.showLoadedLibraries ? "Loaded Libraries" : "Libraries")
      .navigationBarBackButtonHidden(false)
      .toolbar {
        ToolbarItemGroup(placement: .navigationBarTrailing) {
          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
            Menu {
-             Button(action: {
-               self.showAllLibraries = true
-             }) {
-               Label("All", systemImage: self.showAllLibraries ? "checkmark" : "")
-             }
-             Button(action: {
-               self.showAllLibraries = false
-             }) {
-               Label("Loaded", systemImage: self.showAllLibraries ? "" : "checkmark")
+             Toggle(isOn: self.$showLoadedLibraries) {
+               Label("Only Loaded", systemImage: "memorychip")
              }
            } label: {
              Image(systemName: "slider.horizontal.3")

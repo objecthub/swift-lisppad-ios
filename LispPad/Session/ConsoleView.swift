@@ -116,13 +116,13 @@ struct ConsoleView: View {
               .background(self.settings.consoleGraphicsBackgroundColor)
               .padding(.vertical, 4)
               .contextMenu {
-                Button(action: {
+                Button {
                   UIPasteboard.general.image = image
-                }) {
+                } label: {
                   Label("Copy Image", systemImage: "doc.on.clipboard")
                 }
                 Divider()
-                Button(action: {
+                Button {
                   self.state.showProgressView = "Saving image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
@@ -140,10 +140,10 @@ struct ConsoleView: View {
                       self.state.showProgressView = nil
                     }
                   }
-                }) {
+                } label: {
                   Label("Save Image", systemImage: "photo.on.rectangle.angled")
                 }
-                Button(action: {
+                Button {
                   self.state.showProgressView = "Printing image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
@@ -166,7 +166,7 @@ struct ConsoleView: View {
                       printController.present(animated: true) { _, isPrinted, error in }
                     }
                   }
-                }) {
+                } label: {
                   Label("Print Image", systemImage: "printer")
                 }
                 Button {
@@ -282,14 +282,18 @@ struct ConsoleView: View {
       .keyCommand("\r", modifiers: .command, title: "Execute command")
       .disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
       .contextMenu {
-        if self.ready {
-          ForEach(self.history, id: \.self) { entry in
-            Button(entry) {
-              self.state.consoleInput = entry
+        if self.ready && self.history.count > 0 {
+          Section("COMMAND HISTORY") {
+            ForEach(self.history, id: \.self) { entry in
+              Button(entry) {
+                self.state.consoleInput = entry
+              }
             }
           }
         }
-        Button(action: { self.state.consoleInput = "" }) {
+        Button(role: .destructive) {
+          self.state.consoleInput = ""
+        } label: {
           Label("Clear Input", systemImage: "xmark.circle.fill")
         }
       }

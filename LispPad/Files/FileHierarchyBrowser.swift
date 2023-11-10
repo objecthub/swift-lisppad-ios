@@ -135,22 +135,22 @@ struct FileHierarchyBrowser: View {
       .contextMenu {
         if self.editUrl == nil {
           if self.options.contains(.mutable) && (hierarchy.kind != .file) {
-            Button(action: {
+            Button {
               if let url = hierarchy.url,
                  let dir = self.fileManager.makeDirectory(at: url) {
                 hierarchy.container?.reset()
                 self.editName = dir.lastPathComponent
                 self.editUrl = dir
               }
-            }) {
+            } label: {
               Label("New Folder", systemImage: "folder.badge.plus")
             }
             .disabled(hierarchy.type == .collection)
             if self.options.contains(.organizer) {
-              Button(action: {
+              Button {
                 self.showFileImporter = true
                 self.selectedUrl = hierarchy.url
-              }) {
+              } label: {
                 Label("Import Files…", systemImage: "square.and.arrow.down.on.square")
               }
               Divider()
@@ -158,14 +158,14 @@ struct FileHierarchyBrowser: View {
           }
           if self.options.contains(.mutable) &&
               (hierarchy.kind == .file || hierarchy.kind == .directory) {
-            Button(action: {
+            Button {
               self.editName = hierarchy.name
               self.editUrl = hierarchy.url
-            }) {
+            } label: {
               Label("Rename", systemImage: "pencil")
             }
             if self.options.contains(.organizer) {
-              Button(action: {
+              Button {
                 if let parent = hierarchy.parent,
                    let url = hierarchy.url {
                   if self.fileManager.duplicate(url) {
@@ -173,34 +173,34 @@ struct FileHierarchyBrowser: View {
                     self.refresher.updateView()
                   }
                 }
-              }) {
+              } label: {
                 Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
               }
-              Button(action: {
+              Button {
                 if let url = hierarchy.url {
-                  withAnimation(.default) {
+                  withAnimation {
                     self.urlToMove = (url, false)
                   }
                 }
-              }) {
+              } label: {
                 Label("Move…", systemImage: "folder")
               }
             }
           }
           if hierarchy.kind == .file || hierarchy.kind == .directory {
-            Button(action: {
+            Button {
               if let url = hierarchy.url {
-                withAnimation(.default) {
+                withAnimation {
                   self.urlToMove = (url, true)
                 }
               }
-            }) {
+            } label: {
               Label("Copy…", systemImage: "doc.on.doc")
             }
           }
           if self.options.contains([.mutable, .organizer]) &&
               (hierarchy.kind == .file || hierarchy.kind == .directory) {
-            Button(action: {
+            Button(role: .destructive) {
               if let parent = hierarchy.parent,
                  let url = hierarchy.url {
                 self.fileManager.delete(url) { success in
@@ -210,16 +210,16 @@ struct FileHierarchyBrowser: View {
                   }
                 }
               }
-            }) {
+            } label: {
               Label("Delete", systemImage: "trash")
                 .foregroundColor(.red)
             }
           }
           Divider()
           if hierarchy.parent != nil {
-            Button(action: {
+            Button {
               self.histManager.toggleFavorite(hierarchy.url)
-            }) {
+            } label: {
               if self.histManager.isFavorite(hierarchy.url) {
                 Label("Unstar", systemImage: "star.fill")
               } else {

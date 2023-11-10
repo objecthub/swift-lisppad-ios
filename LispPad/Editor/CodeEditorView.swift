@@ -338,7 +338,7 @@ struct CodeEditorView: View {
                                 mode: self.$splitViewMode,
                                 fraction: self.$masterWidthFraction)
             Menu {
-              Button(action: {
+              Button {
                 self.dismissCard()
                 if (self.fileManager.editorDocumentInfo.new) &&
                    !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
@@ -346,10 +346,10 @@ struct CodeEditorView: View {
                 } else {
                   self.fileManager.newEditorDocument()
                 }
-              }) {
+              } label: {
                 Label("New", systemImage: "square.and.pencil")
               }
-              Button(action: {
+              Button {
                 self.dismissCard()
                 self.histManager.verifyFileLists()
                 if (self.fileManager.editorDocumentInfo.new) &&
@@ -358,39 +358,40 @@ struct CodeEditorView: View {
                 } else {
                   self.presentSheet(.editFile)
                 }
-              }) {
+              } label: {
                 Label("Open…", systemImage: "tray.and.arrow.up")
               }
-              Button(action: {
+              Button {
                 self.dismissCard()
                 self.fileManager.editorDocument?.saveFile { success in
                   self.presentSheet(.saveFile)
                 }
-              }) {
+              } label: {
                 Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
                       systemImage: "tray.and.arrow.down")
               }
-              Button(action: {
+              Button {
                 self.dismissCard()
                 self.histManager.verifyFileLists()
                 self.showModal = .organizeFiles
-              }) {
+              } label: {
                 Label("Organize…", systemImage: "doc.text.magnifyingglass")
               }
               if !self.histManager.recentlyEdited.isEmpty {
-                Divider()
-                ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-                  if let url = purl.url {
-                    Button(action: {
-                      self.dismissCard()
-                      if purl.fileExists {
-                        self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
-                      } else {
-                        self.histManager.verifyRecentFiles()
-                        self.showFileNotFoundAlert = true
+                Section("RECENT FILES") {
+                  ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                    if let url = purl.url {
+                      Button(action: {
+                        self.dismissCard()
+                        if purl.fileExists {
+                          self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
+                        } else {
+                          self.histManager.verifyRecentFiles()
+                          self.showFileNotFoundAlert = true
+                        }
+                      }) {
+                        Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
                       }
-                    }) {
-                      Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
                     }
                   }
                 }
@@ -545,20 +546,20 @@ struct CodeEditorView: View {
             }
             .disabled(self.editorType != .scheme && self.editorType != .markdown)
             Menu {
-              Button(action: {
+              Button {
                 self.dismissCard()
                 self.updateEditor = { textView in
                   textView.undoManager?.undo()
                 }
-              }) {
+              } label: {
                 Label("Undo", systemImage: "arrow.uturn.backward")
               }
-              Button(action: {
+              Button {
                 self.dismissCard()
                 self.updateEditor = { textView in
                   textView.undoManager?.redo()
                 }
-              }) {
+              } label: {
                 Label("Redo", systemImage: "arrow.uturn.forward")
               }
               Divider()
@@ -586,7 +587,7 @@ struct CodeEditorView: View {
                 .disabled(self.editorType != .scheme)
               }
               Divider()
-              Button(action: {
+              Button {
                 self.dismissCard()
                 withAnimation(.default) {
                   if self.showSearchField {
@@ -596,7 +597,7 @@ struct CodeEditorView: View {
                     self.showSearchField = true
                   }
                 }
-              }) {
+              } label: {
                 Label("Search/Replace", systemImage: "repeat")
               }
             } label: {

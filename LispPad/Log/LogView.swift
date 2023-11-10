@@ -209,7 +209,7 @@ struct LogView: View {
               Label("Share Log…", systemImage: "square.and.arrow.up")
             }
             Divider()
-            Button {
+            Button(role: .destructive) {
               self.sessionLog.clear(all: true)
             } label: {
               Label("Clear Log", systemImage: "trash")
