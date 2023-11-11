@@ -35,10 +35,12 @@ struct Open: View {
   @State var selectedUrls: Set<URL> = []
   @State var previewUrl: URL? = nil
   
+  let title: String
   let directories: Bool
   let onSelection: ((URL, Bool) -> Bool)?
   
-  init(directories: Bool = false, onSelection: ((URL, Bool) -> Bool)? = nil) {
+  init(title: String, directories: Bool = false, onSelection: ((URL, Bool) -> Bool)? = nil) {
+    self.title = title
     self.directories = directories
     self.onSelection = onSelection
   }
@@ -118,16 +120,18 @@ struct Open: View {
           }
           VStack(alignment: .center, spacing: 0) {
             HStack {
-              Button(action: {
+              Button {
                 self.showFileImporter = true
                 self.searchAndImport = true
-              }) {
-                Text("Search & Import")
+              } label: {
+                Text("Browse")
               }
               Spacer()
-              Button(action: {
+              Text(self.title).bold()
+              Spacer()
+              Button {
                 self.dismiss()
-              }) {
+              } label: {
                 Text("Cancel").bold()
               }
             }
@@ -174,7 +178,7 @@ struct Open: View {
               } catch {
                 // Handle general failure
               }
-            } else {
+            } else if let url = urls.first, let action = self.onSelection, action(url, false) {
               self.dismiss()
             }
           }

@@ -23,14 +23,6 @@ import UIKit
 
 struct LispPadUI {
   
-  private static func choose<T>(iOS15: T, iOS16: T) -> T {
-    if #available(iOS 16, *) {
-      return iOS16
-    } else {
-      return iOS15
-    }
-  }
-  
   // Padding on top of panels
   static let panelTopPadding: CGFloat = 0
   

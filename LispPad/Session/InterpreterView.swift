@@ -149,7 +149,7 @@ struct InterpreterView: View {
   @ViewBuilder private func sheetView(_ sheet: SheetAction) -> some View {
     switch sheet {
       case .loadFile:
-        Open() { url, mutable in
+        Open(title: "Load") { url, mutable in
           if self.interpreter.isReady {
             self.execute(url)
           }
@@ -208,11 +208,54 @@ struct InterpreterView: View {
                   }})
             }
           }
+          return true
         }
         .modifier(self.globals.services)
       case .showDocumentation(let doc):
         MarkdownViewer(markdown: doc)
           .modifier(self.globals.services)
+    }
+  }
+  
+  @ViewBuilder private func programmaticSheetActionView(
+                              _ sheet: Interpreter.ProgrammaticSheetAction) -> some View {
+    switch sheet {
+      case .share(_, let url, let onDisappear):
+        ZStack {
+          Color(.secondarySystemBackground).ignoresSafeArea()
+          ShareSheet(activityItems: [url as NSURL])
+        }
+        .transition(.move(edge: .top))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
+        .onDisappear(perform: onDisappear)
+      case .open(_, let title, let directories, let onOpen, let onDisappear):
+        Open(title: title, directories: directories) { url, mutable in
+          return onOpen(url)
+        }
+        .transition(.move(edge: .top))
+        .onDisappear(perform: onDisappear)
+        .modifier(self.globals.services)
+      case .save(_, let title, let url, let lockFolder, let onSave, let onDisappear):
+        if lockFolder {
+          SaveAs(title: title, url: url, firstSave: url == nil, lockFolder: lockFolder) { url in
+            onSave(url)
+          }
+          .transition(.move(edge: .top))
+          .presentationDetents([.medium, .large])
+          .presentationDragIndicator(.hidden)
+          .onDisappear(perform: onDisappear)
+          .modifier(self.globals.services)
+        } else {
+          SaveAs(title: title, url: url, firstSave: url == nil, lockFolder: lockFolder) { url in
+            onSave(url)
+          }
+          .transition(.move(edge: .top))
+          .presentationDetents([.large, .medium])
+          .presentationDragIndicator(.hidden)
+          .onDisappear(perform: onDisappear)
+          .modifier(self.globals.services)
+        }
     }
   }
 
@@ -455,6 +498,7 @@ struct InterpreterView: View {
         }
       }
       .sheet(item: self.$showModal, content: self.sheetView)
+      .sheet(item: self.$interpreter.sheetAction, content: self.programmaticSheetActionView)
       .fullScreenCover(item: self.$showSheet, content: self.sheetView)
       .quickLookPreview(self.$interpreter.previewUrl)
       .photosPicker(isPresented: self.$showPhotosPicker,
@@ -479,7 +523,7 @@ struct InterpreterView: View {
                          dismissButton: .default(Text("OK")))
           case .openURL(let url):
             return self.notSavedAlert(
-                     save: { self.showSheet = .saveBeforeOpen(url) },
+                     save: { self.showModal = .saveBeforeOpen(url) },
                      discard: {
                       self.fileManager.loadEditorDocument(
                         source: url,
@@ -539,6 +583,22 @@ struct InterpreterView: View {
             }
             self.interpreter.showPhotosPicker = nil
             self.pickedPhotos = []
+          }
+        }
+      }
+      .onChange(of: self.interpreter.previewUrl) { url in
+        if url == nil, let toDeleteUrl = self.interpreter.toDeleteUrl {
+          self.interpreter.toDeleteUrl = nil
+          DispatchQueue.global(qos: .utility).async {
+            try? Foundation.FileManager.default.removeItem(at: toDeleteUrl)
+          }
+        }
+      }
+      .onChange(of: self.interpreter.sheetAction) { action in
+        if action == nil, let toDeleteUrl = self.interpreter.toDeleteUrl {
+          self.interpreter.toDeleteUrl = nil
+          DispatchQueue.global(qos: .utility).async {
+            try? Foundation.FileManager.default.removeItem(at: toDeleteUrl)
           }
         }
       }

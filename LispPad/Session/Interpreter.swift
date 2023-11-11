@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 import LispKit
 import PhotosUI
@@ -75,6 +76,67 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let imageManager: ImageManager
   }
   
+  enum ProgrammaticSheetAction: Identifiable, Equatable {
+    case share(id: UUID,
+               url: URL,
+               onDisappear: () -> Void)
+    case open(id: UUID,
+              title: String,
+              directories: Bool,
+              onOpen: (URL) -> Bool,
+              onDisappear: () -> Void)
+    case save(id: UUID,
+              title: String,
+              url: URL?,
+              lockFolder: Bool,
+              onSave: (URL) -> Bool,
+              onDisappear: () -> Void)
+    
+    var id: UUID {
+      switch self {
+        case .share(let id, _, _):
+          return id
+        case .open(let id, _, _, _, _):
+          return id
+        case .save(let id, _, _, _, _, _):
+          return id
+      }
+    }
+    
+    static func share(url: URL, onDisappear: @escaping () -> Void) -> ProgrammaticSheetAction {
+      return .share(id: UUID(), url: url, onDisappear: onDisappear)
+    }
+    
+    static func open(title: String,
+                     directories: Bool,
+                     onOpen: @escaping (URL) -> Bool,
+                     onDisappear: @escaping () -> Void) -> ProgrammaticSheetAction {
+      return .open(id: UUID(),
+                   title: title,
+                   directories: directories,
+                   onOpen: onOpen,
+                   onDisappear: onDisappear)
+    }
+    
+    static func save(title: String,
+                     url: URL?,
+                     lockFolder: Bool,
+                     onSave: @escaping (URL) -> Bool,
+                     onDisappear: @escaping () -> Void) -> ProgrammaticSheetAction {
+      return .save(id: UUID(),
+                   title: title,
+                   url: url,
+                   lockFolder: lockFolder,
+                   onSave: onSave,
+                   onDisappear: onDisappear)
+    }
+    
+    static func == (lhs: Interpreter.ProgrammaticSheetAction,
+                    rhs: Interpreter.ProgrammaticSheetAction) -> Bool {
+      return lhs.id == rhs.id
+    }
+  }
+  
   /// Class initializer
   private static func initClass() {
     // Register internal libraries
@@ -101,8 +163,12 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var isReady: Bool = false
   @Published var readingStatus: ReadingStatus = .reject
   @Published var contentBatch: Int = 0
+  
+  /// Control interpreter UI
   @Published var showPhotosPicker: PhotosPickerConfig? = nil
   @Published var previewUrl: URL? = nil
+  @Published var sheetAction: ProgrammaticSheetAction? = nil
+  var toDeleteUrl: URL? = nil
   
   /// Dependencies
   let console = Console()
@@ -584,7 +650,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   }
   
   /// This is called whenever a symbol is bound in an environment
-  func bound(symbol: Symbol, in: Environment) {
+  func bound(symbol: Symbol, in: LispKit.Environment) {
     self.envManager.add(symbol: symbol)
   }
 

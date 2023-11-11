@@ -356,7 +356,7 @@ struct CodeEditorView: View {
                    !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                   self.notSavedAlertAction = .editFile
                 } else {
-                  self.presentSheet(.editFile)
+                  self.showModal = .editFile
                 }
               } label: {
                 Label("Open…", systemImage: "tray.and.arrow.up")
@@ -364,7 +364,7 @@ struct CodeEditorView: View {
               Button {
                 self.dismissCard()
                 self.fileManager.editorDocument?.saveFile { success in
-                  self.presentSheet(.saveFile)
+                  self.showModal = .saveFile
                 }
               } label: {
                 Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
@@ -434,7 +434,7 @@ struct CodeEditorView: View {
             Button {
               self.dismissCard()
               self.fileManager.editorDocument?.saveFile { success in
-                self.presentSheet(.saveFile)
+                self.showModal = .saveFile
               }
             } label: {
               Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
@@ -442,7 +442,7 @@ struct CodeEditorView: View {
             }
             Button {
               self.dismissCard()
-              self.presentSheet(.renameFile)
+              self.showModal = .renameFile
             } label: {
               Label("Rename", systemImage: "pencil")
             }
@@ -533,11 +533,11 @@ struct CodeEditorView: View {
               }
               if doc.info.editorType == .scheme {
                 if let defs = DefinitionView.parseDefinitions(doc.text) {
-                  self.presentSheet(.showDefinitions(defs))
+                  self.showModal = .showDefinitions(defs)
                 }
               } else if doc.info.editorType == .markdown {
                 if let structure = DocStructureView.parseDocStructure(doc.text) {
-                  self.presentSheet(.showDocStructure(structure))
+                  self.showModal = .showDocStructure(structure)
                 }
               }
             }) {
@@ -613,19 +613,19 @@ struct CodeEditorView: View {
         switch alertAction {
           case .newFile:
             return self.notSavedAlert(
-                     save: { self.showSheet = .saveBeforeNew },
+                     save: { self.showModal = .saveBeforeNew },
                      discard: { self.fileManager.editorDocument?.text = ""
                                 self.fileManager.editorDocument?.saveFile { succ in
                                   self.forceEditorUpdate = true
                               }})
           case .editFile:
             return self.notSavedAlert(
-                     save: { self.showSheet = .saveBeforeEdit },
+                     save: { self.showModal = .saveBeforeEdit },
                      discard: { self.fileManager.editorDocument?.text = ""
-                                self.presentSheet(.editFile) })
+                                self.showModal = .editFile })
           case .openFile(let url):
             return self.notSavedOnOpenAlert(
-                     save: { self.showSheet = .saveBeforeOpen(url) },
+                     save: { self.showModal = .saveBeforeOpen(url) },
                      discard: {
                       self.fileManager.loadEditorDocument(
                         source: url,
@@ -674,7 +674,11 @@ struct CodeEditorView: View {
               self.notSavedAlertAction = .notSaved
             }
           }
+          return true
         }
+        .transition(.move(edge: .top))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
         .modifier(self.globals.services)
       case .saveFile:
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
@@ -684,10 +688,11 @@ struct CodeEditorView: View {
               self.notSavedAlertAction = .notSaved
             }
           }
+          return true
         }
         .modifier(self.globals.services)
       case .editFile:
-        Open() { url, mutable in
+        Open(title: "Open") { url, mutable in
           self.fileManager.loadEditorDocument(source: url, makeUntitled: !mutable)
           return true
         }
@@ -704,6 +709,7 @@ struct CodeEditorView: View {
               self.fileManager.newEditorDocument()
             }
           }
+          return true
         }
         .modifier(self.globals.services)
       case .saveBeforeEdit:
@@ -713,9 +719,10 @@ struct CodeEditorView: View {
             if newURL == nil {
               self.notSavedAlertAction = .notSaved
             } else {
-              self.presentSheet(.editFile)
+              self.showModal = .editFile
             }
           }
+          return true
         }
         .modifier(self.globals.services)
       case .saveBeforeOpen(let ourl):
@@ -731,6 +738,7 @@ struct CodeEditorView: View {
                 action: { success in })
             }
           }
+          return true
         }
         .modifier(self.globals.services)
       case .showDefinitions(let definitions):
@@ -924,7 +932,7 @@ struct CodeEditorView: View {
       }
     } else if self.editorType == .markdown {
       let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
-      self.showSheet = .markdownPreview(block)
+      self.showModal = .markdownPreview(block)
     }
   }
   
@@ -944,13 +952,5 @@ struct CodeEditorView: View {
   
   private func fileNotFoundAlert() -> Alert {
     return Alert(title: Text("File not found"))
-  }
-  
-  private func presentSheet(_ action: SheetAction) {
-    // if UIDevice.current.userInterfaceIdiom == .pad {
-      self.showModal = action
-    // } else {
-    //  self.showSheet = action
-    // }
   }
 }

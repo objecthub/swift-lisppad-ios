@@ -117,6 +117,7 @@
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
+		CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */; };
 		CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F56F2AF38BBE0009A97E /* Split.swift */; };
 		CCA5F5722AF38BCA0009A97E /* SplitConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */; };
 		CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5732AF38BD00009A97E /* Splitter.swift */; };
@@ -524,6 +525,7 @@
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
+		CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncResult.swift; sourceTree = "<group>"; };
 		CCA5F56F2AF38BBE0009A97E /* Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Split.swift; sourceTree = "<group>"; };
 		CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitConfig.swift; sourceTree = "<group>"; };
 		CCA5F5732AF38BD00009A97E /* Splitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Splitter.swift; sourceTree = "<group>"; };
@@ -1069,6 +1071,7 @@
 				CC55DD85264ADB59001AAD10 /* Mutable.swift */,
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
 				CC624CD32735B46B005F15B3 /* TaskSerializer.swift */,
+				CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1220,6 +1223,7 @@
 				CCA5F5762AF38BDE0009A97E /* SideBySide.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
+				CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */,
 				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,
 				CCBE134F272DE1450046F474 /* WebView.swift in Sources */,

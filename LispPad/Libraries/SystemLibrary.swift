@@ -22,6 +22,7 @@ import Foundation
 import UIKit
 import LispKit
 import PhotosUI
+import MobileCoreServices // Remove again
 
 ///
 /// This class implements the LispPad-specific library `(lisppad system)`.
@@ -43,6 +44,7 @@ public final class SystemLibrary: NativeLibrary {
   private let or: Symbol                // Or operator
   private let and: Symbol               // And operator
   private let not: Symbol               // Not operator
+  private let tempDir: URL
   
   /// Name of the library.
   public override class var name: [String] {
@@ -65,21 +67,34 @@ public final class SystemLibrary: NativeLibrary {
     self.and = context.symbols.intern("and")
     self.or = context.symbols.intern("or")
     self.not = context.symbols.intern("not")
+    self.tempDir = URL(fileURLWithPath: NSTemporaryDirectory())
+                     .appendingPathComponent(UUID().uuidString)
     try super.init(in: context)
   }
   
   /// Declarations of the library.
   public override func declarations() {
+    // Use files in iOS
     self.define(Procedure("open-in-files-app", self.openInFilesApp))
     self.define(Procedure("preview-file", self.previewFile))
+    self.define(Procedure("share-file", self.shareFile))
+    // Show interactive panels
+    self.define(Procedure("show-preview-panel", self.showPreviewPanel))
+    self.define(Procedure("show-share-panel", self.showSharePanel))
+    self.define(Procedure("show-load-panel", self.showLoadPanel))
+    self.define(Procedure("show-save-panel", self.showSavePanel))
+    // Load and save bitmaps into the library
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("load-bitmaps-from-library", self.loadBitmapsFromLibrary))
     self.define(Procedure("load-bytevectors-from-library", self.loadBytevectorsFromLibrary))
+    // Local directories
     self.define(Procedure("project-directory", self.projectDirectory))
     self.define(Procedure("icloud-directory", self.icloudDirectory))
+    // Information about the environment
     self.define(Procedure("screen-size", self.screenSize))
     self.define(Procedure("dark-mode?", self.isDarkMode))
     self.define(Procedure("icloud-list", self.iCloudList))
+    // Access to the native session log
     self.define(Procedure("session-log", self.sessionLog))
   }
   
@@ -103,6 +118,183 @@ public final class SystemLibrary: NativeLibrary {
       self.interpreter?.previewUrl = URL(filePath: path)
     }
     return .void
+  }
+  
+  private func shareFile(expr: Expr) throws -> Expr {
+    let path = self.context.fileHandler.path(
+                 try expr.asPath(),
+                 relativeTo: self.context.evaluator.currentDirectoryPath)
+    DispatchQueue.main.async {
+      self.interpreter?.sheetAction = .share(url: URL(filePath: path), onDisappear: { })
+    }
+    return .void
+  }
+  
+  private func writeTempFile(expr: Expr, ext: Expr?) throws -> URL? {
+    var extens = try ext?.asString()
+    var fileType: BitmapImageFileType? = nil
+    if let ext = extens?.lowercased() {
+      switch ext {
+        case "png":
+          fileType = .png
+        case "jpg", "jpeg":
+          fileType = .jpeg
+        case "gif":
+          fileType = .gif
+        case "bmp":
+          fileType = .bmp
+        case "tiff", "tif":
+          fileType = .tiff
+        case "text", "txt":
+          extens = "txt"
+        case "markdown", "md":
+          extens = "md"
+        case "html", "htm":
+          extens = "html"
+        case "rtf":
+          extens = "rtf"
+        case "rtfd":
+          extens = "rtfd"
+        default:
+          break
+      }
+    }
+    guard (try? Foundation.FileManager.default.createDirectory(
+             at: self.tempDir, withIntermediateDirectories: true)) != nil else {
+      return nil
+    }
+    var data: Data? = nil
+    switch expr {
+      case .string(let str):
+        extens = extens ?? "txt"
+        data = (str as String).data(using: .utf8)
+      case .bytes(let bv):
+        data = NSData(bytesNoCopy: &bv.value, length: bv.value.count, freeWhenDone: false) as Data
+      case .object(let obj):
+        if let image = (obj as? NativeImage)?.value {
+          extens = extens ?? "png"
+          data = (fileType ?? .png).data(for: image)
+        } else if let drawing = obj as? Drawing {
+          if let image = iconImage(for: drawing,
+                                   width: 1500,
+                                   height: 1500,
+                                   scale: 4.0,
+                                   renderingWidth: 1500,
+                                   renderingHeight: 1500) {
+            extens = extens ?? "png"
+            data = (fileType ?? .png).data(for: image)
+          }
+        } else if let astr = (obj as? StyledText)?.value {
+          let type: NSAttributedString.DocumentType = extens == "rtf" ? .rtf : .rtfd 
+          let fileWrapper = try? astr.fileWrapper(from: NSMakeRange(0, astr.length),
+                                                  documentAttributes: [.documentType : type])
+          let url = self.tempDir.appendingPathComponent("Preview")
+                                .appendingPathExtension(extens ?? "rtfd")
+          guard (try? fileWrapper?.write(to: url, originalContentsURL: nil)) != nil else {
+            return nil
+          }
+          return url
+        }
+      default:
+        extens = extens ?? "txt"
+        data = expr.description.data(using: .utf8)
+    }
+    guard let data = data else {
+      return nil
+    }
+    let url: URL
+    if let extens {
+      url = self.tempDir.appendingPathComponent("Preview").appendingPathExtension(extens)
+    } else {
+      url = self.tempDir.appendingPathComponent("Preview")
+    }
+    guard (try? data.write(to: url)) != nil else {
+      return nil
+    }
+    return url
+  }
+  
+  private func showPreviewPanel(expr: Expr, ext: Expr?) throws -> Expr {
+    if let url = try self.writeTempFile(expr: expr, ext: ext) {
+      DispatchQueue.main.async {
+        self.interpreter?.previewUrl = url
+        self.interpreter?.toDeleteUrl = url
+      }
+      return .true
+    } else {
+      return .false
+    }
+  }
+  
+  private func showSharePanel(expr: Expr, ext: Expr?) throws -> Expr {
+    if let url = try self.writeTempFile(expr: expr, ext: ext) {
+      DispatchQueue.main.async {
+        self.interpreter?.sheetAction = .share(url: url) {
+          
+        }
+        self.interpreter?.toDeleteUrl = url
+      }
+      return .true
+    } else {
+      return .false
+    }
+  }
+  
+  private func showLoadPanel(prompt: Expr, folders: Expr?, filetypes: Expr?) throws -> Expr {
+    let title = try prompt.asString()
+    let folders = folders?.isTrue ?? false
+    var suffixes: Set<String>? = nil
+    if var ftypes = filetypes {
+      suffixes = []
+      while case .pair(.string(let str), let rest) = ftypes {
+        suffixes?.insert(str as String)
+        ftypes = rest
+      }
+    }
+    let result = AsyncResult<URL?>()
+    DispatchQueue.main.async {
+      self.interpreter?.sheetAction = .open(title: title,
+                                            directories: folders,
+                                            onOpen: { url in
+                                              if suffixes != nil && !url.pathExtension.isEmpty {
+                                                return suffixes!.contains(url.pathExtension)
+                                              } else {
+                                                result.set(value: url)
+                                                return true
+                                              }
+                                            },
+                                            onDisappear: result.abort)
+    }
+    if let url = try result.value(aborted: nil) {
+      return .makeString(url.path)
+    } else {
+      return .false
+    }
+  }
+  
+  private func showSavePanel(prompt: Expr, expr: Expr?, lock: Expr?) throws -> Expr {
+    let title = try prompt.asString()
+    let path = expr == nil
+                 ? nil
+                 : self.context.fileHandler.path(
+                     try expr!.asPath(), relativeTo: self.context.evaluator.currentDirectoryPath)
+    let lockFolder = lock?.isTrue ?? false
+    let result = AsyncResult<URL?>()
+    DispatchQueue.main.async {
+      self.interpreter?.sheetAction = .save(title: title,
+                                            url: path == nil ? nil : URL(filePath: path!),
+                                            lockFolder: lockFolder,
+                                            onSave: { url in 
+                                              result.set(value: url)
+                                              return true
+                                            },
+                                            onDisappear: result.abort)
+    }
+    if let url = try result.value(aborted: nil) {
+      return .makeString(url.path)
+    } else {
+      return .false
+    }
   }
   
   private func saveBitmapInLibrary(expr: Expr) throws -> Expr {
@@ -279,5 +471,11 @@ public final class SystemLibrary: NativeLibrary {
                                     tag: try tag?.asString() ?? "",
                                     message: try message.asString())
     return .void
+  }
+}
+
+extension URL: Identifiable {
+  public var id: URL {
+    self
   }
 }

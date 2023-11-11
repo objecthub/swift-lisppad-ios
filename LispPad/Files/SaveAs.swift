@@ -53,13 +53,13 @@ struct SaveAs: View {
   let url: URL?
   let firstSave: Bool
   let lockFolder: Bool
-  let onSave: (URL) -> Void
+  let onSave: (URL) -> Bool
   
   init(title: String = "SAVE AS",
        url: URL?,
        firstSave: Bool = false,
        lockFolder: Bool = false,
-       onSave: @escaping (URL) -> Void) {
+       onSave: @escaping (URL) -> Bool) {
     self.title = title
     self.url = url
     self.firstSave = firstSave
@@ -88,9 +88,8 @@ struct SaveAs: View {
         self.alertAction = .overrideDirectory
       } else if item == .file && (self.firstSave || url != self.url) {
         self.alertAction = .overrideFile
-      } else {
+      } else if self.onSave(url) {
         self.dismiss()
-        self.onSave(url)
       }
     }
   }
@@ -179,9 +178,9 @@ struct SaveAs: View {
                        primaryButton: .default(Text("Cancel"), action: { }),
                        secondaryButton: .destructive(Text("Overwrite"), action: {
                         if !self.fileName.isEmpty,
-                           let url = self.folder?.appendingPathComponent(self.fileName) {
+                           let url = self.folder?.appendingPathComponent(self.fileName),
+                           self.onSave(url) {
                           self.dismiss()
-                          self.onSave(url)
                         }
                        }))
       }
@@ -208,7 +207,7 @@ struct SaveAs_Previews: PreviewProvider {
   @State static var fileName: String = "test.txt"
   
   static var previews: some View {
-    SaveAs(url: nil, onSave: { url in })
+    SaveAs(url: nil, onSave: { url in true })
       .environmentObject(FileManager(histManager: histManager))
   }
 }
