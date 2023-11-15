@@ -118,6 +118,10 @@
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
 		CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */; };
+		CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */; };
+		CCA3C6902B002D3300C0BDE6 /* CanvasConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */; };
+		CCA3C6922B014D4700C0BDE6 /* CanvasPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C6912B014D4700C0BDE6 /* CanvasPanel.swift */; };
+		CCA3C69C2B043DB500C0BDE6 /* CanvasSizeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C69B2B043DB500C0BDE6 /* CanvasSizeEditor.swift */; };
 		CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F56F2AF38BBE0009A97E /* Split.swift */; };
 		CCA5F5722AF38BCA0009A97E /* SplitConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */; };
 		CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5732AF38BD00009A97E /* Splitter.swift */; };
@@ -526,6 +530,10 @@
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
 		CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncResult.swift; sourceTree = "<group>"; };
+		CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
+		CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasConfig.swift; sourceTree = "<group>"; };
+		CCA3C6912B014D4700C0BDE6 /* CanvasPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasPanel.swift; sourceTree = "<group>"; };
+		CCA3C69B2B043DB500C0BDE6 /* CanvasSizeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSizeEditor.swift; sourceTree = "<group>"; };
 		CCA5F56F2AF38BBE0009A97E /* Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Split.swift; sourceTree = "<group>"; };
 		CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitConfig.swift; sourceTree = "<group>"; };
 		CCA5F5732AF38BD00009A97E /* Splitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Splitter.swift; sourceTree = "<group>"; };
@@ -679,6 +687,7 @@
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
 				CCA5F56E2AF38B940009A97E /* Navigation */,
 				CC84C27525FE7B1100758581 /* Session */,
+				CCA3C68C2B0018CD00C0BDE6 /* Canvas */,
 				CC6598CB27240983004C9B89 /* Log */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
 				CCC85639261677560080B96E /* Files */,
@@ -910,6 +919,17 @@
 				CC8B95BD26080EA700830B4F /* bensound-license.txt */,
 			);
 			path = Audio;
+			sourceTree = "<group>";
+		};
+		CCA3C68C2B0018CD00C0BDE6 /* Canvas */ = {
+			isa = PBXGroup;
+			children = (
+				CCA3C6912B014D4700C0BDE6 /* CanvasPanel.swift */,
+				CCA3C69B2B043DB500C0BDE6 /* CanvasSizeEditor.swift */,
+				CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */,
+				CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */,
+			);
+			path = Canvas;
 			sourceTree = "<group>";
 		};
 		CCA5F56E2AF38B940009A97E /* Navigation */ = {
@@ -1181,8 +1201,10 @@
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
+				CCA3C69C2B043DB500C0BDE6 /* CanvasSizeEditor.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,
 				CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */,
+				CCA3C6902B002D3300C0BDE6 /* CanvasConfig.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
 				CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */,
 				CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */,
@@ -1191,6 +1213,7 @@
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC248F8D2958C8E000FFAAF0 /* IntField.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
+				CCA3C6922B014D4700C0BDE6 /* CanvasPanel.swift in Sources */,
 				CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */,
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
@@ -1241,6 +1264,7 @@
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
 				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
+				CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */,
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
 				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,

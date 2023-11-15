@@ -108,10 +108,12 @@ func iconImage(for drawing: Drawing,
                width: CGFloat = 720.0,
                height: CGFloat = 720.0,
                scale: CGFloat = 2.0,
+               extra: CGFloat = 1.0,
                renderingWidth: CGFloat = 1000.0,
                renderingHeight: CGFloat = 1000.0,
                minContentWidth: CGFloat = 200.0,
-               minContentHeight: CGFloat = 200.0) -> UIImage? {
+               minContentHeight: CGFloat = 200.0,
+               contentOnly: Bool = true) -> UIImage? {
   guard let context = CGContext(data: nil,
                                 width: Int(renderingWidth * scale),
                                 height: Int(renderingHeight * scale),
@@ -124,7 +126,8 @@ func iconImage(for drawing: Drawing,
     return nil
   }
   context.translateBy(x: 0.0, y: CGFloat(renderingHeight * scale))
-  context.scaleBy(x: CGFloat(scale), y: CGFloat(-scale))
+  context.scaleBy(x: scale, y: -scale)
+  context.scaleBy(x: extra, y: extra)
   UIGraphicsPushContext(context)
   defer {
     UIGraphicsPopContext()
@@ -134,16 +137,17 @@ func iconImage(for drawing: Drawing,
     return nil
   }
   let image = UIImage(cgImage: cgImage, scale: CGFloat(scale), orientation: .up)
-  guard let box = contentBox(image: image) else {
-    return nil
+  if contentOnly {
+    guard let box = contentBox(image: image) else {
+      return nil
+    }
+    let scaledBox = scaleUp(box: box, minWidth: minContentWidth, minHeight: minContentHeight)
+    return crop(image: image,
+                rect: scaledBox,
+                size: fit(size: scaledBox.size, maxWidth: width, maxHeight: height))
+  } else {
+    return image
   }
-  let scaledBox = scaleUp(box: box, minWidth: minContentWidth, minHeight: minContentHeight)
-  guard let res = crop(image: image,
-                       rect: scaledBox,
-                       size: fit(size: scaledBox.size, maxWidth: width, maxHeight: height)) else {
-    return nil
-  }
-  return res
 }
 
 private func fit(size: CGSize, maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {

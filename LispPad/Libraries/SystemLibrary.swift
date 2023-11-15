@@ -83,6 +83,18 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("show-share-panel", self.showSharePanel))
     self.define(Procedure("show-load-panel", self.showLoadPanel))
     self.define(Procedure("show-save-panel", self.showSavePanel))
+    // Manage canvases
+    self.define(Procedure("make-canvas", self.makeCanvas))
+    self.define(Procedure("use-canvas", self.useCanvas))
+    self.define(Procedure("close-canvas", self.closeCanvas))
+    self.define(Procedure("canvas-name", self.canvasName))
+    self.define(Procedure("set-canvas-name!", self.setCanvasName))
+    self.define(Procedure("canvas-size", self.canvasSize))
+    self.define(Procedure("set-canvas-size!", self.setCanvasSize))
+    self.define(Procedure("canvas-scale", self.canvasScale))
+    self.define(Procedure("set-canvas-scale!", self.setCanvasScale))
+    self.define(Procedure("canvas-drawing", self.canvasDrawing))
+    self.define(Procedure("set-canvas-drawing!", self.setCanvasDrawing))
     // Load and save bitmaps into the library
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("load-bitmaps-from-library", self.loadBitmapsFromLibrary))
@@ -295,6 +307,171 @@ public final class SystemLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func drawing(from expr: Expr) throws -> Drawing {
+    guard case .object(let obj) = expr, let drawing = obj as? Drawing else {
+      throw RuntimeError.type(expr, expected: [Drawing.type])
+    }
+    return drawing
+  }
+  
+  private func size(from size: Expr) throws -> CGSize {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size,
+          w >= 10 && w <= 100000,
+          h >= 10 && h <= 100000 else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    return CGSize(width: w, height: h)
+  }
+  
+  private func makeCanvas(expr: Expr, size: Expr, name: Expr?) throws -> Expr {
+    let drawing = try self.drawing(from: expr)
+    let size = try self.size(from: size)
+    let title = try name?.asString()
+    let canvasConfig = CanvasConfig(name: title,
+                                    size: size,
+                                    scale: 1.0,
+                                    background: .white,
+                                    drawing: drawing)
+    DispatchQueue.main.async {
+      self.interpreter?.setActiveCanvas(to: canvasConfig)
+    }
+    return .makeNumber(canvasConfig.id)
+  }
+  
+  private func useCanvas(expr: Expr, size: Expr, name: Expr?) throws -> Expr {
+    let drawing = try self.drawing(from: expr)
+    let size = try self.size(from: size)
+    let title = try name?.asString()
+    var canvasConfig: CanvasConfig? = nil
+    if let canvases = self.interpreter?.canvases {
+      for canvas in canvases {
+        if canvas.name == title {
+          canvasConfig = canvas
+          break
+        }
+      }
+    }
+    if canvasConfig == nil {
+      canvasConfig = CanvasConfig(name: title,
+                                  size: size,
+                                  scale: 1.0,
+                                  background: .white,
+                                  drawing: drawing)
+    }
+    DispatchQueue.main.async {
+      self.interpreter?.setActiveCanvas(to: canvasConfig!)
+    }
+    return .makeNumber(canvasConfig!.id)
+  }
+  
+  private func closeCanvas(expr: Expr) throws -> Expr {
+    if let canvases = self.interpreter?.canvases {
+      switch expr {
+        case .fixnum(let num):
+          for canvas in canvases {
+            if canvas.id == num {
+              DispatchQueue.main.async {
+                self.interpreter?.removeCanvas(canvas)
+              }
+              return .true
+            }
+          }
+        case .string(let mstr):
+          let str = mstr as String
+          for canvas in canvases {
+            if canvas.name == str {
+              DispatchQueue.main.async {
+                self.interpreter?.removeCanvas(canvas)
+              }
+              return .true
+            }
+          }
+        default:
+          break
+      }
+    }
+    return .false
+  }
+  
+  private func canvas(from expr: Expr) throws -> CanvasConfig {
+    if let canvases = self.interpreter?.canvases {
+      switch expr {
+        case .fixnum(let num):
+          for canvas in canvases {
+            if canvas.id == num {
+              return canvas
+            }
+          }
+        case .string(let mstr):
+          let str = mstr as String
+          for canvas in canvases {
+            if canvas.name == str {
+              return canvas
+            }
+          }
+        default:
+          throw RuntimeError.type(expr, expected: [.fixnumType, .strType])
+      }
+    }
+    throw RuntimeError.custom("error", "unknown canvas", [expr])
+  }
+  
+  private func canvasName(expr: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    return .makeString(canvas.name)
+  }
+  
+  private func setCanvasName(expr: Expr, name: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    let name = try name.asString()
+    DispatchQueue.main.async {
+      canvas.name = name
+    }
+    return .void
+  }
+  
+  private func canvasSize(expr: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    return .pair(.flonum(Double(canvas.size.width)), .flonum(Double(canvas.size.height)))
+  }
+  
+  private func setCanvasSize(expr: Expr, size: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    let size = try self.size(from: size)
+    DispatchQueue.main.async {
+      canvas.size = size
+    }
+    return .void
+  }
+  
+  private func canvasScale(expr: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    return .makeNumber(canvas.scale)
+  }
+  
+  private func setCanvasScale(expr: Expr, scale: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    let scale = try scale.asDouble(coerce: true)
+    DispatchQueue.main.async {
+      canvas.scale = scale
+    }
+    return .void
+  }
+  
+  private func canvasDrawing(expr: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    return .object(canvas.drawing)
+  }
+  
+  private func setCanvasDrawing(expr: Expr, dr: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    let drawing = try self.drawing(from: expr)
+    DispatchQueue.main.async {
+      canvas.drawing = drawing
+    }
+    return .void
   }
   
   private func saveBitmapInLibrary(expr: Expr) throws -> Expr {

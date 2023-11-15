@@ -28,6 +28,7 @@ struct ConsoleView: View {
                                    UIColor(red: 0.0, green: 0.1, blue: 0.7, alpha: 1.0))
   
   @EnvironmentObject var globals: LispPadGlobals
+  @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
   @State var dynamicHeight: CGFloat = 100
   @State var inputBuffer: String? = nil
@@ -123,7 +124,7 @@ struct ConsoleView: View {
                 }
                 Divider()
                 Button {
-                  self.state.showProgressView = "Saving image…"
+                  self.state.showProgressView = "Saving Image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
                     if let betterImage = iconImage(for: drawing,
@@ -144,7 +145,7 @@ struct ConsoleView: View {
                   Label("Save Image", systemImage: "photo.on.rectangle.angled")
                 }
                 Button {
-                  self.state.showProgressView = "Printing image…"
+                  self.state.showProgressView = "Printing Image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
                     if let betterImage = iconImage(for: drawing,
@@ -170,7 +171,7 @@ struct ConsoleView: View {
                   Label("Print Image", systemImage: "printer")
                 }
                 Button {
-                  self.state.showProgressView = "Sharing image…"
+                  self.state.showProgressView = "Sharing Image…"
                   DispatchQueue.global(qos: .userInitiated).async {
                     if let betterImage = iconImage(for: drawing,
                                                    width: 1500,
@@ -388,12 +389,8 @@ struct ConsoleView: View {
           }
         }
         .tag(1)
-        /* TODO: graphics
-        VStack {
-            Text("Right View")
-        }
+        CanvasPanel(state: self.state)
         .tag(2)
-        */
       }
       .tabViewStyle(.page(indexDisplayMode: .never))
       .indexViewStyle(.page(backgroundDisplayMode: .interactive))

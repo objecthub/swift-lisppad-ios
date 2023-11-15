@@ -164,6 +164,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var readingStatus: ReadingStatus = .reject
   @Published var contentBatch: Int = 0
   
+  /// Canvas management
+  @Published var canvases: [CanvasConfig] = []
+  @Published var canvas: CanvasConfig = .empty
+  
   /// Control interpreter UI
   @Published var showPhotosPicker: PhotosPickerConfig? = nil
   @Published var previewUrl: URL? = nil
@@ -674,5 +678,33 @@ final class Interpreter: ContextDelegate, ObservableObject {
   /// This is called by the `exit` function of LispKit.
   func emergencyExit(obj: Expr?) {
     
+  }
+  
+  func addCanvas(_ canvas: CanvasConfig) {
+    guard !self.canvases.contains(canvas) else {
+      return
+    }
+    if self.canvases.isEmpty {
+      self.canvas = canvas
+    }
+    self.canvases.append(canvas)
+  }
+  
+  func removeCanvas(_ canvas: CanvasConfig? = nil) {
+    guard self.canvas != .empty else {
+      return
+    }
+    let canvas = canvas ?? self.canvas
+    if self.canvas == canvas {
+      self.canvases.removeAll { $0 == canvas }
+      self.canvas = self.canvases.first ?? .empty
+    } else {
+      self.canvases.removeAll { $0 == canvas }
+    }
+  }
+  
+  func setActiveCanvas(to canvas: CanvasConfig) {
+    self.addCanvas(canvas)
+    self.canvas = canvas
   }
 }

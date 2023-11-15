@@ -199,12 +199,12 @@ struct LogView: View {
               Label("Copy Messages", systemImage: "doc.on.clipboard")
             }
             Button {
-              self.presentSheet(.shareText(self.sessionLog.exportMessages()))
+              self.showModal = .shareText(self.sessionLog.exportMessages())
             } label: {
               Label("Share Messages…", systemImage: "square.and.arrow.up.on.square")
             }
             Button {
-              self.presentSheet(.shareText(self.sessionLog.export()))
+              self.showModal = .shareText(self.sessionLog.export())
             } label: {
               Label("Share Log…", systemImage: "square.and.arrow.up")
             }
@@ -229,13 +229,5 @@ struct LogView: View {
       }
     }
     .transition(.move(edge: .bottom))
-  }
-  
-  private func presentSheet(_ action: InterpreterView.SheetAction) {
-    // if UIDevice.current.userInterfaceIdiom == .pad {
-      self.showModal = action
-    // } else {
-    //  self.showSheet = action
-    //}
   }
 }

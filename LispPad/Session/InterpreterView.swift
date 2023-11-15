@@ -297,10 +297,11 @@ struct InterpreterView: View {
             cardContent: self.cardContent)
           if let header = self.state.showProgressView {
            ProgressView(header)
-            .frame(width: 200, height: 120)
-            .background(Color.secondary.colorInvert())
+            .frame(width: 250, height: 120)
+            .background(Color.gray.opacity(0.85))
             .foregroundColor(Color.primary)
             .cornerRadius(20)
+            .zIndex(9999)
           }
         }
       }
@@ -314,33 +315,17 @@ struct InterpreterView: View {
                                 fraction: self.$masterWidthFraction)
             if self.interpreter.isReady {
               Menu {
-                Button {
-                  withAnimation {
-                    self.state.consoleTab = 0
-                  }
-                } label: {
-                  Label("Show Log", systemImage: "scroll")
+                Picker("", selection: Binding(get: {
+                                    self.state.consoleTab
+                                  }, set: { newValue in
+                                    withAnimation {
+                                      self.state.consoleTab = newValue
+                                    }
+                                  })) {
+                  Label("Log", systemImage: "scroll").tag(0)
+                  Label("Console", systemImage: "terminal").tag(1)
+                  Label("Canvas", systemImage: "photo.on.rectangle.angled").tag(2)
                 }
-                .disabled(self.state.consoleTab == 0)
-                Button {
-                  withAnimation {
-                    self.state.consoleTab = 1
-                  }
-                } label: {
-                  Label("Show Console", systemImage: "terminal")
-                }
-                .disabled(self.state.consoleTab == 1)
-                /* TODO: Graphics
-                Button(action: {
-                  withAnimation {
-                    self.consoleTab = 2
-                  }
-                }) {
-                  Label("Show Graphics", systemImage: "photo.on.rectangle.angled")
-                }
-                .disabled(self.consoleTab == 2)
-                 */
-                Divider()
                 Button {
                   self.showModal = .shareConsole
                 } label: {
@@ -353,7 +338,7 @@ struct InterpreterView: View {
                   Label("Clear Console", systemImage: "trash")
                 }
                 .disabled(self.interpreter.console.isEmpty)
-                Button {
+                Button(role: .destructive) {
                   self.showResetActionSheet = true
                 } label: {
                   Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
