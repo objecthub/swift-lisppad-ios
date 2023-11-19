@@ -295,12 +295,12 @@ struct InterpreterView: View {
             showCard: self.$showCard,
             cardContent: self.cardContent)
           if let header = self.state.showProgressView {
-           ProgressView(header)
-            .frame(width: 250, height: 120)
-            .background(Color.gray.opacity(0.85))
-            .foregroundColor(Color.primary)
-            .cornerRadius(20)
-            .zIndex(9999)
+            ProgressView(header)
+              .frame(width: 250, height: 120)
+              .background(Color.gray.opacity(0.85))
+              .foregroundColor(Color.primary)
+              .cornerRadius(20)
+              .zIndex(9999)
           }
         }
       }
@@ -387,8 +387,8 @@ struct InterpreterView: View {
             ActionSheet(title: Text("Reset"),
                         message: Text("Clear console and reset interpreter?"),
                         buttons: [.destructive(Text("Reset interpreter"), action: {
-                                    _ = self.interpreter.reset()
-                                  }),
+              _ = self.interpreter.reset()
+            }),
                                   .destructive(Text("Reset console & interpreter"), action: {
                                     self.interpreter.console.reset()
                                     _ = self.interpreter.reset()
@@ -432,11 +432,11 @@ struct InterpreterView: View {
             }
           } label: {
             /* Let's not display a logo here for now.
-               Image("SmallLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 28.0,height: 28.0)
-                .padding(.bottom, -3) */
+             Image("SmallLogo")
+             .resizable()
+             .scaledToFit()
+             .frame(width: 28.0,height: 28.0)
+             .padding(.bottom, -3) */
             HStack(alignment: .center, spacing: 4) {
               if geometry.size.width >= 380 {
                 Text("LispPad")
@@ -497,25 +497,25 @@ struct InterpreterView: View {
             return Alert(title: Text("Terminate evaluation?"),
                          primaryButton: .cancel(),
                          secondaryButton: .destructive(Text("Terminate"), action: {
-                           self.interpreter.context?.evaluator.abort()
-                         }))
+              self.interpreter.context?.evaluator.abort()
+            }))
           case .notSaved:
             return Alert(title: Text("Document not saved"),
                          message: Text("Could not save the currently open document. " +
-                                        "Retry saving using a different name or path."),
+                                       "Retry saving using a different name or path."),
                          dismissButton: .default(Text("OK")))
           case .openURL(let url):
             return self.notSavedAlert(
-                     save: { self.showModal = .saveBeforeOpen(url) },
-                     discard: {
-                      self.fileManager.loadEditorDocument(
-                        source: url,
-                        makeUntitled: false,
-                        action: { success in
-                          if success {
-                            self.switchToEditor()
-                          }})
-                     })
+              save: { self.showModal = .saveBeforeOpen(url) },
+              discard: {
+                self.fileManager.loadEditorDocument(
+                  source: url,
+                  makeUntitled: false,
+                  action: { success in
+                    if success {
+                      self.switchToEditor()
+                    }})
+              })
         }
       }
       .onChange(of: self.interpreter.showPhotosPicker) { value in
@@ -530,7 +530,7 @@ struct InterpreterView: View {
           self.interpreter.showPhotosPicker = nil
         } else if self.interpreter.showPhotosPicker == nil ||
                     (selectedPhotos.count == 1 && selectedPhotos[0].itemIdentifier == "___") {
-          // Don't do anything
+            // Don't do anything
         } else if self.interpreter.showPhotosPicker?.dataOnly ?? false {
           Task {
             do {
@@ -583,6 +583,12 @@ struct InterpreterView: View {
           DispatchQueue.global(qos: .utility).async {
             try? Foundation.FileManager.default.removeItem(at: toDeleteUrl)
           }
+        }
+      }
+      .onChange(of: self.interpreter.consoleTab) { tab in
+        if tab >= 0 {
+          self.state.consoleTab = tab
+          self.interpreter.consoleTab = -1
         }
       }
       .onChange(of: self.urlToOpen) { optUrl in

@@ -430,46 +430,46 @@ struct CodeEditorView: View {
                                                .editorDocument?.fileURL)?.base?.imageName ?? "link")
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
-            Divider()
-            Button {
-              self.dismissCard()
-              self.fileManager.editorDocument?.saveFile { success in
-                self.showModal = .saveFile
+            ControlGroup {
+              Button {
+                self.dismissCard()
+                self.fileManager.editorDocument?.saveFile { success in
+                  self.showModal = .saveFile
+                }
+              } label: {
+                Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
+                      systemImage: "tray.and.arrow.down")
               }
-            } label: {
-              Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
-                    systemImage: "tray.and.arrow.down")
-            }
-            Button {
-              self.dismissCard()
-              self.showModal = .renameFile
-            } label: {
-              Label("Rename", systemImage: "pencil")
-            }
-            .disabled(self.fileManager.editorDocumentInfo.new)
-            Button {
-              self.dismissCard()
-              if let doc = self.fileManager.editorDocument, !doc.info.new {
-                doc.saveFile { success in
-                  if success {
-                    self.fileManager.loadEditorDocument(
-                      source: doc.fileURL,
-                      makeUntitled: true,
-                      action: { success in
-                        if !success {
-                          self.notSavedAlertAction = .couldNotDuplicate
-                        }
-                      })
-                  } else {
-                    self.notSavedAlertAction = .couldNotDuplicate
+              Button {
+                self.dismissCard()
+                self.showModal = .renameFile
+              } label: {
+                Label("Rename", systemImage: "pencil")
+              }
+              .disabled(self.fileManager.editorDocumentInfo.new)
+              Button {
+                self.dismissCard()
+                if let doc = self.fileManager.editorDocument, !doc.info.new {
+                  doc.saveFile { success in
+                    if success {
+                      self.fileManager.loadEditorDocument(
+                        source: doc.fileURL,
+                        makeUntitled: true,
+                        action: { success in
+                          if !success {
+                            self.notSavedAlertAction = .couldNotDuplicate
+                          }
+                        })
+                    } else {
+                      self.notSavedAlertAction = .couldNotDuplicate
+                    }
                   }
                 }
+              } label: {
+                Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
               }
-            } label: {
-              Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
+              .disabled(self.fileManager.editorDocumentInfo.new)
             }
-            .disabled(self.fileManager.editorDocumentInfo.new)
-            Divider()
             Button {
               self.dismissCard()
               self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
@@ -493,6 +493,24 @@ struct CodeEditorView: View {
               Label("Copy Path", systemImage: "doc.on.clipboard")
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
+            Divider()
+            Menu {
+              Toggle("Show line numbers", isOn: $settings.showLineNumbers)
+              Toggle("Highlight current line", isOn: $settings.highlightCurrentLine)
+              Toggle("Highlight parenthesis", isOn: $settings.highlightMatchingParen)
+              if self.editorType == .scheme {
+                Divider()
+                Toggle("Indent automatically", isOn: $settings.schemeAutoIndent)
+                Toggle("Highlight syntax", isOn: $settings.schemeHighlightSyntax)
+                Toggle("Markup identifiers", isOn: $settings.schemeMarkupIdent)
+              } else if self.editorType == .markdown {
+                Divider()
+                Toggle("Indent automatically", isOn: $settings.markdownAutoIndent)
+                Toggle("Highlight syntax", isOn: $settings.markdownHighlightSyntax)
+              }
+            } label: {
+              Label("Settings", systemImage: "switch.2")
+            }
           } label: {
             HStack(alignment: .center, spacing: 4) {
               if geometry.size.width >= 380 {

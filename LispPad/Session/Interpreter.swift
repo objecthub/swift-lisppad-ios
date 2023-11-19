@@ -173,6 +173,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var canvas: CanvasConfig = .empty
   
   /// Control interpreter UI
+  @Published var consoleTab: Int = -1
   @Published var showPhotosPicker: PhotosPickerConfig? = nil
   @Published var previewUrl: URL? = nil
   @Published var sheetAction: ProgrammaticSheetAction? = nil

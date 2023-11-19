@@ -83,6 +83,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("show-share-panel", self.showSharePanel))
     self.define(Procedure("show-load-panel", self.showLoadPanel))
     self.define(Procedure("show-save-panel", self.showSavePanel))
+    self.define(Procedure("show-interpreter-tab", self.showInterpreterTab))
     // Manage canvases
     self.define(Procedure("make-canvas", self.makeCanvas))
     self.define(Procedure("use-canvas", self.useCanvas))
@@ -309,6 +310,27 @@ public final class SystemLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func showInterpreterTab(expr: Expr) throws -> Expr {
+    let tab = try expr.asSymbol()
+    switch tab.identifier {
+      case "log":
+        DispatchQueue.main.async {
+          self.interpreter?.consoleTab = 0
+        }
+      case "console":
+        DispatchQueue.main.async {
+          self.interpreter?.consoleTab = 1
+        }
+      case "canvas":
+        DispatchQueue.main.async {
+          self.interpreter?.consoleTab = 2
+        }
+      default:
+        throw RuntimeError.custom("error", "unknown tab", [expr])
+    }
+    return .void
   }
   
   private func drawing(from expr: Expr) throws -> Drawing {
