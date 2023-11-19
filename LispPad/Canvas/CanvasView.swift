@@ -23,13 +23,18 @@ import SwiftUI
 struct CanvasView: View {
   private let minZoom: CGFloat = 0.5
   private let maxZoom: CGFloat = 3.0
+  @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
   @ObservedObject var canvas: CanvasConfig
   
   var body: some View {
     ScrollView([.horizontal, .vertical]) {
       ZStack(alignment: .center) {
-        Color(self.canvas.background)
+        if let background = self.canvas.background {
+          Color(background)
+        } else {
+          self.settings.consoleGraphicsBackgroundColor
+        }
         Canvas(opaque: false,
                colorMode: .nonLinear,
                rendersAsynchronously: false) { context, size in

@@ -267,7 +267,6 @@ struct InterpreterView: View {
         ZStack {
           ConsoleView(
             font: settings.consoleFont,
-            infoFont: settings.consoleInfoFont,
             action: {
               let old = self.state.consoleInput
               self.state.consoleInput = ""
@@ -315,16 +314,15 @@ struct InterpreterView: View {
                                 fraction: self.$masterWidthFraction)
             if self.interpreter.isReady {
               Menu {
-                Picker("", selection: Binding(get: {
-                                    self.state.consoleTab
-                                  }, set: { newValue in
-                                    withAnimation {
-                                      self.state.consoleTab = newValue
-                                    }
-                                  })) {
+                Picker("", selection: Binding(get: { self.state.consoleTab },
+                                              set: { newValue in
+                                                     withAnimation {
+                                                       self.state.consoleTab = newValue
+                                                     }
+                                                   })) {
                   Label("Log", systemImage: "scroll").tag(0)
                   Label("Console", systemImage: "terminal").tag(1)
-                  Label("Canvas", systemImage: "photo.on.rectangle.angled").tag(2)
+                  Label("Canvas", systemImage: "photo.stack").tag(2)
                 }
                 Button {
                   self.showModal = .shareConsole

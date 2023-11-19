@@ -122,6 +122,8 @@
 		CCA3C6902B002D3300C0BDE6 /* CanvasConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */; };
 		CCA3C6922B014D4700C0BDE6 /* CanvasPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C6912B014D4700C0BDE6 /* CanvasPanel.swift */; };
 		CCA3C69C2B043DB500C0BDE6 /* CanvasSizeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C69B2B043DB500C0BDE6 /* CanvasSizeEditor.swift */; };
+		CCA3C69E2B0885A500C0BDE6 /* CanvasConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C69D2B0885A500C0BDE6 /* CanvasConsole.swift */; };
+		CCA3C6A02B09067200C0BDE6 /* ConsoleOutputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C69F2B09067200C0BDE6 /* ConsoleOutputView.swift */; };
 		CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F56F2AF38BBE0009A97E /* Split.swift */; };
 		CCA5F5722AF38BCA0009A97E /* SplitConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */; };
 		CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA5F5732AF38BD00009A97E /* Splitter.swift */; };
@@ -534,6 +536,8 @@
 		CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasConfig.swift; sourceTree = "<group>"; };
 		CCA3C6912B014D4700C0BDE6 /* CanvasPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasPanel.swift; sourceTree = "<group>"; };
 		CCA3C69B2B043DB500C0BDE6 /* CanvasSizeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasSizeEditor.swift; sourceTree = "<group>"; };
+		CCA3C69D2B0885A500C0BDE6 /* CanvasConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasConsole.swift; sourceTree = "<group>"; };
+		CCA3C69F2B09067200C0BDE6 /* ConsoleOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleOutputView.swift; sourceTree = "<group>"; };
 		CCA5F56F2AF38BBE0009A97E /* Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Split.swift; sourceTree = "<group>"; };
 		CCA5F5712AF38BCA0009A97E /* SplitConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitConfig.swift; sourceTree = "<group>"; };
 		CCA5F5732AF38BD00009A97E /* Splitter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Splitter.swift; sourceTree = "<group>"; };
@@ -740,6 +744,7 @@
 				CC84C26D25FE78A600758581 /* ConsoleScrollView.swift */,
 				CC7A62BD275D375C009F72E4 /* Console.swift */,
 				CC84C26F25FE78E100758581 /* ConsoleOutput.swift */,
+				CCA3C69F2B09067200C0BDE6 /* ConsoleOutputView.swift */,
 				CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */,
 				CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */,
 				CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */,
@@ -925,6 +930,7 @@
 			isa = PBXGroup;
 			children = (
 				CCA3C6912B014D4700C0BDE6 /* CanvasPanel.swift */,
+				CCA3C69D2B0885A500C0BDE6 /* CanvasConsole.swift */,
 				CCA3C69B2B043DB500C0BDE6 /* CanvasSizeEditor.swift */,
 				CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */,
 				CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */,
@@ -1221,6 +1227,7 @@
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
 				CC6598E027292CB6004C9B89 /* LogView.swift in Sources */,
+				CCA3C6A02B09067200C0BDE6 /* ConsoleOutputView.swift in Sources */,
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,
 				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
 				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
@@ -1237,6 +1244,7 @@
 				CC327C4D260FBD0800BD7E32 /* HistoryManager.swift in Sources */,
 				CC327C552610B60400BD7E32 /* CodeEditorTextView.swift in Sources */,
 				CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */,
+				CCA3C69E2B0885A500C0BDE6 /* CanvasConsole.swift in Sources */,
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
 				CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */,
 				CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */,

@@ -546,23 +546,24 @@ struct CodeEditorView: View {
             }
             .disabled(self.editorType != .scheme && self.editorType != .markdown)
             Menu {
-              Button {
-                self.dismissCard()
-                self.updateEditor = { textView in
-                  textView.undoManager?.undo()
+              ControlGroup {
+                Button {
+                  self.dismissCard()
+                  self.updateEditor = { textView in
+                    textView.undoManager?.undo()
+                  }
+                } label: {
+                  Label("Undo", systemImage: "arrow.uturn.backward")
                 }
-              } label: {
-                Label("Undo", systemImage: "arrow.uturn.backward")
-              }
-              Button {
-                self.dismissCard()
-                self.updateEditor = { textView in
-                  textView.undoManager?.redo()
+                Button {
+                  self.dismissCard()
+                  self.updateEditor = { textView in
+                    textView.undoManager?.redo()
+                  }
+                } label: {
+                  Label("Redo", systemImage: "arrow.uturn.forward")
                 }
-              } label: {
-                Label("Redo", systemImage: "arrow.uturn.forward")
               }
-              Divider()
               Group {
                 Button(action: self.autoIndentEditor) {
                   Label("Auto Indent", systemImage: "list.bullet.indent")

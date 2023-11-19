@@ -25,8 +25,9 @@ import LispKit
 struct CanvasPanel: View {
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var interpreter: Interpreter
-  @ObservedObject var state: InterpreterState
+  @AppStorage("Canvas.includeResults") var includeResults: Bool = false
   @State var showSizeEditor: Bool = false
+  @ObservedObject var state: InterpreterState
   
   private func round(_ x: CGFloat) -> CGFloat {
     let y = floor(x)
@@ -60,9 +61,11 @@ struct CanvasPanel: View {
             .padding(.vertical, 6)
           GeometryReader { geometry in
             Menu {
-              Picker("", selection: self.$interpreter.canvas) {
+              Picker("", selection:
+                           Binding(get: { self.interpreter.canvas },
+                                   set: { c in withAnimation { self.interpreter.canvas = c }})) {
                 ForEach(self.interpreter.canvases) { canvas in
-                  Text(canvas.name).tag(canvas)
+                  Text("\(canvas.name) (\(canvas.id))").tag(canvas)
                 }
               }
             } label: {
@@ -97,7 +100,7 @@ struct CanvasPanel: View {
               .allowsTightening(true)
               .fixedSize(horizontal: true, vertical: false)
             }
-            .padding(4)
+            .padding(.trailing, 6)
             .popover(isPresented: self.$showSizeEditor) {
               CanvasSizeEditor(width: self.interpreter.canvas.size.width,
                                height: self.interpreter.canvas.size.height,
@@ -146,6 +149,19 @@ struct CanvasPanel: View {
           .disabled(self.interpreter.canvas == .empty)
           Menu {
             Button {
+              withAnimation {
+                self.interpreter.newCanvas(width: 390, height: 600)
+              }
+            } label: {
+              Label("New Canvas", systemImage: "plus.rectangle")
+            }
+            Divider()
+            Toggle(isOn: Binding(get: { self.includeResults },
+                                 set: { v in withAnimation { self.includeResults = v }})) {
+              Label("Console Output", systemImage: "text.below.photo")
+            }
+            Divider()
+            Button {
               self.state.showProgressView = "Saving Image…"
               DispatchQueue.global(qos: .userInitiated).async {
                 if let res = iconImage(for: self.interpreter.canvas.drawing,
@@ -162,9 +178,9 @@ struct CanvasPanel: View {
                 }
               }
             } label: {
-              Label("Save Image", systemImage: "photo.on.rectangle.angled")
+              Label("Save Image", systemImage: "square.and.arrow.down")
             }
-            .disabled(self.state.showProgressView != nil)
+            .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
               self.state.showProgressView = "Saving Canvas…"
               DispatchQueue.global(qos: .userInitiated).async {
@@ -184,9 +200,9 @@ struct CanvasPanel: View {
                 }
               }
             } label: {
-              Label("Save Canvas", systemImage: "photo.on.rectangle")
+              Label("Save Canvas", systemImage: "square.and.arrow.down.fill")
             }
-            .disabled(self.state.showProgressView != nil)
+            .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
               self.state.showProgressView = "Printing Canvas…"
               DispatchQueue.global(qos: .userInitiated).async {
@@ -217,7 +233,7 @@ struct CanvasPanel: View {
             } label: {
               Label("Print Canvas", systemImage: "printer")
             }
-            .disabled(self.state.showProgressView != nil)
+            .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Divider()
             Button(role: .destructive) {
               withAnimation {
@@ -226,51 +242,38 @@ struct CanvasPanel: View {
             } label: {
               Label("Close Canvas", systemImage: "xmark.rectangle")
             }
+            .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
           } label: {
             Image(systemName: "ellipsis.circle")
               .font(LogView.iconFont)
               .padding(.horizontal, 8)
           }
-          .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
+          .disabled(self.state.showProgressView != nil)
         }
         .padding(.horizontal, 4)
         .padding(.vertical, 2)
         .background(Color(.tertiarySystemBackground).opacity(0.85)
-          .ignoresSafeArea(.container, edges: [.leading, .trailing]))
+        .ignoresSafeArea(.container, edges: [.leading, .trailing]))
         Divider()
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
       }
       ZStack(alignment: .center) {
         Color(.secondarySystemBackground)
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
-        if self.interpreter.canvas != .empty {
-          VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
+          if self.interpreter.canvas != .empty {
             CanvasView(canvas: self.interpreter.canvas)
-            if let label = self.interpreter.canvas.label {
-              Divider()
-              HStack(alignment: .center, spacing: 0) {
-                Text(label)
-                  .font(.footnote)
-                  .foregroundColor(.primary)
-                  .lineLimit(8)
-                  .allowsTightening(true)
-                  .padding(8)
-                Spacer()
-              }
-              .background(Color(.tertiarySystemBackground).opacity(0.85))
-            }
+              .transition(.slide)
+          } else {
+            Spacer()
+          }
+          if self.includeResults {
+            CanvasConsole(console: self.interpreter.console)
+              .transition(.move(edge: .top))
           }
         }
-      }.frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    .onChange(of: self.interpreter.canvases) { canvases in
-      if let canvas = canvases.first {
-        if !canvases.contains(self.interpreter.canvas) {
-          self.interpreter.canvas = canvas
-        }
-      } else if self.interpreter.canvas != .empty {
-        self.interpreter.canvas = .empty
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
   }
 }

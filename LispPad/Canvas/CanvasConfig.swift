@@ -26,6 +26,7 @@ import Atomics
 final class CanvasConfig: ObservableObject, Identifiable, Equatable, Hashable {
   static let empty = CanvasConfig(name: "None",
                                   size: CGSize(width: 10, height: 10),
+                                  background: .clear,
                                   drawing: Drawing())
   
   private static let counter = ManagedAtomic<Int>(0)
@@ -35,16 +36,15 @@ final class CanvasConfig: ObservableObject, Identifiable, Equatable, Hashable {
   @Published var size: CGSize
   @Published var scale: CGFloat
   @Published var zoom: CGFloat
-  @Published var background: UIColor
+  @Published var background: UIColor?
   @Published var drawing: Drawing
-  @Published var label: String?
   
   init(name: String? = nil,
        size: CGSize = .init(width: 1000, height: 1000),
        scale: CGFloat = 1.0,
-       background: UIColor = .white,
+       background: UIColor? = nil,
        drawing: Drawing) {
-    let id = CanvasConfig.counter.wrappingIncrementThenLoad(ordering: .relaxed)
+    let id = CanvasConfig.counter.loadThenWrappingIncrement(ordering: .relaxed)
     self.id = id
     self.name = name ?? "Canvas \(id)"
     self.size = size

@@ -680,6 +680,11 @@ final class Interpreter: ContextDelegate, ObservableObject {
     
   }
   
+  func newCanvas(width: CGFloat, height: CGFloat) {
+    self.setActiveCanvas(to: CanvasConfig(size: CGSize(width: width, height: height),
+                                          drawing: Drawing()))
+  }
+  
   func addCanvas(_ canvas: CanvasConfig) {
     guard !self.canvases.contains(canvas) else {
       return

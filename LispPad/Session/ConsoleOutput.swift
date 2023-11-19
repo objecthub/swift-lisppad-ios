@@ -76,6 +76,14 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
     }
   }
   
+  var textOutput: ConsoleOutput {
+    if case .drawingResult(_, _) = self.kind {
+      return ConsoleOutput(.result, self.text)
+    } else {
+      return self
+    }
+  }
+  
   var logMessage: (Bool, String, String)? {
     switch self.kind {
       case .error(let ctxt):
@@ -125,6 +133,15 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
       return false
     }
     return true
+  }
+  
+  var isResult: Bool {
+    switch self.kind {
+      case .result, .drawingResult(_, _), .error(_):
+        return true
+      default:
+        return false
+    }
   }
 }
 

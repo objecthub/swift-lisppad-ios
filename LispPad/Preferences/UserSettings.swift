@@ -484,11 +484,6 @@ final class UserSettings: ObservableObject {
              .leading(self.consoleTightSpacing ? .tight : .standard)
   }
   
-  var consoleInfoFont: Font {
-    return Self.monospacedFontMap.font(name: self.codingFont, size: self.consoleFontSize)
-             .leading(self.consoleTightSpacing ? .tight : .standard)
-  }
-  
   var inputFont: UIFont {
     return Self.monospacedFontMap.uiFont(name: self.codingFont, size: self.inputFontSize)
   }

@@ -42,11 +42,13 @@ struct CanvasSizeEditor: View {
             .textFieldStyle(.roundedBorder)
             .multilineTextAlignment(.trailing)
             .frame(idealWidth: 45, maxWidth: 65)
+            .keyboardType(.decimalPad)
           Text("⨉")
           TextField("Height", value: self.$height, formatter: formatter)
             .textFieldStyle(.roundedBorder)
             .multilineTextAlignment(.trailing)
             .frame(idealWidth: 45, maxWidth: 65)
+            .keyboardType(.decimalPad)
           
         }
         HStack(alignment: .center, spacing: 8) {
@@ -57,6 +59,7 @@ struct CanvasSizeEditor: View {
             .textFieldStyle(.roundedBorder)
             .multilineTextAlignment(.trailing)
             .frame(idealWidth: 45, maxWidth: 65)
+            .keyboardType(.decimalPad)
           Button {
             self.dismiss()
             self.update(CGSize(width: self.width, height: self.height), self.scale)

@@ -42,7 +42,6 @@ struct ConsoleView: View {
   @StateObject var keyboardObserver = KeyboardObserver()
   
   let font: Font
-  let infoFont: Font
   let action: () -> Void
   
   @Binding var splitViewMode: SideBySideMode
@@ -142,7 +141,7 @@ struct ConsoleView: View {
                     }
                   }
                 } label: {
-                  Label("Save Image", systemImage: "photo.on.rectangle.angled")
+                  Label("Save Image", systemImage: "square.and.arrow.down")
                 }
                 Button {
                   self.state.showProgressView = "Printing Image…"
@@ -197,7 +196,7 @@ struct ConsoleView: View {
           self.errorRow(entry.text, context)
         default:
           Text(entry.text)
-            .font(entry.kind == .info ? self.infoFont : self.font)
+            .font(self.font)
             .fontWeight(entry.kind == .info ? .bold : .regular)
             .foregroundColor(entry.kind == .result ? ConsoleView.resultColor :
                               (entry.kind == .output ? .secondary : .primary))

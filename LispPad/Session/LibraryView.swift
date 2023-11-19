@@ -26,7 +26,7 @@ struct LibraryView: View {
   @EnvironmentObject var docManager: DocumentationManager
   @ObservedObject var libManager: LibraryManager
   @State var searchText: String = ""
-  @State var showLoadedLibraries: Bool = true
+  @State var showLoadedLibraries: Bool = false
   
   var body: some View {
       List(self.libManager.libraries.filter { proxy in 

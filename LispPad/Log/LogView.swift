@@ -182,15 +182,11 @@ struct LogView: View {
             .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
           }
           Menu {
-            Button {
-              self.showTime.toggle()
-            } label: {
-              Label("Show Time", systemImage: self.showTime ? "checkmark.square" : "square")
+            Toggle(isOn: self.$showTime) {
+              Label("Show Time", systemImage: "clock")
             }
-            Button {
-              self.showTags.toggle()
-            } label: {
-              Label("Show Tag", systemImage: self.showTags ? "checkmark.square" : "square")
+            Toggle(isOn: self.$showTags) {
+              Label("Show Tag", systemImage: "tag")
             }
             Divider()
             Button {

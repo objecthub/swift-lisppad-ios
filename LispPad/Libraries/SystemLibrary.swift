@@ -93,6 +93,8 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("set-canvas-size!", self.setCanvasSize))
     self.define(Procedure("canvas-scale", self.canvasScale))
     self.define(Procedure("set-canvas-scale!", self.setCanvasScale))
+    self.define(Procedure("canvas-background", self.canvasBackground))
+    self.define(Procedure("set-canvas-background!", self.setCanvasBackground))
     self.define(Procedure("canvas-drawing", self.canvasDrawing))
     self.define(Procedure("set-canvas-drawing!", self.setCanvasDrawing))
     // Load and save bitmaps into the library
@@ -325,14 +327,23 @@ public final class SystemLibrary: NativeLibrary {
     return CGSize(width: w, height: h)
   }
   
-  private func makeCanvas(expr: Expr, size: Expr, name: Expr?) throws -> Expr {
+  private func makeCanvas(expr: Expr, size: Expr, name: Expr?, background: Expr?) throws -> Expr {
     let drawing = try self.drawing(from: expr)
     let size = try self.size(from: size)
     let title = try name?.asString()
+    let color: UIColor?
+    if let background {
+      guard case .object(let obj) = background, let col = obj as? LispKit.Color else {
+        throw RuntimeError.type(expr, expected: [Color.type])
+      }
+      color = col.nsColor
+    } else {
+      color = nil
+    }
     let canvasConfig = CanvasConfig(name: title,
                                     size: size,
                                     scale: 1.0,
-                                    background: .white,
+                                    background: color,
                                     drawing: drawing)
     DispatchQueue.main.async {
       self.interpreter?.setActiveCanvas(to: canvasConfig)
@@ -340,10 +351,19 @@ public final class SystemLibrary: NativeLibrary {
     return .makeNumber(canvasConfig.id)
   }
   
-  private func useCanvas(expr: Expr, size: Expr, name: Expr?) throws -> Expr {
+  private func useCanvas(expr: Expr, size: Expr, name: Expr?, background: Expr?) throws -> Expr {
     let drawing = try self.drawing(from: expr)
     let size = try self.size(from: size)
     let title = try name?.asString()
+    let color: UIColor?
+    if let background {
+      guard case .object(let obj) = background, let col = obj as? LispKit.Color else {
+        throw RuntimeError.type(expr, expected: [Color.type])
+      }
+      color = col.nsColor
+    } else {
+      color = nil
+    }
     var canvasConfig: CanvasConfig? = nil
     if let canvases = self.interpreter?.canvases {
       for canvas in canvases {
@@ -357,7 +377,7 @@ public final class SystemLibrary: NativeLibrary {
       canvasConfig = CanvasConfig(name: title,
                                   size: size,
                                   scale: 1.0,
-                                  background: .white,
+                                  background: color,
                                   drawing: drawing)
     }
     DispatchQueue.main.async {
@@ -456,6 +476,31 @@ public final class SystemLibrary: NativeLibrary {
     let scale = try scale.asDouble(coerce: true)
     DispatchQueue.main.async {
       canvas.scale = scale
+    }
+    return .void
+  }
+  
+  private func canvasBackground(expr: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    if let background = canvas.background {
+      return .object(Color(background))
+    } else {
+      return .false
+    }
+  }
+  
+  private func setCanvasBackground(expr: Expr, background: Expr) throws -> Expr {
+    let canvas = try self.canvas(from: expr)
+    if background.isFalse {
+      DispatchQueue.main.async {
+        canvas.background = nil
+      }
+    } else if case .object(let obj) = background, let color = obj as? Color {
+      DispatchQueue.main.async {
+        canvas.background = color.nsColor
+      }
+    } else {
+      throw RuntimeError.type(expr, expected: [Color.type])
     }
     return .void
   }
