@@ -51,6 +51,8 @@ struct PreferencesView: View {
             Text("System").tag(UserSettings.systemBackground)
           }
           .defaultPickerStyle()
+          Toggle("Inline graphics", isOn: $settings.consoleInlineGraphics)
+          Toggle("Custom formatting", isOn: $settings.consoleCustomFormatting)
           Stepper(value: $settings.maxConsoleHistory, in: 500...5000, step: 100) {
             Text("Console history: ") + Text(" \(settings.maxConsoleHistory)").foregroundColor(.gray)
           }

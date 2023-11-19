@@ -25,16 +25,13 @@ struct CanvasView: View {
   private let maxZoom: CGFloat = 3.0
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
+  @State var background: Color? = nil
   @ObservedObject var canvas: CanvasConfig
   
   var body: some View {
     ScrollView([.horizontal, .vertical]) {
       ZStack(alignment: .center) {
-        if let background = self.canvas.background {
-          Color(background)
-        } else {
-          self.settings.consoleGraphicsBackgroundColor
-        }
+        self.background ?? self.settings.consoleGraphicsBackgroundColor
         Canvas(opaque: false,
                colorMode: .nonLinear,
                rendersAsynchronously: false) { context, size in
@@ -60,6 +57,20 @@ struct CanvasView: View {
         }
       }
       .frame(width: self.canvas.width, height: self.canvas.height, alignment: .center)
+    }
+    .onChange(of: self.canvas.background) { col in
+      if let background = col {
+        self.background = Color(background)
+      } else {
+        self.background = nil
+      }
+    }
+    .onAppear {
+      if let background = self.canvas.background {
+        self.background = Color(background)
+      } else {
+        self.background = nil
+      }
     }
   }
 }

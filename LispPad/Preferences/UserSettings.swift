@@ -34,6 +34,8 @@ final class UserSettings: ObservableObject {
   private static let consoleFontSizeKey = "Console.fontSize"
   private static let consoleTightSpacingKey = "Console.tightSpacing"
   private static let consoleBackgroundColorKey = "Console.graphicsBackgroundColor"
+  private static let consoleInlineGraphics = "Console.inlineGraphics"
+  private static let consoleCustomFormatting = "Console.customFormatting"
   private static let maxConsoleHistoryKey = "Console.maxConsoleHistory"
   private static let inputFontSizeKey = "Console.inputFontSize"
   private static let inputTightSpacingKey = "Console.inputTightSpacing"
@@ -80,26 +82,12 @@ final class UserSettings: ObservableObject {
   private static let maxStackSizeKey = "Interpreter.maxStackSize"
   private static let maxCallTraceKey = "Interpreter.maxCallTrace"
   
-  // Font sizes
-  static let tinyFontSize = "Tiny"
+  // Documentation font sizes
   static let smallFontSize = "Small"
   static let mediumFontSize = "Medium"
   static let largeFontSize = "Large"
-  static let hugeFontSize = "Huge"
-  static let xlargeFontSize = "X-Large"
   
-  /// Regular font map
-  /*
-  private static let fontMap: [String : Font] = [
-    UserSettings.tinyFontSize   : .system(.caption, design: .default),
-    UserSettings.smallFontSize  : .system(.footnote, design: .default),
-    UserSettings.mediumFontSize : .system(.subheadline, design: .default),
-    UserSettings.largeFontSize  : .system(.callout, design: .default),
-    UserSettings.xlargeFontSize : .system(.body, design: .default),
-    UserSettings.hugeFontSize   : .system(.body, design: .default)
-  ]
-  */
-  
+  // Available monospaced fonts
   static let monospacedFontMap = FontMap(("Courier", "CourierNewPSMT"),
                                          ("Menlo", "Menlo-Regular"),
                                          ("Source Code Pro", "SourceCodePro-Regular"),
@@ -109,41 +97,7 @@ final class UserSettings: ObservableObject {
                                          ("Iosevka Extended", "Iosevka-Extended"),
                                          ("Inconsolata", "Inconsolata-Regular"))
   
-  /// Monospaced font map
-  /* private static let monospacedFontMap: [String : Font] = [
-    UserSettings.tinyFontSize   : .system(.caption, design: .monospaced),
-    UserSettings.smallFontSize  : .system(.footnote, design: .monospaced),
-    UserSettings.mediumFontSize : .system(.subheadline, design: .monospaced),
-    UserSettings.largeFontSize  : .system(.callout, design: .monospaced),
-    UserSettings.xlargeFontSize : .system(.body, design: .monospaced),
-    UserSettings.hugeFontSize   : .system(.body, design: .monospaced)
-  ]
-  
-  /// Monospaced UIFont map
-  private static let monospacedUIFontMap: [String : UIFont] = [
-    UserSettings.tinyFontSize   : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .caption1).pointSize,
-                                    weight: .regular),
-    UserSettings.smallFontSize  : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .footnote).pointSize,
-                                    weight: .regular),
-    UserSettings.mediumFontSize : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .subheadline)
-                                      .pointSize,
-                                    weight: .regular),
-    UserSettings.largeFontSize  : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .callout).pointSize,
-                                    weight: .regular),
-    UserSettings.xlargeFontSize : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
-                                    weight: .regular),
-    UserSettings.hugeFontSize   : .monospacedSystemFont(
-                                    ofSize: UIFont.preferredFont(forTextStyle: .body).pointSize,
-                                    weight: .regular)
-  ] */
-  
-  
-  /// Graphics background
+  // Graphics background
   static let whiteBackground = "white"
   static let blackBackground = "black"
   static let systemBackground = "system"
@@ -184,6 +138,18 @@ final class UserSettings: ObservableObject {
   @Published var consoleBackgroundColor: String {
     didSet {
       UserDefaults.standard.set(self.consoleBackgroundColor, forKey: Self.consoleBackgroundColorKey)
+    }
+  }
+  
+  @Published var consoleInlineGraphics: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleInlineGraphics, forKey: Self.consoleInlineGraphics)
+    }
+  }
+  
+  @Published var consoleCustomFormatting: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleCustomFormatting, forKey: Self.consoleCustomFormatting)
     }
   }
   
@@ -536,6 +502,10 @@ final class UserSettings: ObservableObject {
                                                              false)
     self.consoleBackgroundColor = UserDefaults.standard.str(
       forKey: Self.consoleBackgroundColorKey, UserSettings.whiteBackground)
+    self.consoleInlineGraphics = UserDefaults.standard.boolean(forKey: Self.consoleInlineGraphics,
+                                                               true)
+    self.consoleCustomFormatting = UserDefaults.standard.boolean(forKey: Self.consoleCustomFormatting,
+                                                                 true)
     self.maxConsoleHistory = UserDefaults.standard.int(forKey: Self.maxConsoleHistoryKey, 1000)
     self.inputFontSize = .init(UserDefaults.standard.str(forKey: Self.inputFontSizeKey,
                                                          FontMap.FontSize.compact.string))

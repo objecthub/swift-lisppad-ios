@@ -34,6 +34,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
   static let lispPadAssetsPath = "Root/Assets"
   static let lispPadExamplePath = "Root/Examples"
   
+  // Custom formatting option
+  static let customFormatString = "~S"
+  static let customFormatWidth = 80
+  
   /// Reading status of console
   enum ReadingStatus: Equatable, CustomStringConvertible {
     case reject
@@ -432,6 +436,20 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
+  private func format(expr: Expr, in context: Context) -> String {
+    if UserSettings.standard.consoleCustomFormatting,
+       let str = try? context.formatter.format(Interpreter.customFormatString,
+                                               config: context.formatter.replFormatConfig,
+                                               locale: Locale.current,
+                                               tabsize: UserSettings.standard.indentSize,
+                                               linewidth: Interpreter.customFormatWidth,
+                                               arguments: [expr]) {
+      return str
+    } else {
+      return expr.description
+    }
+  }
+  
   private func execute(action: (VirtualMachine) throws -> Expr) -> [ConsoleOutput]? {
     guard let context = self.context else {
       return nil
@@ -462,10 +480,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
         var next = expr
         while case .pair(let x, let rest) = next {
           if message.isEmpty {
-            message = x.description
+            message = self.format(expr: x, in: context)
           } else {
             message += "\n"
-            message += x.description
+            message += self.format(expr: x, in: context)
           }
           if case .object(let obj) = x, let drawing = obj as? Drawing {
             drawings.append(drawing)
@@ -475,10 +493,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
           next = rest
         }
         context.update(withReplResult: res)
-        if allDrawings {
+        if allDrawings && UserSettings.standard.consoleInlineGraphics {
           if drawings.isEmpty {
             return []
-          } else if drawings.count > 4 {
+          } else if drawings.count > 3 {
             return [.result(message)]
           } else {
             var res: [ConsoleOutput] = []
@@ -491,11 +509,14 @@ final class Interpreter: ContextDelegate, ObservableObject {
           return [.result(message)]
         }
       case .object(let obj) where obj is Drawing:
-        context.update(withReplResult: res)
-        return [.drawingResult(obj as! Drawing)]
+        if UserSettings.standard.consoleInlineGraphics {
+          context.update(withReplResult: res)
+          return [.drawingResult(obj as! Drawing)]
+        }
+        fallthrough
       default:
         context.update(withReplResult: res)
-        return [.result(res.description)]
+        return [.result(self.format(expr: res, in: context))]
     }
   }
   
