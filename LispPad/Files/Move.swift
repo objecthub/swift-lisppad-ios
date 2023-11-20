@@ -166,7 +166,7 @@ struct Move: View {
           }
           .disabled(self.folder == nil || self.fileName.isEmpty)
         }
-        .font(.body)
+        .font(.system(size: 17))
         .padding()
         VStack(alignment: .leading, spacing: 8) {
           self.sourceDescription

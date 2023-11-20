@@ -135,7 +135,7 @@ struct Open: View {
                 Text("Cancel").bold()
               }
             }
-            .font(.body)
+            .font(.system(size: 17))
             .padding(.horizontal)
             .padding(.vertical, 12)
             .background(Color(.secondarySystemBackground).opacity(0.85))

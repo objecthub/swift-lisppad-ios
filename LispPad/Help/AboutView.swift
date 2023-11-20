@@ -3,7 +3,7 @@
 //  LispPad
 //
 //  Created by Matthias Zenger on 16/04/2021.
-//  Copyright © 2021 Matthias Zenger. All rights reserved.
+//  Copyright © 2021-2023 Matthias Zenger. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -42,7 +42,12 @@ struct AboutView: View {
 
   var body: some View {
     Sheet(backgroundColor: Color(.tertiarySystemBackground)) {
-      VStack(alignment: .center, spacing: 16) {
+      ZStack(alignment: .top) {
+        ScrollView(.vertical, showsIndicators: false) {
+          RichText(self.aboutText)
+            .padding(.horizontal, 24)
+            .padding(.top, 170)
+        }
         HStack(alignment: .center, spacing: 16) {
           Image("SmallLogo")
             .resizable()
@@ -50,25 +55,24 @@ struct AboutView: View {
             .frame(width: 100, height: 100)
           VStack(alignment: .leading, spacing: 4) {
             Text("LispPad")
-              .font(.title2)
+              .font(.system(size: 21))
               .padding(.top, 12)
             (Text("Version ") +
              Text(AboutView.appVersion ?? "?") +
              Text(" (") + Text(AboutView.buildVersion ?? "?") + Text(")"))
-            .font(.footnote)
+            .font(.system(size: 12.5))
             Text(AboutView.copyright ?? "Copyright © Matthias Zenger. All rights reserved.")
-              .font(.caption)
+              .font(.system(size: 11.5))
               .padding(.top, 12)
           }
-          .padding(.trailing, 20)
-          .frame(width: 185, height: 110, alignment: .center)
+          .padding(.trailing, 15)
+          .padding(.bottom, 18)
+          .frame(width: 190, height: 130, alignment: .center)
           .padding(.leading, 8)
         }
         .padding(.top, 32)
-        ScrollView(.vertical) {
-          RichText(self.aboutText)
-            .padding(.horizontal, 24)
-        }
+        .frame(maxWidth: .infinity)
+        .background(Color(.tertiarySystemBackground).opacity(0.85))
       }.transition(.identity)
     }
   }

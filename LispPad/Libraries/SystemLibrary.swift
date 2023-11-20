@@ -3,7 +3,7 @@
 //  LispPad
 //
 //  Created by Matthias Zenger on 22/03/2021.
-//  Copyright © 2021 Matthias Zenger. All rights reserved.
+//  Copyright © 2021-2023 Matthias Zenger. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -312,7 +312,7 @@ public final class SystemLibrary: NativeLibrary {
     }
   }
   
-  private func showInterpreterTab(expr: Expr) throws -> Expr {
+  private func showInterpreterTab(expr: Expr, arg: Expr?) throws -> Expr {
     let tab = try expr.asSymbol()
     switch tab.identifier {
       case "log":
@@ -324,8 +324,16 @@ public final class SystemLibrary: NativeLibrary {
           self.interpreter?.consoleTab = 1
         }
       case "canvas":
-        DispatchQueue.main.async {
-          self.interpreter?.consoleTab = 2
+        if let arg {
+          let canvas = try self.canvas(from: arg)
+          DispatchQueue.main.async {
+            self.interpreter?.consoleTab = 2
+            self.interpreter?.canvas = canvas
+          }
+        } else {
+          DispatchQueue.main.async {
+            self.interpreter?.consoleTab = 2
+          }
         }
       default:
         throw RuntimeError.custom("error", "unknown tab", [expr])
@@ -395,7 +403,13 @@ public final class SystemLibrary: NativeLibrary {
         }
       }
     }
-    if canvasConfig == nil {
+    if let canvasConfig {
+      canvasConfig.drawing = drawing
+      canvasConfig.size = size
+      canvasConfig.background = color
+      canvasConfig.scale = 1.0
+      canvasConfig.zoom = 1.0
+    } else {
       canvasConfig = CanvasConfig(name: title,
                                   size: size,
                                   scale: 1.0,
