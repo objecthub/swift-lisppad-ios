@@ -176,6 +176,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var consoleTab: Int = -1
   @Published var showPhotosPicker: PhotosPickerConfig? = nil
   @Published var previewUrl: URL? = nil
+  @Published var helpDefinition: String? = nil
   @Published var sheetAction: ProgrammaticSheetAction? = nil
   var toDeleteUrl: URL? = nil
   

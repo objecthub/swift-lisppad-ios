@@ -585,6 +585,14 @@ struct InterpreterView: View {
           }
         }
       }
+      .onChange(of: self.interpreter.helpDefinition) { definition in
+        if let name = definition,
+           let documentation = self.docManager.documentation(for: name) {
+          self.showCard = true
+          self.cardContent.block = documentation
+          self.interpreter.helpDefinition = nil
+        }
+      }
       .onChange(of: self.interpreter.consoleTab) { tab in
         if tab >= 0 {
           self.state.consoleTab = tab

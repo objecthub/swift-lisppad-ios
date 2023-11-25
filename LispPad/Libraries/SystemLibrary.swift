@@ -84,6 +84,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("show-load-panel", self.showLoadPanel))
     self.define(Procedure("show-save-panel", self.showSavePanel))
     self.define(Procedure("show-interpreter-tab", self.showInterpreterTab))
+    self.define(Procedure("show-help", self.showHelp))
     // Manage canvases
     self.define(Procedure("make-canvas", self.makeCanvas))
     self.define(Procedure("use-canvas", self.useCanvas))
@@ -102,6 +103,10 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("save-bitmap-in-library", self.saveBitmapInLibrary))
     self.define(Procedure("load-bitmaps-from-library", self.loadBitmapsFromLibrary))
     self.define(Procedure("load-bytevectors-from-library", self.loadBytevectorsFromLibrary))
+    // Sessions
+    self.define(Procedure("session-id",  self.sessionId))
+    self.define(Procedure("session-name",  self.sessionName))
+    self.define(Procedure("session-log", self.sessionLog))
     // Local directories
     self.define(Procedure("project-directory", self.projectDirectory))
     self.define(Procedure("icloud-directory", self.icloudDirectory))
@@ -109,8 +114,6 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("screen-size", self.screenSize))
     self.define(Procedure("dark-mode?", self.isDarkMode))
     self.define(Procedure("icloud-list", self.iCloudList))
-    // Access to the native session log
-    self.define(Procedure("session-log", self.sessionLog))
   }
   
   private func openInFilesApp(expr: Expr) throws -> Expr {
@@ -341,6 +344,20 @@ public final class SystemLibrary: NativeLibrary {
     return .void
   }
   
+  private func showHelp(expr: Expr) throws -> Expr {
+    let definition: String
+    switch expr {
+      case .symbol(let sym):
+         definition = sym.identifier
+      default:
+        definition = try expr.asString()
+    }
+    DispatchQueue.main.async {
+      self.interpreter?.helpDefinition = definition
+    }
+    return .void
+  }
+  
   private func drawing(from expr: Expr) throws -> Drawing {
     guard case .object(let obj) = expr, let drawing = obj as? Drawing else {
       throw RuntimeError.type(expr, expected: [Drawing.type])
@@ -404,20 +421,22 @@ public final class SystemLibrary: NativeLibrary {
       }
     }
     if let canvasConfig {
-      canvasConfig.drawing = drawing
-      canvasConfig.size = size
-      canvasConfig.background = color
-      canvasConfig.scale = 1.0
-      canvasConfig.zoom = 1.0
+      DispatchQueue.main.async {
+        canvasConfig.drawing = drawing
+        canvasConfig.size = size
+        canvasConfig.background = color
+        canvasConfig.scale = 1.0
+        canvasConfig.zoom = 1.0
+      }
     } else {
       canvasConfig = CanvasConfig(name: title,
                                   size: size,
                                   scale: 1.0,
                                   background: color,
                                   drawing: drawing)
-    }
-    DispatchQueue.main.async {
-      self.interpreter?.setActiveCanvas(to: canvasConfig!)
+      DispatchQueue.main.async {
+        self.interpreter?.setActiveCanvas(to: canvasConfig!)
+      }
     }
     return .makeNumber(canvasConfig!.id)
   }
@@ -704,6 +723,15 @@ public final class SystemLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func sessionId() -> Expr {
+    return .fixnum(Int64(bitPattern: UInt64(UInt(bitPattern: ObjectIdentifier(self.context)))))
+  }
+  
+  private func sessionName() -> Expr {
+    return .makeString(UIDevice.current.localizedModel + " " +
+                      String(format: "%02x", UInt64(UInt(bitPattern: ObjectIdentifier(self.context)))))
   }
   
   private func sessionLog(tme: Expr, sev: Expr, message: Expr, tag: Expr?) throws -> Expr {

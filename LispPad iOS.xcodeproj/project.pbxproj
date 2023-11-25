@@ -117,6 +117,7 @@
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
 		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
+		CC9F3D022B1206A500BBD631 /* turtle.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC9F3D002B12016D00BBD631 /* turtle.sld */; };
 		CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */; };
 		CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */; };
 		CCA3C6902B002D3300C0BDE6 /* CanvasConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */; };
@@ -218,6 +219,7 @@
 			dstPath = Root/Libraries/lisppad;
 			dstSubfolderSpec = 7;
 			files = (
+				CC9F3D022B1206A500BBD631 /* turtle.sld in Copy Root/Libraries/lisppad */,
 				CC6598DA272585C7004C9B89 /* log.sld in Copy Root/Libraries/lisppad */,
 			);
 			name = "Copy Root/Libraries/lisppad";
@@ -531,6 +533,7 @@
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
 		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
+		CC9F3D002B12016D00BBD631 /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
 		CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncResult.swift; sourceTree = "<group>"; };
 		CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
 		CCA3C68F2B002D3300C0BDE6 /* CanvasConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasConfig.swift; sourceTree = "<group>"; };
@@ -647,6 +650,7 @@
 			isa = PBXGroup;
 			children = (
 				CC6598D227258405004C9B89 /* log.sld */,
+				CC9F3D002B12016D00BBD631 /* turtle.sld */,
 			);
 			path = lisppad;
 			sourceTree = "<group>";
