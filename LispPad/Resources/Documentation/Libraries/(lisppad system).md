@@ -1,6 +1,6 @@
-# LispPad System
+# LispPad System iOS
 
-Library `(lisppad system)` implements a simple API for LispPad system functions.
+Library `(lisppad system ios)` implements a simple API for LispPad system functions.
 
 **(open-in-files-app _path_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

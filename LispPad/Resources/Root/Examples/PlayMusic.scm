@@ -28,7 +28,7 @@
 
 (import (lispkit base)
         (lispkit thread)
-        (lisppad system)
+        (lisppad system ios)
         (lisppad audio))
 
 ;; Use sleep procedure from the (lispkit thread) library

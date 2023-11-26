@@ -26,7 +26,7 @@ import SwiftUI
 import MobileCoreServices // Remove again
 
 ///
-/// This class implements the LispPad-specific library `(lisppad system)`.
+/// This class implements the LispPad-specific library `(lisppad system ios)`.
 ///
 public final class SystemLibrary: NativeLibrary {
   internal weak var interpreter: Interpreter? = nil
@@ -49,7 +49,7 @@ public final class SystemLibrary: NativeLibrary {
   
   /// Name of the library.
   public override class var name: [String] {
-    return ["lisppad", "system"]
+    return ["lisppad", "system", "ios"]
   }
   
   /// Initialization

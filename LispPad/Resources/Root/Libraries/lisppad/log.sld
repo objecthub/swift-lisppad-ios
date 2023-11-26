@@ -75,7 +75,7 @@
           log-time)
 
   (import (except (lispkit base) log)
-          (lisppad system)
+          (lisppad system ios)
           (rename (lispkit log internal)
             (make-port-logger make-port-logger-internal)
             (make-file-logger make-file-logger-internal)))

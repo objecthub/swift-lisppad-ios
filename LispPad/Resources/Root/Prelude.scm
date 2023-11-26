@@ -26,7 +26,7 @@
 ;; release for the initial environment.
 
 (import (lispkit base)
-        (lisppad system))
+        (lisppad system ios))
 
 (define random
   (let ((a 69069)

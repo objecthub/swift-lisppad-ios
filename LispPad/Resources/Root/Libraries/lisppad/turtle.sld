@@ -76,7 +76,7 @@
           arc)
 
   (import (lispkit base)
-          (lisppad system)
+          (lisppad system ios)
           (except (lispkit draw) arc)
           (prefix (lispkit draw turtle) lispkit:))
 

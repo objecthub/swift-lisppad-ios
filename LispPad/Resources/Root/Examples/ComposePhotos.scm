@@ -29,7 +29,7 @@
 
 (import (lispkit base)
         (lispkit draw)
-        (lisppad system))
+        (lisppad system ios))
 
 ;; Fits size `s` into `max`
 (define (scale-to-fit s max)
