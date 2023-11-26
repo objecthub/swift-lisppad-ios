@@ -22,6 +22,7 @@ import Foundation
 import UIKit
 import LispKit
 import PhotosUI
+import SwiftUI
 import MobileCoreServices // Remove again
 
 ///
@@ -320,22 +321,30 @@ public final class SystemLibrary: NativeLibrary {
     switch tab.identifier {
       case "log":
         DispatchQueue.main.async {
-          self.interpreter?.consoleTab = 0
+          withAnimation {
+            self.interpreter?.consoleTab = 0
+          }
         }
       case "console":
         DispatchQueue.main.async {
-          self.interpreter?.consoleTab = 1
+          withAnimation {
+            self.interpreter?.consoleTab = 1
+          }
         }
       case "canvas":
         if let arg {
           let canvas = try self.canvas(from: arg)
           DispatchQueue.main.async {
-            self.interpreter?.consoleTab = 2
-            self.interpreter?.canvas = canvas
+            withAnimation {
+              self.interpreter?.consoleTab = 2
+              self.interpreter?.canvas = canvas
+            }
           }
         } else {
           DispatchQueue.main.async {
-            self.interpreter?.consoleTab = 2
+            withAnimation {
+              self.interpreter?.consoleTab = 2
+            }
           }
         }
       default:
@@ -392,8 +401,10 @@ public final class SystemLibrary: NativeLibrary {
                                     scale: 1.0,
                                     background: color,
                                     drawing: drawing)
-    DispatchQueue.main.async {
-      self.interpreter?.setActiveCanvas(to: canvasConfig)
+    DispatchQueue.main.sync {
+      withAnimation {
+        self.interpreter?.setActiveCanvas(to: canvasConfig)
+      }
     }
     return .makeNumber(canvasConfig.id)
   }
@@ -421,7 +432,7 @@ public final class SystemLibrary: NativeLibrary {
       }
     }
     if let canvasConfig {
-      DispatchQueue.main.async {
+      DispatchQueue.main.sync {
         canvasConfig.drawing = drawing
         canvasConfig.size = size
         canvasConfig.background = color
@@ -434,8 +445,10 @@ public final class SystemLibrary: NativeLibrary {
                                   scale: 1.0,
                                   background: color,
                                   drawing: drawing)
-      DispatchQueue.main.async {
-        self.interpreter?.setActiveCanvas(to: canvasConfig!)
+      DispatchQueue.main.sync {
+        withAnimation {
+          self.interpreter?.setActiveCanvas(to: canvasConfig!)
+        }
       }
     }
     return .makeNumber(canvasConfig!.id)
@@ -515,7 +528,7 @@ public final class SystemLibrary: NativeLibrary {
   private func setCanvasSize(expr: Expr, size: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
     let size = try self.size(from: size)
-    DispatchQueue.main.async {
+    DispatchQueue.main.sync {
       canvas.size = size
     }
     return .void
@@ -529,7 +542,7 @@ public final class SystemLibrary: NativeLibrary {
   private func setCanvasScale(expr: Expr, scale: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
     let scale = try scale.asDouble(coerce: true)
-    DispatchQueue.main.async {
+    DispatchQueue.main.sync {
       canvas.scale = scale
     }
     return .void
@@ -547,11 +560,11 @@ public final class SystemLibrary: NativeLibrary {
   private func setCanvasBackground(expr: Expr, background: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
     if background.isFalse {
-      DispatchQueue.main.async {
+      DispatchQueue.main.sync {
         canvas.background = nil
       }
-    } else if case .object(let obj) = background, let color = obj as? Color {
-      DispatchQueue.main.async {
+    } else if case .object(let obj) = background, let color = obj as? LispKit.Color {
+      DispatchQueue.main.sync {
         canvas.background = color.nsColor
       }
     } else {
@@ -568,7 +581,7 @@ public final class SystemLibrary: NativeLibrary {
   private func setCanvasDrawing(expr: Expr, dr: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
     let drawing = try self.drawing(from: expr)
-    DispatchQueue.main.async {
+    DispatchQueue.main.sync {
       canvas.drawing = drawing
     }
     return .void
