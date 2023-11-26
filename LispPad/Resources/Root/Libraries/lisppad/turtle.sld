@@ -40,10 +40,21 @@
 
 (define-library (lisppad turtle)
 
-  (export indicator?
+  (export indicator-type-tag
+          indicator?
           make-indicator
           empty-indicator
           make-arrow-indicator
+          indicator-shape
+          set-indicator-shape!
+          indicator-width
+          set-indicator-width!
+          indicator-stroke-color
+          set-indicator-stroke-color!
+          indicator-up-color
+          set-indicator-up-color!
+          indicator-down-color
+          set-indicator-down-color!
           init-turtle
           reset-turtle
           turtle-drawing
@@ -70,7 +81,7 @@
 
   (begin
 
-    (define-record-type indicator
+    (define-record-type <indicator>
                         (make-indicator shape width stroke-color up-color down-color)
                         indicator?
                         (shape indicator-shape set-indicator-shape!)
@@ -78,6 +89,8 @@
                         (stroke-color indicator-stroke-color set-indicator-stroke-color!)
                         (up-color indicator-up-color set-indicator-up-color!)
                         (down-color indicator-down-color set-indicator-down-color!))
+    
+    (define indicator-type-tag (record-type-tag <indicator>))
     
     (define empty-indicator
       (make-indicator (shape) 0 white white white))
