@@ -72,11 +72,12 @@
           left
           right
           forward
-          backward)
+          backward
+          arc)
 
   (import (lispkit base)
-          (lispkit draw)
           (lisppad system)
+          (except (lispkit draw) arc)
           (prefix (lispkit draw turtle) lispkit:))
 
   (begin
@@ -239,6 +240,10 @@
 
     (define (backward len)
       (lispkit:backward len turtle)
+      (update-indicator))
+      
+    (define (arc angle radius)
+      (lispkit:arc angle radius turtle)
       (update-indicator))
   )
 )
