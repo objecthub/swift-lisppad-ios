@@ -30,11 +30,13 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
   @Binding var selectedRange: NSRange
   
   var lastSelectedRange: NSRange
+  var backgroundDirty: Bool
   
   init(text: Binding<String>, selectedRange: Binding<NSRange>, lastSelectedRange: NSRange) {
     self._text = text
     self._selectedRange = selectedRange
     self.lastSelectedRange = lastSelectedRange
+    self.backgroundDirty = false
   }
   
   open var highlightMatchingParen: Bool {
@@ -335,6 +337,12 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
       case "{":
         return self.highlight(RBRACE, LBRACE, back: false, in: textView, at: range, text: text)
       default:
+        if self.backgroundDirty {
+          textView.textStorage.removeAttribute(.backgroundColor,
+                                               range: NSRange(location: 0,
+                                                              length: textView.textStorage.length))
+          self.backgroundDirty = false
+        }
         return true
     }
   }
@@ -375,9 +383,13 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
         storage.addAttribute(.backgroundColor,
                              value: Self.parenBackground,
                              range: NSRange(location: loc, length: 1))
+        self.backgroundDirty = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, qos: .userInitiated, flags: []) {
-          storage.removeAttribute(.backgroundColor,
-                                  range: NSRange(location: 0, length: storage.length))
+          if self.backgroundDirty {
+            storage.removeAttribute(.backgroundColor,
+                                    range: NSRange(location: 0, length: storage.length))
+            self.backgroundDirty = false
+          }
         }
       }
     }
