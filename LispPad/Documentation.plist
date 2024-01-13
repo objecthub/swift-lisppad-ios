@@ -12,6 +12,10 @@
 		<string>(lisppad location).md</string>
 		<key>lisppad system ios</key>
 		<string>(lisppad system).md</string>
+		<key>lisppad turtle</key>
+		<string>(lisppad turtle).md</string>
+		<key>lispkit archive tar</key>
+		<string>(lispkit archive tar).md</string>
 		<key>lispkit archive zip</key>
 		<string>(lispkit archive zip).md</string>
 		<key>lispkit base</key>
@@ -26,7 +30,7 @@
 		<string>(lispkit control).md</string>
 		<key>lispkit system</key>
 		<string>(lispkit system).md</string>
-		<key>lispkit system os</key>
+		<key>lispkit system call</key>
 		<string>(lispkit system os).md</string>
 		<key>lispkit math</key>
 		<string>(lispkit math).md</string>
@@ -40,6 +44,8 @@
 		<string>(lispkit graph).md</string>
 		<key>lispkit list</key>
 		<string>(lispkit list).md</string>
+		<key>lispkit list set</key>
+		<string>(lispkit list set).md</string>
 		<key>lispkit hashtable</key>
 		<string>(lispkit hashtable).md</string>
 		<key>lispkit dynamic</key>
@@ -120,6 +126,10 @@
 		<string>(lispkit prolog).md</string>
 		<key>lispkit text-table</key>
 		<string>(lispkit text-table).md</string>
+		<key>lispkit format</key>
+		<string>(lispkit format).md</string>
+		<key>lispkit crypto</key>
+		<string>(lispkit crypto).md</string>
 	</dict>
 	<key>web</key>
 	<dict>

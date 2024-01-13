@@ -13,6 +13,7 @@ Library `(lispkit core)` provides a foundational API for
 - [syntax errors](#syntax-errors), and
 - [loading source files](#loading-source-files) and support for [conditional compilation](#conditional-and-inclusion-compilation).
 
+
 ## Primitives
 
 **(eval _expr_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -175,6 +176,7 @@ A library definition takes the following form: `(define-library (`_name ..._`)` 
 A _declaration_ is any of:
 
    - `(export` _exportspec ..._`)`
+   - `(export-mutable` _exportspec ..._`)`
    - `(import` _importset ..._`)`
    - `(begin` _statement ..._`)`
    - `(include` _filename ..._`)`
@@ -187,7 +189,7 @@ An export declaration specifies a list of identifiers which can be made visible 
    - _ident_
    - `(rename` _ident1 ident2_`)`
 
-In an _exportspec_, an identifier _ident_ names a single binding defined within or imported into the library, where the external name for the export is the same as the name of the binding within the library. A `rename` spec exports the binding defined within or imported into the library and named by _ident1_ in each `(`_ident1 ident2_`)` pairing, using _ident2_ as the external name.
+In an _exportspec_, an identifier _ident_ names a single binding defined within or imported into the library, where the external name for the export is the same as the name of the binding within the library. A `rename` spec exports the binding defined within or imported into the library and named by _ident1_ in each `(`_ident1 ident2_`)` pairing, using _ident2_ as the external name. A regular `export` statement exports bindings in a immutable fashion, not allowing binding changes outside of the library. `export-mutable` is a LispKit-specific variant which allows library-external mutations of the exported bindings.
 
 An `import` declaration provides a way to import the identifiers exported by another library. It has the same syntax and semantics as an `import` declaration used in a program or at the read-eval-print loop.
 
@@ -317,7 +319,6 @@ Returns `#t` if _obj_ is an "arity-at-least" object and `#f` otherwise.
 
 Returns a fixnum denoting the minimum number of arguments required by the given "arity-at-least" object _obj_.
 
-
 ## Procedures with optional arguments  
 
 **(opt-lambda _(arg1 ... arg1 bind1 ... bindm) expr ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
@@ -346,7 +347,6 @@ Similar to syntax `opt-lambda` except that the initializers of optional argument
 **(define-optionals\* (_f arg ... bind ... . rest_) _expr ..._)**
 
 `define-optionals*` is operationally equivalent to `(define f (opt*-lambda (arg ... bind ...) expr ...))` or `(define f (opt*-lambda (arg ... bind ... . rest) expr ...))` if the second syntactical form is used.
-
 
 ## Tagged procedures
 
@@ -739,7 +739,14 @@ This procedure returns a mutable environment which is the environment in which e
 
 `load` reads a source file specified by _filename_ and executes it in the given _environment_. If no environment is specified, the current _interaction environment_ is used, which can be accessed via `(interaction-environment)`. Execution of the file consists of reading expressions and definitions from the file, compiling them, and evaluating them sequentially in the environment. `load` returns the result of evaluating the last expression or definition from the file. During compilation, the special form `source-directory` can be used to access the directory in which the executed file is located.
 
-It is an error if _filename_ is not a string. If _filename_ is not an absolute file path, LispKit will try to find the file in a predefined set of directories, such as the default libraries search path. If no file name suffix, also called _path extension_, is provided, the system will try to determine the right suffix. For instance, `(load "Prelude")` will find the prelude file, determine its suffix and load and execute the file.
+It is an error if _filename_ is not a string. If _filename_ is not an absolute file path, LispKit will try to find the file in a predefined set of directories, such as the default search path. If no file name suffix, also called _path extension_, is provided, the system will try to determine the right suffix. For instance, `(load "Prelude")` will find the prelude file, determine its suffix and load and execute the file.
+
+**(load-program _filename_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+`load-program` reads a source file specified by _filename_ and executes it in a new empty _environment_. Execution of the file consists of reading expressions and definitions from the file, compiling them, and evaluating them sequentially. `load-program` returns the result of evaluating the last expression or definition from the file.
+
+It is an error if _filename_ is not a string. If _filename_ is not an absolute file path, LispKit will try to find the file in a predefined set of directories, such as the default search path. If no file name suffix is provided, the system will try to determine the right suffix.
+
 
 ## Syntax errors
 

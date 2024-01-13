@@ -130,19 +130,19 @@ Creates a new set containing the intersection of _s_ with _s1 ..._.
 
 Creates a new set containing the difference of `s` and the sets in _s1 ..._ .
 
-**(set->list _s_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(set-\>list _s_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the elements of set _s_ as a list.
 
-**(list->eq-set _elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>eq-set _elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Creates a new set using the equivalence function `eq?` from the values in list _elements_.
 
-**(list->eqv-set _elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>eqv-set _elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Creates a new set using the equivalence function `eqv?` from the values in list _elements_.
 
-**(list->equal-set _elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>equal-set _elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Creates a new set using the equivalence function `equal?` from the values in list _elements_.
 
@@ -162,7 +162,7 @@ Deletes _element ..._ from the set _s_.
 
 Clears set _s_ and reserves a capacity of _k_ elements if _k_ is provided.
 
-**(list->set! _s elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>set! _s elements_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Adds the values of list _elements_ to set _s_.
 

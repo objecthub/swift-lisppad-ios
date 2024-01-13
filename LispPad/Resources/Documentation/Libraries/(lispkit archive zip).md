@@ -23,6 +23,10 @@ Opens a zip archive at the given file path. By default, the zip archive is opene
 
 ## Properties of archives
 
+**zip-archive-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Symbol representing the `zip-archive` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all zip archive objects.
+
 **(zip-archive? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns `#t` if _obj_ refers to a zip archive, otherwise `#f` is being returned.

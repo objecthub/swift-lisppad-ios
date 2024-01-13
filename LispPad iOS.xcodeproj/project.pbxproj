@@ -140,6 +140,11 @@
 		CCBE134F272DE1450046F474 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134E272DE1450046F474 /* WebView.swift */; };
 		CCBE1354272E10210046F474 /* srfi in Copy Documentation/Web/srfi */ = {isa = PBXBuildFile; fileRef = CCBE1351272E0F410046F474 /* srfi */; };
 		CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */; };
+		CCC2336D2B53286800C88C68 /* (lispkit archive tar).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */; };
+		CCC2336E2B53286800C88C68 /* (lispkit crypto).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233652B45FB6C00C88C68 /* (lispkit crypto).md */; };
+		CCC2336F2B53286800C88C68 /* (lispkit format).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233632B45FA8B00C88C68 /* (lispkit format).md */; };
+		CCC233702B53286800C88C68 /* (lispkit list set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233672B45FBD000C88C68 /* (lispkit list set).md */; };
+		CCC233712B5328A900C88C68 /* (lisppad turtle).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
@@ -231,6 +236,11 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC233712B5328A900C88C68 /* (lisppad turtle).md in Copy Documentation/Libraries */,
+				CCC2336D2B53286800C88C68 /* (lispkit archive tar).md in Copy Documentation/Libraries */,
+				CCC2336E2B53286800C88C68 /* (lispkit crypto).md in Copy Documentation/Libraries */,
+				CCC2336F2B53286800C88C68 /* (lispkit format).md in Copy Documentation/Libraries */,
+				CCC233702B53286800C88C68 /* (lispkit list set).md in Copy Documentation/Libraries */,
 				CC7A558F2997D43C0014D600 /* (lispkit graph).md in Copy Documentation/Libraries */,
 				CCE74B54295A4139002660C4 /* (lisppad draw map).md in Copy Documentation/Libraries */,
 				CCA9E3DB28A9C96600628DE5 /* (lispkit styled-text).md in Copy Documentation/Libraries */,
@@ -556,6 +566,11 @@
 		CCBE1351272E0F410046F474 /* srfi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = srfi; sourceTree = "<group>"; };
 		CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CCBF9E6926C890B400654D60 /* (lisppad location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad location).md"; sourceTree = "<group>"; };
+		CCC233632B45FA8B00C88C68 /* (lispkit format).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit format).md"; sourceTree = "<group>"; };
+		CCC233652B45FB6C00C88C68 /* (lispkit crypto).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit crypto).md"; sourceTree = "<group>"; };
+		CCC233672B45FBD000C88C68 /* (lispkit list set).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list set).md"; sourceTree = "<group>"; };
+		CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit archive tar).md"; sourceTree = "<group>"; };
+		CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad turtle).md"; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyBrowser.swift; sourceTree = "<group>"; };
@@ -783,6 +798,8 @@
 				CC8B95CF2608179000830B4F /* (lisppad audio).md */,
 				CCBF9E6926C890B400654D60 /* (lisppad location).md */,
 				CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */,
+				CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */,
+				CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */,
 				CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */,
 				CC8B953426079FBA00830B4F /* (lispkit base).md */,
 				CCA9E3D428A928FD00628DE5 /* (lispkit bitset).md */,
@@ -794,6 +811,7 @@
 				CC8B953D26079FBA00830B4F /* (lispkit comparator).md */,
 				CC8B952626079FBA00830B4F /* (lispkit control).md */,
 				CC8B952826079FBA00830B4F /* (lispkit core).md */,
+				CCC233652B45FB6C00C88C68 /* (lispkit crypto).md */,
 				CC8B953626079FBA00830B4F /* (lispkit csv).md */,
 				CC8B953E26079FBA00830B4F /* (lispkit datatype).md */,
 				CC8B953B26079FBA00830B4F /* (lispkit date-time).md */,
@@ -804,11 +822,14 @@
 				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
 				CC8B953226079FBA00830B4F /* (lispkit dynamic).md */,
 				CC8B952F26079FBA00830B4F /* (lispkit enum).md */,
+				CCC233632B45FA8B00C88C68 /* (lispkit format).md */,
+				CC7A558E2997D3000014D600 /* (lispkit graph).md */,
 				CC8B953A26079FBA00830B4F /* (lispkit gvector).md */,
 				CC8B954526079FBA00830B4F /* (lispkit hashtable).md */,
 				CC8B954026079FBA00830B4F /* (lispkit heap).md */,
 				CC8B952726079FBA00830B4F /* (lispkit iterate).md */,
 				CC8B954E26079FBA00830B4F /* (lispkit list).md */,
+				CCC233672B45FBD000C88C68 /* (lispkit list set).md */,
 				CC8B952426079FBA00830B4F /* (lispkit log).md */,
 				CC8B952A26079FBA00830B4F /* (lispkit markdown).md */,
 				CC8B954926079FBA00830B4F /* (lispkit match).md */,
@@ -816,7 +837,6 @@
 				CC624CE02741364E005F15B3 /* (lispkit math stats).md */,
 				CC624CE22741367E005F15B3 /* (lispkit math util).md */,
 				CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */,
-				CC7A558E2997D3000014D600 /* (lispkit graph).md */,
 				CC8B954C26079FBA00830B4F /* (lispkit object).md */,
 				CC8B953326079FBA00830B4F /* (lispkit port).md */,
 				CC624CDE27412F74005F15B3 /* (lispkit prolog).md */,

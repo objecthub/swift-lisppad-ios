@@ -1,6 +1,6 @@
-# LispKit System OS
+# LispKit System Call
 
-Library `(lispkit system os)` currently defines a single procedure `system-call` for invoking external binaries as a sub-process of the LispKit interpreter. This library is operating system specific and requires careful usage in portable code.
+Library `(lispkit system call)` currently defines a single procedure `system-call` for invoking external binaries as a sub-process of the LispKit interpreter. This library is macOS-specific and requires careful usage in portable code.
 
 **(system-call _path args_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(system-call _path args env_)**  

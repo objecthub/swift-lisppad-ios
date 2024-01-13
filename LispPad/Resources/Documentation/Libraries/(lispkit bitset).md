@@ -15,6 +15,10 @@ Returns a new bit set with bits _i ..._ set. Each _i_ is a fixnum referring to o
 
 Returns a new bit set with bits specified by _list_. Each element in _list_ is a fixnum referring to one bit in the bit set by its ordinality.
 
+**(fixnum-\>bitset _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a bit set with all bits set that are set in fixnum _x_.
+
 **(bitset-copy _bs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a copy of bit set _bs_.
@@ -100,6 +104,10 @@ Returns `#t` if _bs_ is a superset of _bs1_, and _bs1_ is a superset of _bs2_, e
 
 Returns a list of all bits set in _bs_.
 
+**(bitset-\>fixnum _bs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a fixnum with all bits set which are also set in bit set _bs_. If _bs_ includes bits that cannot be represented by a fixnum, then `bitset->fixnum` returns `#f`.
+
 **(bitset-for-each _proc bs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Invokes _proc_ on each bit set in _bs_ in increasing ordinal order.
@@ -123,4 +131,3 @@ Returns a new bit set containing the bits from _bs_ that satisfy _pred_.
 **(bitset-filter! _pred bs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Removes all bits from _bs_ for which _pred_ returns `#f`.
-

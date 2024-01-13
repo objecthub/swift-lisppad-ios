@@ -1,18 +1,32 @@
 # LispKit Record
 
-Library `(lispkit record)` implements record types for LispKit. A record provides a simple and flexible mechanism for building structures with named components wrapped in distinct types.
+Library `(lispkit record)` implements extensible record types for LispKit which are compatible with R7RS and SRFI 131. A record provides a simple and flexible mechanism for building structures with named components wrapped in distinct types.
 
 ## Declarative API
 
 `record-type` syntax is used to introduce new _record types_ in a declarative fashion. Like other definitions, `record-type` can either appear at the outermost level or locally within a body. The values of a _record type_ are called _records_ and are aggregations of zero or more fields, each of which holds a single location. A predicate, a constructor, and field accessors and mutators are defined for each record type.
 
-**(define-record-type _\<name\> \<constr\> \<pred\> \<field\> ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+### Syntax
 
-_\<name\>_ and _\<pred\>_ are identifiers. The _\<constructor\>_ is of the form:
+**(define-record-type _\<type\> \<constr\> \<pred\> \<field\> ..._)** <span style="float:right;text-align:rigth;">\[syntax\]</span>   
 
+_\<type\>_ defines the name of the new record type and potentially the supertype if the new type is an extension of an existing record type. Thus, it has one of the two possible forms, where _\<type name\>_ is an identifier and _\<supertype\>_ an arbitrary expression evaluating to a record type descriptor:
+
+&nbsp;&nbsp;&nbsp;_\<type name\>_, or  
+&nbsp;&nbsp;&nbsp;(_\<type name\> \<supertype\>_).
+
+The _\<constructor\>_ is of one of the two possible forms:
+
+&nbsp;&nbsp;&nbsp;_\<constructor name\>, or  
 &nbsp;&nbsp;&nbsp;(_\<constructor name\> \<field name\> ..._)
 
-and each _\<field\>_ is either of the form:
+When a constructor is of the form (_\<constructor name\> \<field name\> ..._), the following holds:
+
+  - Each of the field names can be either a field name declared in the same `define-record-type` form, or any of its ancestors' field names.
+  - If the record definition contains the same field name as one of its ancestors, it shadows the ancestor's field name for the purposes of the constructor. The constructor's argument initializes the child's slot, and the ancestor's slot of the same name is left uninitialized.
+  - It is an error if the same identifier appears more than once in the field names of the constructor spec.  
+
+_\<pred\>_ is the identifier denoting the type predicate that recognizes instances of the new record type and its subtypes. Each _\<field\>_ is either of the form:
 
 &nbsp;&nbsp;&nbsp;(_\<field name\> \<accessor name\>_), or  
 &nbsp;&nbsp;&nbsp;(_\<field name\> \<accessor name\> \<modifier name\>_).
@@ -23,17 +37,15 @@ The `define-record-type` construct is generative: each use creates a new record 
 
 An instance of `define-record-type` is equivalent to the following definitions:
 
-- _\<name\>_ is bound to a representation of the record type itself.
-
+- _\<type name\>_ is bound to a representation of the record type itself. If a \<supertype\> expression is specified, then it must evaluate to a record type descriptor that serves as the parent record type for the record type being defined.
 - _\<constructor name\>_ is bound to a procedure that takes as many arguments as there are _\<field name\>_ elements in the (_\<constructor name\> ..._) subexpression and returns a new record of type _\<name\>_. Fields whose names are listed with _\<constructor name\>_ have the corresponding argument as their initial value. The initial values of all other fields are unspecified. It is an error for a field name to appear in _\<constructor\>_ but not as a _\<field name\>_.
-
-- _\<pred\>_ is bound to a predicate that returns `#t` when given a value returned by the procedure bound to _\<constructor name\>_ and `#f` for everything else.
-
+- _\<pred\>_ is bound to a predicate that returns `#t` when given a value returned by the procedure bound to _\<constructor name\>_ or any constructor of a subtype. It returns `#f` for everything else.
 - Each _\<accessor name\>_ is bound to a procedure that takes a record of type _\<name\>_ and returns the current value of the corresponding field. It is an error to pass an accessor a value which is not a record of the appropriate type.
-
 - Each _\<modifier name\>_ is bound to a procedure that takes a record of type _\<name\>_ and a value which becomes the new value of the corresponding field. It is an error to pass a modifier a first argument which is not a record of the appropriate type.
 
-For instance, the following record-type definition:
+### Examples
+
+The following record-type definition:
 
 ```scheme
 (define-record-type <pare>
@@ -54,6 +66,40 @@ defines `kons` to be a constructor, `kar` and `kdr` to be accessors, `set-kar!` 
   (set-kar! k 3) (kar k)) ⇒  3
 ```
 
+Below is another example showcasing how record types can be extended. First a new record type `<point>` is defined:
+
+```scheme
+(define-record-type <point>
+  (make-point x y)
+  point?
+  (x point-x set-point-x!)
+  (y point-y set-point-y!))
+```
+
+Next, a new record type `<color-point>` is defined to extend record type `<point>`:
+
+```scheme
+(define-record-type (<color-point> <point>)
+  (make-color-point x y color)
+  color-point?
+  (color point-color))
+```
+
+The following transcript shows that `<color-point>` objects are also considered `<point>` objects which inherit all fields from `<point>`:
+
+```scheme
+(define cp (make-color-point 12 3 red))
+(color-point? cp)    ⇒  #t
+(point? cp)          ⇒  #t
+(color-point?
+  (make-point 1 2))  ⇒  #f
+(point-x cp)         ⇒  12
+(set-point-x! cp 1)
+(point-x cp)         ⇒  1
+(point-color cp)     ⇒  #<color 1.0 0.0 0.0>
+```
+
+
 ## Procedural API
 
 Besides the syntactical `define-record-type` abstraction for defining record types in a declarative fashion, LispKit provides a low-level, procedural API for creating and instantiating records and record types. Record types are represented in form of _record type descriptor_ objects which itself are records.
@@ -71,16 +117,22 @@ Returns `#t` if _obj_ is a record type descriptor; returns `#f` otherwise.
 Returns the record type descriptor for objects _obj_ which are records; returns `#f` for all non-record values.
 
 **(make-record-type _name fields_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(make-record-type _name fields parent_)**   
 
-Returns a record type descriptor which represents a new data type that is disjoint from all other types. _name_ is a string which is only used for debugging purposes, such as the printed representation of a record of the new type. _fields_ is a list of symbols naming the fields of a record of the new type. It is an error if the list contains duplicate symbols.
+Returns a record type descriptor which represents a new data type that is disjoint from all other types. _name_ is a string which is only used for debugging purposes, such as the printed representation of a record of the new type. _fields_ is a list of symbols naming the fields of a record of the new type. It is an error if the list contains duplicate symbols. _parent_ refers to a record type descriptor for the supertype of the newly created record type. By default, _parent_ is `#f`, i.e. the new record type does not have a parent type.
 
 **(record-type-name _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns the type name (a string) associated with the type represented by the record type descriptor _rtd_. The returned value is `eqv?` to the _name_ argument given in the call to `make-record-type` that created the type represented by _rtd_.
 
 **(record-type-field-names _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(record-type-field-names _rtd all?_)**   
 
-Returns a list of the symbols naming the fields in members of the type represented by the record type descriptor _rtd_. The returned value is `equal?` to the _fields_ argument given in the call to `make-record-type` that created the type represented by _rtd_.
+Returns a list of the symbols naming the fields in members of the type represented by the record type descriptor _rtd_. The returned value is `equal?` to the _fields_ argument given in the call to `make-record-type` that created the type represented by _rtd_. If boolean argument _all?_ is true (default is false), then a list of all symbols, also defined by parent types of _rtd_, is returned.
+
+**(record-type-parent _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns a record type descriptor for the parent type of the record type represented by the record type descriptor _rtd_. `record-type-parent` returns `#f` if _rtd_ does not have a parent type.
 
 **(record-type-tag _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 

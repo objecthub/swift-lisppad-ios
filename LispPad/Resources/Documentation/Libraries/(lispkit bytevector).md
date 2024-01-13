@@ -30,6 +30,10 @@ The `make-bytevector` procedure returns a newly allocated bytevector of length _
 (make-bytevector 3 12)  ⇒  #u8(12 12 12)
 ```
 
+**(bytevector=? _bytevector ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if all _bytevector ..._ contain the same sequence of bytes, otherwise `#f` is returned.
+
 **(bytevector-length _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns the length of bytevector in bytes as an exact integer.
@@ -81,8 +85,7 @@ b  ⇒  #u8(10 1 2 40 50)
 
 **(bytevector-append _bytevector ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Returns a newly allocated bytevector whose elements are
-the concatenation of the elements in the given bytevectors.
+Returns a newly allocated bytevector whose elements are the concatenation of the elements in the given bytevectors.
 
 ```scheme
 (bytevector-append #u8(0 1 2) #u8(3 4 5))
@@ -176,6 +179,28 @@ It is an error for _bytevector_ to contain invalid UTF-8 byte sequences.
 `base64->bytevector` assumes string _str_ is encoded using _Base64_ between _start_ and _end_ and returns a corresponding new decoded bytevector.
 
 If is an error if _str_ between _start_ and _end_ is not a valid _Base64_-encoded string. If _end_ is not provided, it is assumed to be the length of _str_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-\>hex _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-\>hex _bytevector start_)**   
+**(bytevector-\>hex _bytevector start end_)**   
+
+Returns a string representation of _bytevector_ in which every byte between _start_ and _end_ is represented by two characters denoting the value of the byte in hexadecimal form. The characters representing the individual bytes are concatenated such that a bytevector is represented by a hex string of length _end - start_. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+```scheme
+(bytevector->hex #u8(7 8 9 10 11 12)) ⇒ "0708090a0b0c"
+```
+
+**(hex-\>bytevector _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(hex-\>bytevector _str start_)**   
+**(hex-\>bytevector _str start end_)**   
+
+Returns a bytevector for a given hex string between _start_ and _end_. Such strings encode every byte with two characters representing the value of the byte in hexadecimal form.
+
+If is an error if _str_ between _start_ and _end_ is not a valid hex string. If _end_ is not provided, it is assumed to be the length of _str_. If _start_ is not provided, it is assumed to be 0.
+
+```scheme
+(hex->bytevector "1718090a0b0c") ⇒ #u8(23 24 9 10 11 12)
+```
 
 **(bytevector-adler32 _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(bytevector-adler32 _bytevector start_)**   

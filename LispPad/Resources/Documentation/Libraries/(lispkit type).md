@@ -7,7 +7,7 @@ A core feature of the type abstraction mechanism is a means that allows for dete
 
 ## Usage of the procedural API
 
-New types are created with function `make-type`. `make-type` accepts one argument, which is a type label. The type label is an arbitrary value that is only used for debugging purposes. Typically, symbols are used as type labels.
+New types are created with procedure `make-type`. `make-type` accepts one argument, which is a type label. The type label is either a string or a symbol that is used for debugging purposes but also for defining the string representation of a _type tag_ that represents the new type.
 
 The following line introduces a new type for _intervals_:
 
@@ -33,10 +33,8 @@ Now it is possible to implement a constructor `make-interval` for intervals:
 ```scheme
 (define (make-interval lo hi)
   (if (and (real? lo) (real? hi) (<= lo hi))
-      (new-interval (cons (inexact lo)
-                          (inexact hi)))
-      (error "make-interval: illegal arguments"
-             lo hi)))
+      (new-interval (cons (inexact lo) (inexact hi)))
+      (error "make-interval: illegal arguments" lo hi)))
 ```
 
 `make-interval` first checks that the constructor arguments are valid and then calls `new-interval` to create a new interval object. Interval objects are represented via pairs whose _car_ is the lower bound, and _cdr_ is the upper bound. Nevertheless, pairs and interval objects are distinct values as the following code shows:
@@ -109,8 +107,7 @@ With this new syntax, type `interval` from the section describing the procedural
   ((make-interval lo hi)
     (if (and (real? lo) (real? hi) (<= lo hi))
         (cons (inexact lo) (inexact hi))
-        (error "make-interval: illegal arguments"
-               lo hi)))
+        (error "make-interval: illegal arguments" lo hi)))
   ((interval-length (bounds))
     (- (cdr bounds) (car bounds)))
   ((interval-empty? self)
@@ -124,12 +121,12 @@ With this new syntax, type `interval` from the section describing the procedural
 &nbsp;&nbsp;&nbsp; _name-ref_   
 &nbsp;&nbsp;&nbsp; _functions_`)`
 
-In this syntax, _super_ refers to the type extended by _name_. All extensible types extend another extensible type and there is one supertype called `object` provided by library `(lispkit type)` as a primitive.
+In this syntax, _super_ refers to the type extended by _name_. All extensible types extend another extensible type and there is one supertype called `obj` provided by library `(lispkit type)` as a primitive.
 
 With this syntactic facility, `interval` can be easily re-defined to be extensible:
 
 ```scheme
-(define-type (interval object)
+(define-type (interval obj)
   interval?
   ((make-interval lo hi)
     (if (and (real? lo) (real? hi) (<= lo hi))
@@ -166,7 +163,7 @@ It is now possible to define a `tagged-interval` data structure which inherits a
 
 Constructors of extended types, such as `make-tagged-interval` return multiple values: all the parameters for a super-constructor call and one additional value (the last value) representing the data provided by the extended type. In the example above, `make-tagged-interval` returns three values: `lo`, `hi`, and `tag`. After the constructor `make-tagged-interval` is called, the super-constructor is invoked with arguments `lo` and `hi`. The result of `make-tagged-interval` is a `tagged-interval` object consisting of two state values contained in a list: one for the supertype `interval` (consisting of the bounds `(lo . hi)`) and one for the subtype `tagged-interval` (consisting of the tag). This can also be seen when displaying a `tagged-interval` value:
 
-```
+```scheme
 ti ⇒ #<tagged-interval (4.0 . 9.0) inclusive>
 ```
 
@@ -179,13 +176,12 @@ LispKit defines a type tag for every different type of object. The type of objec
 
 **(type-of _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a type tag, i.e. a symbol, associated with the type of _obj_. 
+Returns a list of type tags, i.e. symbols, associated with the type of _obj_. The type tags in the list are sorted, starting with the most specific type. If no type can be determined, `type-of` returns the empty list.
 
-Type tags of custom types are returned as the first value of `make-type`. Type tags of records can be retrieved via `record-type-tag` from the corresponding record type object. Similarly, type tags of enum objects are accessible via `enum-type-type-tag`. Type tags of native types are typically exported by the libraries providing access to the type. All standard, built-in types are represented by the following interned symbols: `void`, `end-of-file`, `null`, `boolean`, `symbol`, `fixnum`, `bignum`, `rational`, `flonum`, `complex`, `char`, `string`, `bytevector`, `pair`, `mpair`, `array`, `vector`, `gvector`, `values`, `procedure`, `parameter`, `promise`, `environment`, `hashtable`, `port`, `record-type`, and `error`. For undefined values `#f` is returned.
+Type tags of custom types are returned as the first value of `make-type`. Type tags of records can be retrieved via `record-type-tag` from the corresponding record type object. Similarly, type tags of enum objects are accessible via `enum-type-type-tag`. Type tags of native types are typically exported by the libraries providing access to the type. All standard, built-in types are represented by the following interned symbols: `void`, `end-of-file`, `null`, `boolean`, `symbol`, `fixnum`, `bignum`, `integer`, `rational`, `flonum`, `real`, `complex`, `number`, `char`, `string`, `bytevector`, `pair`, `list`, `box`, `mpair`, `array`, `vector`, `gvector`, `values`, `procedure`, `parameter`, `promise`, `environment`, `hashtable`, `port`, `input-port`, `output-port`, `record-type`, and `error`. For undefined values `#f` is returned.
 
 
 ## Type management
-
 
 **(make-type _type-label_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -221,13 +217,17 @@ There are two ways to declare a function as part of `define-type`: one providing
 
 Constructors of extended types return multiple values: all the parameters for a super-constructor call and one additional value (the last value) representing the data provided by the extended type.
 
-**object** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>   
+**obj** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[constant]</span>   
 
-The supertype of all extensible types defined via `define-type`. The type tag of `object` can be retrieved via `(type-of object)`.
+The supertype of all extensible types defined via `define-type`. The type tag of `obj` can be retrieved via `(type-of obj)`.
+
+**(obj-type-tag _etype_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[constant]</span>  
+
+Returns the type tag associated with the supertype of all extensible types `obj`.
 
 **(extensible-type? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is an instance of an extensible type. For example, `(extensible-type? object)` returns `#t`.
+Returns `#t` if _obj_ is an instance of an extensible type. For example, `(extensible-type? obj)` returns `#t`.
 
 **(extensible-type-tag _etype_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

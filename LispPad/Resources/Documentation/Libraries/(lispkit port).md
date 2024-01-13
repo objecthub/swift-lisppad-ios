@@ -339,6 +339,12 @@ The `write-shared` procedure is the same as `write`, except that shared structur
 
 The `write-simple` procedure is the same as `write`, except that shared structures will never be represented using datum labels. This can cause `write-simple` not to terminate if _obj_ contains circular structures.
 
+**(write-formatted _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(write-formatted _obj config_)**   
+**(write-formatted _obj config port_)**   
+
+Writes a representation of _obj_ to the given textual output _port_ using formatting configuration _config_ as defined by library `(lispkit format)`. _config_ defines how objects of different types are being written. Using this procedure makes it possible to use custom formatting logic instead of the hardcoded logic as provided by procedure `write`.
+
 **(display _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(display _obj port_)**   
 
@@ -349,6 +355,10 @@ The `write` procedure is intended for producing machine-readable output and `dis
 **(display\* _obj ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Writes a representation of _obj ..._ to the current default textual output port. Strings that appear in the written representation are output as if by `write-string` instead of by `write`. Symbols are not escaped. Character objects appear in the representation as if written by `write-char` instead of by `write`. `display*` will not loop forever on self-referencing pairs, vectors, or records.
+
+**(display-format _[port] [config] [locale] [tabw [linew]] cntrl arg ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+`display-format` writes formatted output to a textual output _port_, outputting the characters of the control string _cntrl_ while interpreting formatting directives embedded in _cntrl_. The control string syntax and the semantics of the provided arguments matches procedure `format` of library `(lispkit format)`. _config_ refers to a `format-config` object which defines environment variables influencing the output of some formatting directives. _locale_ refers to a locale identifier like symbol `en_US` that is used by locale-specific formatting directives. _tabw_ defines the maximum number of space characters that correspond to a single tab character. _linew_ specifies the number of characters per line; this is used by the justification directive only.
 
 **(newline)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(newline _port_)**   

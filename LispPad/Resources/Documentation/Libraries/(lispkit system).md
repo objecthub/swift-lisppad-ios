@@ -229,7 +229,7 @@ Creates a directory with path _dirpath_. If the directory exists already or if i
 **(open-file _filepath app_)**  
 **(open-file _filepath app activate_)**  
 
-Opens the file specified by _filepath_ with the application _app_. _activate_ is a boolean argument. If it is `#t`, it will make _app_ the frontmost application after invoking it. If _app_ is not specified, the default application for the type of the file specified by _filepath_ is used. If _activate_ is not specified, it is assumed it is `#t`. `open-file` returns `#t` if it was possible to open the file, `#f` otherwise. Example: `(open-file "/Users/objecthub/main.swift" "TextEdit")`.
+Opens the file specified by _filepath_ with the application _app_. _app_ is either an application name or a file path. _activate_ is a boolean argument. If it is `#t`, it will make _app_ the frontmost application after invoking it. If _app_ is not specified, the default application for the type of the file specified by _filepath_ is used. If _activate_ is not specified, it is assumed it is `#t`. `open-file` returns `#t` if it was possible to open the file, `#f` otherwise. Example: `(open-file "/Users/objecthub/main.swift" "TextEdit")`.
 
 
 ## Network operations
@@ -296,19 +296,57 @@ Library `(lispkit system)` provides functions for returning all available region
 
 Returns a list of 2-letter region code identifiers (strings) for all available regions.
 
+**(available-region? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a string matching one entry in the list of supported 2-letter region code identifiers. Otherwise, `#f` is returned.
+
 **(region-name _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(region-name _ident locale_)**  
 
 Returns the name of the region identified by the 2-letter region code string _ident_ for the given locale _locale_. If _locale_ is not provided, the current (system-provided) locale is used.
 
+**(region-flag _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the flag of the region identified by the 2-letter region code string _ident_ as a string containing a single flag emoji.
+
 **(available-languages)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a list of 2-letter language code identifiers (strings) for all available languages.
+
+**(available-language? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a 2-letter language code identifier string contained in the list of supported/available languages.
 
 **(language-name _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(language-name _ident locale_)** 
 
 Returns the name of the language identified by the 2-letter language code string _ident_ for the given locale _locale_. If _locale_ is not provided, the current (system-configured) locale is used.
+
+**(available-currencies)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of available alpha currency codes based on ISO 4217. A currency code is a 3-letter symbol.
+
+**(available-currency? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a valid alpha currency code (symbol) that is contained in the list of supported/available currencies.
+
+**(currency-name _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(currency-name _ident locale_)** 
+
+Returns the name of the currency identified by the currency identifier _ident_ for the given locale _locale_. _ident_ can either be a numeric (fixnum) or alpha (symbol or string) currency code as defined by ISO 4217. If _locale_ is not provided, the current (system-configured) locale is used.
+
+**(currency-code _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the alpha currency code of the currency identified by the currency identifier _ident_. _ident_ can either be a numeric (fixnum) or alpha (symbol or string) currency code as defined by ISO 4217. Returns `#f` if _ident_ is not a valid, available currency code symbol.
+
+**(currency-numeric-code _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the numeric currency code of the currency identified by the currency identifier _ident_. _ident_ can either be a numeric (fixnum) or alpha (symbol or string) currency code as defined by ISO 4217. Returns `#f` if _ident_ is not a valid, available currency code symbol.
+
+**(currency-symbol _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(currency-symbol _ident locale_)** 
+
+Returns a currency symbol (e.g. "€", "$", "￡") for the currency identified by the currency identifier _ident_ for the given locale _locale_. _ident_ can either be a numeric (fixnum) or alpha (symbol or string) currency code as defined by ISO 4217. If _locale_ is not provided, the current (system-configured) locale is used. If there is no currency symbol for a given currency, then `#f` is returned.
 
 **(available-locales)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -322,14 +360,15 @@ Returns `#t` if the symbol _locale_ is identifying a locale supported by the ope
 **(locale _lang_)**  
 **(locale _lang country_)**  
 
-If no argument is provided `locale` returns the current locale (symbol) which got configured by the user for the operation system. If the string argument _lang_ is provided, a locale representing _lang_ (and all countries for which _lang_ is supported) is returned. If both _lang_ and string _country_ are provided, `locale` will return a symbol identifying the corresponding locale.
+If no argument is provided `locale` returns the current locale (symbol) as configured by the user for the operating system. If the string argument _lang_ is provided, a locale representing _lang_ (and all countries for which _lang_ is supported) is returned. If both _lang_ and string _country_ are provided, `locale` will return a symbol identifying the corresponding locale.
 
-This function never fails if both _lang_ and _country_ are strings. It can be used for constructing locales that are not supported by the underlying operating system. This can be checked with function `available-locale?`.
+This function never fails if both _lang_ and _country_ are strings. It can be used for constructing canonical locale identifiers that are not supported by the underlying operating system. This can be checked with function `available-locale?`.
 
 ```scheme
 (locale)           ⇒  en_US
 (locale "de")      ⇒  de
 (locale "en" "GB") ⇒  en_GB
+(locale "en" "de") ⇒  en_DE
 ```
 
 **(locale-region _locale_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -342,7 +381,7 @@ Returns the 2-letter language code string for the language targeted by the local
 
 **(locale-currency _locale_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the 3-letter currency code string for the currency associated with the country targeted by _locale_. If _locale_ does not target a country, `locale-currency` returns `#f`.
+Returns the alpha currency code as a symbol for the currency associated with the country targeted by _locale_. If _locale_ does not target a country, `locale-currency` returns `#f`.
 
 
 ## Execution environment
@@ -447,3 +486,26 @@ Returns information about the user specified via _username_ in form of a list. T
    6. Default shell (string)
 
 Here is an example showing the result for invocation `(user-data "objecthub")`: `(501 20 "objecthub" "Max Mustermann" "/Users/objecthub/" "/bin/bash")`.
+
+**(terminal-size)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+If a program gets executed in a terminal window, it might be possible to determine the number of columns and rows of that window. In this case, procedure `terminal-size` returns a pair consisting of the number of columns and the number of rows (both in terms of number of characters). If this is not possible, `terminal-size` returns `#f`.
+
+
+## UUIDs
+
+**(make-uuid-string)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(make-uuid-string _bytevector_)**  
+**(make-uuid-string _bytevector start end_)**  
+**(make-uuid-string _bytevector start end_)**  
+
+Returns a UUID string. A UUID (Universally Unique Identifier) is a 128-bit label. `make-uuid-string` returns a string with a hexadecimal representation using the 8-4-4-4-12 format. If _bytevector_ is not provided, a random UUID is returned. Otherwise, a string representation of the 16-byte bytevector between _start_ (inclusive) and _end_ (exclusive) is returned.
+
+```scheme
+(make-uuid-string) ⇒ "9AF65983-8D44-43CB-AE9B-2FF49ED898BE"
+```
+
+**(make-uuid-bytevector)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(make-uuid-bytevector str)**  
+
+Returns a UUID as a bytevector. A UUID (Universally Unique Identifier) is a 128-bit label. If _str_ is not provided, a random UUID bytevector is returned. If _str_ is provided, it is assumed it is a UUID string (e.g. generated by `make-uuid-string`) and `make-uuid-bytevector` returns a 16-byte representation of this UUID as a bytevector.

@@ -43,7 +43,7 @@ The regular expression syntax supported by this library corresponds to the one o
 **`.`** : Match any character.  
 **`^`** : Match at the beginning of a line.  
 **`$`** : Match at the end of a line.  
-**\\** : Quotes the following character. Characters that must be quoted to be treated as literals are `* ? + [ ( ) { } ^ $ | \ . /`.
+**`\`** : Quotes the following character. Characters that must be quoted to be treated as literals are `* ? + [ ( ) { } ^ $ | \ . /`.
 
 ### Regular expression operators
 
@@ -265,16 +265,20 @@ The optional parameters _start_ and _end_ restrict both the matching and the sub
 ⟹ "New Series: Pilot"
 ```
 
-**(regexp-replace! _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(regexp-replace! _regexp str subst_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(regexp-replace! _regexp str subst start_)**  
+**(regexp-replace! _regexp str subst start end_)**  
 
 Mutates string _str_ by replacing all matches of regular expression _regexp_ within position _start_ (inclusive) and _end_ (exclusive) with string _subst_. The optional parameters _start_ and _end_ restrict both the matching and the substitution. `regexp-replace!` returns the number of replacements that were applied.
+
+The optional parameters _start_ and _end_ restrict both the matching and the substitution, to the given positions, such that the result is equivalent to omitting these parameters and replacing on `(substring` _str start end_`)`.
 
 ```scheme
 (define email
   (regexp "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}"))
 (define str "Contact matthias@objecthub.net or foo@bar.org")
-(regexp-replace! email str "<omitted>" 10) ⟹ 2
-str ⟹ "Contact ma<omitted> or <omitted>"
+(regexp-replace! email str "<omitted>" 10) ⇒ 2
+str ⇒ "Contact ma<omitted> or <omitted>"
 ```
 
 **(regexp-fold _regexp kons knil str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
