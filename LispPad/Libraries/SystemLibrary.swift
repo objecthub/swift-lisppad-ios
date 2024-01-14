@@ -383,9 +383,9 @@ public final class SystemLibrary: NativeLibrary {
     return CGSize(width: w, height: h)
   }
   
-  private func makeCanvas(expr: Expr, size: Expr, name: Expr?, background: Expr?) throws -> Expr {
+  private func makeCanvas(expr: Expr, sze: Expr, name: Expr?, background: Expr?) throws -> Expr {
     let drawing = try self.drawing(from: expr)
-    let size = try self.size(from: size)
+    let size = try self.size(from: sze)
     let title = try name?.asString()
     let color: UIColor?
     if let background {
@@ -395,6 +395,15 @@ public final class SystemLibrary: NativeLibrary {
       color = col.nsColor
     } else {
       color = nil
+    }
+    if let title {
+      guard title.count > 0 && title.count <= 100 else {
+        throw RuntimeError.custom("error", "illegal length of canvas name", [name!])
+      }
+    }
+    guard size.width >= 10 && size.width <= 50000 &&
+          size.height >= 10 && size.height <= 50000 else {
+      throw RuntimeError.custom("error", "illegal size of canvas", [sze])
     }
     let canvasConfig = CanvasConfig(name: title,
                                     size: size,
@@ -409,9 +418,9 @@ public final class SystemLibrary: NativeLibrary {
     return .makeNumber(canvasConfig.id)
   }
   
-  private func useCanvas(expr: Expr, size: Expr, name: Expr?, background: Expr?) throws -> Expr {
+  private func useCanvas(expr: Expr, sze: Expr, name: Expr?, background: Expr?) throws -> Expr {
     let drawing = try self.drawing(from: expr)
-    let size = try self.size(from: size)
+    let size = try self.size(from: sze)
     let title = try name?.asString()
     let color: UIColor?
     if let background {
@@ -421,6 +430,15 @@ public final class SystemLibrary: NativeLibrary {
       color = col.nsColor
     } else {
       color = nil
+    }
+    if let title {
+      guard title.count > 0 && title.count <= 100 else {
+        throw RuntimeError.custom("error", "illegal length of canvas name", [name!])
+      }
+    }
+    guard size.width >= 10 && size.width <= 50000 &&
+          size.height >= 10 && size.height <= 50000 else {
+      throw RuntimeError.custom("error", "illegal size of canvas", [sze])
     }
     var canvasConfig: CanvasConfig? = nil
     if let canvases = self.interpreter?.canvases {
@@ -513,11 +531,15 @@ public final class SystemLibrary: NativeLibrary {
   
   private func setCanvasName(expr: Expr, name: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
-    let name = try name.asString()
-    DispatchQueue.main.async {
-      canvas.name = name
+    let str = try name.asString()
+    if str.count > 0 && str.count <= 100 {
+      DispatchQueue.main.async {
+        canvas.name = str
+      }
+      return .void
+    } else {
+      throw RuntimeError.custom("error", "illegal length of canvas name", [name])
     }
-    return .void
   }
   
   private func canvasSize(expr: Expr) throws -> Expr {
@@ -525,13 +547,17 @@ public final class SystemLibrary: NativeLibrary {
     return .pair(.flonum(Double(canvas.size.width)), .flonum(Double(canvas.size.height)))
   }
   
-  private func setCanvasSize(expr: Expr, size: Expr) throws -> Expr {
+  private func setCanvasSize(expr: Expr, sze: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
-    let size = try self.size(from: size)
-    DispatchQueue.main.sync {
-      canvas.size = size
+    let size = try self.size(from: sze)
+    if size.width >= 10 && size.width <= 50000 && size.height >= 10 && size.height <= 50000 {
+      DispatchQueue.main.sync {
+        canvas.size = size
+      }
+      return .void
+    } else {
+      throw RuntimeError.custom("error", "illegal size of canvas", [sze])
     }
-    return .void
   }
   
   private func canvasScale(expr: Expr) throws -> Expr {
@@ -539,13 +565,17 @@ public final class SystemLibrary: NativeLibrary {
     return .makeNumber(canvas.scale)
   }
   
-  private func setCanvasScale(expr: Expr, scale: Expr) throws -> Expr {
+  private func setCanvasScale(expr: Expr, scle: Expr) throws -> Expr {
     let canvas = try self.canvas(from: expr)
-    let scale = try scale.asDouble(coerce: true)
-    DispatchQueue.main.sync {
-      canvas.scale = scale
+    let scale = try scle.asDouble(coerce: true)
+    if scale > 0.0 && scale <= 1000.0 {
+      DispatchQueue.main.sync {
+        canvas.scale = scale
+      }
+      return .void
+    } else {
+      throw RuntimeError.custom("error", "illegal canvas scale", [scle])
     }
-    return .void
   }
   
   private func canvasBackground(expr: Expr) throws -> Expr {

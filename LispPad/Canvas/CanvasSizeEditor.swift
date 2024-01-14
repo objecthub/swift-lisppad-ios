@@ -22,15 +22,18 @@ import SwiftUI
 
 struct CanvasSizeEditor: View {
   @Environment(\.dismiss) var dismiss
+  @State var name: String
   @State var width: CGFloat
   @State var height: CGFloat
   @State var scale: CGFloat
-  let update: (CGSize, CGFloat) -> Void
+  let update: (String, CGSize, CGFloat) -> Void
   
-  init(width: CGFloat,
+  init(name: String,
+       width: CGFloat,
        height: CGFloat,
        scale: CGFloat,
-       update: @escaping (CGSize, CGFloat) -> Void) {
+       update: @escaping (String, CGSize, CGFloat) -> Void) {
+    self._name = State(initialValue: name)
     self._width = State(initialValue: width)
     self._height = State(initialValue: height)
     self._scale = State(initialValue: scale)
@@ -48,6 +51,11 @@ struct CanvasSizeEditor: View {
     ZStack(alignment: .center) {
       Color(.systemGroupedBackground).ignoresSafeArea()
       VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .center, spacing: 8) {
+          TextField("", text: self.$name, prompt: Text("Name"))
+            .textFieldStyle(.roundedBorder)
+            .multilineTextAlignment(.leading)
+        }
         HStack(alignment: .center, spacing: 8) {
           Text("Size:")
             .frame(width: 50, alignment: .trailing)
@@ -74,8 +82,32 @@ struct CanvasSizeEditor: View {
             .frame(idealWidth: 45, maxWidth: 65)
             .keyboardType(.decimalPad)
           Button {
-            self.dismiss()
-            self.update(CGSize(width: self.width, height: self.height), self.scale)
+            if self.name.count > 0 && self.name.count <= 100 &&
+                self.width >= 10 && self.height >= 10 &&
+                self.width <= 50000 && self.height <= 50000 &&
+                self.scale > 0.0 && self.scale <= 1000.0 {
+              self.dismiss()
+              self.update(self.name, CGSize(width: self.width, height: self.height), self.scale)
+            } else {
+              if self.width < 10 {
+                self.width = 10
+              }
+              if self.width > 50000 {
+                self.width = 50000
+              }
+              if self.height < 10 {
+                self.height = 10
+              }
+              if self.height > 50000 {
+                self.height = 50000
+              }
+              if self.scale <= 0.0 {
+                self.scale = 1.0
+              }
+              if self.scale > 1000.0 {
+                self.scale = 1000.0
+              }
+            }
           } label: {
             Text("Done")
               .bold()
@@ -83,8 +115,7 @@ struct CanvasSizeEditor: View {
           }
           .padding(.horizontal, 12)
         }
-      }
-      
+      }.padding(12)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }

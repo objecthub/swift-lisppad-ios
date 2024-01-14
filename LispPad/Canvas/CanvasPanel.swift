@@ -25,7 +25,7 @@ import LispKit
 struct CanvasPanel: View {
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var interpreter: Interpreter
-  @AppStorage("Canvas.includeResults") var includeResults: Bool = false
+  @AppStorage("Canvas.includeResults") var includeResults: Bool = true
   @State var showSizeEditor: Bool = false
   @ObservedObject var state: InterpreterState
   
@@ -102,17 +102,19 @@ struct CanvasPanel: View {
             }
             .padding(.trailing, 6)
             .popover(isPresented: self.$showSizeEditor) {
-              CanvasSizeEditor(width: self.interpreter.canvas.size.width,
+              CanvasSizeEditor(name: self.interpreter.canvas.name,
+                               width: self.interpreter.canvas.size.width,
                                height: self.interpreter.canvas.size.height,
-                               scale: self.interpreter.canvas.scale) { size, scale in
+                               scale: self.interpreter.canvas.scale) { name, size, scale in
                 withAnimation {
+                  self.interpreter.canvas.name = name
                   self.interpreter.canvas.size.width = size.width
                   self.interpreter.canvas.size.height = size.height
                   self.interpreter.canvas.scale = scale
                   self.interpreter.objectWillChange.send()
                 }
               }
-              .frame(idealWidth: 240, idealHeight: 100)
+              .frame(idealWidth: 240, idealHeight: 150)
               .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
             }
           }

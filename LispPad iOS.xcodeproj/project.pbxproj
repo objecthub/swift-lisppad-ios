@@ -56,6 +56,7 @@
 		CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26F25FE78E100758581 /* ConsoleOutput.swift */; };
 		CC84C27225FE791000758581 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27125FE791000758581 /* ConsoleView.swift */; };
 		CC84C27425FE79F600758581 /* Interpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C27325FE79F500758581 /* Interpreter.swift */; };
+		CC853D4F2B54834600139243 /* Fractals.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC853D4E2B54773800139243 /* Fractals.scm */; };
 		CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */; };
 		CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A55267E829100FA8BAA /* ConsoleEditor.swift */; };
 		CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */; };
@@ -361,6 +362,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC853D4F2B54834600139243 /* Fractals.scm in Copy Root/Examples */,
 				CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */,
 				CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */,
 				CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */,
@@ -481,6 +483,7 @@
 		CC84C26F25FE78E100758581 /* ConsoleOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleOutput.swift; sourceTree = "<group>"; };
 		CC84C27125FE791000758581 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
 		CC84C27325FE79F500758581 /* Interpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Interpreter.swift; sourceTree = "<group>"; };
+		CC853D4E2B54773800139243 /* Fractals.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Fractals.scm; sourceTree = "<group>"; };
 		CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorKeyboard.swift; sourceTree = "<group>"; };
 		CC890A55267E829100FA8BAA /* ConsoleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleEditor.swift; sourceTree = "<group>"; };
 		CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextViewDelegate.swift; sourceTree = "<group>"; };
@@ -895,6 +898,7 @@
 		CC8B95AD2607FBDC00830B4F /* Examples */ = {
 			isa = PBXGroup;
 			children = (
+				CC853D4E2B54773800139243 /* Fractals.scm */,
 				CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */,
 				CC233D5A266AC6940038016C /* PlotGraphs.scm */,
 				CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */,
@@ -1169,7 +1173,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1240;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					CC84C24525FE59EE00758581 = {
 						CreatedOnToolsVersion = 12.4;
@@ -1324,6 +1328,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1387,6 +1392,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1460,6 +1466,9 @@
 				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1485,6 +1494,9 @@
 				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
