@@ -49,6 +49,7 @@ struct SearchField: View {
         HStack {
           if self.appearing { // This is a huge hack; without this, the transition won't work
             Image(systemName: "magnifyingglass")
+              .foregroundColor(.accentColor)
               .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                   self.appearing = false
@@ -56,22 +57,18 @@ struct SearchField: View {
               }
           } else {
             Menu {
-              Button {
-                withAnimation {
-                  self.replaceMode = !self.replaceMode
-                  self.showNext = false
-                  self.lastSearchText = ""
-                  self.lastReplaceText = ""
-                }
-              } label: {
-                Label("Replace",
-                      systemImage: self.replaceMode ? "checkmark.square" : "square")
+              Toggle(isOn: Binding(get: { self.replaceMode },
+                                   set: { v in withAnimation {
+                                            self.replaceMode.toggle()
+                                            self.showNext = false
+                                            self.lastSearchText = ""
+                                            self.lastReplaceText = ""
+                                          }
+                                        })) {
+                Label("Replace", systemImage: "repeat")
               }
-              Button {
-                self.caseSensitive.toggle()
-              } label: {
-                Label("Case Sensitive",
-                      systemImage: self.caseSensitive ? "checkmark.square" : "square")
+              Toggle(isOn: self.$caseSensitive) {
+                Label("Case Sensitive", systemImage: "textformat")
               }
               if !self.histManager.searchHistory.isEmpty {
                 Section("SEARCH HISTORY") {
@@ -99,6 +96,7 @@ struct SearchField: View {
               }
             } label: {
               Image(systemName: "magnifyingglass")
+                .foregroundColor(.accentColor)
             }
           }
           TextField("Search", text: $searchText, onEditingChanged: { isEditing in
@@ -188,7 +186,6 @@ struct SearchField: View {
         }
         .padding(.leading, 4)
         .padding(.trailing, 0)
-        .foregroundColor(Color(.systemBlue))
       }
       .padding(EdgeInsets(top: 8, leading: 8,
                           bottom: self.replaceMode ? 6 : 8, trailing: 8))

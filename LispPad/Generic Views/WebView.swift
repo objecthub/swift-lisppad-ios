@@ -198,30 +198,34 @@ struct WebView: UIViewRepresentable {
   public func makeUIView(context: Context) -> WKWebView  {
     let view = WKWebView()
     view.navigationDelegate = context.coordinator
-    view.publisher(for: \.canGoBack).assign(to: &controller.$canGoBack)
-    view.publisher(for: \.canGoForward).assign(to: &controller.$canGoForward)
-    view.publisher(for: \.isLoading).assign(to: &controller.$isLoading)
     context.coordinator.openURLProc = context.environment.openURL
-    self.resource.load(into: view)
+    DispatchQueue.main.async {
+      view.publisher(for: \.canGoBack).assign(to: &controller.$canGoBack)
+      view.publisher(for: \.canGoForward).assign(to: &controller.$canGoForward)
+      view.publisher(for: \.isLoading).assign(to: &controller.$isLoading)
+      self.resource.load(into: view)
+    }
     return view
   }
   
   public func updateUIView(_ view: WKWebView, context: Context) {
-    if let resource = controller.load {
-      resource.load(into: view)
-      controller.load = nil
-    } else if controller.reload {
-      view.reload()
-      controller.reload = false
-    } else if controller.goHome {
-      self.resource.load(into: view)
-      controller.goHome = false
-    } else if view.canGoBack, controller.goBack {
-      view.goBack()
-      controller.goBack = false
-    } else if view.canGoForward, controller.goForward {
-      view.goForward()
-      controller.goForward = false
+    DispatchQueue.main.async {
+      if let resource = controller.load {
+        resource.load(into: view)
+        controller.load = nil
+      } else if controller.reload {
+        view.reload()
+        controller.reload = false
+      } else if controller.goHome {
+        self.resource.load(into: view)
+        controller.goHome = false
+      } else if view.canGoBack, controller.goBack {
+        view.goBack()
+        controller.goBack = false
+      } else if view.canGoForward, controller.goForward {
+        view.goForward()
+        controller.goForward = false
+      }
     }
   }
   
@@ -238,7 +242,9 @@ struct WebView: UIViewRepresentable {
          policyEvaluator: @escaping LinkingPolicy.Evaluator,
          credential: CredentialProvider,
          action: @escaping (NavigationNotification) -> Void) {
-      controller.pageTitle = title ?? "Loading…"
+      DispatchQueue.main.async {
+        controller.pageTitle = title ?? "Loading…"
+      }
       self.controller = controller
       self.title = title
       self.policyEvaluator = policyEvaluator
@@ -257,9 +263,8 @@ struct WebView: UIViewRepresentable {
           decisionHandler(.allow)
           self.action(.decidedPolicyFor(view, navigationAction, .allow))
         case .download:
-          // TODO: change this eventually to .download (not supported below iOS 15)
-          decisionHandler(.allow)
-          self.action(.decidedPolicyFor(view, navigationAction, .allow))
+          decisionHandler(.download)
+          self.action(.decidedPolicyFor(view, navigationAction, .download))
         case .allowExternal:
           if let url = navigationAction.request.url {
             self.openURLProc?(url)

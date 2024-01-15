@@ -317,8 +317,12 @@
 		<string>srfi/srfi-232.html</string>
 		<key>srfi 233</key>
 		<string>srfi/srfi-233.html</string>
+		<key>srfi 235</key>
+		<string>srfi/srfi-235.html</string>
 		<key>srfi 236</key>
 		<string>srfi/srfi-236.html</string>
+		<key>srfi 239</key>
+		<string>srfi/srfi-239.html</string>
 		<key>srfi sicp</key>
 		<string>srfi/srfi-216.html</string>
 		<key>scheme bitwise</key>

@@ -30,6 +30,10 @@ Returns a new, empty drawing. A drawing consists of a sequence of drawing instru
 
 Returns a copy of the given drawing.
 
+**(clear-drawing _drawing_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Clears the given _drawing_.
+
 **(set-color _color_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(set-color _color drawing_)**  
 

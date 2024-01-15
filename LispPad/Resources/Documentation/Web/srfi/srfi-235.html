@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 235: Combinators</title>
+  <style>pre.example { margin-left: 2em; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<H2><a name="lp-srfi-235">Title</a></H2>
+
+Combinators
+
+<h2>Author</h2>
+
+John Cowan (text), Arvydas Silanskas (code)
+
+<h2 id="status">Status</h2>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+235+at+srfi+dotschemers+dot+org">srfi-235@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-235/">archive</a>.</p>
+<ul>
+  <li>Received: 2022-08-10</li>
+  <li>Draft #1 published: 2022-08-12</li>
+  <li>Draft #2 published: 2023-02-09</li>
+  <li>Finalized: 2023-02-28</li>
+</ul>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>This SRFI contains various procedures that accept and return procedures,
+as well as a few others, drawn from
+<a href="https://wiki.call-cc.org/eggref/4/combinators">an earlier version of Chicken</a>.
+Common Lisp has a few of them too, and more come from
+<a href="https://programmingpraxis.com/contents/standard-prelude/">the Standard Prelude from <em>Programming Praxis</em></a>.
+Using these procedures helps to keep code terse
+and reduce the need for ad hoc lambdas.</p>
+
+<h2 id="rationale">Rationale</h2>
+
+<p>Many procedures such as <code>map</code>, <code>filter</code>,
+<code>fold</code>, and their equivalents for data structures other
+than lists accept an argument specifying the behavior to be performed
+on each element of the data structure.
+This can be done in one of two ways:
+</p>
+<ul>
+<li>The code uses a <code>lambda</code> to describe the needed behavior
+<li>The code is placed in
+an internal or external <code>define</code>, which requires finding a
+good name and splits the action into different locations, making the
+code harder to read.</li>
+</ul>
+
+<p>Those composition procedures, called <i>combinators</i>, have been identified
+by the Scheme and Common Lisp communities as reducing such fragmentation
+while keeping the code dense.<p>
+
+<h2 id="notation">Notation</h2>
+<p>Many of these procedures are documented in the style of
+<a href="https://srfi.schemers.org/srfi-219/srfi-219.html">SRFI 219</a>.
+Rather than showing only how the procedures themselves are invoked,
+it also shows how the returned procedures would be invoked.
+This is done in order to make the descriptions easier to understand.
+For example, if <code>complement</code> were documented in the standard style,
+the description would say &quot;Returns a procedure which, when applied to an argument,
+returns <code>#t</code> when <em>proc</em> would return <code>#f</code> when applied to the same argument,
+and <code>#f</code> otherwise&quot;, which is more convoluted and harder to understand.
+However, this is merely a documentation style;
+it would be pointless to actually invoke these procedures in this fashion.</p>
+<h2 id="specification">Specification</h2>
+<p><code>((constantly</code>&nbsp;<em>obj</em> ...<code>)</code> <em>arg</em> ...<code>)</code></p>
+<p>Returns the <em>objs</em> as its values, ignoring <em>args</em>.</p>
+<blockquote><pre>(map (constantly 3) '(1 2 3)) => (3 3 3)</pre></blockquote>
+<p><code>((complement</code>&nbsp;<em>proc</em><code>)</code> <em>obj</em><code>)</code></p>
+<p>Returns <code>#t</code> when <code>(</code><em>proc obj</em><code>)</code> returns <code>#f</code>, and <code>#f</code> otherwise.</p>
+<blockquote><pre>(map (complement (lambda (x) #f)) '(1 2 3)) => (#t #t #t)
+(map (complement (lambda (x) 3)) '(1 2 3)) => (#f #f #f)</pre></blockquote>
+<p><code>((flip</code>&nbsp;<em>proc</em><code>) .</code> <em>objs</em><code>)</code></p>
+<p>Returns what <code>(apply</code>&nbsp;<em>proc</em> <code>(reverse</code>&nbsp;<em>objs</em> <code>)</code> returns.</p>
+<blockquote><pre>((flip list) 1 2 3) => (3 2 1)</pre></blockquote>
+<p><code>((swap</code>&nbsp;<em>proc</em><code>)</code> <em>obj₁ obj₂ . objs</em><code>)</code></p>
+<p>Returns <code>(apply</code>&nbsp;<em>proc obj₂ obj₁ objs</em><code>)</code>.</p>
+<blockquote><pre>((swap cons) 1 2) => (2 . 1)</pre></blockquote>
+<p><code>((on-left</code>&nbsp;<em>proc</em><code>)</code> <em>obj₁ obj₂</em><code>)</code></p>
+<p>Returns (<em>proc obj₁</em>).</p>
+<blockquote><pre>(map (on-left list) '(1 2 3) '(4 5 6)) => '((1) (2) (3))</pre></blockquote>
+<p><code>((on-right</code>&nbsp;<em>proc</em><code>)</code> <em>obj₁ obj₂</em><code>)</code></p>
+<p>Returns (<em>proc obj₂</em>).</p>
+<blockquote><pre>(map (on-right list) '(1 2 3) '(4 5 6)) => '((4) (5) (6))</pre></blockquote>
+<p><code>((conjoin</code>&nbsp;<em>predicate</em> ...<code>)</code> <em>arg</em> ...<code>)</code></p>
+The <em>predicates</em> are applied in turn to the <em>args</em> as follows:
+If a call to a predicate returns false, no more predicates are applied
+and <code>#f</code> is returned.
+If all predicates return true, then the last value is returned.
+If there are no predicates, <code>#t</code> is returned.
+<blockquote><pre>(map (conjoin even? exact?) '(1.0 1 2.0 2)) => '(#f #f #f #t)</pre></blockquote>
+<p><code>((disjoin</code>&nbsp;<em>predicate</em> ...<code>)</code> <em>arg</em> ...<code>)</code></p>
+The <em>predicates</em> are applied in turn to the <em>args</em> as follows:
+If a call to a predicate returns true, no more predicates are applied
+and its value is returned.
+If all predicates return false, then the last value is returned.
+If there are no predicates, <code>#f</code> is returned.
+<blockquote><pre>(map (disjoin even? exact?) '(1.0 1 2.0 2)) => '(#f #t #t #t)</pre></blockquote>
+<p><code>((each-of</code>&nbsp;<em>proc</em> ... <code>)</code> <em>arg</em> ...<code>)</code></p>
+<p>Applies each of the <em>procs</em> in turn to <em>args</em>,
+discarding the results and returning an unspecified value.</p>
+<blockquote><pre>
+(define (print-sum . numbers)
+  (display
+    (string-join (map number->string numbers)
+                 "+" 'infix))
+  (newline))
+
+(define (print-product . numbers)
+  (display
+    (string-join (map number->string numbers)
+                 "*" 'infix))
+  (newline))
+
+((each-of print-sum print-product) 1 2 3) => undefined ;prints:
+1+2+3
+1*2*3
+</pre></blockquote>
+<p><code>((all-of</code>&nbsp;<em>predicate</em><code>)</code> <em>list</em><code>)</code></p>
+<p>Applies <em>predicate</em> to each element of <em>list</em> in turn,
+and immediately returns <code>#f</code> if <em>predicate</em> is not satisfied by that element.
+If every element satisfies <em>predicate</em>,
+returns the result of the last call to <em>predicate</em>.
+If <em>list</em> is empty, returns <code>#t</code>.</p>
+<blockquote><pre>
+((all-of even?) '(2 4 6)) => #t
+((all-of odd?) '(1 2 3)) => #f
+</pre></blockquote>
+<p><code>((any-of</code>&nbsp;<em>predicate</em><code>)</code> <em>list</em><code>)</code></p>
+<p>Applies <em>predicate</em> to each element of <em>list</em> in turn,
+and if <em>predicate</em> is satisfied by that element,
+immediately returns the result of calling <em>predicate</em>.
+If no element satisfies <em>predicate</em> returns <code>#f</code>.
+If <em>list</em> is empty, returns <code>#f</code>.</p>
+<blockquote><pre>
+((any-of even?) '(2 4 5)) => #t
+((any-of odd?) '(2 4 6)) => #f
+</pre></blockquote>
+<p><code>((on</code>&nbsp;<em>reducer mapper</em><code>)</code> <em>obj₁ obj</em> ...<code>)</code></p>
+<p>Applies <em>mapper</em> to each <em>obj</em> in any order
+and then applies <em>reducer</em> to all of
+the results in left to right order.</p>
+<blockquote><pre>((on + -) 1 2 3) => -6</pre></blockquote>
+<p><code>((left-section</code>&nbsp;<em>proc arg</em> ...<code>)</code> <em>obj</em> ...<code>)</code></p>
+<p>Applies <em>proc</em> to <em>args</em> concatenated with <em>objs</em>.</p>
+<blockquote><pre>(map (left-section - 1) '(1 2 3)) => (0 -1 -2)</pre></blockquote>
+<p><code>((right-section</code>&nbsp;<em>proc arg</em> ...<code>)</code> <em>obj</em> ...<code>)</code></p>
+<p>Applies <em>proc</em> to <em>objs</em> concatenated with the value of <code>(reverse</code>&nbsp;<em>args</em><code>)</code>.</p>
+<blockquote><pre>(map (right-section - 1) '(1 2 3)) => (0 1 2)</pre></blockquote>
+<p><code>((apply-chain</code>&nbsp;<em>proc₁ proc</em> ...<code>)</code> arg ...)`</p>
+<p>Applies the last <em>proc</em> to <em>args</em> returning zero or more values,
+then applies the previous <em>proc</em> to the values, returning more values,
+until the first proc has been invoked; its values are returned.
+For example, <code>(apply-chain car cdr)</code> returns a procedure that
+behaves like <code>cadr</code>:</p>
+<blockquote><pre>(map (apply-chain car cdr) '((1 2 3) (4 5 6))) => (2 5)</pre></blockquote>
+<p><code>((arguments-drop</code> <em>proc n</em><code>)</code> <em>arg</em> ...<code>)</code><br><code>((arguments-drop-right</code> <em>proc n</em><code>)</code> <em>arg</em> ...<code>)</code><br><code>((arguments-take</code> <em>proc n</em><code>)</code> <em>arg</em> ...<code>)</code><br><code>((arguments-take-right</code> <em>proc n</em><code>)</code> <em>arg</em> ...<code>)</code></p>
+<p>Apply <em>proc</em> to the <em>args</em> after taking/dropping <em>n</em> arguments
+from <em>args</em>.</p>
+<blockquote><pre>
+(apply (arguments-drop + 2) '(1 2 3 4 5)) => 12
+(apply (arguments-drop-right + 2) '(1 2 3 4 5)) => 6
+(apply (arguments-take + 2) '(1 2 3 4 5)) => 3
+(apply (arguments-take-right + 2) '(1 2 3 4 5)) => 9
+</pre></blockquote>
+<p><code>((group-by</code>&nbsp;<em>key-proc</em> [=]<code>)</code> <em>list</em><code>)</code></p>
+<p>Takes the elements of <em>list</em> and applies <em>key-proc</em>
+to each of them to get their keys.  Elements
+whose keys are the same (in the sense of =,
+which defaults to <code>equal?</code>)
+are grouped into newly allocated lists, and a list of
+these lists is returned.  Within each list, the elements
+appear in the same order as they do in <em>list</em>; in addition,
+the first elements of each list also appear in the same
+order as they do in <em>list</em>.  If <em>list</em> is the empty list,
+it is returned.</p>
+<blockquote><pre>
+((group-by car) '((1 2 3) (2 2 3) (1 4 5))) =>
+  (((1 2 3) (1 4 5))
+   ((2 2 3))
+</pre></blockquote>
+<h2 id="syntax-like-procedures">Syntax-like procedures</h2>
+<p>These are Scheme procedures that correspond to basic syntax.
+As usual in Lisps, <em>thunk</em> means a procedure that does not require arguments.</p>
+<p>The following procedures are understood to be defined in this section:</p>
+<blockquote><pre>
+  (define (a) (display #\a))
+  (define (b) (display #\b))
+  (define (c) (display #\c))
+  (define (z) (display #\z))
+</pre></blockquote>
+<p><code>(begin-procedure</code>&nbsp;<em>thunk</em> ...<code>)</code></p>
+<p>Invokes <em>thunks</em> in order, and returns what the last thunk returns,
+or an unspecified value if there are no thunks.</p>
+<blockquote><pre>(begin-procedure a b c) => unspecified (displays "abc")</pre></blockquote>
+<p><code>(if-procedure</code>&nbsp;<em>value then-thunk</em> <em>else-thunk</em><code>)</code></p>
+<p>If <em>value</em> is true, invokes <em>then-thunk</em> and returns what it returns.
+Otherwise, invokes <em>else-thunk</em> and returns what it returns.</p>
+<blockquote><pre>
+(if-procedure #t (lambda () 1) (lambda () 2)) => 1
+(if-procedure #f (lambda () 1) (lambda () 2)) => 2
+</pre></blockquote>
+<p><code>(when-procedure</code>&nbsp;<em>value thunk</em> ...<code>)</code><br><code>(unless-procedure</code>&nbsp;<em>value thunk</em> ...<code>)</code></p>
+<p>If <em>value</em> is false/true, immediately returns.
+Otherwise, invokes each <em>thunk</em> in turn and then returns.
+In all cases an unspecified value is returned.</p>
+<blockquote><pre>
+(when-procedure #t a b c) => unspecified ;prints "abc"
+(when-procedure #f a b c) => unspecified ;prints nothing
+(unless-procedure #t a b c) => unspecified ;prints nothing
+(unless-procedure #f a b c) => unspecified ;prints "abc"
+</pre></blockquote>
+<p><code>(value-procedure</code>&nbsp;<em>value then-proc else-thunk</em><code>)</code></p>
+<p>If <em>value</em> is true, invokes <em>then-proc</em> on it
+and returns what <em>then-proc</em> returns.
+Otherwise, invokes <em>else-thunk</em> and returns what it returns.</p>
+<blockquote><pre>
+(value-procedure 2 (lambda (x) (+ x 1)) (lambda () 0)) => 3)
+(value-procedure #f (lambda (x) (+ x 1)) (lambda () 0)) => 0)
+</pre></blockquote>
+<p><code>(case-procedure</code>&nbsp;<em>value thunk-alist</em> [ <em>else-thunk</em> ]<code>)</code></p>
+<p>Searches <em>thunk-alist</em> for <em>value</em> (as if by <code>assv</code>).
+If there is a matching entry in <em>thunk-alist</em>,
+its cdr is invoked as a thunk, and <code>case-procedure</code> returns what the thunk returns.
+If there is no such entry in <em>thunk-alist</em>,
+invokes <em>else-thunk</em> (if present) and returns what it returns.
+If <em>else-thunk</em> is not present, the result is undefined.
+<blockquote><pre>
+(case-procedure 0 `((1 . ,a) (2 . ,z) (3 . ,c)) z) => undefined ;displays "z"
+(case-procedure 0 `((1 . ,a) (2 . ,z) (3 . ,c))) => undefined ;displays nothing
+(case-procedure 2 `((1 . ,a) (2 . ,b) (3 . ,c))) => undefined ;displays "b"
+</pre></blockquote>
+<p><code>(and-procedure</code>&nbsp;<em>thunk</em> ...<code>)</code></p>
+<p>The thunks are invoked from left
+to right, and if any thunk returns false,
+then <code>#f</code> is returned.
+Any remaining thunks are not invoked.
+If all the thunks return true
+values, the values of the last thunk are returned. If
+there are no thunks, then <code>#t</code> is returned.</p>
+<blockquote><pre>
+(and-procedure
+  (lambda () #t)
+  (lambda () #f)
+  (lambda () (error "fail"))) => #f
+</pre></blockquote>
+<p><code>(eager-and-procedure</code>&nbsp;<em>thunk</em> ...<code>)</code></p>
+<p>All the thunks are invoked from left
+to right.  If any thunk returns false,
+then <code>#f</code> is returned. If all the thunks return true
+values, the value of the last thunk is returned. If
+there are no thunks, then <code>#t</code> is returned.</p>
+<blockquote><pre>
+(eager-and-procedure
+  (lambda () #t)
+  (lambda () #f)
+  (lambda () (error "fail"))) => error
+</pre></blockquote>
+<p><code>(or-procedure</code>&nbsp;<em>thunk</em> ...<code>)</code></p>
+<p>The thunks are invoked from left
+to right, and the first true value is returned.
+Any remaining thunks are not invoked.
+If all thunks return
+<code>#f</code> or if there are no thunks, then <code>#f</code> is returned.</p>
+<blockquote><pre>
+(or-procedure
+  (lambda () #t)
+  (lambda () #f)
+  (lambda () (error "fail"))) => <em>#t</em>
+</pre></blockquote>
+<p><code>(eager-or-procedure</code>&nbsp;<em>thunk</em> ...<code>)</code></p>
+<p>All the thunks are invoked from left
+to right, and then the first true value is returned.
+If all thunks return
+<code>#f</code> or if there are no thunks, then <code>#f</code> is returned.</p>
+<blockquote><pre>
+(eager-or-procedure
+  (lambda () #t)
+  (lambda () #f)
+  (lambda () (error "fail"))) => <em>error</em>
+</pre></blockquote>
+<p><code>(funcall-procedure</code>&nbsp;<em>thunk</em><code>)</code></p>
+<p>Invokes <em>thunk</em> once, and returns what it returns.
+Note that the name <code>funcall</code> is derived from Common Lisp.</p>
+<p><code>(loop-procedure</code>&nbsp;<em>thunk</em><code>)</code></p>
+<p>Invokes <em>thunk</em> repeatedly.  Does not return unless via <code>call/cc</code>.</p>
+<blockquote><pre>(loop-procedure (lambda () (a) (b))) => ; #displays "abab..." forever</pre></blockquote>
+<p><code>(while-procedure</code>&nbsp;<em>thunk</em><code>)</code></p>
+<p>Invokes <em>thunk</em> repeatedly until it returns false.
+Returns an unspecified value.</p>
+<blockquote><pre>
+(let ((i 0))
+    (while-procedure
+      (lambda ()
+	(display i)
+	(set! i (+ i 1))
+	(&lt; i 10)))) => unspecified ;prints "0123456789"
+</pre></blockquote>
+<p><code>(until-procedure</code>&nbsp;<em>thunk</em><code>)</code></p>
+<p>Invokes <em>thunk</em> repeatedly until it returns true.
+Returns an unspecified value.</p>
+<blockquote><pre>
+(let ((i 10))
+  (until-procedure
+    (lambda ()
+      (set! i (- i 1))
+      (display i)
+       (&gt; i 0)))) => unspecified ;prints "9876543210"
+</pre></blockquote>
+<h2 id="other-procedures">Other procedures</h2>
+<p><code>(always</code>&nbsp;<em>obj</em> ...<code>)</code></p>
+<p>Ignores its arguments and always returns <code>#t</code>.</p>
+<blockquote><pre>(always 1 2 3) => #t</pre></blockquote>
+<p><code>(never</code>&nbsp;<em>obj</em> ...<code>)</code></p>
+<p>Ignores its arguments and always returns <code>#f</code>.</p>
+<blockquote><pre>(never 1 2 3) => #f</pre></blockquote>
+<p><code>(boolean</code>&nbsp;<em>obj</em><code>)</code></p>
+<p>If <em>obj</em> is true, returns <code>#t</code>; otherwise returns <code>#f</code>.</p>
+<blockquote><pre>
+(boolean 3) => #t
+(boolean #f) => #f
+</pre></blockquote>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>The sample implementation is in the <a href="https://github.com/scheme-requests-for-implementation/srfi-235">SRFI
+  235 repository</a>.</p>
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>Thanks to Kon Lovett, author of the Chicken egg (who credits
+Graham Fawcett and Philip L. Bewig); to the anonymous author of the
+<i>Programming Praxis</i> web site; and to the members of the SRFI-235
+mailing list.</p>
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2022 John Cowan, Arvydas Silanskas.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>

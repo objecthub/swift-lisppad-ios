@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0 (2024-01-15)
+
+- Redesigned the navigation between interpreter and editor
+- Redesigned the split screen mode for iPads, allowing free positioning of the splitter
+- Redesigned file/directory browser fixing usability issues and supporting file previews
+- Introduced drawing canvases (left-swipe in console) in addition to the log view (right-swipe in console)
+- Libraries can be imported via a swipe in the Libraries view; support for library list refresh
+- User experience bug fixes, especially involving modal sheets
+- Ported universal formatting facility from Common Lisp and made it available via library `(lispkit format)`
+- Library `(lispkit records)` now supports extensible records compatible to SRFI 131
+- Made application scriptable via library `(lisppad system ios)`
+- Extended libraries: `(lispkit system)`, `(lispkit port)`, `(lispkit bitset)`, `(lispkit system)`, `(lispkit draw)`, `(lispkit draw turtle)`, `(lispkit core)`, `(lispkit type)`, `(lispkit bytevector)`
+- New libraries: `(lisppad system ios)`, `(lisppad turtle)`, `(lispkit format)`, `(lispkit crypto)`, `(lispkit archive tar)`, `(lispkit list set)`, `(srfi 239)`, `(srfi 235)`
+- New sample code: `Fractals.scm`, `Blockchain.scm`
+- Interpreter now based on LispKit 2.4.0
+
 ## 1.3.4 (2023-02-11)
 
 - Improved management of recent files and favorites.

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SRFI 239: Destructuring Lists</title>
+  <style>pre.example { margin-left: 2em; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+<H2><a name="lp-srfi-239">Title</a></H2>
+
+Destructuring Lists
+
+<h2>Author</h2>
+
+Marc Nieper-Wi&szlig;kirchen
+
+    <h2 id="status">Status</h2>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+239+at+srfi+dotschemers+dot+org">srfi-239@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-239/">archive</a>.</p>
+    <ul>
+      <li>Received: 2022-11-04</li>
+      <li>Draft #1 published: 2022-11-04</li>
+      <li>Finalized: 2023-01-23</li>
+    </ul>
+
+    <h2 id="abstract">Abstract</h2>
+
+    <p>This SRFI provides the <code>list-case</code>, the
+      syntactic fundamental list destructor.</p>
+
+    <h2 id="rationale">Rationale</h2>
+
+    <p>The list data type is the initial algebra with
+      constructors <code>(cons <var>obj</var> <var>list</var>)</code>
+      and <code>()</code>.  Destructing a list step-wise thus means
+      testing whether the list is a pair or <code>()</code>, and
+      retrieving the car and cdr of the pair in the first case.  In
+      practise, this often leads to Scheme code of the following form
+      (even the sample implementation of this SRFI contains such
+      code):</p>
+
+    <pre>(let ([ls &lang;list-expression&rang;])
+  (cond
+    [(pair? ls)
+     (let ([head (car ls)] [(tail (cdr ls))])
+       ...)]
+    [(null? ls)
+     ...]
+    [else
+     (assert #f)]))</pre>
+
+    <p>This SRFI defines syntax that abstracts over this (and also generalizes destructuring to improper lists):</p>
+
+    <pre>(list-case &lang;list-expression&rang;
+  [(head . tail)
+   ...]
+  [()
+   ...]
+  [_
+   (assert #f)])</pre>
+
+    <h2 id="specification">Specification</h2>
+
+    <p>The following syntax is exported in R<sup>6</sup>RS systems by
+      the libraries <code>(srfi :239)</code> and <code>(srfi :239
+      list-case)</code> and in R<sup>7</sup>RS systems by the
+      library <code>(srfi 239)</code>.</p>
+
+    <p><code>(list-case &lang;expression&rang; &lang;list-case clause&rang; &hellip;)</code></p>
+    <p><code>_</code></p>
+
+    <p><i>Syntax:</i> <code>&lang;expr&rang;</code> is an expression.
+      Each &lang;list-case clause&rang; is of one of the following
+      forms:</p>
+
+    <p><code>[(&lang;variable&rang; . &lang;variable&rang;) &lang;body&rang;]</code></p>
+    <p><code>[() &lang;body&rang;]</code></p>
+    <p><code>[&lang;variable&rang; &lang;body&rang;]</code></p>
+
+    <p>It is a syntax violation if more than one clause of the same
+      form is present.</p>
+
+    <p><code>_</code> is auxiliary syntax identical to <code>_</code>
+    exported by the standard libraries </p>
+
+    <p><i>Semantics:</i> A <code>list-case</code> expression is
+      evaluated as follows: The &lang;expression&rang; is evaluated.
+      The further evaluation then depends on the type of the result:</p>
+
+    <p>If the result is a pair and a clause of the
+    form <code>[(&lang;variable<sub>1</sub>&rang;
+	. &lang;variable<sub>2</sub>&rang;) &lang;body&rang;]</code> is
+      present, the <code>&lang;variables&rang;</code> are bound to
+      locations holding the car and the cdr of the pair,
+      the <code>&lang;body&rang;</code> is evaluated and its results returned.
+    </p>
+
+    <p>If the result is <code>()</code> and clause of the form
+      <code>[() &lang;body&rang;]</code> is present, the <code>&lang;body&rang;</code> is evaluated and its results returned.</p>
+
+    <p>If the result is neither a pair nor <code>()</code> and a
+      clause of the form <code>[&lang;variable&rang;
+      &lang;body&rang;]</code> is present,
+      the <code>&lang;variable&rang;</code> is bound to a location
+      holding the result, the <code>&lang;body&rang;</code> is
+      evaluated and its results returned.
+    </p>
+
+    <p>If no corresponding clause is present, an exception of type <code>&assertion-violation</code> is raised.</p>
+
+    <p>The region of the bindings consists of the
+      corresponding <code>&lang;body&rang;</code>.  If <code>_</code>
+      appears in place of a <code>&lang;variable&rang;</code>, the
+      corresponding location is not bound to any variable.</p>
+
+    <p>If the <code>list-case</code> expression is in tail context,
+      the <code>&lang;bodies&rang;</code> are in tail context as well.</p>
+
+    <p><i>Note:</i> The order of the clauses does not matter.</p>
+
+    <h3>Examples</h3>
+
+    <pre>(define type-of
+  (lambda (obj)
+    (list-case obj
+      [(_ . _) 'pair]
+      [() 'null]
+      [_ 'atom])))
+
+(define fold
+  (lambda (proc seed ls)
+    (let f ([acc seed] [ls ls])
+      (list-case ls
+        [(h . t) (f (proc h acc) t)]
+        [() acc]
+        [_ (assertion-violation 'fold "not a list" ls)]))))</pre>
+
+    <h2 id="implementation">Implementation</h2>
+
+    <p>The sample implementation is written in portable R<sup>6</sup>RS.
+      A portable R<sup>7</sup>RS Small-implementation is possible as well.
+      (Volunteers to contribute one are more than welcome.)</p>
+
+    <a href="https://github.com/scheme-requests-for-implementation/srfi-239/tree/master/lib">Source for the sample implementation.</a>
+
+    <h2 id="acknowledgements">Acknowledgements</h2>
+
+    <p>Thanks to the participants on this SRFI's mailing list.</p>
+
+    <h2 id="copyright">Copyright</h2>
+    <p>&copy; 2022 Marc Nieper-Wißkirchen.</p>
+
+    <p>
+      Permission is hereby granted, free of charge, to any person
+      obtaining a copy of this software and associated documentation files
+      (the "Software"), to deal in the Software without restriction,
+      including without limitation the rights to use, copy, modify, merge,
+      publish, distribute, sublicense, and/or sell copies of the Software,
+      and to permit persons to whom the Software is furnished to do so,
+      subject to the following conditions:</p>
+
+    <p>
+      The above copyright notice and this permission notice (including the
+      next paragraph) shall be included in all copies or substantial
+      portions of the Software.</p>
+    <p>
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+      BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+      ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.</p>
+
+<hr>
+<address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address>
+</body>
+</html>
