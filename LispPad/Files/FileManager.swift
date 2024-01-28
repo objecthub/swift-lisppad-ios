@@ -441,9 +441,7 @@ class FileManager: ObservableObject {
             if source == nil && makeUntitled {
               self.editorDocument?.text = ""
             }
-            if let action = action {
-              action(success)
-            }
+            action?(success)
           })
         })
       }
@@ -459,9 +457,7 @@ class FileManager: ObservableObject {
         if source == nil && makeUntitled {
           self.editorDocument?.text = ""
         }
-        if let action = action {
-          action(success)
-        }
+        action?(success)
       })
     }
   }

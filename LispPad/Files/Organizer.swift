@@ -143,12 +143,3 @@ struct Organizer: View {
     .quickLookPreview(self.$previewUrl)
   }
 }
-
-struct Organizer_Previews: PreviewProvider {
-  static var histManager = HistoryManager()
-  static var previews: some View {
-    Organizer()
-      .environmentObject(FileManager(histManager: histManager))
-      .environmentObject(Self.histManager)
-  }
-}

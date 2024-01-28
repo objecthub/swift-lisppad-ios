@@ -66,8 +66,11 @@ struct Open: View {
                                    selectedUrls: $selectedUrls,
                                    previewUrl: $previewUrl,
                                    onSelection: { url in
-                                     if let action = self.onSelection, action(url, false) {
-                                       self.dismiss()
+                                     if let action = self.onSelection {
+                                       let purl = PortableURL(url)
+                                       if action(url, purl?.mutable ?? false) {
+                                         self.dismiss()
+                                       }
                                      }
                                    })
                 .font(.body)

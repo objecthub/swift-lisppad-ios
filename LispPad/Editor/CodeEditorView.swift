@@ -344,7 +344,9 @@ struct CodeEditorView: View {
                    !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
                   self.notSavedAlertAction = .newFile
                 } else {
-                  self.fileManager.newEditorDocument()
+                  self.fileManager.newEditorDocument { success in
+                    self.forceEditorUpdate = true
+                  }
                 }
               } label: {
                 Label("New", systemImage: "square.and.pencil")

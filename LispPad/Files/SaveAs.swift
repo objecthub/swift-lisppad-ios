@@ -201,13 +201,3 @@ struct SaveAs: View {
     }
   }
 }
-
-struct SaveAs_Previews: PreviewProvider {
-  static var histManager = HistoryManager()
-  @State static var fileName: String = "test.txt"
-  
-  static var previews: some View {
-    SaveAs(url: nil, onSave: { url in true })
-      .environmentObject(FileManager(histManager: histManager))
-  }
-}
