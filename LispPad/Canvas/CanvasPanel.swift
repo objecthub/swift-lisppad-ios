@@ -28,6 +28,7 @@ struct CanvasPanel: View {
   @AppStorage("Canvas.includeResults") var includeResults: Bool = true
   @State var showSizeEditor: Bool = false
   @ObservedObject var state: InterpreterState
+  @Binding var showModal: InterpreterView.SheetAction?
   
   private func round(_ x: CGFloat) -> CGFloat {
     let y = floor(x)
@@ -180,7 +181,7 @@ struct CanvasPanel: View {
                 }
               }
             } label: {
-              Label("Save Image", systemImage: "square.and.arrow.down")
+              Label("Save Image", systemImage: "square.and.arrow.down.fill")
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
@@ -202,7 +203,7 @@ struct CanvasPanel: View {
                 }
               }
             } label: {
-              Label("Save Canvas", systemImage: "square.and.arrow.down.fill")
+              Label("Save Canvas", systemImage: "square.and.arrow.down")
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
@@ -234,6 +235,27 @@ struct CanvasPanel: View {
               }
             } label: {
               Label("Print Canvas", systemImage: "printer")
+            }
+            .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
+            Button {
+              self.state.showProgressView = "Sharing Canvas…"
+              DispatchQueue.global(qos: .userInitiated).async {
+                if let image = iconImage(for: self.interpreter.canvas.drawing,
+                                         width: self.interpreter.canvas.size.width,
+                                         height: self.interpreter.canvas.size.height,
+                                         scale: 4.0,
+                                         extra: self.interpreter.canvas.scale,
+                                         renderingWidth: self.interpreter.canvas.size.width,
+                                         renderingHeight: self.interpreter.canvas.size.height,
+                                         contentOnly: false) {
+                  self.presentSheet(.shareImage(image))
+                }
+                DispatchQueue.main.async {
+                  self.state.showProgressView = nil
+                }
+              }
+            } label: {
+              Label("Share Canvas…", systemImage: "square.and.arrow.up")
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Divider()
@@ -277,5 +299,9 @@ struct CanvasPanel: View {
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+  }
+  
+  private func presentSheet(_ action: InterpreterView.SheetAction) {
+    self.showModal = action
   }
 }

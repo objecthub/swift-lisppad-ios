@@ -388,7 +388,7 @@ struct ConsoleView: View {
           }
         }
         .tag(1)
-        CanvasPanel(state: self.state)
+        CanvasPanel(state: self.state, showModal: self.$showModal)
         .tag(2)
       }
       .tabViewStyle(.page(indexDisplayMode: .never))

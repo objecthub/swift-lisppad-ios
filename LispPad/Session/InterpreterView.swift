@@ -365,7 +365,7 @@ struct InterpreterView: View {
               self.histManager.verifyFileLists()
               self.showModal = .loadFile
             }) {
-              Image(systemName: "arrow.down.doc")
+              Image(systemName: "plus")
                 .font(LispPadUI.toolbarFont)
             }
             .contextMenu {
