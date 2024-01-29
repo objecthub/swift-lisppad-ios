@@ -586,7 +586,7 @@ struct CodeEditorView: View {
               }
               Group {
                 Button(action: self.autoIndentEditor) {
-                  Label("Auto Indent", systemImage: "list.bullet.indent")
+                  Label("Auto Indent", systemImage: "text.badge.checkmark")
                 }
                 .disabled(self.editorType != .scheme)
                 Button(action: self.indentEditor) {

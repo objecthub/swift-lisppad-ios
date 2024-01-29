@@ -339,7 +339,7 @@ struct InterpreterView: View {
                 Button(role: .destructive) {
                   self.showResetActionSheet = true
                 } label: {
-                  Label("Reset Interpreter…", systemImage: "arrow.3.trianglepath")
+                  Label("Reset Interpreter…", systemImage: "arrow.triangle.2.circlepath")
                 }
                 Divider()
                 Button {
