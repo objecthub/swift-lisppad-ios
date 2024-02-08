@@ -248,6 +248,64 @@ struct ConsoleView: View {
             }
           }
         }
+      Menu {
+        Button(role: .destructive) {
+          self.state.consoleInput = ""
+        } label: {
+          Label("Clear Input", systemImage: "xmark.circle.fill")
+        }
+        if self.ready && self.history.count > 0 {
+          Section("COMMAND HISTORY") {
+            ForEach(self.history, id: \.self) { entry in
+              Button(entry) {
+                self.state.consoleInput = entry
+              }
+            }
+          }
+        }
+      } label: {
+        if !self.ready && self.readingStatus == .accept {
+          if self.state.consoleInput.isEmpty {
+            Image(systemName: "questionmark.circle.fill")
+              .resizable()
+              .scaledToFit()
+              .frame(height: 24.5)
+              //.foregroundColor(.init(.sRGB, red: 0.8, green: 0.5, blue: 0.5, opacity: 1.0))
+              .foregroundColor(.red)
+          } else {
+            Image(systemName: "arrow.forward.circle.fill")
+              .resizable()
+              .scaledToFit()
+              .frame(height: 24.5)
+              .foregroundColor(.red)
+          }
+        } else if self.state.consoleInput.isEmpty {
+          Image(systemName: "pencil.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 24.5)
+            .disabled(true)
+        } else {
+          Image(systemName: "arrow.up.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(height: 24.5)
+            .disabled(!self.ready)
+            //.foregroundColor(self.ready ? .accentColor : Color(LispPadUI.menuIndicatorColor))
+        }
+      } primaryAction: {
+        guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
+          return
+        }
+        self.inputBuffer = nil
+        self.inputHistoryIndex = -1
+        self.action()
+      }
+      .keyCommand("\r", modifiers: .command, title: "Execute command")
+      //.disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
+      .padding(.trailing, 3)
+      .offset(y: -3)
+      /*
       Button(action: {
         self.inputBuffer = nil
         self.inputHistoryIndex = -1
@@ -299,6 +357,7 @@ struct ConsoleView: View {
       }
       .padding(.trailing, 3)
       .offset(y: -3)
+      */
       Button(action: {
         if self.inputHistoryIndex >= 0 &&
            self.inputHistoryIndex < self.history.count &&

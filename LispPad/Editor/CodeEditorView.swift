@@ -936,7 +936,15 @@ struct CodeEditorView: View {
   private func runInterpreter() {
     self.dismissCard()
     if self.editorType == .scheme {
-      self.interpreter.console.append(output: .command("<execute code from editor>"))
+      let message = self.fileManager.editorDocumentInfo.new ?
+        "<execute editor buffer>" :
+        "<execute \"\(self.fileManager.editorDocumentInfo.title)\">"
+      if UserSettings.standard.logCommands {
+        SessionLog.standard.addLogEntry(severity: .info,
+                                        tag: "repl/load",
+                                        message: message)
+      }
+      self.interpreter.console.append(output: .command(message))
       self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
                                 url: self.fileManager.editorDocument?.fileURL)
       switch self.splitViewMode {

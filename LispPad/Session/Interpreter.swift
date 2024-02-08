@@ -294,6 +294,15 @@ final class Interpreter: ContextDelegate, ObservableObject {
         return try machine.eval(str: text, sourceId: sourceId)
       }
       self?.append(result: res)
+      if UserSettings.standard.logCommands, let outputs = res {
+        for output in outputs {
+          if let (err, type, message) = output.logMessage {
+            SessionLog.standard.addLogEntry(severity: err ? .error : .info,
+                                            tag: type,
+                                            message: message)
+          }
+        }
+      }
     }
   }
   
@@ -313,6 +322,15 @@ final class Interpreter: ContextDelegate, ObservableObject {
         try machine.eval(file: url.absoluteURL.path)
       }
       self?.append(result: res)
+      if UserSettings.standard.logCommands, let outputs = res {
+        for output in outputs {
+          if let (err, type, message) = output.logMessage {
+            SessionLog.standard.addLogEntry(severity: err ? .error : .info,
+                                            tag: type,
+                                            message: message)
+          }
+        }
+      }
     }
   }
   

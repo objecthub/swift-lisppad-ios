@@ -361,16 +361,28 @@ struct InterpreterView: View {
                   .font(LispPadUI.toolbarFont)
               }
             }
-            Button(action: {
-              self.histManager.verifyFileLists()
-              self.showModal = .loadFile
-            }) {
-              Image(systemName: "plus")
-                .font(LispPadUI.toolbarFont)
-            }
-            .contextMenu {
+            Menu {
+              Button {
+                let message = self.fileManager.editorDocumentInfo.new ?
+                  "<execute editor buffer>" :
+                  "<execute \"\(self.fileManager.editorDocumentInfo.title)\">"
+                if UserSettings.standard.logCommands {
+                  SessionLog.standard.addLogEntry(severity: .info,
+                                                  tag: "repl/load",
+                                                  message: message)
+                }
+                self.interpreter.console.append(output: .command(message))
+                self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
+                                          url: self.fileManager.editorDocument?.fileURL)
+              } label: {
+                Label(self.fileManager.editorDocumentInfo.new ?
+                      "Editor Buffer" : self.fileManager.editorDocumentInfo.title,
+                      systemImage: "pencil")
+              }
+              .disabled(self.fileManager.editorDocumentInfo.editorType != .scheme)
               if self.interpreter.isReady && !self.histManager.recentlyEdited.isEmpty {
-                Section("RECENT FILES") {
+                // Section("RECENT FILES") {
+                  Divider()
                   ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
                     if let url = purl.url {
                       Button(action: { self.execute(url) }) {
@@ -378,8 +390,14 @@ struct InterpreterView: View {
                       }
                     }
                   }
-                }
+                // }
               }
+            } label: {
+              Image(systemName: "plus")
+                .font(LispPadUI.toolbarFont)
+            } primaryAction: {
+              self.histManager.verifyFileLists()
+              self.showModal = .loadFile
             }
             .disabled(!self.interpreter.isReady)
           }
@@ -639,6 +657,11 @@ struct InterpreterView: View {
     if let url = url {
       let input = InterpreterView.canonicalizeInput(
                     "(load \"\(self.fileManager.canonicalPath(for: url))\")")
+      if UserSettings.standard.logCommands {
+        SessionLog.standard.addLogEntry(severity: .info,
+                                        tag: "repl/exec",
+                                        message: input)
+      }
       self.interpreter.console.append(output: .command(input))
       self.histManager.addCommandEntry(input)
       self.histManager.trackRecentFile(url)
