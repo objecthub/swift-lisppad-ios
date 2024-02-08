@@ -214,6 +214,8 @@ struct ConsoleView: View {
               if entry.text.count <= 800 {
                 Button(action: {
                   self.state.consoleInput = entry.text
+                  self.state.consoleInputRange = NSRange(location: (entry.text as NSString).length,
+                                                         length: 0)
                 }) {
                   Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
                 }
@@ -259,6 +261,8 @@ struct ConsoleView: View {
             ForEach(self.history, id: \.self) { entry in
               Button(entry) {
                 self.state.consoleInput = entry
+                self.state.consoleInputRange = NSRange(location: (entry as NSString).length,
+                                                       length: 0)
               }
             }
           }
@@ -370,7 +374,9 @@ struct ConsoleView: View {
             self.inputBuffer = self.state.consoleInput
           }
           self.inputHistoryIndex += 1
-          self.state.consoleInput = self.history[self.inputHistoryIndex]
+          let input = self.history[self.inputHistoryIndex]
+          self.state.consoleInput = input
+          self.state.consoleInputRange = NSRange(location: (input as NSString).length, length: 0)
         }
       }) {
         EmptyView()
@@ -384,9 +390,13 @@ struct ConsoleView: View {
           self.inputBuffer = nil
         } else if self.inputHistoryIndex > 0 {
           self.inputHistoryIndex -= 1
-          self.state.consoleInput = self.history[self.inputHistoryIndex]
+          let input = self.history[self.inputHistoryIndex]
+          self.state.consoleInput = input
+          self.state.consoleInputRange = NSRange(location: (input as NSString).length, length: 0)
         } else if self.inputHistoryIndex == 0 {
           self.state.consoleInput = self.inputBuffer ?? ""
+          self.state.consoleInputRange =
+            NSRange(location: (self.state.consoleInput as NSString).length, length: 0)
           self.inputHistoryIndex = -1
           self.inputBuffer = nil
         }

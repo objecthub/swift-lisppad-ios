@@ -280,6 +280,8 @@ struct InterpreterView: View {
               }
               self.interpreter.evaluate(input) {
                 self.state.consoleInput = old
+                self.state.consoleInputRange = NSRange(location: (old as NSString).length,
+                                                       length: 0)
                 self.interpreter.console.removeLast()
               }
             },
