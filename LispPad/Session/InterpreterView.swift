@@ -673,7 +673,8 @@ struct InterpreterView: View {
 
   private func selectExpression() {
     if let range = TextFormatter.selectEnclosingExpr(string: self.state.consoleInput as NSString,
-                                                     selectedRange: self.state.consoleInputRange) {
+                                                     selectedRange: self.state.consoleInputRange,
+                                                     smart: true) {
       self.state.consoleInputRange = range
     }
   }

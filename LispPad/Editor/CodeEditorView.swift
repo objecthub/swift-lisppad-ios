@@ -843,7 +843,8 @@ struct CodeEditorView: View {
     self.dismissCard()
     if let doc = self.fileManager.editorDocument,
        let range = TextFormatter.selectEnclosingExpr(string: doc.text as NSString,
-                                                     selectedRange: doc.selectedRange) {
+                                                     selectedRange: doc.selectedRange,
+                                                     smart: doc.info.editorType == .scheme) {
       doc.selectedRange = range
       self.forceEditorUpdate = true
       self.editorPosition = range

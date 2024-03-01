@@ -405,12 +405,14 @@ struct TextFormatter {
 
   /// Expand the current selection left and right to cover the full enclosing Lisp expression.
   static func selectEnclosingExpr(string str: NSString,
-                                  selectedRange range: NSRange) -> NSRange? {
+                                  selectedRange range: NSRange,
+                                  smart: Bool) -> NSRange? {
     let start = TextFormatter.find(LPAREN,
                                    matching: RPAREN,
                                    from: range.location,
                                    to: 0,
-                                   in: str)
+                                   in: str,
+                                   smart: smart)
     guard start >= 0 else {
       return nil
     }
@@ -418,7 +420,8 @@ struct TextFormatter {
                                  matching: LPAREN,
                                  from: range.location - 1,
                                  to: str.length,
-                                 in: str)
+                                 in: str,
+                                 smart: smart)
     guard end >= 0 else {
       return nil
     }
@@ -468,7 +471,22 @@ struct TextFormatter {
                    matching with: UniChar,
                    from: Int,
                    to: Int,
-                   in str: NSString) -> Int {
+                   in str: NSString,
+                   smart: Bool) -> Int {
+    if smart {
+      return self.smartFind(ch, matching: with, from: from, to: to, in: str)
+    } else {
+      return self.simpleFind(ch, matching: with, from: from, to: to, in: str)
+    }
+  }
+  
+  /// Find matching parenthesis between the indices `from` and `to`. If `from` < `to`,
+  /// then search forward, if `to` < `from`, search backward.
+  static private func simpleFind(_ ch: UniChar,
+                                 matching with: UniChar,
+                                 from: Int,
+                                 to: Int,
+                                 in str: NSString) -> Int {
     var open = 0
     if to < from {
       var i = from - 1
@@ -495,6 +513,192 @@ struct TextFormatter {
           open -= 1
         }
         i += 1
+      }
+    }
+    return -1
+  }
+  
+  private enum CharacterContext: Equatable, CustomStringConvertible {
+    case code
+    case stringLiteral
+    case comment
+    
+    var description: String {
+      switch self {
+        case .code:
+          return "code"
+        case .stringLiteral:
+          return "string"
+        case .comment:
+          return "comment"
+      }
+    }
+  }
+  
+  static private func endOfCode(in str: NSString,
+                                starting index: Int,
+                                min to: Int) -> (Int, CharacterContext) {
+    // Find start of line in which character at index `from` is located
+    var fromLineStart = index - 1
+    while fromLineStart >= to && str.character(at: fromLineStart) != NEWLINE {
+      fromLineStart -= 1
+    }
+    fromLineStart += 1
+    // Detect whether character at index `from` is in a comment or string literal
+    var context = CharacterContext.code
+    var i = fromLineStart
+    var backslash = false
+    while i < index {
+      switch str.character(at: i) {
+        case DQUOTE:
+          if !backslash {
+            if context == .code {
+              context = .stringLiteral
+            } else if context == .stringLiteral {
+              context = .code
+            }
+          }
+          backslash = false
+        case SEMI:
+          if context == .code && !backslash {
+            return (i - 1, .code)
+          }
+          backslash = false
+        case BACKSLASH:
+          backslash = context != .comment && !backslash
+        default:
+          backslash = false
+      }
+      i += 1
+    }
+    return (index - 1, context)
+  }
+  
+  /// Find matching parenthesis between the indices `from` and `to`. If `from` < `to`,
+  /// then search forward, if `to` < `from`, search backward. This function factors in
+  /// Lisp syntax and thus should only be used for Lisp documents.
+  static private func smartFind(_ ch: UniChar,
+                                matching with: UniChar,
+                                from: Int,
+                                to: Int,
+                                in str: NSString) -> Int {
+    // Find start of line in which character at index `from` is located
+    var fromLineStart = from - 1
+    let bound = to < from ? to : 0
+    while fromLineStart >= bound && str.character(at: fromLineStart) != NEWLINE {
+      fromLineStart -= 1
+    }
+    fromLineStart += 1
+    // Detect whether character at index `from` is in a comment or string literal
+    var context = CharacterContext.code
+    var i = fromLineStart
+    var backslash = false
+    while i < from {
+      switch str.character(at: i) {
+        case DQUOTE:
+          if !backslash {
+            if context == .code {
+              context = .stringLiteral
+            } else if context == .stringLiteral {
+              context = .code
+            }
+          }
+          backslash = false
+        case SEMI:
+          if context == .code && !backslash {
+            context = .comment
+          }
+          backslash = false
+        case BACKSLASH:
+          backslash = context != .comment && !backslash
+        default:
+          backslash = false
+      }
+      i += 1
+    }
+    // Ignore, if the character at index `from` is not in a code location
+    if context != .code {
+      return -1
+    }
+    // Find matching character
+    var open = 0
+    if to < from {
+      var i = from - 1
+      while i >= to {
+        switch str.character(at: i) {
+          case NEWLINE:
+            (i, context) = self.endOfCode(in: str, starting: i, min: to)
+          case DQUOTE:
+            if context == .code {
+              context = .stringLiteral
+            } else if context == .stringLiteral {
+              context = .code
+            }
+            i -= 1
+          case with:
+            if context == .code {
+              open += 1
+            }
+            i -= 1
+          case ch:
+            if context == .code {
+              if open == 0 {
+                return i
+              }
+              open -= 1
+            }
+            i -= 1
+          default:
+            i -= 1
+        }
+      }
+    } else if to > from {
+      var i = from + 1
+      backslash = false
+      while i < to {
+        switch str.character(at: i) {
+          case NEWLINE:
+            context = .code
+            backslash = false
+            i += 1
+          case DQUOTE:
+            if !backslash {
+              if context == .code {
+                context = .stringLiteral
+              } else if context == .stringLiteral {
+                context = .code
+              }
+            }
+            backslash = false
+            i += 1
+          case SEMI:
+            if context == .code && !backslash {
+              context = .comment
+            }
+            backslash = false
+            i += 1
+          case BACKSLASH:
+            backslash = context != .comment && !backslash
+            i += 1
+          case with:
+            if context == .code {
+              open += 1
+            }
+            backslash = false
+            i += 1
+          case ch:
+            if context == .code {
+              if open == 0 {
+                return i
+              }
+              open -= 1
+            }
+            backslash = false
+            i += 1
+          default:
+            backslash = false
+            i += 1
+        }
       }
     }
     return -1

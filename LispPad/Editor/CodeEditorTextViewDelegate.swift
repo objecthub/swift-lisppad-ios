@@ -21,7 +21,7 @@
 import UIKit
 import SwiftUI
 
-class CodeEditorTextViewDelegate: EditorTextViewDelegate {
+final class CodeEditorTextViewDelegate: EditorTextViewDelegate {
   let fileManager: FileManager
   
   init(text: Binding<String>, selectedRange: Binding<NSRange>, fileManager: FileManager) {
@@ -29,6 +29,10 @@ class CodeEditorTextViewDelegate: EditorTextViewDelegate {
     super.init(text: text,
                selectedRange: selectedRange,
                lastSelectedRange: selectedRange.wrappedValue)
+  }
+  
+  public override var lispSyntax: Bool {
+    return self.fileManager.editorDocumentInfo.editorType == .scheme
   }
   
   public func scrollViewDidScroll(_ scrollView: UIScrollView) {

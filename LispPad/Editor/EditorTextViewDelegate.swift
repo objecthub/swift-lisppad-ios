@@ -43,6 +43,10 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
     return UserSettings.standard.highlightMatchingParen
   }
   
+  open var lispSyntax: Bool {
+    return false
+  }
+  
   open func textViewDidChange(_ textView: UITextView) {
     guard textView.markedTextRange == nil else {
       return
@@ -374,8 +378,10 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
                  at iloc: Int) {
     if self.highlightMatchingParen {
       let str = textView.text as NSString
-      let loc = back ? TextFormatter.find(ch, matching: this, from: iloc, to: 0, in: str)
-                     : TextFormatter.find(ch, matching: this, from: iloc, to: str.length, in: str)
+      let loc = back ?
+          TextFormatter.find(ch, matching: this, from: iloc, to: 0, in: str, smart: self.lispSyntax)
+        : TextFormatter.find(ch, matching: this, from: iloc, to: str.length, in: str,
+                             smart: self.lispSyntax)
       if loc >= 0 {
         let storage = textView.textStorage
         storage.removeAttribute(.backgroundColor,
