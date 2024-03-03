@@ -87,6 +87,33 @@ struct CodeEditor: UIViewRepresentable {
     return textView
   }
 
+  private func extend(_ range: NSRange, by lines: Int = 4, in textView: CodeEditorTextView) -> NSRange {
+    guard lines > 0, range.location >= lines || range.length != 0 else {
+      return range
+    }
+    let text = textView.text as NSString
+    var i = range.location - 1
+    var n = lines
+    while n > 0 && i >= 0 {
+      if text.character(at: i) == NEWLINE {
+        n -= 1
+      }
+      i -= 1
+    }
+    if i < 0 {
+      i = 0
+    }
+    var j = range.location + range.length
+    n = lines
+    while n > 0 && j < text.length {
+      if text.character(at: j) == NEWLINE {
+        n -= 1
+      }
+      j += 1
+    }
+    return NSRange(location: max(i, 0), length: j - i)
+  }
+  
   public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
     textView.keyboard.setup(for: textView)
     if self.fileManager.requireEditorUpdate() {
@@ -94,7 +121,7 @@ struct CodeEditor: UIViewRepresentable {
       textView.selectedRange = NSRange(location: 0, length: 0)
       DispatchQueue.main.async {
         textView.becomeFirstResponder()
-        textView.scrollRangeToVisible(textView.selectedRange)
+        textView.scrollRangeToVisible(self.extend(textView.selectedRange, in: textView))
       }
     }
     if textView.font != self.settings.editorFont {
@@ -125,7 +152,7 @@ struct CodeEditor: UIViewRepresentable {
         DispatchQueue.main.async {
           textView.becomeFirstResponder()
           textView.selectedRange = pos
-          textView.scrollRangeToVisible(pos)
+          textView.scrollRangeToVisible(self.extend(pos, in: textView))
           self.position = nil
           self.forceUpdate = false
         }
@@ -139,6 +166,7 @@ struct CodeEditor: UIViewRepresentable {
           textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
           textView.scrollIndicatorInsets = textView.contentInset
           textView.selectedRange = pos
+          let pos = self.extend(pos, in: textView)
           textView.scrollRangeToVisible(pos)
           if let rect = self.textRangeRect(for: pos, in: textView),
              (rect.minY - textView.bounds.minY) > (textView.bounds.height - bottomInset) {
@@ -170,8 +198,7 @@ struct CodeEditor: UIViewRepresentable {
         (keyboardViewEndFrame.height - (textView.window?.safeAreaInsets.bottom ?? 25.0)) : 0.0
       textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
       textView.scrollIndicatorInsets = textView.contentInset
-      // Not needed for iOS 15 and iOS 16
-      // textView.scrollRangeToVisible(textView.selectedRange)
+      textView.scrollRangeToVisible(self.extend(textView.selectedRange, in: textView))
     }
   }
   

@@ -703,4 +703,21 @@ struct TextFormatter {
     }
     return -1
   }
+  
+  static func curLineRange(_ str: NSString, _ selectedRange: NSRange) -> NSRange {
+    var start = selectedRange.location
+    var end = start + selectedRange.length
+    // Find the beginning of the line of the start of the selected range
+    while start > 0 && str.character(at: start - 1) != NEWLINE {
+      start -= 1
+    }
+    // Find the end of the line of the end of the selected range
+    while end < str.length && str.character(at: end) != NEWLINE {
+      end += 1
+    }
+    if end < str.length {
+      end += 1
+    }
+    return NSRange(location: start, length: end - start)
+  }
 }

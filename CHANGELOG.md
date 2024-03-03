@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 (2024-03-03)
+
+- TODO
+
 ## 2.0 (2024-01-15)
 
 - Redesigned the navigation between interpreter and editor

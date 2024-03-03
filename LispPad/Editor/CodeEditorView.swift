@@ -536,16 +536,37 @@ struct CodeEditorView: View {
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            Button(action: {
+            Menu {
+              Button {
+                self.dismissCard()
+                withAnimation(.default) {
+                  self.replaceModeSearch = false
+                  self.showSearchField = true
+                }
+              } label: {
+                Label("Search", systemImage: "magnifyingglass")
+              }
+              .disabled(self.showSearchField && !self.replaceModeSearch)
+              Button {
+                self.dismissCard()
+                withAnimation(.default) {
+                  self.replaceModeSearch = true
+                  self.showSearchField = true
+                }
+              } label: {
+                Label("Search/Replace", systemImage: "repeat")
+              }
+              .disabled(self.showSearchField && self.replaceModeSearch)
+            } label: {
+              Image(systemName: "magnifyingglass")
+                .font(LispPadUI.toolbarFont)
+            } primaryAction: {
               self.dismissCard()
               withAnimation(.default) {
                 self.showSearchField = true
               }
-            }) {
-              Image(systemName: "magnifyingglass")
-                .font(LispPadUI.toolbarFont)
             }
-            .disabled(self.showSearchField)
+            .foregroundColor(self.showSearchField ? .gray : .accentColor)
             Button(action: {
               self.dismissCard()
               guard let doc = self.fileManager.editorDocument else {
@@ -583,6 +604,11 @@ struct CodeEditorView: View {
                 } label: {
                   Label("Redo", systemImage: "arrow.uturn.forward")
                 }
+                Button {
+                  self.selectExpression()
+                } label: {
+                  Label("Select", systemImage: "parentheses")
+                }
               }
               Group {
                 Button(action: self.autoIndentEditor) {
@@ -608,18 +634,18 @@ struct CodeEditorView: View {
                 .disabled(self.editorType != .scheme)
               }
               Divider()
-              Button {
-                self.dismissCard()
-                withAnimation(.default) {
-                  if self.showSearchField {
-                    self.replaceModeSearch.toggle()
-                  } else {
-                    self.replaceModeSearch = true
-                    self.showSearchField = true
-                  }
+              Menu {
+                Button(action: self.selectLines) {
+                  Label("Select", systemImage: "selection.pin.in.out")
+                }
+                Button(action: self.duplicateLines) {
+                  Label("Duplicate", systemImage: "plus.circle")
+                }
+                Button(action: self.deleteLines) {
+                  Label("Delete", systemImage: "minus.circle")
                 }
               } label: {
-                Label("Search/Replace", systemImage: "repeat")
+                Label("Lines", systemImage: "text.redaction")
               }
             } label: {
               Image(systemName: "ellipsis.circle")
@@ -862,74 +888,142 @@ struct CodeEditorView: View {
 
   private func indentEditor() {
     self.dismissCard()
-    if let doc = self.fileManager.editorDocument {
-      let text = NSMutableString(string: doc.text)
-      let selRange = TextFormatter.indent(string: text,
-                                          selectedRange: doc.selectedRange,
-                                          with: " ")
-      doc.text = text as String
-      doc.selectedRange = selRange
-      self.forceEditorUpdate = true
-      self.editorPosition = selRange
+    self.updateEditor = { textView in
+      let selRange = TextFormatter.indent(textView: textView, with: " ")
+      textView.selectedRange = selRange
+      if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+        delegate.text = textView.textStorage.string
+        delegate.selectedRange = selRange
+      }
     }
   }
   
   private func outdentEditor() {
     self.dismissCard()
-    if let doc = self.fileManager.editorDocument {
-      let text = NSMutableString(string: doc.text)
-      if let selRange = TextFormatter.outdent(string: text,
-                                                   selectedRange: doc.selectedRange,
-                                                   with: " ") {
-        doc.text = text as String
-        doc.selectedRange = selRange
-        self.forceEditorUpdate = true
-        self.editorPosition = selRange
+    self.updateEditor = { textView in
+      if let selRange = TextFormatter.outdent(textView: textView, with: " ") {
+        textView.selectedRange = selRange
+        if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+          delegate.text = textView.textStorage.string
+          delegate.selectedRange = selRange
+        }
       }
     }
   }
   
   private func commentEditor() {
     self.dismissCard()
-    if let doc = self.fileManager.editorDocument {
-      let text = NSMutableString(string: doc.text)
-      let selRange = TextFormatter.indent(string: text,
-                                          selectedRange: doc.selectedRange,
-                                          with: ";")
-      doc.text = text as String
-      doc.selectedRange = selRange
-      self.forceEditorUpdate = true
-      self.editorPosition = selRange
+    self.updateEditor = { textView in
+      let selRange = TextFormatter.indent(textView: textView, with: ";")
+      textView.selectedRange = selRange
+      if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+        delegate.text = textView.textStorage.string
+        delegate.selectedRange = selRange
+      }
     }
   }
   
   private func uncommentEditor() {
     self.dismissCard()
-    if let doc = self.fileManager.editorDocument {
-      let text = NSMutableString(string: doc.text)
-      if let selRange = TextFormatter.outdent(string: text,
-                                                   selectedRange: doc.selectedRange,
-                                                   with: ";") {
-        doc.text = text as String
-        doc.selectedRange = selRange
-        self.forceEditorUpdate = true
-        self.editorPosition = selRange
+    self.updateEditor = { textView in
+      if let selRange = TextFormatter.outdent(textView: textView, with: ";") {
+        textView.selectedRange = selRange
+        if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+          delegate.text = textView.textStorage.string
+          delegate.selectedRange = selRange
+        }
       }
     }
   }
   
   private func autoIndentEditor() {
     self.dismissCard()
-    if let doc = self.fileManager.editorDocument {
-      let text = doc.text as NSString
+    self.updateEditor = { textView in
+      let text = textView.text as NSString
+      let selectedRange = textView.selectedRange
       if let (str, replRange, selRange) = TextFormatter.autoIndentLines(
                                             text,
-                                            range: doc.selectedRange,
+                                            range: selectedRange,
                                             tabWidth: UserSettings.standard.indentSize) {
-        doc.text = text.replacingCharacters(in: replRange, with: str)
-        doc.selectedRange = selRange
-        self.forceEditorUpdate = true
-        self.editorPosition = selRange
+        textView.selectedRange = replRange
+        if let textRange = textView.selectedTextRange {
+          textView.undoManager?.beginUndoGrouping()
+          textView.replace(textRange, withText: str)
+          textView.selectedRange = selRange
+          textView.undoManager?.endUndoGrouping()
+          if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+            delegate.text = textView.textStorage.string
+            delegate.selectedRange = selRange
+          }
+        } else {
+          textView.selectedRange = selectedRange
+        }
+      }
+    }
+  }
+  
+  private func selectLines() {
+    self.dismissCard()
+    if let doc = self.fileManager.editorDocument {
+      let str = doc.text as NSString
+      let selectedRange = doc.selectedRange
+      var start = selectedRange.location
+      var end = start + selectedRange.length
+      while start > 0 && str.character(at: start - 1) != NEWLINE {
+        start -= 1
+      }
+      while end < str.length && str.character(at: end) != NEWLINE {
+        end += 1
+      }
+      if end < str.length {
+        end += 1
+      }
+      self.forceEditorUpdate = true
+      self.editorPosition = NSRange(location: start, length: end - start)
+    }
+  }
+  
+  private func duplicateLines() {
+    self.dismissCard()
+    self.updateEditor = { textView in
+      let str = textView.text as NSString
+      let selectedRange = textView.selectedRange
+      let selRange = TextFormatter.curLineRange(str, selectedRange)
+      let replStr = str.substring(with: selRange)
+      let replRange = NSRange(location: selRange.location + selRange.length, length: 0)
+      textView.selectedRange = replRange
+      if let textRange = textView.selectedTextRange {
+        textView.undoManager?.beginUndoGrouping()
+        textView.replace(textRange, withText: replStr)
+        textView.selectedRange = replRange
+        textView.undoManager?.endUndoGrouping()
+        if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+          delegate.text = textView.textStorage.string
+          delegate.selectedRange = replRange
+        }
+      } else {
+        textView.selectedRange = selectedRange
+      }
+    }
+  }
+  
+  private func deleteLines() {
+    self.dismissCard()
+    self.updateEditor = { textView in
+      let selectedRange = textView.selectedRange
+      let selRange = TextFormatter.curLineRange(textView.text as NSString, selectedRange)
+      textView.selectedRange = selRange
+      if let textRange = textView.selectedTextRange {
+        textView.undoManager?.beginUndoGrouping()
+        textView.replace(textRange, withText: "")
+        textView.selectedRange = NSRange(location: selRange.location, length: 0)
+        textView.undoManager?.endUndoGrouping()
+        if let delegate = textView.delegate as? ConsoleEditorTextViewDelegate {
+          delegate.text = textView.textStorage.string
+          delegate.selectedRange = textView.selectedRange
+        }
+      } else {
+        textView.selectedRange = selectedRange
       }
     }
   }
