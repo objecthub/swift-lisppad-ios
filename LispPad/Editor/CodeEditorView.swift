@@ -405,7 +405,7 @@ struct CodeEditorView: View {
             .alert(isPresented: $showFileNotFoundAlert, content: self.fileNotFoundAlert)
             if self.interpreter.isReady {
               Button(action: self.runInterpreter) {
-                Image(systemName: self.editorType == .scheme ? "play" : "display")
+                Image(systemName: self.editorType == .scheme ? "play" : "play.display")
                   .font(LispPadUI.toolbarFont)
               }
               .disabled((self.editorType != .scheme) && (self.editorType != .markdown))

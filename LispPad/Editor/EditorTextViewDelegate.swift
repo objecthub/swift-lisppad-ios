@@ -44,7 +44,7 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
   }
   
   open var lispSyntax: Bool {
-    return false
+    return true
   }
   
   open func textViewDidChange(_ textView: UITextView) {

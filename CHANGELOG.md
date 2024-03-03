@@ -2,7 +2,17 @@
 
 ## 2.0.1 (2024-03-03)
 
-- TODO
+- Support sharing of canvases
+- Support smarter parenthesis matching for Lisp code
+- Reimplemented overflow menu of the editor, fixing bugs and providing new line-level features
+- Reimplemented REPL command history (long-press on "Send" button)
+- Reimplemented the "Load"/+ menu for reloading recent files and the editor buffer
+- Log files being loaded into the interpreter
+- Fixed cursor placement in the interpreter input
+- Fixed bug preventing the editor buffer to be emptied when "New" was selected
+- Fixed opening recent and starred files
+- Improved consistency of icon usage with LispPad on macOS
+- Updated LispPad Library Reference
 
 ## 2.0 (2024-01-15)
 

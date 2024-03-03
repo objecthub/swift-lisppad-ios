@@ -605,11 +605,6 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
                          didProcessEditing editedMask: NSTextStorage.EditActions,
                          range editRange: NSRange,
                          changeInLength delta: Int) {
-    // Check that syntax highlighting is enabled
-    guard (self.editorType == .scheme && self.schemeHighlightSyntax) ||
-          (self.editorType == .markdown && UserSettings.standard.markdownHighlightSyntax) else {
-      return
-    }
     // Find the range for which to redo the syntax highlighting
     let str = textStorage.string as NSString
     let range: NSRange
@@ -621,10 +616,17 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
     // Remove attribution in edited range
     textStorage.removeAttribute(.foregroundColor, range: range)
     // Add syntax highlighting
-    if self.editorType == .scheme {
-      self.highlightSchemeSyntax(textStorage, str, range)
-    } else {
-      self.highlightMarkdownSyntax(textStorage, str, range)
+    switch self.editorType {
+      case .scheme:
+        if self.schemeHighlightSyntax {
+          self.highlightSchemeSyntax(textStorage, str, range)
+        }
+      case .markdown:
+        if UserSettings.standard.markdownHighlightSyntax {
+          self.highlightMarkdownSyntax(textStorage, str, range)
+        }
+      case .other:
+        break
     }
   }
 }
