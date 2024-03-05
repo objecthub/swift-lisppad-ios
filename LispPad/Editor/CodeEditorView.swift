@@ -567,7 +567,7 @@ struct CodeEditorView: View {
               }
             }
             .foregroundColor(self.showSearchField ? .gray : .accentColor)
-            Button(action: {
+            Button {
               self.dismissCard()
               guard let doc = self.fileManager.editorDocument else {
                 return
@@ -581,8 +581,8 @@ struct CodeEditorView: View {
                   self.showModal = .showDocStructure(structure)
                 }
               }
-            }) {
-              Image(systemName: "f.cursive")
+            } label: {
+              Image(systemName: self.editorType == .scheme ? "f.cursive" : "list.bullet.indent")
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(self.editorType != .scheme && self.editorType != .markdown)
