@@ -148,6 +148,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
     LibraryRegistry.register(AudioLibrary.self)
     LibraryRegistry.register(LocationLibrary.self)
     LibraryRegistry.register(DrawMapLibrary.self)
+    // Configure libraries
+    HTTPOAuthLibrary.libraryConfig = LispPadOAuthConfig.self
   }
   
   /// Features of LispKit instances created by this interpreter

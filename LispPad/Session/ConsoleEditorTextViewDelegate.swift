@@ -24,10 +24,14 @@ import SwiftUI
 final class ConsoleEditorTextViewDelegate: EditorTextViewDelegate {
   var calculatedHeight: Binding<CGFloat>
   
-  init(text: Binding<String>, selectedRange: Binding<NSRange>, calculatedHeight: Binding<CGFloat>) {
+  init(text: Binding<String>,
+       selectedRange: Binding<NSRange>,
+       focused: Binding<Bool>,
+       calculatedHeight: Binding<CGFloat>) {
     self.calculatedHeight = calculatedHeight
     super.init(text: text,
                selectedRange: selectedRange,
+               focused: focused,
                lastSelectedRange: selectedRange.wrappedValue)
   }
   

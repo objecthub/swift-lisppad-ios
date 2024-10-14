@@ -72,7 +72,8 @@ public struct SlideOverCard<Content: View>: View {
       Button(action: self.dismiss) {
         ExitButton(size: 24)
       }
-      .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close card")
+      .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
+      // .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close card")
       .padding(.trailing, 7)
       .padding(.top, 8)
     }

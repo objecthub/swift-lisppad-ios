@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC02EA062CBBC7D200ABFC6F /* LispPadOAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */; };
+		CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */; };
 		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
 		CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
@@ -362,6 +364,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */,
 				CC853D4F2B54834600139243 /* Fractals.scm in Copy Root/Examples */,
 				CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */,
 				CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */,
@@ -425,6 +428,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadOAuthConfig.swift; sourceTree = "<group>"; };
+		CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = OAuthDemo.scm; sourceTree = "<group>"; };
 		CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObliqueProjection.scm; sourceTree = "<group>"; };
 		CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMaze.scm; sourceTree = "<group>"; };
 		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
@@ -907,6 +912,7 @@
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 				CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */,
+				CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -1126,6 +1132,7 @@
 				CC327C5B2611201100BD7E32 /* Characters.swift */,
 				CC624CD32735B46B005F15B3 /* TaskSerializer.swift */,
 				CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */,
+				CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1254,6 +1261,7 @@
 				CCEEC7B3290DB83700D5BD53 /* DrawMapLibrary.swift in Sources */,
 				CCC8563B2616778D0080B96E /* FileManager.swift in Sources */,
 				CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */,
+				CC02EA062CBBC7D200ABFC6F /* LispPadOAuthConfig.swift in Sources */,
 				CC6598E027292CB6004C9B89 /* LogView.swift in Sources */,
 				CCA3C6A02B09067200C0BDE6 /* ConsoleOutputView.swift in Sources */,
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,

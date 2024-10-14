@@ -104,6 +104,7 @@ struct CodeEditorView: View {
   @Binding var masterWidthFraction: CGFloat
   @Binding var urlToOpen: URL?
   @Binding var editorPosition: NSRange?
+  @Binding var editorFocused: Bool
   @Binding var forceEditorUpdate: Bool
   
   @StateObject var keyboardObserver = KeyboardObserver()
@@ -124,36 +125,56 @@ struct CodeEditorView: View {
   
   var keyboardShortcuts: some View {
     ZStack {
-      Group {
-        Button(action: self.indentEditor) {
-          EmptyView()
+      if !self.splitView || self.editorFocused {
+        Group {
+          Button(action: self.indentEditor) {
+            EmptyView()
+          }
+          .keyCommand("]", modifiers: .command, title: "Indent line")
+          Button(action: self.outdentEditor) {
+            EmptyView()
+          }
+          .keyCommand("[", modifiers: .command, title: "Outdent line")
+          Button(action: self.commentEditor) {
+            EmptyView()
+          }
+          .keyCommand(";", modifiers: .command, title: "Comment line")
+          Button(action: self.uncommentEditor) {
+            EmptyView()
+          }
+          .keyCommand(";", modifiers: [.shift, .command], title: "Uncomment line")
+          Button(action: self.autoIndentEditor) {
+            EmptyView()
+          }
+          .keyCommand("i", modifiers: .command, title: "Auto-indent")
+          Button(action: self.selectExpression) {
+            EmptyView()
+          }
+          .keyCommand("e", modifiers: .command, title: "Select expression")
+          Button(action: self.defineIdentifier) {
+            EmptyView()
+          }
+          .keyCommand("d", modifiers: .command, title: "Define identifier")
+          Button(action: {
+            self.dismissCard()
+            self.updateEditor = { textView in
+              textView.undoManager?.undo()
+            }
+          }) {
+            EmptyView()
+          }
+          .keyCommand("x", modifiers: .command)
+          Button(action: {
+            self.dismissCard()
+            self.updateEditor = { textView in
+              textView.undoManager?.redo()
+            }
+          }) {
+            EmptyView()
+          }
+          .keyCommand("x", modifiers: [.command, .alternate])
         }
-        .keyCommand("]", modifiers: .command, title: "Indent line")
-        Button(action: self.outdentEditor) {
-          EmptyView()
-        }
-        .keyCommand("[", modifiers: .command, title: "Outdent line")
-        Button(action: self.commentEditor) {
-          EmptyView()
-        }
-        .keyCommand(";", modifiers: .command, title: "Comment line")
-        Button(action: self.uncommentEditor) {
-          EmptyView()
-        }
-        .keyCommand(";", modifiers: [.shift, .command], title: "Uncomment line")
-        Button(action: self.autoIndentEditor) {
-          EmptyView()
-        }
-        .keyCommand("i", modifiers: .command, title: "Auto-indent")
       }
-      Button(action: self.selectExpression) {
-        EmptyView()
-      }
-      .keyCommand("e", modifiers: .command, title: "Select expression")
-      Button(action: self.defineIdentifier) {
-        EmptyView()
-      }
-      .keyCommand("d", modifiers: .command, title: "Define identifier")
       Button(action: self.runInterpreter) {
         EmptyView()
       }
@@ -183,15 +204,15 @@ struct CodeEditorView: View {
       }
       .keyCommand("f", modifiers: [.command, .shift], title: "Find/Replace")
       .alert(isPresented: $showAbortAlert, content: self.abortAlert)
-      if !self.splitView {
-        Button(action: {
-          self.dismissCard()
-          self.splitViewMode.toggle()
-        }) {
-          EmptyView()
-        }
-        .keyboardShortcut("s", modifiers: .command)
+      // if !self.splitView {
+      Button(action: {
+        self.dismissCard()
+        self.splitViewMode.toggle()
+      }) {
+        EmptyView()
       }
+      .keyboardShortcut("s", modifiers: .command)
+      // }
     }
   }
   
@@ -288,6 +309,7 @@ struct CodeEditorView: View {
                                     set: { if let doc = self.fileManager.editorDocument {
                                              doc.selectedRange = $0
                                          }}),
+                   focused: $editorFocused,
                    position: $editorPosition,
                    forceUpdate: $forceEditorUpdate,
                    update: $updateEditor,
@@ -313,7 +335,9 @@ struct CodeEditorView: View {
             switch self.splitViewMode {
               case .rightOnRight, .rightOnLeft:
                 self.updateEditor = { textView in
-                  textView.becomeFirstResponder()
+                  DispatchQueue.main.async {
+                    textView.becomeFirstResponder()
+                  }
                 }
               default:
                 break
@@ -530,7 +554,8 @@ struct CodeEditorView: View {
               Text(Image(systemName: "chevron.down.circle.fill"))
                 .font(.caption)
                 .bold()
-                .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+                .foregroundColor(self.editorFocused && self.splitViewMode.isSideBySide
+                                   ? Color.green : Color(LispPadUI.menuIndicatorColor))
             }
           }
         }

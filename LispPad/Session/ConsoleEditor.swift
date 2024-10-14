@@ -32,6 +32,7 @@ struct ConsoleEditor: UIViewRepresentable {
   
   @Binding var text: String
   @Binding var selectedRange: NSRange
+  @Binding var focused: Bool
   @Binding var calculatedHeight: CGFloat
   @Binding var update: ((CodeEditorTextView) -> Void)?
   @ObservedObject var keyboardObserver: KeyboardObserver
@@ -41,6 +42,7 @@ struct ConsoleEditor: UIViewRepresentable {
   public func makeCoordinator() -> Coordinator {
     return ConsoleEditorTextViewDelegate(text: _text,
                                          selectedRange: $selectedRange,
+                                         focused: $focused,
                                          calculatedHeight: _calculatedHeight)
   }
   

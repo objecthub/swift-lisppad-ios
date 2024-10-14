@@ -104,6 +104,8 @@ extension View {
         keyEquiv = .rightArrow
       case UIKeyCommand.inputLeftArrow:
         keyEquiv = .leftArrow
+      case UIKeyCommand.inputEscape:
+        keyEquiv = .escape
       default:
         keyEquiv = KeyEquivalent(key.first!)
     }

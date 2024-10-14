@@ -31,6 +31,7 @@ struct CodeEditor: UIViewRepresentable {
 
   @Binding var text: String
   @Binding var selectedRange: NSRange
+  @Binding var focused: Bool
   @Binding var position: NSRange?
   @Binding var forceUpdate: Bool
   @Binding var update: ((CodeEditorTextView) -> Void)?
@@ -42,6 +43,7 @@ struct CodeEditor: UIViewRepresentable {
   public func makeCoordinator() -> Coordinator {
     return CodeEditorTextViewDelegate(text: _text,
                                       selectedRange: _selectedRange,
+                                      focused: _focused,
                                       fileManager: self.fileManager)
   }
   

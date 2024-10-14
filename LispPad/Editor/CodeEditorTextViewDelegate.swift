@@ -24,10 +24,14 @@ import SwiftUI
 final class CodeEditorTextViewDelegate: EditorTextViewDelegate {
   let fileManager: FileManager
   
-  init(text: Binding<String>, selectedRange: Binding<NSRange>, fileManager: FileManager) {
+  init(text: Binding<String>,
+       selectedRange: Binding<NSRange>,
+       focused: Binding<Bool>,
+       fileManager: FileManager) {
     self.fileManager = fileManager
     super.init(text: text,
                selectedRange: selectedRange,
+               focused: focused,
                lastSelectedRange: selectedRange.wrappedValue)
   }
   

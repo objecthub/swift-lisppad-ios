@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import LispKit
 
 ///
 /// Entry point for LispPad app. Global services are defined and initialized in
@@ -29,7 +30,7 @@ import SwiftUI
 @main struct LispPadApp: App {
 
   // Environment references
-  @Environment(\.scenePhase) private var scenePhase
+  @SwiftUI.Environment(\.scenePhase) private var scenePhase
   
   // Application-level state
   @StateObject private var globals = LispPadGlobals()
@@ -47,7 +48,11 @@ import SwiftUI
         .environmentObject(KeyCommandHandler.empty)
         .environmentObject(self.globals)
         .onOpenURL { url in
-          self.urlToOpen = url
+          if url.scheme == "lisppad" && url.host == "oauth" {
+            _ = HTTPOAuthLibrary.authRequestManager.redirect(url: url)
+          } else {
+            self.urlToOpen = url
+          }
         }
     }
     .onChange(of: scenePhase) { phase in

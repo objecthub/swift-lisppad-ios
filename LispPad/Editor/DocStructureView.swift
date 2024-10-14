@@ -62,7 +62,8 @@ struct DocStructureView: View {
       }) {
         ExitButton()
       }
-      .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+      .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
+      //.keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
       .padding()
     }
   }

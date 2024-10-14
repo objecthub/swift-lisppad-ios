@@ -120,14 +120,18 @@ struct InterpreterView: View {
   
   private var keyboardShortcuts: some View {
     ZStack {
-      Button(action: self.selectExpression) {
-        EmptyView()
+      if self.state.focused {
+        Group {
+          Button(action: self.selectExpression) {
+            EmptyView()
+          }
+          .keyCommand("e", modifiers: .command, title: "Select expression")
+          Button(action: self.defineIdentifier) {
+            EmptyView()
+          }
+          .keyCommand("d", modifiers: .command, title: "Define identifier")
+        }
       }
-      .keyCommand("e", modifiers: .command, title: "Select expression")
-      Button(action: self.defineIdentifier) {
-        EmptyView()
-      }
-      .keyCommand("d", modifiers: .command, title: "Define identifier")
       Button(action: {
         if !self.interpreter.isReady {
           self.alertAction = .abortEvaluation
@@ -136,13 +140,19 @@ struct InterpreterView: View {
         EmptyView()
       }
       .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
-      if !self.splitView {
-        Button(action: self.switchToEditor) {
+      Button(action: {
+        self.dismissCard()
+        self.splitViewMode.toggle()
+      }) {
+        EmptyView()
+      }
+      .keyboardShortcut("s", modifiers: .command)
+      /* if !self.splitView {
+         Button(action: self.switchToEditor) {
           EmptyView()
         }
         .keyCommand("s", modifiers: .command, title: "Switch to editor")
-        //.keyboardShortcut("s", modifiers: .command)
-      }
+      } */
     }
   }
 
@@ -263,7 +273,7 @@ struct InterpreterView: View {
   var body: some View {
     GeometryReader { geometry in
       VStack(alignment: .leading, spacing: 0) {
-        self.keyboardShortcuts
+        // self.keyboardShortcuts
         ZStack {
           ConsoleView(
             font: settings.consoleFont,
@@ -279,10 +289,12 @@ struct InterpreterView: View {
                 input = old
               }
               self.interpreter.evaluate(input) {
-                self.state.consoleInput = old
-                self.state.consoleInputRange = NSRange(location: (old as NSString).length,
-                                                       length: 0)
-                self.interpreter.console.removeLast()
+                DispatchQueue.main.async {
+                  self.state.consoleInput = old
+                  self.state.consoleInputRange = NSRange(location: (old as NSString).length,
+                                                         length: 0)
+                  self.interpreter.console.removeLast()
+                }
               }
             },
             splitViewMode: self.$splitViewMode,
@@ -304,6 +316,7 @@ struct InterpreterView: View {
               .cornerRadius(20)
               .zIndex(9999)
           }
+          self.keyboardShortcuts
         }
       }
       .navigationBarTitleDisplayMode(.inline)
@@ -467,7 +480,8 @@ struct InterpreterView: View {
               Text(Image(systemName: "chevron.down.circle.fill"))
                 .font(.caption)
                 .bold()
-                .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+                .foregroundColor(self.state.focused && self.splitViewMode.isSideBySide
+                                   ? Color.green : Color(LispPadUI.menuIndicatorColor))
             }
           }
         }
@@ -642,6 +656,10 @@ struct InterpreterView: View {
                                "is not saved yet. Discard or save the current document?"),
                  primaryButton: .default(Text("Save"), action: save),
                  secondaryButton: .destructive(Text("Discard"), action: discard))
+  }
+  
+  private func dismissCard() {
+    self.showCard = false
   }
   
   private func switchToEditor() {

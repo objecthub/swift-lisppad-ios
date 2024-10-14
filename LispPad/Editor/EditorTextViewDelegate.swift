@@ -28,13 +28,18 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
   
   @Binding var text: String
   @Binding var selectedRange: NSRange
+  @Binding var focused: Bool
   
   var lastSelectedRange: NSRange
   var backgroundDirty: Bool
   
-  init(text: Binding<String>, selectedRange: Binding<NSRange>, lastSelectedRange: NSRange) {
+  init(text: Binding<String>,
+       selectedRange: Binding<NSRange>,
+       focused: Binding<Bool>,
+       lastSelectedRange: NSRange) {
     self._text = text
     self._selectedRange = selectedRange
+    self._focused = focused
     self.lastSelectedRange = lastSelectedRange
     self.backgroundDirty = false
   }
@@ -45,6 +50,18 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
   
   open var lispSyntax: Bool {
     return true
+  }
+  
+  open func textViewDidBeginEditing(_ textView: UITextView) {
+    DispatchQueue.main.async {
+      self.focused = true
+    }
+  }
+  
+  open func textViewDidEndEditing(_ textView: UITextView) {
+    DispatchQueue.main.async {
+      self.focused = false
+    }
   }
   
   open func textViewDidChange(_ textView: UITextView) {

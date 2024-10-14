@@ -24,6 +24,7 @@ import MarkdownKit
 class InterpreterState: ObservableObject {
   @Published var consoleInput = ""
   @Published var consoleInputRange = NSRange(location: 0, length: 0)
+  @Published var focused: Bool = false
   @Published var consoleTab: Int = 1
   @Published var selectedPreferencesTab = 0
   @Published var showProgressView: String? = nil

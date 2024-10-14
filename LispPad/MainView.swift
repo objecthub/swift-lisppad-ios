@@ -67,6 +67,8 @@ struct MainView: View {
   /// Used to position the cursor of the editor at the given location. This state variable
   /// will be reset once the cursor was positioned.
   @State private var editorPosition: NSRange? = nil
+  
+  @State private var editorFocused: Bool = false
 
   /// Setting this to `true` will force an editor update. The variable is automatically reset.
   @State private var forceEditorUpdate: Bool = false
@@ -100,6 +102,7 @@ struct MainView: View {
                            masterWidthFraction: self.$masterWidthFraction,
                            urlToOpen: self.$urlToOpen,
                            editorPosition: self.$editorPosition,
+                           editorFocused: self.$editorFocused,
                            forceEditorUpdate: self.$forceEditorUpdate)
           }
           .modifier(self.globals.services)
