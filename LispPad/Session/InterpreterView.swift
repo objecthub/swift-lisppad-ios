@@ -104,6 +104,8 @@ struct InterpreterView: View {
   @Binding var splitViewMode: SideBySideMode
   @Binding var masterWidthFraction: CGFloat
   @Binding var urlToOpen: URL?
+  @Binding var updateEditor: ((CodeEditorTextView) -> Void)?
+  @Binding var updateConsole: ((CodeEditorTextView) -> Void)?
   @ObservedObject var state: InterpreterState
   
   // Control flow
@@ -119,41 +121,14 @@ struct InterpreterView: View {
   // Views
   
   private var keyboardShortcuts: some View {
-    ZStack {
-      if self.state.focused {
-        Group {
-          Button(action: self.selectExpression) {
-            EmptyView()
-          }
-          .keyCommand("e", modifiers: .command, title: "Select expression")
-          Button(action: self.defineIdentifier) {
-            EmptyView()
-          }
-          .keyCommand("d", modifiers: .command, title: "Define identifier")
-        }
+    Button(action: {
+      if !self.interpreter.isReady {
+        self.alertAction = .abortEvaluation
       }
-      Button(action: {
-        if !self.interpreter.isReady {
-          self.alertAction = .abortEvaluation
-        }
-      }) {
-        EmptyView()
-      }
-      .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
-      Button(action: {
-        self.dismissCard()
-        self.splitViewMode.toggle()
-      }) {
-        EmptyView()
-      }
-      .keyboardShortcut("s", modifiers: .command)
-      /* if !self.splitView {
-         Button(action: self.switchToEditor) {
-          EmptyView()
-        }
-        .keyCommand("s", modifiers: .command, title: "Switch to editor")
-      } */
+    }) {
+      EmptyView()
     }
+    .keyCommand("t", modifiers: .command, title: "Terminate evaluation")
   }
 
   @ViewBuilder private func sheetView(_ sheet: SheetAction) -> some View {
@@ -273,7 +248,7 @@ struct InterpreterView: View {
   var body: some View {
     GeometryReader { geometry in
       VStack(alignment: .leading, spacing: 0) {
-        // self.keyboardShortcuts
+        self.keyboardShortcuts
         ZStack {
           ConsoleView(
             font: settings.consoleFont,
@@ -307,7 +282,9 @@ struct InterpreterView: View {
             showSheet: self.$showSheet,
             showModal: self.$showModal,
             showCard: self.$showCard,
-            cardContent: self.cardContent)
+            cardContent: self.cardContent,
+            updateConsole: self.$updateConsole,
+            updateEditor: self.$updateEditor)
           if let header = self.state.showProgressView {
             ProgressView(header)
               .frame(width: 250, height: 120)
@@ -316,7 +293,6 @@ struct InterpreterView: View {
               .cornerRadius(20)
               .zIndex(9999)
           }
-          self.keyboardShortcuts
         }
       }
       .navigationBarTitleDisplayMode(.inline)
@@ -658,8 +634,24 @@ struct InterpreterView: View {
                  secondaryButton: .destructive(Text("Discard"), action: discard))
   }
   
-  private func dismissCard() {
-    self.showCard = false
+  private func switchAcross() {
+    if self.splitViewMode.isSideBySide {
+      if self.state.focused {
+        self.updateEditor = { textView in
+          DispatchQueue.main.async {
+            textView.becomeFirstResponder()
+          }
+        }
+      } else {
+        self.updateConsole = { textView in
+          DispatchQueue.main.async {
+            textView.becomeFirstResponder()
+          }
+        }
+      }
+    } else {
+      self.splitViewMode.toggle()
+    }
   }
   
   private func switchToEditor() {

@@ -28,12 +28,12 @@ struct ConsoleView: View {
                                    UIColor(red: 0.0, green: 0.1, blue: 0.7, alpha: 1.0))
   
   @EnvironmentObject var globals: LispPadGlobals
+  @EnvironmentObject var docManager: DocumentationManager
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
   @State var dynamicHeight: CGFloat = 100
   @State var inputBuffer: String? = nil
   @State var inputHistoryIndex: Int = -1
-  @State var updateConsole: ((CodeEditorTextView) -> Void)? = nil
   @State var minSeverityFilter = Severity.debug
   @State var logMessageFilter = ""
   @State var filterMessage = true
@@ -55,6 +55,8 @@ struct ConsoleView: View {
   @Binding var showModal: InterpreterView.SheetAction?
   @Binding var showCard: Bool
   @ObservedObject var cardContent: MutableBlock
+  @Binding var updateConsole: ((CodeEditorTextView) -> Void)?
+  @Binding var updateEditor: ((CodeEditorTextView) -> Void)?
   
   func errorText(image: String, text: String?) -> Text {
     return text == nil ? Text("") : Text("\n") +
@@ -311,70 +313,120 @@ struct ConsoleView: View {
       //.disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
       .padding(.trailing, 3)
       .offset(y: -3)
-      Button(action: {
-        guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
-          return
-        }
-        self.inputBuffer = nil
-        self.inputHistoryIndex = -1
-        self.action()
-      }) {
-        EmptyView()
-      }
-      .keyCommand("\r", modifiers: .command, title: "Execute command")
-      Button(action: {
-        guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
-          return
-        }
-        self.inputBuffer = nil
-        self.inputHistoryIndex = -1
-        self.action()
-      }) {
-        EmptyView()
-      }
-      .keyCommand("\r", modifiers: [.command, .alternate], title: "Execute command")
-      Button(action: {
-        if self.inputHistoryIndex >= 0 &&
-           self.inputHistoryIndex < self.history.count &&
-           self.history[self.inputHistoryIndex] != self.state.consoleInput {
-          self.inputHistoryIndex = -1
-          self.inputBuffer = nil
-        }
-        if self.inputHistoryIndex + 1 < self.history.count {
-          if self.inputBuffer == nil {
-            self.inputBuffer = self.state.consoleInput
+      ZStack {
+        if !self.splitViewMode.isSideBySide || self.state.focused {
+          Button(action: {
+            guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
+              return
+            }
+            self.inputBuffer = nil
+            self.inputHistoryIndex = -1
+            self.action()
+          }) {
+            EmptyView()
           }
-          self.inputHistoryIndex += 1
-          let input = self.history[self.inputHistoryIndex]
-          self.state.consoleInput = input
-          self.state.consoleInputRange = NSRange(location: (input as NSString).length, length: 0)
+          .keyCommand("\r", modifiers: .command, title: "Execute command")
         }
-      }) {
-        EmptyView()
-      }
-      .keyCommand(UIKeyCommand.inputUpArrow, modifiers: [.command, .alternate], title: "Previous command")
-      Button(action: {
-        if self.inputHistoryIndex >= 0 &&
-           self.inputHistoryIndex < self.history.count &&
-           self.history[self.inputHistoryIndex] != self.state.consoleInput {
-          self.inputHistoryIndex = -1
+        Button(action: {
+          guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
+            return
+          }
           self.inputBuffer = nil
-        } else if self.inputHistoryIndex > 0 {
-          self.inputHistoryIndex -= 1
-          let input = self.history[self.inputHistoryIndex]
-          self.state.consoleInput = input
-          self.state.consoleInputRange = NSRange(location: (input as NSString).length, length: 0)
-        } else if self.inputHistoryIndex == 0 {
-          self.state.consoleInput = self.inputBuffer ?? ""
-          self.state.consoleInputRange =
+          self.inputHistoryIndex = -1
+          self.action()
+        }) {
+          EmptyView()
+        }
+        .keyCommand("\r", modifiers: [.command, .alternate], title: "Execute command")
+        Button(action: {
+          if self.inputHistoryIndex >= 0 &&
+              self.inputHistoryIndex < self.history.count &&
+              self.history[self.inputHistoryIndex] != self.state.consoleInput {
+            self.inputHistoryIndex = -1
+            self.inputBuffer = nil
+          }
+          if self.inputHistoryIndex + 1 < self.history.count {
+            if self.inputBuffer == nil {
+              self.inputBuffer = self.state.consoleInput
+            }
+            self.inputHistoryIndex += 1
+            let input = self.history[self.inputHistoryIndex]
+            self.state.consoleInput = input
+            self.state.consoleInputRange = NSRange(location: (input as NSString).length, length: 0)
+          }
+        }) {
+          EmptyView()
+        }
+        .keyCommand(UIKeyCommand.inputUpArrow, modifiers: [.command, .alternate], title: "Previous command")
+        Button(action: {
+          if self.inputHistoryIndex >= 0 &&
+              self.inputHistoryIndex < self.history.count &&
+              self.history[self.inputHistoryIndex] != self.state.consoleInput {
+            self.inputHistoryIndex = -1
+            self.inputBuffer = nil
+          } else if self.inputHistoryIndex > 0 {
+            self.inputHistoryIndex -= 1
+            let input = self.history[self.inputHistoryIndex]
+            self.state.consoleInput = input
+            self.state.consoleInputRange = NSRange(location: (input as NSString).length, length: 0)
+          } else if self.inputHistoryIndex == 0 {
+            self.state.consoleInput = self.inputBuffer ?? ""
+            self.state.consoleInputRange =
             NSRange(location: (self.state.consoleInput as NSString).length, length: 0)
-          self.inputHistoryIndex = -1
-          self.inputBuffer = nil
+            self.inputHistoryIndex = -1
+            self.inputBuffer = nil
+          }
+        }) {
+          EmptyView()
         }
-      }) {
-        EmptyView()
+        .keyCommand(UIKeyCommand.inputDownArrow, modifiers: [.command, .alternate], title: "Next command")
+        Button(action: {
+          if self.state.consoleTab > 0 {
+            self.state.consoleTab = (self.state.consoleTab + 2) % 3
+          }
+        }) {
+          EmptyView()
+        }
+        .keyCommand(UIKeyCommand.inputLeftArrow, modifiers: [.command, .alternate], title: "Previous view")
+        Button(action: {
+          if self.state.consoleTab < 2 {
+            self.state.consoleTab = (self.state.consoleTab + 1) % 3
+          }
+        }) {
+          EmptyView()
+        }
+        .keyCommand(UIKeyCommand.inputRightArrow, modifiers: [.command, .alternate], title: "Next view")
+        Button(action: { self.state.consoleTab = 0 }) {
+          EmptyView()
+        }
+        .keyCommand("l", modifiers: [.command, .alternate], title: "Show log")
+        Button(action: { self.state.consoleTab = 1 }) {
+          EmptyView()
+        }
+        .keyCommand("i", modifiers: [.command, .alternate], title: "Show interpreter")
+        Button(action: { self.state.consoleTab = 2 }) {
+          EmptyView()
+        }
+        .keyCommand("c", modifiers: [.command, .alternate], title: "Show canvas")
       }
-      .keyCommand(UIKeyCommand.inputDownArrow, modifiers: [.command, .alternate], title: "Next command")
+      ZStack {
+        if self.state.focused {
+          Button(action: self.selectExpression) {
+            EmptyView()
+          }
+          .keyCommand("e", modifiers: .command, title: "Select expression")
+        }
+        if self.state.focused {
+          Button(action: self.defineIdentifier) {
+            EmptyView()
+          }
+          .keyCommand("d", modifiers: .command, title: "Define identifier")
+        }
+        Button(action: self.switchAcross) {
+          EmptyView()
+        }
+        .keyCommand("s", modifiers: .command, title: "Switch to editor")
+      }
     }
     .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
                   .stroke(Color.gray, lineWidth: 0.7)
@@ -449,6 +501,43 @@ struct ConsoleView: View {
         .ignoresSafeArea(.container, edges: [.leading, .trailing])
       self.control
         .transition(.identity)
+    }
+  }
+  
+  private func selectExpression() {
+    if let range = TextFormatter.selectEnclosingExpr(string: self.state.consoleInput as NSString,
+                                                     selectedRange: self.state.consoleInputRange,
+                                                     smart: true) {
+      self.state.consoleInputRange = range
+    }
+  }
+  
+  private func defineIdentifier() {
+    if let name = TextFormatter.selectedName(in: self.state.consoleInput,
+                                             for: self.state.consoleInputRange),
+       let documentation = self.docManager.documentation(for: name) {
+      self.showCard = true
+      self.cardContent.block = documentation
+    }
+  }
+  
+  private func switchAcross() {
+    if self.splitViewMode.isSideBySide {
+      if self.state.focused {
+        self.updateEditor = { textView in
+          DispatchQueue.main.async {
+            textView.becomeFirstResponder()
+          }
+        }
+      } else {
+        self.updateConsole = { textView in
+          DispatchQueue.main.async {
+            textView.becomeFirstResponder()
+          }
+        }
+      }
+    } else {
+      self.splitViewMode.toggle()
     }
   }
   

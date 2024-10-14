@@ -106,6 +106,8 @@ struct CodeEditorView: View {
   @Binding var editorPosition: NSRange?
   @Binding var editorFocused: Bool
   @Binding var forceEditorUpdate: Bool
+  @Binding var updateEditor: ((CodeEditorTextView) -> Void)?
+  @Binding var updateConsole: ((CodeEditorTextView) -> Void)?
   
   @StateObject var keyboardObserver = KeyboardObserver()
   @StateObject var cardContent = MutableBlock()
@@ -121,12 +123,11 @@ struct CodeEditorView: View {
   @State var showFileNotFoundAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
-  @State var updateEditor: ((CodeEditorTextView) -> Void)? = nil
   
   var keyboardShortcuts: some View {
     ZStack {
       if !self.splitView || self.editorFocused {
-        Group {
+        ZStack {
           Button(action: self.indentEditor) {
             EmptyView()
           }
@@ -204,15 +205,10 @@ struct CodeEditorView: View {
       }
       .keyCommand("f", modifiers: [.command, .shift], title: "Find/Replace")
       .alert(isPresented: $showAbortAlert, content: self.abortAlert)
-      // if !self.splitView {
-      Button(action: {
-        self.dismissCard()
-        self.splitViewMode.toggle()
-      }) {
+      Button(action: self.switchAcross) {
         EmptyView()
       }
       .keyboardShortcut("s", modifiers: .command)
-      // }
     }
   }
   
@@ -830,6 +826,27 @@ struct CodeEditorView: View {
   
   private func dismissCard() {
     self.showCard = false
+  }
+  
+  private func switchAcross() {
+    if self.splitViewMode.isSideBySide {
+      if self.editorFocused {
+        self.updateConsole = { textView in
+          DispatchQueue.main.async {
+            textView.becomeFirstResponder()
+          }
+        }
+      } else {
+        self.updateEditor = { textView in
+          DispatchQueue.main.async {
+            textView.becomeFirstResponder()
+          }
+        }
+      }
+    } else {
+      // self.showCard = false
+      self.splitViewMode.toggle()
+    }
   }
   
   private func replaceAll(_ str: String, _ repl: String) -> Alert {

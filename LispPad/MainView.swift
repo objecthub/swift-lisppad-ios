@@ -73,6 +73,10 @@ struct MainView: View {
   /// Setting this to `true` will force an editor update. The variable is automatically reset.
   @State private var forceEditorUpdate: Bool = false
   
+  /// Support updating the editor and console text views
+  @State private var updateEditor: ((CodeEditorTextView) -> Void)? = nil
+  @State private var updateConsole: ((CodeEditorTextView) -> Void)? = nil
+  
   /// All state powering the interpreter; it is initialized here to make sure that changes to
   /// the view tree do not result in interpreter state getting reset.
   @StateObject private var interpreterState = InterpreterState()
@@ -91,6 +95,8 @@ struct MainView: View {
                             splitViewMode: self.$splitViewMode,
                             masterWidthFraction: self.$masterWidthFraction,
                             urlToOpen: self.$urlToOpen,
+                            updateEditor: self.$updateEditor,
+                            updateConsole: self.$updateConsole,
                             state: self.interpreterState)
           }
           .modifier(self.globals.services)
@@ -103,7 +109,9 @@ struct MainView: View {
                            urlToOpen: self.$urlToOpen,
                            editorPosition: self.$editorPosition,
                            editorFocused: self.$editorFocused,
-                           forceEditorUpdate: self.$forceEditorUpdate)
+                           forceEditorUpdate: self.$forceEditorUpdate,
+                           updateEditor: self.$updateEditor,
+                           updateConsole: self.$updateConsole)
           }
           .modifier(self.globals.services)
         }
