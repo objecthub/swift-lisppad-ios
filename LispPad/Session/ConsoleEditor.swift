@@ -82,7 +82,6 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
-    textView.setupEditMenu()
     return textView
   }
 

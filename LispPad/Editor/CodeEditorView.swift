@@ -126,7 +126,7 @@ struct CodeEditorView: View {
   
   var keyboardShortcuts: some View {
     ZStack {
-      if !self.splitView || self.editorFocused {
+      if !self.splitViewMode.isSideBySide || self.editorFocused {
         ZStack {
           Button(action: self.indentEditor) {
             EmptyView()
@@ -159,21 +159,25 @@ struct CodeEditorView: View {
           Button(action: {
             self.dismissCard()
             self.updateEditor = { textView in
-              textView.undoManager?.undo()
+              DispatchQueue.main.async {
+                textView.undoManager?.undo()
+              }
             }
           }) {
             EmptyView()
           }
-          .keyCommand("x", modifiers: .command)
+          .keyCommand("b", modifiers: .command)
           Button(action: {
             self.dismissCard()
             self.updateEditor = { textView in
-              textView.undoManager?.redo()
+              DispatchQueue.main.async {
+                textView.undoManager?.redo()
+              }
             }
           }) {
             EmptyView()
           }
-          .keyCommand("x", modifiers: [.command, .alternate])
+          .keyCommand("b", modifiers: [.command, .shift])
         }
       }
       Button(action: self.runInterpreter) {
@@ -215,6 +219,7 @@ struct CodeEditorView: View {
   var body: some View {
     GeometryReader { geometry in
       VStack(alignment: .leading, spacing: 0) {
+        self.keyboardShortcuts
         if self.showSearchField {
           VStack(alignment: .leading, spacing: 0) {
             SearchField(searchText: $searchText,
@@ -296,7 +301,6 @@ struct CodeEditorView: View {
           }
           .transition(.move(edge: .top))
         }
-        self.keyboardShortcuts
         CodeEditor(text: .init(get: { self.fileManager.editorDocument?.text ?? "" },
                                set: { if let doc = self.fileManager.editorDocument {doc.text = $0}}),
                    selectedRange: .init(
@@ -338,11 +342,6 @@ struct CodeEditorView: View {
               default:
                 break
             }
-            /*
-            self.updateEditor = { textView in
-              textView.becomeFirstResponder()
-            }
-            */
           }
           .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
             self.editorType = self.fileManager.editorDocumentInfo.editorType

@@ -78,7 +78,6 @@ struct CodeEditor: UIViewRepresentable {
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
-    textView.setupEditMenu()
     DispatchQueue.main.async {
       if let doc = self.fileManager.editorDocument {
         textView.becomeFirstResponder()

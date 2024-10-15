@@ -21,7 +21,7 @@
 import UIKit
 import MarkdownKit
 
-class CodeEditorTextView: UITextView {
+class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
 
   /// The width of the gutter
   static let gutterWidth: CGFloat = 31.0
@@ -237,47 +237,76 @@ class CodeEditorTextView: UITextView {
         self.resignFirstResponder()
     }
   }
-
-  func setupEditMenu() {
-    let menuController: UIMenuController = UIMenuController.shared
-    menuController.menuItems = [
-      UIMenuItem(title: "Define", action: #selector(CodeEditorTextView.define)),
-      UIMenuItem(title: "Indent", action: #selector(CodeEditorTextView.indent)),
-      UIMenuItem(title: "Outdent", action: #selector(CodeEditorTextView.outdent)),
-      UIMenuItem(title: "Comment", action: #selector(CodeEditorTextView.comment)),
-      UIMenuItem(title: "Uncomment", action: #selector(CodeEditorTextView.uncomment))
-    ]
-    menuController.update()
-  }
-
+  
   override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
     switch action {
-      case #selector(UIResponderStandardEditActions.cut(_:)),
-           #selector(UIResponderStandardEditActions.copy(_:)),
-           #selector(UIResponderStandardEditActions.delete(_:)),
-           #selector(UIResponderStandardEditActions.paste(_:)),
-           #selector(UIResponderStandardEditActions.select(_:)),
-           #selector(UIResponderStandardEditActions.selectAll(_:)):
-        return super.canPerformAction(action, withSender: sender)
-      case #selector(define(_:)):
-        guard self.defineAction != nil,
-              let name = self.selectedName(),
-              let tsdelegate = self.textStorage.delegate as? CodeEditorTextStorageDelegate,
-              tsdelegate.docManager.hasDocumentation(for: name) else {
-          return false
-        }
-        return true
-      case #selector(indent(_:)),
-           #selector(comment(_:)),
-           #selector(outdent(_:)),
-           #selector(uncomment(_:)):
-        return self.text.count > 0
-      default:
+      case  #selector(UIResponderStandardEditActions.toggleBoldface(_:)),
+            #selector(UIResponderStandardEditActions.toggleItalics(_:)),
+            #selector(UIResponderStandardEditActions.toggleUnderline(_:)),
+            #selector(UIResponderStandardEditActions.decreaseSize(_:)),
+            #selector(UIResponderStandardEditActions.increaseSize(_:)),
+            #selector(UIResponderStandardEditActions.makeTextWritingDirectionRightToLeft(_:)),
+            #selector(UIResponderStandardEditActions.makeTextWritingDirectionLeftToRight(_:)):
         return false
+      default:
+        return super.canPerformAction(action, withSender: sender)
     }
   }
+  
+  override func editMenu(for textRange: UITextRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
+    var editMenu: UIMenu? = nil
+    var shareMenu: UIMenu? = nil
+    for elem in suggestedActions {
+      if let menu = elem as? UIMenu {
+        if menu.identifier == UIMenu.Identifier("com.apple.menu.standard-edit") {
+          editMenu = menu
+        } else if menu.identifier == UIMenu.Identifier("com.apple.menu.share") {
+          shareMenu = menu
+        }
+      }
+    }
+    var actions: [UIMenuElement] = []
+    if let editMenu {
+      actions.append(editMenu)
+    }
+    if self.defineAction != nil,
+       let name = self.selectedName(),
+       let tsdelegate = self.textStorage.delegate as? CodeEditorTextStorageDelegate,
+       tsdelegate.docManager.hasDocumentation(for: name) {
+      actions.append(UIAction(title: "Define",
+                              image: UIImage(systemName: "questionmark")) { [weak self] action in
+        self?.define()
+      })
+    }
+    if self.text.count > 0 {
+      actions.append(UIMenu(identifier: UIMenu.Identifier("net.objecthub.lisppad.shift"),
+                            options: .displayInline,
+                            children: [
+        UIAction(title: "Indent",
+                 image: UIImage(systemName: "increase.indent")) { [weak self] action in
+          self?.indent()
+        },
+        UIAction(title: "Outdent",
+                 image: UIImage(systemName: "decrease.indent")) { [weak self] action in
+          self?.outdent()
+        },
+        UIAction(title: "Comment",
+                 image: UIImage(systemName: "text.bubble")) { [weak self] action in
+          self?.comment()
+        },
+        UIAction(title: "Uncomment",
+                 image: UIImage(systemName: "bubble.left")) { [weak self] action in
+          self?.uncomment()
+        }
+      ]))
+    }
+    if let shareMenu {
+      actions.append(shareMenu)
+    }
+    return UIMenu(children: actions)
+  }
 
-  @objc func define(_ sender: UIMenuItem) {
+  func define() {
     guard let action = self.defineAction,
           let name = self.selectedName(),
           let tsdelegate = self.textStorage.delegate as? CodeEditorTextStorageDelegate,
@@ -287,7 +316,7 @@ class CodeEditorTextView: UITextView {
     action(documentation)
   }
 
-  @objc func indent(_ sender: UIMenuItem) {
+  func indent() {
     let selRange = TextFormatter.indent(textView: self, with: " ")
     self.selectedRange = selRange
     if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
@@ -296,7 +325,7 @@ class CodeEditorTextView: UITextView {
     }
   }
 
-  @objc func outdent(_ sender: UIMenuItem) {
+  func outdent() {
     if let selRange = TextFormatter.outdent(textView: self, with: " ") {
       self.selectedRange = selRange
       if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
@@ -307,7 +336,7 @@ class CodeEditorTextView: UITextView {
     }
   }
 
-  @objc func comment(_ sender: UIMenuItem) {
+  func comment() {
     let selRange = TextFormatter.indent(textView: self, with: ";")
     self.selectedRange = selRange
     if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {
@@ -316,7 +345,7 @@ class CodeEditorTextView: UITextView {
     }
   }
 
-  @objc func uncomment(_ sender: UIMenuItem) {
+  func uncomment() {
     if let selRange = TextFormatter.outdent(textView: self, with: ";") {
       self.selectedRange = selRange
       if let delegate = self.delegate as? ConsoleEditorTextViewDelegate {

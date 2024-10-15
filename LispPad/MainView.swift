@@ -68,7 +68,7 @@ struct MainView: View {
   /// will be reset once the cursor was positioned.
   @State private var editorPosition: NSRange? = nil
   
-  @State private var editorFocused: Bool = false
+  @State private var editorFocused: Bool = true
 
   /// Setting this to `true` will force an editor update. The variable is automatically reset.
   @State private var forceEditorUpdate: Bool = false
