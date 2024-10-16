@@ -28,7 +28,9 @@ struct PreferencesView: View {
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
   @Binding var selectedTab: Int
+  @State var modeSelector: Int = 0
   @State var resetParameters: Bool = false
+  
   
   var body: some View {
     TabView(selection: $selectedTab) {
@@ -127,21 +129,52 @@ struct PreferencesView: View {
         Label("Editor", systemImage: "square.and.pencil")
       }
       .tag(1)
-      Form {
-        Section(header: Text("Scheme")) {
-          ColorPicker("Parenthesis", selection: $settings.parensColor, supportsOpacity: false)
-          ColorPicker("Literals", selection: $settings.literalsColor, supportsOpacity: false)
-          ColorPicker("Comments", selection: $settings.commentsColor, supportsOpacity: false)
-          ColorPicker("Documented identifiers", selection: $settings.docuIdentColor,
-                      supportsOpacity: false)
-        }
-        Section(header: Text("Markdown")) {
-          ColorPicker("Headers", selection: $settings.headerColor, supportsOpacity: false)
-          ColorPicker("Subheaders", selection: $settings.subheaderColor, supportsOpacity: false)
-          ColorPicker("Emphasis", selection: $settings.emphasisColor, supportsOpacity: false)
-          ColorPicker("Bullets", selection: $settings.bulletsColor, supportsOpacity: false)
-          ColorPicker("Blockquotes", selection: $settings.blockquoteColor, supportsOpacity: false)
-          ColorPicker("Code", selection: $settings.codeColor, supportsOpacity: false)
+      VStack {
+        Form {
+          Picker("", selection: self.$modeSelector) {
+            Text("Light Mode").tag(0)
+            Text("Dark Mode").tag(1)
+          }
+          .pickerStyle(.segmented)
+          .listRowInsets(.init())
+          .listRowBackground(Color.clear)
+          if self.modeSelector == 0 {
+            Section {
+              ColorPicker("Text", selection: bridge($settings.textLightColor), supportsOpacity: false)
+            }
+            Section(header: Text("Scheme")) {
+              ColorPicker("Parenthesis", selection: bridge($settings.parensLightColor), supportsOpacity: false)
+              ColorPicker("Literals", selection: bridge($settings.literalsLightColor), supportsOpacity: false)
+              ColorPicker("Comments", selection: bridge($settings.commentsLightColor), supportsOpacity: false)
+              ColorPicker("Documented identifiers", selection: bridge($settings.docuIdentLightColor), supportsOpacity: false)
+            }
+            Section(header: Text("Markdown")) {
+              ColorPicker("Headers", selection: bridge($settings.headerLightColor), supportsOpacity: false)
+              ColorPicker("Subheaders", selection: bridge($settings.subheaderLightColor), supportsOpacity: false)
+              ColorPicker("Emphasis", selection: bridge($settings.emphasisLightColor), supportsOpacity: false)
+              ColorPicker("Bullets", selection: bridge($settings.bulletsLightColor), supportsOpacity: false)
+              ColorPicker("Blockquotes", selection: bridge($settings.blockquoteLightColor), supportsOpacity: false)
+              ColorPicker("Code", selection: bridge($settings.codeLightColor), supportsOpacity: false)
+            }
+          } else {
+            Section {
+              ColorPicker("Text", selection: bridge($settings.textDarkColor), supportsOpacity: false)
+            }
+            Section(header: Text("Scheme")) {
+              ColorPicker("Parenthesis", selection: bridge($settings.parensDarkColor), supportsOpacity: false)
+              ColorPicker("Literals", selection: bridge($settings.literalsDarkColor), supportsOpacity: false)
+              ColorPicker("Comments", selection: bridge($settings.commentsDarkColor), supportsOpacity: false)
+              ColorPicker("Documented identifiers", selection: bridge($settings.docuIdentDarkColor), supportsOpacity: false)
+            }
+            Section(header: Text("Markdown")) {
+              ColorPicker("Headers", selection: bridge($settings.headerDarkColor), supportsOpacity: false)
+              ColorPicker("Subheaders", selection: bridge($settings.subheaderDarkColor), supportsOpacity: false)
+              ColorPicker("Emphasis", selection: bridge($settings.emphasisDarkColor), supportsOpacity: false)
+              ColorPicker("Bullets", selection: bridge($settings.bulletsDarkColor), supportsOpacity: false)
+              ColorPicker("Blockquotes", selection: bridge($settings.blockquoteDarkColor), supportsOpacity: false)
+              ColorPicker("Code", selection: bridge($settings.codeDarkColor), supportsOpacity: false)
+            }
+          }
         }
       }
       .tabItem {
@@ -221,6 +254,13 @@ struct PreferencesView: View {
     }
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("Settings")
+  }
+  
+  private func bridge(_ binding: Binding<UIColor>) -> Binding<Color> {
+    return Binding(
+      get: { Color(binding.wrappedValue) },
+      set: { binding.wrappedValue = UIColor($0) }
+    )
   }
 }
 

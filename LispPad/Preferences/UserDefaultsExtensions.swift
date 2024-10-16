@@ -38,28 +38,46 @@ extension UserDefaults {
     return (self.value(forKey: key) as? Int) ?? value
   }
   
-  func set(_ color: CGColor, forKey key: String) {
-    if let obj = try? NSKeyedArchiver.archivedData(withRootObject: UIColor(cgColor: color),
+  func set(_ color: UIColor, forKey key: String) {
+    if let obj = try? NSKeyedArchiver.archivedData(withRootObject: color,
                                                    requiringSecureCoding: false) {
       self.set(obj, forKey: key)
     }
   }
   
-  func color(forKey key: String, _ value: UIColor) -> CGColor {
+  func color(forKey key: String, alternateKey: String? = nil, _ value: UIColor) -> UIColor {
     guard let data = self.data(forKey: key),
           let color = try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self,
                                                               from: data) else {
-      return value.cgColor
+      guard let alternateKey,
+            let data = self.data(forKey: alternateKey),
+            let color = try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self,
+                                                                from: data) else {
+        return value
+      }
+      self.set(color, forKey: key)
+      return color
     }
-    return color.cgColor
+    return color
   }
   
-  func color(forKey key: String, red: CGFloat, green: CGFloat, blue: CGFloat) -> CGColor {
+  func color(forKey key: String,
+             alternateKey: String? = nil,
+             red: CGFloat,
+             green: CGFloat,
+             blue: CGFloat) -> UIColor {
     guard let data = self.data(forKey: key),
           let color = try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self,
                                                               from: data) else {
-      return CGColor(red: red, green: green, blue: blue, alpha: 1.0)
+      guard let alternateKey,
+            let data = self.data(forKey: alternateKey),
+            let color = try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self,
+                                                                from: data) else {
+        return UIColor(red: red, green: green, blue: blue, alpha: 1.0)
+      }
+      self.set(color, forKey: key)
+      return color
     }
-    return color.cgColor
+    return color
   }
 }

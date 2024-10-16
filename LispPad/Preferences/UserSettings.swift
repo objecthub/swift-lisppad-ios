@@ -67,6 +67,7 @@ final class UserSettings: ObservableObject {
   private static let schemeMarkupIdentKey = "Editor.schemeMarkupIdent"
   private static let markdownAutoIndentKey = "Editor.markdownAutoIndent"
   private static let markdownHighlightSyntaxKey = "Editor.markdownHighlightSyntax"
+  private static let textColorKey = "Editor.textColor"
   private static let docuIdentColorKey = "Editor.docuIdentColor"
   private static let parensColorKey = "Editor.parensColor"
   private static let literalsColorKey = "Editor.literalsColor"
@@ -77,6 +78,17 @@ final class UserSettings: ObservableObject {
   private static let bulletsColorKey = "Editor.bulletsColor"
   private static let blockquoteColorKey = "Editor.blockquoteColor"
   private static let codeColorKey = "Editor.codeColor"
+  private static let textDarkColorKey = "Editor.textDarkColor"
+  private static let docuIdentDarkColorKey = "Editor.docuIdentDarkColor"
+  private static let parensDarkColorKey = "Editor.parensDarkColor"
+  private static let literalsDarkColorKey = "Editor.literalsDarkColor"
+  private static let commentsDarkColorKey = "Editor.commentsDarkColor"
+  private static let headerDarkColorKey = "Editor.headerDarkColor"
+  private static let subheaderDarkColorKey = "Editor.subheaderDarkColor"
+  private static let emphasisDarkColorKey = "Editor.emphasisDarkColor"
+  private static let bulletsDarkColorKey = "Editor.bulletsDarkColor"
+  private static let blockquoteDarkColorKey = "Editor.blockquoteDarkColor"
+  private static let codeDarkColorKey = "Editor.codeDarkColor"
   private static let codingFontKey = "General.codingFont"
   private static let disableExtendedKeyboardKey = "Keyboard.disableExtendedKeyboard"
   private static let maxStackSizeKey = "Interpreter.maxStackSize"
@@ -346,73 +358,157 @@ final class UserSettings: ObservableObject {
     }
   }
   
-  @Published var docuIdentColor: CGColor {
+  @Published var textLightColor: UIColor {
     didSet {
-      self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.docuIdentColor, forKey: Self.docuIdentColorKey)
+      self.syntaxHighlightingUpdate = .now
+      UserDefaults.standard.set(self.textLightColor, forKey: Self.textColorKey)
     }
   }
   
-  @Published var parensColor: CGColor {
+  @Published var docuIdentLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.parensColor, forKey: Self.parensColorKey)
+      UserDefaults.standard.set(self.docuIdentLightColor, forKey: Self.docuIdentColorKey)
     }
   }
   
-  @Published var literalsColor: CGColor {
+  @Published var parensLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.literalsColor, forKey: Self.literalsColorKey)
+      UserDefaults.standard.set(self.parensLightColor, forKey: Self.parensColorKey)
     }
   }
   
-  @Published var commentsColor: CGColor {
+  @Published var literalsLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.commentsColor, forKey: Self.commentsColorKey)
+      UserDefaults.standard.set(self.literalsLightColor, forKey: Self.literalsColorKey)
     }
   }
   
-  @Published var headerColor: CGColor {
+  @Published var commentsLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.headerColor, forKey: Self.headerColorKey)
+      UserDefaults.standard.set(self.commentsLightColor, forKey: Self.commentsColorKey)
     }
   }
   
-  @Published var subheaderColor: CGColor {
+  @Published var headerLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.subheaderColor, forKey: Self.subheaderColorKey)
+      UserDefaults.standard.set(self.headerLightColor, forKey: Self.headerColorKey)
     }
   }
   
-  @Published var emphasisColor: CGColor {
+  @Published var subheaderLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.emphasisColor, forKey: Self.emphasisColorKey)
+      UserDefaults.standard.set(self.subheaderLightColor, forKey: Self.subheaderColorKey)
     }
   }
   
-  @Published var bulletsColor: CGColor {
+  @Published var emphasisLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.bulletsColor, forKey: Self.bulletsColorKey)
+      UserDefaults.standard.set(self.emphasisLightColor, forKey: Self.emphasisColorKey)
     }
   }
   
-  @Published var blockquoteColor: CGColor {
+  @Published var bulletsLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.blockquoteColor, forKey: Self.blockquoteColorKey)
+      UserDefaults.standard.set(self.bulletsLightColor, forKey: Self.bulletsColorKey)
     }
   }
   
-  @Published var codeColor: CGColor {
+  @Published var blockquoteLightColor: UIColor {
     didSet {
       self.syntaxHighlightingUpdate = Date()
-      UserDefaults.standard.set(self.codeColor, forKey: Self.codeColorKey)
+      UserDefaults.standard.set(self.blockquoteLightColor, forKey: Self.blockquoteColorKey)
+    }
+  }
+  
+  @Published var codeLightColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.codeLightColor, forKey: Self.codeColorKey)
+    }
+  }
+  
+  @Published var textDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = .now
+      UserDefaults.standard.set(self.textDarkColor, forKey: Self.textDarkColorKey)
+    }
+  }
+  
+  @Published var docuIdentDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.docuIdentDarkColor, forKey: Self.docuIdentDarkColorKey)
+    }
+  }
+  
+  @Published var parensDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.parensDarkColor, forKey: Self.parensDarkColorKey)
+    }
+  }
+  
+  @Published var literalsDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.literalsDarkColor, forKey: Self.literalsDarkColorKey)
+    }
+  }
+  
+  @Published var commentsDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.commentsDarkColor, forKey: Self.commentsDarkColorKey)
+    }
+  }
+  
+  @Published var headerDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.headerDarkColor, forKey: Self.headerDarkColorKey)
+    }
+  }
+  
+  @Published var subheaderDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.subheaderDarkColor, forKey: Self.subheaderDarkColorKey)
+    }
+  }
+  
+  @Published var emphasisDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.emphasisDarkColor, forKey: Self.emphasisDarkColorKey)
+    }
+  }
+  
+  @Published var bulletsDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.bulletsDarkColor, forKey: Self.bulletsDarkColorKey)
+    }
+  }
+  
+  @Published var blockquoteDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.blockquoteDarkColor, forKey: Self.blockquoteDarkColorKey)
+    }
+  }
+  
+  @Published var codeDarkColor: UIColor {
+    didSet {
+      self.syntaxHighlightingUpdate = Date()
+      UserDefaults.standard.set(self.codeDarkColor, forKey: Self.codeDarkColorKey)
     }
   }
   
@@ -491,7 +587,21 @@ final class UserSettings: ObservableObject {
     }
   }
   
-  var syntaxHighlightingUpdate = Date()
+  // UIColor objects changing their value dynamically based on mode (dark vs. light)
+  
+  private(set) var textColor: UIColor = .black
+  private(set) var docuIdentColor: UIColor = .black
+  private(set) var parensColor: UIColor = .black
+  private(set) var literalsColor: UIColor = .black
+  private(set) var commentsColor: UIColor = .black
+  private(set) var headerColor: UIColor = .black
+  private(set) var subheaderColor: UIColor = .black
+  private(set) var emphasisColor: UIColor = .black
+  private(set) var bulletsColor: UIColor = .black
+  private(set) var blockquoteColor: UIColor = .black
+  private(set) var codeColor: UIColor = .black
+  
+  var syntaxHighlightingUpdate: Date = .now
   
   private init() {
     self.foldersOnICloud = UserDefaults.standard.boolean(forKey: Self.foldersOnICloudKey)
@@ -552,29 +662,97 @@ final class UserSettings: ObservableObject {
     self.markdownAutoIndent = UserDefaults.standard.boolean(forKey: Self.markdownAutoIndentKey)
     self.markdownHighlightSyntax = UserDefaults.standard.boolean(forKey:
                                                                   Self.markdownHighlightSyntaxKey)
-    self.docuIdentColor = UserDefaults.standard.color(forKey: Self.docuIdentColorKey,
+    self.textLightColor = UserDefaults.standard.color(forKey: Self.textColorKey,
+                                                 red: 0.0, green: 0.0, blue: 0.0)
+    self.docuIdentLightColor = UserDefaults.standard.color(forKey: Self.docuIdentColorKey,
                                                       red: 0.2, green: 0.2, blue: 1.0)
-    self.parensColor = UserDefaults.standard.color(forKey: Self.parensColorKey,
+    self.parensLightColor = UserDefaults.standard.color(forKey: Self.parensColorKey,
                                                    red: 0.6, green: 0.35, blue: 0.2)
-    self.literalsColor = UserDefaults.standard.color(forKey: Self.literalsColorKey,
+    self.literalsLightColor = UserDefaults.standard.color(forKey: Self.literalsColorKey,
                                                      red: 0.0, green: 0.6, blue: 0.0)
-    self.commentsColor = UserDefaults.standard.color(forKey: Self.commentsColorKey,
+    self.commentsLightColor = UserDefaults.standard.color(forKey: Self.commentsColorKey,
                                                      red: 1.0, green: 0.1, blue: 0.1)
-    self.headerColor = UserDefaults.standard.color(forKey: Self.headerColorKey,
+    self.headerLightColor = UserDefaults.standard.color(forKey: Self.headerColorKey,
                                                    red: 0.0, green: 0.0, blue: 0.9)
-    self.subheaderColor = UserDefaults.standard.color(forKey: Self.subheaderColorKey,
+    self.subheaderLightColor = UserDefaults.standard.color(forKey: Self.subheaderColorKey,
                                                       red: 0.2, green: 0.4, blue: 1.0)
-    self.emphasisColor = UserDefaults.standard.color(forKey: Self.emphasisColorKey,
+    self.emphasisLightColor = UserDefaults.standard.color(forKey: Self.emphasisColorKey,
                                                      red: 0.0, green: 0.55, blue: 0.0)
-    self.bulletsColor = UserDefaults.standard.color(forKey: Self.bulletsColorKey,
+    self.bulletsLightColor = UserDefaults.standard.color(forKey: Self.bulletsColorKey,
                                                     red: 0.8, green: 0.4, blue: 0.8)
-    self.blockquoteColor = UserDefaults.standard.color(forKey: Self.blockquoteColorKey,
-                                                       red: 0.7, green: 0.3, blue: 0.5)    
-    self.codeColor = UserDefaults.standard.color(forKey: Self.codeColorKey, UIColor.gray)
+    self.blockquoteLightColor = UserDefaults.standard.color(forKey: Self.blockquoteColorKey,
+                                                       red: 0.7, green: 0.3, blue: 0.5)
+    self.codeLightColor = UserDefaults.standard.color(forKey: Self.codeColorKey, UIColor.gray)
+    self.textDarkColor = UserDefaults.standard.color(forKey: Self.textDarkColorKey,
+                                                     alternateKey: Self.textColorKey,
+                                                     red: 1.0, green: 1.0, blue: 1.0)
+    self.docuIdentDarkColor = UserDefaults.standard.color(forKey: Self.docuIdentDarkColorKey,
+                                                          alternateKey: Self.docuIdentColorKey,
+                                                          red: 0.2, green: 0.2, blue: 1.0)
+    self.parensDarkColor = UserDefaults.standard.color(forKey: Self.parensDarkColorKey,
+                                                       alternateKey: Self.parensColorKey,
+                                                       red: 0.6, green: 0.35, blue: 0.2)
+    self.literalsDarkColor = UserDefaults.standard.color(forKey: Self.literalsDarkColorKey,
+                                                         alternateKey: Self.literalsColorKey,
+                                                         red: 0.0, green: 0.6, blue: 0.0)
+    self.commentsDarkColor = UserDefaults.standard.color(forKey: Self.commentsDarkColorKey,
+                                                         alternateKey: Self.commentsColorKey,
+                                                         red: 1.0, green: 0.1, blue: 0.1)
+    self.headerDarkColor = UserDefaults.standard.color(forKey: Self.headerDarkColorKey,
+                                                       alternateKey: Self.headerColorKey,
+                                                       red: 0.0, green: 0.0, blue: 0.9)
+    self.subheaderDarkColor = UserDefaults.standard.color(forKey: Self.subheaderDarkColorKey,
+                                                          alternateKey: Self.subheaderColorKey,
+                                                          red: 0.2, green: 0.4, blue: 1.0)
+    self.emphasisDarkColor = UserDefaults.standard.color(forKey: Self.emphasisDarkColorKey,
+                                                         alternateKey: Self.emphasisColorKey,
+                                                         red: 0.0, green: 0.55, blue: 0.0)
+    self.bulletsDarkColor = UserDefaults.standard.color(forKey: Self.bulletsDarkColorKey,
+                                                        alternateKey: Self.bulletsColorKey,
+                                                        red: 0.8, green: 0.4, blue: 0.8)
+    self.blockquoteDarkColor = UserDefaults.standard.color(forKey: Self.blockquoteDarkColorKey,
+                                                           alternateKey: Self.blockquoteColorKey,
+                                                           red: 0.7, green: 0.3, blue: 0.5)
+    self.codeDarkColor = UserDefaults.standard.color(forKey: Self.codeDarkColorKey,
+                                                     alternateKey: Self.codeColorKey,
+                                                     UIColor.gray)
     self.codingFont = UserDefaults.standard.str(forKey: Self.codingFontKey, "System")
     self.disableExtendedKeyboard = UserDefaults.standard.boolean(forKey:
                                                                  Self.disableExtendedKeyboardKey)
     self.maxStackSize = UserDefaults.standard.int(forKey: Self.maxStackSizeKey, 10000)
     self.maxCallTrace = UserDefaults.standard.int(forKey: Self.maxCallTraceKey, 20)
+    self.textColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.textDarkColor : self.textLightColor
+    }
+    self.docuIdentColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.docuIdentDarkColor : self.docuIdentLightColor
+    }
+    self.parensColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.parensDarkColor : self.parensLightColor
+    }
+    self.literalsColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.literalsDarkColor : self.literalsLightColor
+    }
+    self.commentsColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.commentsDarkColor : self.commentsLightColor
+    }
+    self.headerColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.headerDarkColor : self.headerLightColor
+    }
+    self.subheaderColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.subheaderDarkColor : self.subheaderLightColor
+    }
+    self.emphasisColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.emphasisDarkColor : self.emphasisLightColor
+    }
+    self.bulletsColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.bulletsDarkColor : self.bulletsLightColor
+    }
+    self.blockquoteColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.blockquoteDarkColor : self.blockquoteLightColor
+    }
+    self.codeColor = UIColor { [unowned self] traits in
+      return traits.userInterfaceStyle == .dark ? self.codeDarkColor : self.codeLightColor
+    }
   }
 }
