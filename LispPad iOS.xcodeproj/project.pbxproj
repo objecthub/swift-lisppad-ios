@@ -63,6 +63,8 @@
 		CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A55267E829100FA8BAA /* ConsoleEditor.swift */; };
 		CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */; };
 		CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */; };
+		CC894F012CC05DD800896B1D /* ThreadUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC894F002CC05DD800896B1D /* ThreadUtil.swift */; };
+		CC894F032CC1B38B00896B1D /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC894F022CC1B38B00896B1D /* Appearance.swift */; };
 		CC8B95802607B48400830B4F /* (lispkit box).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952526079FBA00830B4F /* (lispkit box).md */; };
 		CC8B95812607B48400830B4F /* (lispkit bytevector).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952926079FBA00830B4F /* (lispkit bytevector).md */; };
 		CC8B95822607B48400830B4F /* (lispkit char-set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953126079FBA00830B4F /* (lispkit char-set).md */; };
@@ -493,6 +495,8 @@
 		CC890A55267E829100FA8BAA /* ConsoleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleEditor.swift; sourceTree = "<group>"; };
 		CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorTextViewDelegate.swift; sourceTree = "<group>"; };
 		CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleEditorTextViewDelegate.swift; sourceTree = "<group>"; };
+		CC894F002CC05DD800896B1D /* ThreadUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadUtil.swift; sourceTree = "<group>"; };
+		CC894F022CC1B38B00896B1D /* Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
 		CC8B952226079FBA00830B4F /* (lispkit test).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit test).md"; sourceTree = "<group>"; };
 		CC8B952326079FBA00830B4F /* (lispkit type).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit type).md"; sourceTree = "<group>"; };
 		CC8B952426079FBA00830B4F /* (lispkit log).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit log).md"; sourceTree = "<group>"; };
@@ -1061,6 +1065,7 @@
 		CCC8565E261D09190080B96E /* Preferences */ = {
 			isa = PBXGroup;
 			children = (
+				CC894F022CC1B38B00896B1D /* Appearance.swift */,
 				CCF8F09627C2E96700C2D660 /* FontMap.swift */,
 				CCEA5A18263DF7F400D78C62 /* UserSettings.swift */,
 				CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */,
@@ -1133,6 +1138,7 @@
 				CC624CD32735B46B005F15B3 /* TaskSerializer.swift */,
 				CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */,
 				CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */,
+				CC894F002CC05DD800896B1D /* ThreadUtil.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1288,6 +1294,7 @@
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,
 				CCA5F5762AF38BDE0009A97E /* SideBySide.swift in Sources */,
+				CC894F012CC05DD800896B1D /* ThreadUtil.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
 				CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */,
@@ -1304,6 +1311,7 @@
 				CCE8E432262975E900E3DC6A /* CodeEditorTextTokenizer.swift in Sources */,
 				CCA5F5782AF455CD0009A97E /* InterpreterState.swift in Sources */,
 				CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */,
+				CC894F032CC1B38B00896B1D /* Appearance.swift in Sources */,
 				CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
 				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,

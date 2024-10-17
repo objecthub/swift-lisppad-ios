@@ -93,6 +93,7 @@ final class UserSettings: ObservableObject {
   private static let disableExtendedKeyboardKey = "Keyboard.disableExtendedKeyboard"
   private static let maxStackSizeKey = "Interpreter.maxStackSize"
   private static let maxCallTraceKey = "Interpreter.maxCallTrace"
+  private static let appearanceKey = "General.appearance"
   
   // Documentation font sizes
   static let smallFontSize = "Small"
@@ -537,6 +538,12 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var appearance: Appearance {
+    didSet {
+      UserDefaults.standard.set(self.appearance.rawValue, forKey: Self.appearanceKey)
+    }
+  }
+  
   var consoleGraphicsBackgroundColor: Color {
     return Self.backgroundColorMap[self.consoleBackgroundColor] ?? .clear
   }
@@ -721,6 +728,7 @@ final class UserSettings: ObservableObject {
                                                                  Self.disableExtendedKeyboardKey)
     self.maxStackSize = UserDefaults.standard.int(forKey: Self.maxStackSizeKey, 10000)
     self.maxCallTrace = UserDefaults.standard.int(forKey: Self.maxCallTraceKey, 20)
+    self.appearance = Appearance(value: UserDefaults.standard.int(forKey: Self.appearanceKey, 0))
     self.textColor = UIColor { [unowned self] traits in
       return traits.userInterfaceStyle == .dark ? self.textDarkColor : self.textLightColor
     }

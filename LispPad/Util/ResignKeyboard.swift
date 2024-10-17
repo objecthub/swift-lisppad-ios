@@ -27,13 +27,15 @@ extension UIApplication {
   
   func currentUIWindow() -> UIWindow? {
     let connectedScenes = self.connectedScenes
-        .filter { $0.activationState == .foregroundActive }
-        .compactMap { $0 as? UIWindowScene }
+                              .filter { $0.activationState == .foregroundActive }
+                              .compactMap { $0 as? UIWindowScene }
     return connectedScenes.first?.windows.first { $0.isKeyWindow }
   }
   
   func endEditing(_ force: Bool) {
-    self.currentUIWindow()?.endEditing(force)
+    _ = doOnMainThread {
+      self.currentUIWindow()?.endEditing(force)
+    }
   }
 }
 

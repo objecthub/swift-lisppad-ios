@@ -31,7 +31,6 @@ struct PreferencesView: View {
   @State var modeSelector: Int = 0
   @State var resetParameters: Bool = false
   
-  
   var body: some View {
     TabView(selection: $selectedTab) {
       Form {
@@ -221,8 +220,14 @@ struct PreferencesView: View {
               Toggle("On My Device", isOn: $settings.foldersOnDevice)
           }
         }
-        Section(header: Text("Hardware Keyboard")) {
-          Toggle("Disable extended keyboard", isOn: $settings.disableExtendedKeyboard)
+        Section(header: Text("Application Experience")) {
+          Picker("Appearance", selection: $settings.appearance) {
+            Text("System").tag(Appearance.system)
+            Text("Light").tag(Appearance.light)
+            Text("Dark").tag(Appearance.dark)
+          }
+          .defaultPickerStyle()
+          Toggle("Disable extended hardware keyboard", isOn: $settings.disableExtendedKeyboard)
         }
         Section(header: Text("Fonts")) {
           Picker("Code font", selection: $settings.codingFont) {

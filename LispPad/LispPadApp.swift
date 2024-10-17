@@ -34,6 +34,7 @@ import LispKit
   
   // Application-level state
   @StateObject private var globals = LispPadGlobals()
+  @StateObject private var settings = UserSettings.standard
   @State private var urlToOpen: URL? = nil
   
   // Global UI setup
@@ -45,6 +46,7 @@ import LispKit
   var body: some Scene {
     WindowGroup {
       MainView(urlToOpen: $urlToOpen)
+        .preferredColorScheme(self.settings.appearance.colorScheme)
         .environmentObject(KeyCommandHandler.empty)
         .environmentObject(self.globals)
         .onOpenURL { url in
