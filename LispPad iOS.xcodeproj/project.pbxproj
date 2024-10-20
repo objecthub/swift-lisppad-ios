@@ -65,6 +65,26 @@
 		CC890A5A267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */; };
 		CC894F012CC05DD800896B1D /* ThreadUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC894F002CC05DD800896B1D /* ThreadUtil.swift */; };
 		CC894F032CC1B38B00896B1D /* Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC894F022CC1B38B00896B1D /* Appearance.swift */; };
+		CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC894F062CC2FD8200896B1D /* JetBrainsMono-Light.ttf */; };
+		CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CC894F042CC2FBAB00896B1D /* JetBrainsMono-Regular.ttf */; };
+		CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0B927C4489B00C2D660 /* FiraCode-Regular.ttf */; };
+		CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0B127C43EE700C2D660 /* Inconsolata-Regular.ttf */; };
+		CC894F0F2CC300C000896B1D /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0AB27C43C9900C2D660 /* RobotoMono-Regular.ttf */; };
+		CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0A527C4391E00C2D660 /* SourceCodePro-Regular.ttf */; };
+		CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F09D27C4344100C2D660 /* iosevka-extended.ttf */; };
+		CC894F122CC300C700896B1D /* iosevka-regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F09927C431A800C2D660 /* iosevka-regular.ttf */; };
+		CC894F132CC3016900896B1D /* Iosevka-License.md in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F09F27C4372C00C2D660 /* Iosevka-License.md */; };
+		CC894F142CC3016900896B1D /* SourceCodePro-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A327C4385400C2D660 /* SourceCodePro-License.txt */; };
+		CC894F152CC3016900896B1D /* FiraCode-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */; };
+		CC894F162CC3016900896B1D /* RobotoMono-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */; };
+		CC894F172CC3016900896B1D /* Inconsolata-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AF27C43EB500C2D660 /* Inconsolata-License.txt */; };
+		CC894F182CC3016900896B1D /* JetBrainsMono-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CC894F082CC3000600896B1D /* JetBrainsMono-License.txt */; };
+		CC894F192CC3018800896B1D /* LispKitDatatype.md in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CC8B95B32607FDBC00830B4F /* LispKitDatatype.md */; };
+		CC894F1A2CC3019A00896B1D /* LispPadLogo.png in Copy Root/Assets/Images */ = {isa = PBXBuildFile; fileRef = CC8B95B62607FE0900830B4F /* LispPadLogo.png */; };
+		CC894F1B2CC301A500896B1D /* Regensberg.jpeg in Copy Root/Assets/Images */ = {isa = PBXBuildFile; fileRef = CC8B95B72607FE1800830B4F /* Regensberg.jpeg */; };
+		CC894F1C2CC301C100896B1D /* bensound-moose.mp3 in Copy Root/Assets/Audio */ = {isa = PBXBuildFile; fileRef = CC8B95BC26080EA700830B4F /* bensound-moose.mp3 */; };
+		CC894F1D2CC301C100896B1D /* bensound-endlessmotion.mp3 in Copy Root/Assets/Audio */ = {isa = PBXBuildFile; fileRef = CC8B95BE26080EA800830B4F /* bensound-endlessmotion.mp3 */; };
+		CC894F1E2CC301C100896B1D /* bensound-license.txt in Copy Root/Assets/Audio */ = {isa = PBXBuildFile; fileRef = CC8B95BD26080EA700830B4F /* bensound-license.txt */; };
 		CC8B95802607B48400830B4F /* (lispkit box).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952526079FBA00830B4F /* (lispkit box).md */; };
 		CC8B95812607B48400830B4F /* (lispkit bytevector).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952926079FBA00830B4F /* (lispkit bytevector).md */; };
 		CC8B95822607B48400830B4F /* (lispkit char-set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953126079FBA00830B4F /* (lispkit char-set).md */; };
@@ -109,12 +129,6 @@
 		CC8B95A92607B59F00830B4F /* (lispkit base).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953426079FBA00830B4F /* (lispkit base).md */; };
 		CC8B95B12607FCA800830B4F /* Prelude.scm in Copy Root */ = {isa = PBXBuildFile; fileRef = CC8B95AE2607FBF900830B4F /* Prelude.scm */; };
 		CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8B95B92607FFDA00830B4F /* AudioLibrary.swift */; };
-		CC8B95C026080F2A00830B4F /* bensound-moose.mp3 in Copy Root/Assets/Audio */ = {isa = PBXBuildFile; fileRef = CC8B95BC26080EA700830B4F /* bensound-moose.mp3 */; };
-		CC8B95C126080F2A00830B4F /* bensound-endlessmotion.mp3 in Copy Root/Assets/Audio */ = {isa = PBXBuildFile; fileRef = CC8B95BE26080EA800830B4F /* bensound-endlessmotion.mp3 */; };
-		CC8B95C226080F2A00830B4F /* bensound-license.txt in Copy Root/Assets/Audio */ = {isa = PBXBuildFile; fileRef = CC8B95BD26080EA700830B4F /* bensound-license.txt */; };
-		CC8B95C426080F7200830B4F /* LispPadLogo.png in Copy Root/Assets/Images */ = {isa = PBXBuildFile; fileRef = CC8B95B62607FE0900830B4F /* LispPadLogo.png */; };
-		CC8B95C526080F7200830B4F /* Regensberg.jpeg in Copy Root/Assets/Images */ = {isa = PBXBuildFile; fileRef = CC8B95B72607FE1800830B4F /* Regensberg.jpeg */; };
-		CC8B95C726080F9700830B4F /* LispKitDatatype.md in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CC8B95B32607FDBC00830B4F /* LispKitDatatype.md */; };
 		CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8B95C82608102300830B4F /* SystemLibrary.swift */; };
 		CC8B95CD2608113800830B4F /* PlayMusic.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8B95CA260810E000830B4F /* PlayMusic.scm */; };
 		CC8B95D12608186500830B4F /* Documentation.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC8B95CE260813EC00830B4F /* Documentation.plist */; };
@@ -185,21 +199,10 @@
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
 		CCEEC7B3290DB83700D5BD53 /* DrawMapLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */; };
 		CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */; };
-		CCEF3E2527C45D4200FB56EB /* SourceCodePro-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A327C4385400C2D660 /* SourceCodePro-License.txt */; };
-		CCEF3E2627C45D4200FB56EB /* FiraCode-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */; };
-		CCEF3E2727C45D4200FB56EB /* RobotoMono-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */; };
-		CCEF3E2827C45D4200FB56EB /* Inconsolata-License.txt in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F0AF27C43EB500C2D660 /* Inconsolata-License.txt */; };
 		CCEF3E2D27CA2D8500FB56EB /* thread-states.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */; };
 		CCEF3E2E27CA2DF200FB56EB /* (lispkit thread).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */; };
 		CCEF3E3527CECEB800FB56EB /* (lispkit thread channel).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E2F27CA2E7D00FB56EB /* (lispkit thread channel).md */; };
 		CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF8F09627C2E96700C2D660 /* FontMap.swift */; };
-		CCF8F09A27C431A800C2D660 /* iosevka-regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F09927C431A800C2D660 /* iosevka-regular.ttf */; };
-		CCF8F09E27C4344100C2D660 /* iosevka-extended.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F09D27C4344100C2D660 /* iosevka-extended.ttf */; };
-		CCF8F0A027C4375F00C2D660 /* Iosevka-License.md in Copy Root/Assets/Documents */ = {isa = PBXBuildFile; fileRef = CCF8F09F27C4372C00C2D660 /* Iosevka-License.md */; };
-		CCF8F0A627C4391E00C2D660 /* SourceCodePro-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0A527C4391E00C2D660 /* SourceCodePro-Regular.ttf */; };
-		CCF8F0AC27C43C9900C2D660 /* RobotoMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0AB27C43C9900C2D660 /* RobotoMono-Regular.ttf */; };
-		CCF8F0B227C43EE700C2D660 /* Inconsolata-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0B127C43EE700C2D660 /* Inconsolata-Regular.ttf */; };
-		CCF8F0BA27C4489B00C2D660 /* FiraCode-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CCF8F0B927C4489B00C2D660 /* FiraCode-Regular.ttf */; };
 		CCFA6807276535E1009A599C /* (lispkit prolog).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CDE27412F74005F15B3 /* (lispkit prolog).md */; };
 		CCFA68092765397D009A599C /* (lispkit text-table).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCFA680827653915009A599C /* (lispkit text-table).md */; };
 		CCFA680A27653986009A599C /* (lispkit math stats).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CE02741364E005F15B3 /* (lispkit math stats).md */; };
@@ -325,9 +328,9 @@
 			dstPath = Root/Assets/Audio;
 			dstSubfolderSpec = 7;
 			files = (
-				CC8B95C026080F2A00830B4F /* bensound-moose.mp3 in Copy Root/Assets/Audio */,
-				CC8B95C126080F2A00830B4F /* bensound-endlessmotion.mp3 in Copy Root/Assets/Audio */,
-				CC8B95C226080F2A00830B4F /* bensound-license.txt in Copy Root/Assets/Audio */,
+				CC894F1C2CC301C100896B1D /* bensound-moose.mp3 in Copy Root/Assets/Audio */,
+				CC894F1D2CC301C100896B1D /* bensound-endlessmotion.mp3 in Copy Root/Assets/Audio */,
+				CC894F1E2CC301C100896B1D /* bensound-license.txt in Copy Root/Assets/Audio */,
 			);
 			name = "Copy Root/Assets/Audio";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -338,8 +341,8 @@
 			dstPath = Root/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
-				CC8B95C426080F7200830B4F /* LispPadLogo.png in Copy Root/Assets/Images */,
-				CC8B95C526080F7200830B4F /* Regensberg.jpeg in Copy Root/Assets/Images */,
+				CC894F1B2CC301A500896B1D /* Regensberg.jpeg in Copy Root/Assets/Images */,
+				CC894F1A2CC3019A00896B1D /* LispPadLogo.png in Copy Root/Assets/Images */,
 			);
 			name = "Copy Root/Assets/Images";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -350,12 +353,13 @@
 			dstPath = Root/Assets/Documents;
 			dstSubfolderSpec = 7;
 			files = (
-				CCEF3E2527C45D4200FB56EB /* SourceCodePro-License.txt in Copy Root/Assets/Documents */,
-				CCEF3E2627C45D4200FB56EB /* FiraCode-License.txt in Copy Root/Assets/Documents */,
-				CCEF3E2727C45D4200FB56EB /* RobotoMono-License.txt in Copy Root/Assets/Documents */,
-				CCEF3E2827C45D4200FB56EB /* Inconsolata-License.txt in Copy Root/Assets/Documents */,
-				CCF8F0A027C4375F00C2D660 /* Iosevka-License.md in Copy Root/Assets/Documents */,
-				CC8B95C726080F9700830B4F /* LispKitDatatype.md in Copy Root/Assets/Documents */,
+				CC894F192CC3018800896B1D /* LispKitDatatype.md in Copy Root/Assets/Documents */,
+				CC894F132CC3016900896B1D /* Iosevka-License.md in Copy Root/Assets/Documents */,
+				CC894F142CC3016900896B1D /* SourceCodePro-License.txt in Copy Root/Assets/Documents */,
+				CC894F152CC3016900896B1D /* FiraCode-License.txt in Copy Root/Assets/Documents */,
+				CC894F162CC3016900896B1D /* RobotoMono-License.txt in Copy Root/Assets/Documents */,
+				CC894F172CC3016900896B1D /* Inconsolata-License.txt in Copy Root/Assets/Documents */,
+				CC894F182CC3016900896B1D /* JetBrainsMono-License.txt in Copy Root/Assets/Documents */,
 			);
 			name = "Copy Root/Assets/Documents";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -497,6 +501,9 @@
 		CC890A59267E916600FA8BAA /* ConsoleEditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleEditorTextViewDelegate.swift; sourceTree = "<group>"; };
 		CC894F002CC05DD800896B1D /* ThreadUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadUtil.swift; sourceTree = "<group>"; };
 		CC894F022CC1B38B00896B1D /* Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appearance.swift; sourceTree = "<group>"; };
+		CC894F042CC2FBAB00896B1D /* JetBrainsMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Regular.ttf"; sourceTree = "<group>"; };
+		CC894F062CC2FD8200896B1D /* JetBrainsMono-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Light.ttf"; sourceTree = "<group>"; };
+		CC894F082CC3000600896B1D /* JetBrainsMono-License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "JetBrainsMono-License.txt"; sourceTree = "<group>"; };
 		CC8B952226079FBA00830B4F /* (lispkit test).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit test).md"; sourceTree = "<group>"; };
 		CC8B952326079FBA00830B4F /* (lispkit type).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit type).md"; sourceTree = "<group>"; };
 		CC8B952426079FBA00830B4F /* (lispkit log).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit log).md"; sourceTree = "<group>"; };
@@ -930,6 +937,7 @@
 				CCF8F0A927C43A6000C2D660 /* FiraCode-License.txt */,
 				CCF8F0AD27C43CFB00C2D660 /* RobotoMono-License.txt */,
 				CCF8F0AF27C43EB500C2D660 /* Inconsolata-License.txt */,
+				CC894F082CC3000600896B1D /* JetBrainsMono-License.txt */,
 			);
 			path = Documents;
 			sourceTree = "<group>";
@@ -1103,6 +1111,8 @@
 				CCF8F0AB27C43C9900C2D660 /* RobotoMono-Regular.ttf */,
 				CCF8F0B127C43EE700C2D660 /* Inconsolata-Regular.ttf */,
 				CCF8F0B927C4489B00C2D660 /* FiraCode-Regular.ttf */,
+				CC894F042CC2FBAB00896B1D /* JetBrainsMono-Regular.ttf */,
+				CC894F062CC2FD8200896B1D /* JetBrainsMono-Light.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -1220,17 +1230,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
-				CCF8F09A27C431A800C2D660 /* iosevka-regular.ttf in Resources */,
+				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
-				CCF8F09E27C4344100C2D660 /* iosevka-extended.ttf in Resources */,
-				CCF8F0B227C43EE700C2D660 /* Inconsolata-Regular.ttf in Resources */,
+				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
+				CC894F122CC300C700896B1D /* iosevka-regular.ttf in Resources */,
+				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
-				CCF8F0AC27C43C9900C2D660 /* RobotoMono-Regular.ttf in Resources */,
-				CCF8F0BA27C4489B00C2D660 /* FiraCode-Regular.ttf in Resources */,
+				CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
-				CCF8F0A627C4391E00C2D660 /* SourceCodePro-Regular.ttf in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
+				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
+				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,
+				CC894F0F2CC300C000896B1D /* RobotoMono-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

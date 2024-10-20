@@ -113,17 +113,15 @@ public struct SlideOverCard<Content: View>: View {
     controller.view.backgroundColor = .clear
     controller.modalPresentationStyle = .overFullScreen
     controller.overrideUserInterfaceStyle = style
-    DispatchQueue.main.async {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
       UIApplication.shared.currentUIWindow()?.rootViewController?.present(controller, animated: false)
-      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-        isPresented.wrappedValue = true
-      }
+      isPresented.wrappedValue = true
     }
   }
   
   public static func dismiss(isPresented: Binding<Bool>) {
-    isPresented.wrappedValue = false
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      isPresented.wrappedValue = false
       UIApplication.shared.currentUIWindow()?.rootViewController?.dismiss(animated: false)
     }
   }

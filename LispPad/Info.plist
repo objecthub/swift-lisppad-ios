@@ -110,7 +110,8 @@
 		<string>FiraCode-Regular.ttf</string>
 		<string>RobotoMono-Regular.ttf</string>
 		<string>Inconsolata-Regular.ttf</string>
-		<string>Inconsolata_SemiCondensed-Regular.ttf</string>
+		<string>JetBrainsMono-Regular.ttf</string>
+		<string>JetBrainsMono-Light.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

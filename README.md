@@ -41,6 +41,7 @@ _LispPad Go_ is a simplified version of the [macOS application _LispPad_](http:/
 - [Iosevka](https://github.com/be5invis/Iosevka), © 2015-2022 Renzhi Li \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
 - [Inconsolata](https://www.levien.com/type/myfonts/inconsolata.html), © 2006 The Inconsolata Project Authors \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
 - [Fira Code](https://github.com/tonsky/FiraCode), © 2014-2020 The Fira Code Project Authors \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
+- [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono), © 2020 The JetBrains Mono Project Authors \([SIL Open Font License 1.1](https://raw.githubusercontent.com/JetBrains/JetBrainsMono/refs/heads/master/OFL.txt)\)
 - Source Code Pro, © 2010, 2012 [Adobe Systems Inc.](http://www.adobe.com/) \([SIL Open Font License 1.1](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)\)
 - Roboto Mono, © Christian Robertson \(Apache License 2.0\)
 

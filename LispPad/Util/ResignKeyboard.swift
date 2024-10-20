@@ -33,7 +33,7 @@ extension UIApplication {
   }
   
   func endEditing(_ force: Bool) {
-    _ = doOnMainThread {
+    doOnMainThreadAsync {
       self.currentUIWindow()?.endEditing(force)
     }
   }
@@ -93,14 +93,18 @@ class KeyboardObserver: ObservableObject {
             let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
         return
       }
-      self.softwareKeyboardVisible = true
-      self.rect = keyboardRect.cgRectValue
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        self.softwareKeyboardVisible = true
+        self.rect = keyboardRect.cgRectValue
+      }
     }
     NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidHideNotification,
                                            object: nil,
                                            queue: .main) { notification in
-      self.softwareKeyboardVisible = false
-      self.rect = .zero
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        self.softwareKeyboardVisible = false
+        self.rect = .zero
+      }
     }
   }
 }

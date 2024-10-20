@@ -106,6 +106,8 @@ final class UserSettings: ObservableObject {
                                          ("Source Code Pro", "SourceCodePro-Regular"),
                                          ("Roboto Mono", "RobotoMono-Regular"),
                                          ("Fira Code", "FiraCode-Regular"),
+                                         ("JetBrains Mono", "JetBrainsMono-Regular"),
+                                         ("JetBrains Mono Light", "JetBrainsMono-Light"),
                                          ("Iosevka", "Iosevka"),
                                          ("Iosevka Extended", "Iosevka-Extended"),
                                          ("Inconsolata", "Inconsolata-Regular"))
