@@ -220,10 +220,31 @@ Converts Markdown inline text or list of inline texts _txt_ into HTML, represent
 
 Converts a Markdown document _md_ into a styled HTML document, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. _style_ is a list with up to three elements: _(size font color)_. It specifies the default text style of the document. _size_ is the point size of the font, _font_ is a font name, and _color_ is a HTML color specification (e.g. `"#FF6789"`). _codestyle_ specifies the style of inline code in the same format. _colors_ is a list of HTML color specifications for the following document elements in this order: the border color of code blocks, the color of  blockquote "bars", the color of H1, H2, H3 and H4 headers.
 
-**(text-\>string _text_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(markdown-\>sxml _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Converts given inline text _text_ into a string representation which encodes markup in _text_ using Markdown syntax. _text_ needs to satisfy the _markdown-text?_ predicate.
+Converts a Markdown document _md_ into SXML representation. _md_ needs to satisfy the _markdown?_ predicate.
+
+**(blocks-\>sxml _bs_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(blocks-\>sxml _bs tight_)**   
+
+Converts a Markdown block or list of blocks _bs_ into SXML representation. _tight?_ is a boolean and should be set to true if the conversion should consider tight typesetting (see CommonMark specification for details).
+
+**(text-\>sxml _txt_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Converts Markdown inline text or a list of inline text objects _txt_ into SXML representation.
+
+**(markdown-\>raw-string _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Converts a Markdown document _md_ into raw text, a string ignoring any markup. _md_ needs to satisfy the _markdown?_ predicate.
+
+**(blocks-\>raw-string _bs_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Converts a Markdown block or list of blocks _bs_ into raw text, a string ignoring any markup.
 
 **(text-\>raw-string _text_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Converts given inline text _text_ into a string representation ignoring markup in _text_. _text_ needs to satisfy the _markdown-text?_ predicate.
+Converts given inline text _text_ into raw text, a string representation ignoring any markup in _text_. _text_ needs to satisfy the _markdown-text?_ predicate.
+
+**(text-\>string _text_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Converts given inline text _text_ into a string representation which encodes markup in _text_ using Markdown syntax. _text_ needs to satisfy the _markdown-text?_ predicate.

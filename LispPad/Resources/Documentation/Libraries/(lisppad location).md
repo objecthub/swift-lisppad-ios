@@ -36,6 +36,10 @@ Returns the altitude of location _loc_. Since altitudes are optional, procedure 
 
 Returns the distance between location _loc1_ and location _loc2_ in meters.
 
+**(location-\>timezone _loc_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a timezone identifier (string) for location _loc_.
+
 
 ## Places
 

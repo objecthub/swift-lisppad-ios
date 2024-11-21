@@ -30,6 +30,10 @@
 		<string>(lispkit control).md</string>
 		<key>lispkit system</key>
 		<string>(lispkit system).md</string>
+		<key>lispkit system keychain</key>
+		<string>(lispkit system keychain).md</string>
+		<key>lispkit system pasteboard</key>
+		<string>(lispkit system pasteboard).md</string>
 		<key>lispkit system call</key>
 		<string>(lispkit system os).md</string>
 		<key>lispkit math</key>
@@ -78,6 +82,8 @@
 		<string>(lispkit draw turtle).md</string>
 		<key>lispkit draw chart bar</key>
 		<string>(lispkit draw chart bar).md</string>
+		<key>lispkit draw barcode</key>
+		<string>(lispkit draw barcode).md</string>
 		<key>lispkit datatype</key>
 		<string>(lispkit datatype).md</string>
 		<key>lispkit object</key>
@@ -120,6 +126,10 @@
 		<string>(lispkit thread).md</string>
 		<key>lispkit thread channel</key>
 		<string>(lispkit thread channel).md</string>
+		<key>lispkit thread future</key>
+		<string>(lispkit thread future).md</string>
+		<key>lispkit thread shared-queue</key>
+		<string>(lispkit thread shared-queue).md</string>
 		<key>lispkit debug</key>
 		<string>(lispkit debug).md</string>
 		<key>lispkit prolog</key>
@@ -130,6 +140,20 @@
 		<string>(lispkit format).md</string>
 		<key>lispkit crypto</key>
 		<string>(lispkit crypto).md</string>
+		<key>lispkit url</key>
+		<string>(lispkit url).md</string>
+		<key>lispkit serialize</key>
+		<string>(lispkit serialize).md</string>
+		<key>lispkit json</key>
+		<string>(lispkit json).md</string>
+		<key>lispkit json schema</key>
+		<string>(lispkit json schema).md</string>
+		<key>lispkit http</key>
+		<string>(lispkit http).md</string>
+		<key>lispkit http oauth</key>
+		<string>(lispkit http oauth).md</string>
+		<key>lispkit http server</key>
+		<string>(lispkit http server).md</string>
 	</dict>
 	<key>web</key>
 	<dict>

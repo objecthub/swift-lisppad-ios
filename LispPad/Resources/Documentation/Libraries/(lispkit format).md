@@ -3,7 +3,6 @@
 Library `(lispkit format)` provides an implementation of [Common Lisp's `format` procedure](https://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node200.html#SECTION002633000000000000000) for LispKit. Procedure `format` can be used for creating formatted text using a format string similar to `printf`. The formatting formalism, though, is significantly more expressive, allowing users to display numbers in various formats (e.g. hex, binary,
 octal, roman numerals, natural language), applying conditional formatting, outputting text in a tabular format, iterating over data structures, and even applying `format` recursively to handle data that includes its own preferred formatting strings.
 
-
 ## Usage overview
 
 In its most simple form, procedure `format` gets invoked with a _control string_ followed by an arbitrary number of _arguments_. The _control string_ consists of characters that are copied verbatim into the output as well as _formatting directives_. All formatting directives start with a tilde (`~`) and end with a single character identifying the type of the directive. Directives may also take prefix _parameters_ written immediately after the tilde character, separated by comma as well as _modifiers_ (see below for details).
@@ -131,7 +130,7 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         ASCII:&nbsp;&nbsp;<strong>~<em>mincol,colinc,minpad,padchar,maxcol,elchar</em>A</strong>
         <p>The next argument <em>arg</em> is output as if procedure <code>display</code> was used, i.e. the output is without escape characters and if <em>arg</em> is a string, its characters will be output verbatim without surrounding quotes.</p>
-        <p><em>mincol</em> (default: 0) specifies the minimal "width" of the output of the directive in characters, <em>maxcol</em> (default: ∞) specifies the maximum width. <em>padchar</em> (default: '&nbsp;') defines the character that is used to pad the output to make sure it is at least <em>mincol</em> characters long. By default, the output is padded on the right with at least <em>minpad</em> (default: 0) copies of <em>padchar</em>. Padding characters are then inserted <em>colinc</em> (default: 1) characters at a time until the total width is at least <em>mincol</em>. Padding is capped such that the output never exceeds <em>maxcol</em> characters. If, without padding, the output is already longer than <em>maxcol</em>, the output is truncated at width <em>maxcol - 1</em> and the ellipsis character <em>elchar</em> (default: '…') is inserted at the end.</p>
+        <p><em>mincol</em> (default: 0) specifies the minimal "width" of the output of the directive in characters, <em>maxcol</em> (default: &infin;) specifies the maximum width. <em>padchar</em> (default: '&nbsp;') defines the character that is used to pad the output to make sure it is at least <em>mincol</em> characters long. By default, the output is padded on the right with at least <em>minpad</em> (default: 0) copies of <em>padchar</em>. Padding characters are then inserted <em>colinc</em> (default: 1) characters at a time until the total width is at least <em>mincol</em>. Padding is capped such that the output never exceeds <em>maxcol</em> characters. If, without padding, the output is already longer than <em>maxcol</em>, the output is truncated at width <em>maxcol - 1</em> and the ellipsis character <em>elchar</em> (default: '&hellip;') is inserted at the end.</p>
         <p>Modifier <code>@</code> enables padding on the left to right-align the output.</p>
       </td>
     </tr>
@@ -141,7 +140,7 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         WRITE:&nbsp;&nbsp;<strong>~<em>mincol,colinc,minpad,padchar,maxcol,elchar</em>W</strong>
         <p>The next argument <em>arg</em> is output as if procedure <code>write</code> was used, i.e. the output is with escape characters and if <em>arg</em> is a string, its characters will be output surrounded by quotes.</p>
-        <p>Parameters <em>mincol</em> (default: 0), <em>colinc</em> (default: 1), <em>minpad</em> (default: 0), <em>padchar</em> (default: '&nbsp;'), <em>maxcol</em> (default: ∞), and <em>elchar</em> (default: '…') are used just as described for the <em>ASCII directive</em> <code>~A</code>. Modifier <code>@</code> enables padding on the left to right-align the output.</p>
+        <p>Parameters <em>mincol</em> (default: 0), <em>colinc</em> (default: 1), <em>minpad</em> (default: 0), <em>padchar</em> (default: '&nbsp;'), <em>maxcol</em> (default: &infin;), and <em>elchar</em> (default: '&hellip;') are used just as described for the <em>ASCII directive</em> <code>~A</code>. Modifier <code>@</code> enables padding on the left to right-align the output.</p>
       </td>
     </tr>
     <tr valign="top">
@@ -149,8 +148,8 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <strong>~S</strong></td>
       <td>
         SOURCE:&nbsp;&nbsp;<strong>~<em>mincol,colinc,minpad,padchar,maxcol,elchar</em>S</strong>
-        <p>The next argument <em>arg</em> is output using a type-specific control string. If no control string is registered for the type of <em>arg</em>, then <code>~S</code> behaves like <code>~W</code> for <em>arg</em>.
-        <p>Parameters <em>mincol</em> (default: 0), <em>colinc</em> (default: 1), <em>minpad</em> (default: 0), <em>padchar</em> (default: '&nbsp;'), <em>maxcol</em> (default: ∞), and <em>elchar</em> (default: '…') are used just as described for the <em>ASCII directive</em> <code>~A</code>. Modifier <code>@</code> enables padding on the left to right-align the output.</p>
+        <p>The next argument <em>arg</em> is output using a type-specific control string. If no control string is registered for the type of <em>arg</em>, then <code>~S</code> behaves like <code>~W</code> for <em>arg</em>.</p>
+        <p>Parameters <em>mincol</em> (default: 0), <em>colinc</em> (default: 1), <em>minpad</em> (default: 0), <em>padchar</em> (default: '&nbsp;'), <em>maxcol</em> (default: &infin;), and <em>elchar</em> (default: '&hellip;') are used just as described for the <em>ASCII directive</em> <code>~A</code>. Modifier <code>@</code> enables padding on the left to right-align the output.</p>
       </td>
     </tr>
     <tr valign="top">
@@ -162,15 +161,15 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         <p>If the <code>@</code> modifier is provided alone, the character is output using Scheme's syntax for character literals. The modifier combination <code>@:</code> will lead to <em>arg</em> being output as Unicode code points. The combination <code>@:+</code> will output <em>arg</em> as a sequence of Unicode scalar property names, separated by comma.</p>
         <p>If the <code>:</code> modifier is used (without <code>@</code>), a representation of <em>arg</em> for the usage in XML documents is chosen. By default, a Unicode-based XML character encoding is used, unless <code>:</code> is combined with <code>+</code>, in which case the character is represented as a XML named character entity when possible, otherwise, the character is output in raw form.</p>
         <p>If the <code>+</code> modifiers is used alone, the character is output as if it is a character of a string, escaped if necessary, and surrounded by quotes.</p>
-        <p>&nbsp;&nbsp;<code>(format "~C" #\A)</code> ⟹ <code>A</code><br>
-        &nbsp;&nbsp;<code>(format "~+C" #\A)</code> ⟹ <code>"A"</code><br>
-        &nbsp;&nbsp;<code>(format "~+C" #\newline)</code> ⟹ <code>"\n"</code><br>
-        &nbsp;&nbsp;<code>(format "~@C" "A")</code> ⟹ <code>#\A</code><br>
-        &nbsp;&nbsp;<code>(format "~@C" "\t")</code> ⟹ <code>#\tab</code><br>
-        &nbsp;&nbsp;<code>(format "~@:C" "©")</code> ⟹ <code>U+00A9</code><br>
-        &nbsp;&nbsp;<code>(format "~@:+C" "©")</code> ⟹ <code>COPYRIGHT SIGN</code><br>
-        &nbsp;&nbsp;<code>(format "~:C" "©")</code> ⟹ <code>&amp;#xA9;</code><br>
-        &nbsp;&nbsp;<code>(format "~:+C" "©")</code> ⟹ <code>&amp;copy;</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~C" #\A)</code> &#10233; <code>A</code><br>
+        &nbsp;&nbsp;<code>(format "~+C" #\A)</code> &#10233; <code>"A"</code><br>
+        &nbsp;&nbsp;<code>(format "~+C" #\newline)</code> &#10233; <code>"\n"</code><br>
+        &nbsp;&nbsp;<code>(format "~@C" "A")</code> &#10233; <code>#\A</code><br>
+        &nbsp;&nbsp;<code>(format "~@C" "\t")</code> &#10233; <code>#\tab</code><br>
+        &nbsp;&nbsp;<code>(format "~@:C" "©")</code> &#10233; <code>U+00A9</code><br>
+        &nbsp;&nbsp;<code>(format "~@:+C" "©")</code> &#10233; <code>COPYRIGHT SIGN</code><br>
+        &nbsp;&nbsp;<code>(format "~:C" "©")</code> &#10233; <code>&amp;#xA9;</code><br>
+        &nbsp;&nbsp;<code>(format "~:+C" "©")</code> &#10233; <code>&amp;copy;</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -180,14 +179,14 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         DECIMAL:&nbsp;&nbsp;<strong>~<em>mincol,padchar,groupchar,groupcol</em>D</strong>
         <p>The next argument <em>arg</em> is output in decimal radix. <em>arg</em> should be an integer, in which case no decimal point is printed. For floating-point numbers which do not represent an integer, a decimal point and a fractional part are output.</p>
         <p><em>mincol</em> (default: 0) specifies the minimal "width" of the output of the directive in characters with <em>padchar</em> (default: '&nbsp;') defining the character that is used to pad the output on the left to make sure it is at least <em>mincol</em> characters long.</p>
-        <p>&nbsp;&nbsp;<code>(format "Number: ~D" 8273)</code> ⟹ <code>Number:&nbsp;8273</code><br>
-        &nbsp;&nbsp;<code>(format "Number: ~6D" 8273)</code> ⟹ <code>Number:&nbsp;&nbsp;&nbsp;8273</code><br>
-        &nbsp;&nbsp;<code>(format "Number: ~6,'0D" 8273)</code> ⟹ <code>Number:&nbsp;008273</code></p>
+        <p>&nbsp;&nbsp;<code>(format "Number: ~D" 8273)</code> &#10233; <code>Number:&nbsp;8273</code><br>
+        &nbsp;&nbsp;<code>(format "Number: ~6D" 8273)</code> &#10233; <code>Number:&nbsp;&nbsp;&nbsp;8273</code><br>
+        &nbsp;&nbsp;<code>(format "Number: ~6,'0D" 8273)</code> &#10233; <code>Number:&nbsp;008273</code></p>
         <p>By default, the number is output without grouping separators. <em>groupchar</em> specifies which character should be used to separate sequences of <em>groupcol</em> digits in the output. Grouping of digits gets enabled with the <code>:</code> modifier.</p>
-        <p>&nbsp;&nbsp;<code>(format "|~10:D|" 1734865)</code> ⟹ <code>|&nbsp;1,734,865|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,'.:D|" 1734865)</code> ⟹ <code>|&nbsp;1.734.865|</code></p>
+        <p>&nbsp;&nbsp;<code>(format "|~10:D|" 1734865)</code> &#10233; <code>|&nbsp;1,734,865|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,'.:D|" 1734865)</code> &#10233; <code>|&nbsp;1.734.865|</code></p>
         <p>A sign is output only if the number is negative. With the modifier <code>@</code> it is possible to force output also of positive signs. To facilitate the localization of output, procedure <code>format</code> supports a locale parameter, which is also available via format config objects. Locale-specific output can be enabled for the <code>~D</code> directive by using the <code>+</code> modifier.</p>
-        <p>&nbsp;&nbsp;<code>(format 'de_CH "~+D" 14321)</code> ⟹ <code>14'321</code></p>
+        <p>&nbsp;&nbsp;<code>(format 'de_CH "~+D" 14321)</code> &#10233; <code>14'321</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -196,9 +195,9 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         BINARY:&nbsp;&nbsp;<strong>~<em>mincol,padchar,groupchar,groupcol</em>B</strong>
         <p>Binary directive <code>~B</code> is just like decimal directive <code>~D</code> but it outputs the next argument in binary radix (radix 2) instead of decimal. It uses the space character as the default for <em>groupchar</em> and has a default grouping size of 4 as the default for <em>groupcol</em>.</p>
-        <p>&nbsp;&nbsp;<code>(format "bin(~D) = ~B" 178 178)</code> ⟹ <code>bin(178) = 10110010</code><br>
-        &nbsp;&nbsp;<code>(format "~:B" 59701)</code> ⟹ <code>1110 1001 0011 0101</code><br>
-        &nbsp;&nbsp;<code>(format "~19,'0,'.:B" 31912)</code> ⟹ <code>0111.1100.1010.1000</code></p>
+        <p>&nbsp;&nbsp;<code>(format "bin(~D) = ~B" 178 178)</code> &#10233; <code>bin(178) = 10110010</code><br>
+        &nbsp;&nbsp;<code>(format "~:B" 59701)</code> &#10233; <code>1110 1001 0011 0101</code><br>
+        &nbsp;&nbsp;<code>(format "~19,'0,'.:B" 31912)</code> &#10233; <code>0111.1100.1010.1000</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -207,9 +206,9 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         OCTAL:&nbsp;&nbsp;<strong>~<em>mincol,padchar,groupchar,groupcol</em>O</strong>
         <p>Octal directive <code>~O</code> is just like decimal directive <code>~D</code> but it outputs the next argument in octal radix (radix 8) instead of decimal. It uses the space character as the default for <em>groupchar</em> and has a default grouping size of 4 as the default for <em>groupcol</em>.</p>
-        <p>&nbsp;&nbsp;<code>(format "bin(~D) = ~O" 178 178)</code> ⟹ <code>bin(178) = 262</code><br>
-        &nbsp;&nbsp;<code>(format "~:O" 59701)</code> ⟹ <code>16 4465</code><br>
-        &nbsp;&nbsp;<code>(format "~9,'0,',:O" 31912)</code> ⟹ <code>0007,6250</code></p>
+        <p>&nbsp;&nbsp;<code>(format "bin(~D) = ~O" 178 178)</code> &#10233; <code>bin(178) = 262</code><br>
+        &nbsp;&nbsp;<code>(format "~:O" 59701)</code> &#10233; <code>16 4465</code><br>
+        &nbsp;&nbsp;<code>(format "~9,'0,',:O" 31912)</code> &#10233; <code>0007,6250</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -218,9 +217,9 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         HEXADECIMAL:&nbsp;&nbsp;<strong>~<em>mincol,padchar,groupchar,groupcol</em>X</strong>
         <p>Hexadecimal directive <code>~X</code> is just like decimal directive <code>~D</code> but it outputs the next argument in hexadecimal radix (radix 16) instead of decimal. It uses the colon character as the default for <em>groupchar</em> and has a default grouping size of 2 as the default for <em>groupcol</em>. With modifier <code>+</code>, upper case characters are used for representing hexadecimal digits.</p>
-        <p>&nbsp;&nbsp;<code>(format "bin(~D) = ~X" 9968 9968)</code> ⟹ <code>bin(9968) = 26f0</code><br>
-        &nbsp;&nbsp;<code>(format "~:X" 999701)</code> ⟹ <code>f:41:15</code><br>
-        &nbsp;&nbsp;<code>(format "~+X" 999854)</code> ⟹ <code>F41AE</code></p>
+        <p>&nbsp;&nbsp;<code>(format "bin(~D) = ~X" 9968 9968)</code> &#10233; <code>bin(9968) = 26f0</code><br>
+        &nbsp;&nbsp;<code>(format "~:X" 999701)</code> &#10233; <code>f:41:15</code><br>
+        &nbsp;&nbsp;<code>(format "~+X" 999854)</code> &#10233; <code>F41AE</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -229,21 +228,21 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         RADIX:&nbsp;&nbsp;<strong>~<em>radix,mincol,padchar,groupchar,groupcol</em>R</strong>
         <p>The next argument <em>arg</em> is expected to be a fixnum number. It will be output with radix <em>radix</em> (default: 10). <em>mincol</em> (default: 0) specifies the minimal "width" of the output of the directive in characters with <em>padchar</em> (default: '&nbsp;') defining the character that is used to pad the output on the left to make it at least <em>mincol</em> characters long.</p>
-        <p>&nbsp;&nbsp;<code>(format "Number: ~10R" 1272)</code> ⟹ <code>Number:&nbsp;1272</code><br>
-        &nbsp;&nbsp;<code>(format "Number: ~16,8,'0R" 7121972)</code> ⟹ <code>Number:&nbsp;006cac34</code><br>
-        &nbsp;&nbsp;<code>(format "Number: ~2R" 173)</code> ⟹ <code>Number:&nbsp;10101101</code></p>
+        <p>&nbsp;&nbsp;<code>(format "Number: ~10R" 1272)</code> &#10233; <code>Number:&nbsp;1272</code><br>
+        &nbsp;&nbsp;<code>(format "Number: ~16,8,'0R" 7121972)</code> &#10233; <code>Number:&nbsp;006cac34</code><br>
+        &nbsp;&nbsp;<code>(format "Number: ~2R" 173)</code> &#10233; <code>Number:&nbsp;10101101</code></p>
         <p>By default, the number is output without grouping separators. <em>groupchar</em> specifies which character should be used to separate sequences of <em>groupcol</em> digits in the output. Grouping of digits is enabled with the <code>:</code> modifier.</p>
-        <p>&nbsp;&nbsp;<code>(format "~16,8,,':,2:R" 7121972)</code> ⟹ <code>6c:ac:34</code><br>
-        &nbsp;&nbsp;<code>(format "~2,14,'0,'.,4:R" 773)</code> ⟹ <code>0011.0000.0101</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~16,8,,':,2:R" 7121972)</code> &#10233; <code>6c:ac:34</code><br>
+        &nbsp;&nbsp;<code>(format "~2,14,'0,'.,4:R" 773)</code> &#10233; <code>0011.0000.0101</code></p>
         <p>A sign is output only if the number is negative. With the modifier <code>@</code> it is possible to force output also of positive signs.</p>
         <p>If parameter <em>radix</em> is not specified at all, then an entirely different interpretation is given. <code>~R</code> outputs <em>arg</em> as a cardinal number in natural language. The form <code>~:R</code> outputs <em>arg</em> as an ordinal number in natural language. <code>~@R</code> outputs <em>arg</em> as a Roman numeral.</p>
-        <p>&nbsp;&nbsp;<code>(format "~R" 572)</code> ⟹ <code>five hundred seventy-two</code><br>
-        &nbsp;&nbsp;<code>(format "~:R" 3)</code> ⟹ <code>3rd</code><br>
-        &nbsp;&nbsp;<code>(format "~@R" 1272)</code> ⟹ <code>MCCLXXII</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~R" 572)</code> &#10233; <code>five hundred seventy-two</code><br>
+        &nbsp;&nbsp;<code>(format "~:R" 3)</code> &#10233; <code>3rd</code><br>
+        &nbsp;&nbsp;<code>(format "~@R" 1272)</code> &#10233; <code>MCCLXXII</code></p>
         <p>Whenever output is provided in natural language, English is used as the language by default. By specifying the <code>+</code> modifier, it is possible to switch the language to the language of the locale provided to procedure <code>format</code>. In fact, modifier <code>+</code> plays two different roles: If the given radix is greater than 10, upper case characters are used for representing alphabetic digits. If the radix is omitted, usage of modifier <code>+</code> enables locale-specific output determined by the <code>locale:</code> parameter of procedure <code>format</code>.</p>
-        <p>&nbsp;&nbsp;<code>(format 'de_DE "~+R" 572)</code> ⟹ <code>fünf­hundert­zwei­und­siebzig</code><br>
-        &nbsp;&nbsp;<code>(format 'de_CH "~10+R" 14321)</code> ⟹ <code>14'321</code><br>
-        &nbsp;&nbsp;<code>(format "~16R vs ~16+R" 900939 900939)</code> ⟹ <code>dbf4b vs DBF4B</code></p>
+        <p>&nbsp;&nbsp;<code>(format 'de_DE "~+R" 572)</code> &#10233; <code>fünf­hundert­zwei­und­siebzig</code><br>
+        &nbsp;&nbsp;<code>(format 'de_CH "~10+R" 14321)</code> &#10233; <code>14'321</code><br>
+        &nbsp;&nbsp;<code>(format "~16R vs ~16+R" 900939 900939)</code> &#10233; <code>dbf4b vs DBF4B</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -257,17 +256,17 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         <p>If <em>d</em> is omitted, then there is no constraint on the number of digits to appear after the decimal point. A value is chosen for <em>d</em> in such a way that as many digits as possible may be printed subject to the width constraint imposed by <em>w</em> and the constraint that no trailing zero digits may appear in the fraction, except that if the fraction is zero, then a single zero digit should appear after the decimal point if permitted by the width constraint.</p>
         <p>If <em>w</em> is omitted, then if the magnitude of <em>arg</em> is so large (or, if <em>d</em> is also omitted, so small) that more than 100 digits would have to be printed, then <em>arg</em> is output using exponential notation instead.</p>
         <p>The <code>~F</code> directive also supports grouping of the integer part of <em>arg</em>; this can be enabled via the <code>:</code> modifier. <em>groupchar</em> (default: ',') specifies which character should be used to separate sequences of <em>groupcol</em> (default: 3) digits in the integer part of the output. If locale-specific settings should be used, the <code>+</code> modifier needs to be set.</p>
-        <p>&nbsp;&nbsp;<code>(format "~F" 123.1415926)</code> ⟹ <code>123.1415926</code><br>
-        &nbsp;&nbsp;<code>(format "~8F" 123.1415926)</code> ⟹ <code>123.1416</code><br>
-        &nbsp;&nbsp;<code>(format "~8,,,'-F" 123.1415926)</code> ⟹ <code>123.1416</code><br>
-        &nbsp;&nbsp;<code>(format "~8,,,'-F" 123456789.12)</code> ⟹ <code>--------</code><br>
-        &nbsp;&nbsp;<code>(format "~8,,,,'0F" 123.14)</code> ⟹ <code>00123.14</code><br>
-        &nbsp;&nbsp;<code>(format "~8,3,,,'0F" 123.1415926)</code> ⟹ <code>0123.142</code><br>
-        &nbsp;&nbsp;<code>(format "~,4F" 123.1415926)</code> ⟹ <code>123.1416</code><br>
-        &nbsp;&nbsp;<code>(format "~,2@F" 123.1415926)</code> ⟹ <code>+123.14</code><br>
-        &nbsp;&nbsp;<code>(format "~,2,-2@F" 314.15926)</code> ⟹ <code>+3.14</code><br>
-        &nbsp;&nbsp;<code>(format "~,2:F" 1234567.891)</code> ⟹ <code>1,234,567.89</code><br>
-        &nbsp;&nbsp;<code>(format "~,2,,,,'',3:F" 1234567.891)</code> ⟹ <code>1'234'567.89</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~F" 123.1415926)</code> &#10233; <code>123.1415926</code><br>
+        &nbsp;&nbsp;<code>(format "~8F" 123.1415926)</code> &#10233; <code>123.1416</code><br>
+        &nbsp;&nbsp;<code>(format "~8,,,'-F" 123.1415926)</code> &#10233; <code>123.1416</code><br>
+        &nbsp;&nbsp;<code>(format "~8,,,'-F" 123456789.12)</code> &#10233; <code>--------</code><br>
+        &nbsp;&nbsp;<code>(format "~8,,,,'0F" 123.14)</code> &#10233; <code>00123.14</code><br>
+        &nbsp;&nbsp;<code>(format "~8,3,,,'0F" 123.1415926)</code> &#10233; <code>0123.142</code><br>
+        &nbsp;&nbsp;<code>(format "~,4F" 123.1415926)</code> &#10233; <code>123.1416</code><br>
+        &nbsp;&nbsp;<code>(format "~,2@F" 123.1415926)</code> &#10233; <code>+123.14</code><br>
+        &nbsp;&nbsp;<code>(format "~,2,-2@F" 314.15926)</code> &#10233; <code>+3.14</code><br>
+        &nbsp;&nbsp;<code>(format "~,2:F" 1234567.891)</code> &#10233; <code>1,234,567.89</code><br>
+        &nbsp;&nbsp;<code>(format "~,2,,,,'',3:F" 1234567.891)</code> &#10233; <code>1'234'567.89</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -280,14 +279,14 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         <p>Following the digit sequence, the exponent is output following character <em>expchar</em> (default: 'E') and the sign of the exponent, i.e. either the plus or the minus sign. The exponent consists of <em>e</em> digits representing the power of 10 by which the fraction must be multiplied to properly represent the rounded value of <em>arg</em>.</p>
         <p>If it is impossible to print the value in the required format in a field of width <em>w</em>, then one of two actions is taken: If the parameter <em>overchar</em> is specified, then <em>w</em> copies of this character are printed instead of <em>arg</em>. If <em>overchar</em> is omitted, then <em>arg</em> is printed using more than <em>w</em> characters, as many more as may be needed. If <em>d</em> is too small for the specified <em>k</em> or <em>e</em> is too small, then a larger value is used for <em>d</em> or <em>e</em> as may be needed.</p>
         <p>If the <em>w</em> parameter is omitted, then the output is of variable width and a value is chosen for <em>w</em> in such a way that no leading padding characters are needed.</p>
-        <p>&nbsp;&nbsp;<code>(format "~E" 31.415926)</code> ⟹ <code>3.1415926E+1</code><br>
-        &nbsp;&nbsp;<code>(format "~,5E" 0.0003141592)</code> ⟹ <code>3.14159E-4</code><br>
-        &nbsp;&nbsp;<code>(format "~,4,2E" 0.0003141592)</code> ⟹ <code>3.1416E-04</code><br>
-        &nbsp;&nbsp;<code>(format "~9E" 31.415926)</code> ⟹ <code>3.1416E+1</code><br>
-        &nbsp;&nbsp;<code>(format "~10,3,,,,'#E" 31.415926)</code> ⟹ <code>##3.142E+1</code><br>
-        &nbsp;&nbsp;<code>(format "~10,4,,3,,'#E" 31.415926)</code> ⟹ <code>#314.16E-1</code><br>
-        &nbsp;&nbsp;<code>(format "~7,3,2,,'-E" 31.415926)</code> ⟹ <code>-------</code><br>
-        &nbsp;&nbsp;<code>(format "~10,4,,4,,'#@E" 31.415926)</code> ⟹ <code>+3141.6E-2</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~E" 31.415926)</code> &#10233; <code>3.1415926E+1</code><br>
+        &nbsp;&nbsp;<code>(format "~,5E" 0.0003141592)</code> &#10233; <code>3.14159E-4</code><br>
+        &nbsp;&nbsp;<code>(format "~,4,2E" 0.0003141592)</code> &#10233; <code>3.1416E-04</code><br>
+        &nbsp;&nbsp;<code>(format "~9E" 31.415926)</code> &#10233; <code>3.1416E+1</code><br>
+        &nbsp;&nbsp;<code>(format "~10,3,,,,'#E" 31.415926)</code> &#10233; <code>##3.142E+1</code><br>
+        &nbsp;&nbsp;<code>(format "~10,4,,3,,'#E" 31.415926)</code> &#10233; <code>#314.16E-1</code><br>
+        &nbsp;&nbsp;<code>(format "~7,3,2,,'-E" 31.415926)</code> &#10233; <code>-------</code><br>
+        &nbsp;&nbsp;<code>(format "~10,4,,4,,'#@E" 31.415926)</code> &#10233; <code>+3141.6E-2</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -301,18 +300,18 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         Note that the scale factor <em>k</em> is not passed to the <code>~F</code> directive. For all other values of <em>dd</em>, <em>arg</em> is printed as if by the format directive:<br>
         &nbsp;&nbsp;&nbsp;&nbsp;<code>~w,d,e,k,overchar,padchar,expcharE</code><br>
         In either case, an <code>@</code> modifier is specified to the <code>~F</code> or <code>~E</code> directive if and only if one was specified to the <code>~G</code> directive.</p>
-        <p>&nbsp;&nbsp;<code>(format "|~G|" 712.72)</code> ⟹ <code>|712.72&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
-        &nbsp;&nbsp;<code>(format "|~12G|" 712.72)</code> ⟹ <code>|&nbsp;&nbsp;712.72&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
+        <p>&nbsp;&nbsp;<code>(format "|~G|" 712.72)</code> &#10233; <code>|712.72&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
+        &nbsp;&nbsp;<code>(format "|~12G|" 712.72)</code> &#10233; <code>|&nbsp;&nbsp;712.72&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
         &nbsp;&nbsp;<code>(format "|~9,2G|~9,3,2,3G|~9,3,2,0G|" 0.031415 0.031415 0.031415)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>|&nbsp;&nbsp;3.14E-2|314.2E-04|0.314E-01|</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>|&nbsp;&nbsp;3.14E-2|314.2E-04|0.314E-01|</code><br>
         &nbsp;&nbsp;<code>(format "|~9,2G|~9,3,2,3G|~9,3,2,0G|" 0.314159 0.314159 0.314159)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>|&nbsp;0.31&nbsp;&nbsp;&nbsp;&nbsp;|0.314&nbsp;&nbsp;&nbsp;&nbsp;|0.314&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>|&nbsp;0.31&nbsp;&nbsp;&nbsp;&nbsp;|0.314&nbsp;&nbsp;&nbsp;&nbsp;|0.314&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
         &nbsp;&nbsp;<code>(format "|~9,2G|~9,3,2,3G|~9,3,2,0G|" 3.14159 3.14159 3.14159)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>|&nbsp;&nbsp;3.1&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3.14&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3.14&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>|&nbsp;&nbsp;3.1&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3.14&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;3.14&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
         &nbsp;&nbsp;<code>(format "|~9,2G|~9,3,2,3G|~9,3,2,0G|" 314.159 314.159 314.159)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>|&nbsp;&nbsp;3.14E+2|&nbsp;&nbsp;314&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;314&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>|&nbsp;&nbsp;3.14E+2|&nbsp;&nbsp;314&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;314&nbsp;&nbsp;&nbsp;&nbsp;|</code><br>
         &nbsp;&nbsp;<code>(format "|~9,2G|~9,3,2,3G|~9,3,2,0G|" 3141.59 3141.59 3141.59)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>|&nbsp;&nbsp;3.14E+3|314.2E+01|0.314E+04|</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>|&nbsp;&nbsp;3.14E+3|314.2E+01|0.314E+04|</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -324,21 +323,21 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         <p>If the magnitude of <em>arg</em> is so large that the integer part of <em>arg</em> cannot be output with at most <em>n</em> characters, then more characters are generated, as needed, and the total width might overrun as well.</p>
         <p>For cases where a simple currency symbol is not sufficient, it is possible to use a numeric currency code as defined by ISO 4217 for parameter <em>curchar</em>. For positive codes, the shortest currency symbol is being used. For negative currency codes, the corresponding alphabetic code (ignoring the sign) is being used. Library <code>(lispkit system)</code> provides a conventient API to access currency codes.</p>
         <p>By specifying the <code>+</code> modifier, it is possible to enable locale-specific output of the monetary value using the locale provided to <code>format</code>. In this case, also the currency associated with this locale is being used.</p>
-        <p>&nbsp;&nbsp;<code>(format "~$" 4930.351)</code> ⟹ <code>4930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~3$" 4930.351)</code> ⟹ <code>4930.351</code><br>
-        &nbsp;&nbsp;<code>(format "~,6$" 4930.351)</code> ⟹ <code>004930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,6,12,'_$" 4930.351)</code> ⟹ <code>___004930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,6,12,'_@$" 4930.351)</code> ⟹ <code>__+004930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,6,12,'_@:$" 4930.351)</code> ⟹ <code>+__004930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,6,12,'_,'€$" 4930.351)</code> ⟹ <code>__€004930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,6,12,'_,'€@$" 4930.351)</code> ⟹ <code>_+€004930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,,,,,,3$" 4930.351)</code> ⟹ <code>4,930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,6,,,,,3$" 4930.351)</code> ⟹ <code>004,930.35</code><br>
-        &nbsp;&nbsp;<code>(format "~,,,,208$" 1234.567)</code> ⟹ <code>kr&nbsp;1234.57</code><br>
-        &nbsp;&nbsp;<code>(format "~,,,,-208$" 1234.567)</code> ⟹ <code>DKK&nbsp;1234.57</code><br>
-        &nbsp;&nbsp;<code>(format 'de_CH "~+$" 4930.351)</code> ⟹ <code>CHF&nbsp;4930.35</code><br>
-        &nbsp;&nbsp;<code>(format 'en_US "~,,,,,,3+$" 4930.351)</code> ⟹ <code>$4,930.35</code><br>
-        &nbsp;&nbsp;<code>(format 'de_DE "~,6,14,'_,,,3+$" 4930.351)</code> ⟹ <code>__004.930,35&nbsp;€</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~$" 4930.351)</code> &#10233; <code>4930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~3$" 4930.351)</code> &#10233; <code>4930.351</code><br>
+        &nbsp;&nbsp;<code>(format "~,6$" 4930.351)</code> &#10233; <code>004930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,6,12,'_$" 4930.351)</code> &#10233; <code>___004930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,6,12,'_@$" 4930.351)</code> &#10233; <code>__+004930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,6,12,'_@:$" 4930.351)</code> &#10233; <code>+__004930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,6,12,'_,'€$" 4930.351)</code> &#10233; <code>__€004930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,6,12,'_,'€@$" 4930.351)</code> &#10233; <code>_+€004930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,,,,,,3$" 4930.351)</code> &#10233; <code>4,930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,6,,,,,3$" 4930.351)</code> &#10233; <code>004,930.35</code><br>
+        &nbsp;&nbsp;<code>(format "~,,,,208$" 1234.567)</code> &#10233; <code>kr&nbsp;1234.57</code><br>
+        &nbsp;&nbsp;<code>(format "~,,,,-208$" 1234.567)</code> &#10233; <code>DKK&nbsp;1234.57</code><br>
+        &nbsp;&nbsp;<code>(format 'de_CH "~+$" 4930.351)</code> &#10233; <code>CHF&nbsp;4930.35</code><br>
+        &nbsp;&nbsp;<code>(format 'en_US "~,,,,,,3+$" 4930.351)</code> &#10233; <code>$4,930.35</code><br>
+        &nbsp;&nbsp;<code>(format 'de_DE "~,6,14,'_,,,3+$" 4930.351)</code> &#10233; <code>__004.930,35&nbsp;€</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -376,8 +375,8 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         PLURAL:&nbsp;&nbsp;<strong>~P</strong>
         <p>Depending on the next argument <em>arg</em>, which is expected to be an integer value, a different string is output. If <em>arg</em> is not equal to 1, a lowercase <code>s</code> is output. If <em>arg</em> is equal to 1, nothing is output.</p>
         <p>If the <code>:</code> modifier is provided, the last argument is used instead for <em>arg</em>. This is useful after outputting a number using <code>~D</code>. With the <code>@</code> modifier, <code>y</code> is output if <em>arg</em> is 1, or <code>ies</code> if it is not.</p>
-        <p>&nbsp;&nbsp;<code>(format "~D tr~:@P/~D win~:P" 7 1)</code> ⟹ <code>7 tries/1 win</code><br>
-        &nbsp;&nbsp;<code>(format "~D tr~:@P/~D win~:P" 1 0)</code> ⟹ <code>1 try/0 wins</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~D tr~:@P/~D win~:P" 7 1)</code> &#10233; <code>7 tries/1 win</code><br>
+        &nbsp;&nbsp;<code>(format "~D tr~:@P/~D win~:P" 1 0)</code> &#10233; <code>1 try/0 wins</code></p>
       </td>
     </tr>
     <tr valign="top">
@@ -402,93 +401,93 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
       <td>
         INDIRECTION:&nbsp;&nbsp;<strong>~?</strong>
         <p>The next argument <em>arg</em> must be a string, and the one after it <em>lst</em> must be a sequence (e.g. an array). Both arguments are consumed by the directive. <em>arg</em> is processed as a format control string, with the elements of the list <em>lst</em> as the arguments. Once the recursive processing of the control string has been finished, then processing of the control string containing the <code>~?</code> directive is resumed.</p>
-        <p>&nbsp;&nbsp;<code>(format "~? ~D" "[~A ~D]" '("Foo" 5) 7)</code> ⟹ <code>[Foo 5] 7</code><br>
-        &nbsp;&nbsp;<code>(format "~? ~D" "[~A ~D]" '("Foo" 5 14) 7)</code> ⟹ <code>[Foo 5] 7</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~? ~D" "[~A ~D]" '("Foo" 5) 7)</code> &#10233; <code>[Foo 5] 7</code><br>
+        &nbsp;&nbsp;<code>(format "~? ~D" "[~A ~D]" '("Foo" 5 14) 7)</code> &#10233; <code>[Foo 5] 7</code></p>
         <p>Note that in the second example, three arguments are supplied to the control string <code>"(~A ~D)"</code>, but only two are processed and the third is therefore ignored.</p>
         <p>With the <code>@</code> modifier, only one argument is directly consumed. The argument must be a string. It is processed as part of the control string as if it had appeared in place of the <code>~@?</code> directive, and any directives in the recursively processed control string may consume arguments of the control string containing the <code>~@?</code> directive.</p>
-        <p>&nbsp;&nbsp;<code>(format "~@? ~D" "[~A ~D]" "Foo" 5 7)</code> ⟹ <code>[Foo 5] 7</code><br>
-        &nbsp;&nbsp;<code>(format "~@? ~D" "[~A ~D]" "Foo" 5 14 7)</code> ⟹ <code>[Foo 5] 14</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~@? ~D" "[~A ~D]" "Foo" 5 7)</code> &#10233; <code>[Foo 5] 7</code><br>
+        &nbsp;&nbsp;<code>(format "~@? ~D" "[~A ~D]" "Foo" 5 14 7)</code> &#10233; <code>[Foo 5] 14</code></p>
       </td>
     </tr>
     <tr valign="top">
-      <td><strong>~(…~)</strong></td>
+      <td><strong>~(&hellip;~)</strong></td>
       <td>
         CONVERSION:&nbsp;&nbsp;<strong>~(<em>str</em>~)</strong>
         <p>The contained control string <em>str</em> is processed, and what it produces is subject to a conversion. Without the <code>+</code> modifier, a <em>case conversion</em> is performed. <code>~(</code> converts every uppercase character to the corresponding lowercase character, <code>~:(</code> capitalizes all words, <code>~@(</code> capitalizes just the first word and forces the rest to lowercase, and <code>~:@(</code> converts every lowercase character to the corresponding uppercase character. In the following example, <code>~@(</code> is used to cause the first word produced by <code>~R</code> to be capitalized:</p>
-        <p>&nbsp;&nbsp;<code>(format "~@(~R~) error~:P" 0)</code> ⟹ <code>Zero errors</code><br>
-        &nbsp;&nbsp;<code>(format "~@(~R~) error~:P" 1)</code> ⟹ <code>One error</code><br>
-        &nbsp;&nbsp;<code>(format "~@(~R~) error~:P" 23)</code> ⟹ <code>Twenty-three errors</code></p>
+        <p>&nbsp;&nbsp;<code>(format "~@(~R~) error~:P" 0)</code> &#10233; <code>Zero errors</code><br>
+        &nbsp;&nbsp;<code>(format "~@(~R~) error~:P" 1)</code> &#10233; <code>One error</code><br>
+        &nbsp;&nbsp;<code>(format "~@(~R~) error~:P" 23)</code> &#10233; <code>Twenty-three errors</code></p>
         <p>If the <code>+</code> modifier is provided together with the <code>:</code> modifier, all characters corresponding to named XML entities are being converted into names XML entities. If modifier <code>@</code> is added, then only those characters are converted which conflict with XML syntax. The modifier combination <code>+@</code> converts the output by stripping off all diacritics. Modifier <code>+</code> only will escape characters such that the result can be used as a Scheme string literal.</p>
         <p>&nbsp;&nbsp;<code>(format "~+:(~A~)" "© 2021–2023 TÜV")</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>&amp;copy; 2021&amp;ndash;2023 T&amp;Uuml;V</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>&amp;copy; 2021&amp;ndash;2023 T&amp;Uuml;V</code><br>
         &nbsp;&nbsp;<code>(format "~+:@(~A~)" "&lt;a href=\"t.html\"&gt;© TÜV&lt;/a&gt;")</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>&amp;lt;a href=&amp;quot;t.html&amp;quot;&amp;gt;© TÜV&amp;lt;/a&amp;gt;</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>&amp;lt;a href=&amp;quot;t.html&amp;quot;&amp;gt;© TÜV&amp;lt;/a&amp;gt;</code><br>
         &nbsp;&nbsp;<code>(format "~+@(~A~)" "épistèmê")</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>episteme</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>episteme</code><br>
         &nbsp;&nbsp;<code>(format "~+(~A~)" "Hello \"World\"\n")</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Hello \"World\"\n</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Hello \"World\"\n</code></p>
       </td>
     </tr>
     <tr valign="top">
-      <td><strong>~[…~]</strong></td>
+      <td><strong>~[&hellip;~]</strong></td>
       <td>
-        CONDITIONAL:&nbsp;&nbsp;<strong>~[<em>str<sub>0</sub></em>~;<em>str<sub>1</sub></em>~;…~;<em>str<sub>n</sub></em>~]</strong>
+        CONDITIONAL:&nbsp;&nbsp;<strong>~[<em>str<sub>0</sub></em>~;<em>str<sub>1</sub></em>~;&hellip;~;<em>str<sub>n</sub></em>~]</strong>
         <p>This is a set of control strings, called clauses, one of which is chosen and used. The clauses are separated by <code>~;</code> and the construct is terminated by <code>~]</code>.</p>
-        <p><em>Without default:</em>&nbsp; From a conditional directive ~[<em>str<sub>0</sub></em>~;<em>str<sub>1</sub></em>~;…~;<em>str<sub>n</sub></em>~], the <em>arg</em>-th clause is selected, where the first clause is number 0. If a prefix parameter is given as <code>~n[</code>, then the parameter <em>n</em> is used instead of an argument. This is useful only if the parameter is specified by <code>#</code>, to dispatch on the number of arguments remaining to be processed. If <em>arg</em> or <em>n</em> is out of range, then no clause is selected and no error is signaled. After the selected alternative has been processed, the control string continues after the <code>~]</code>.</p>
-        <p><em>With default:</em>&nbsp; Whenever the directive has the form ~[<em>str<sub>0</sub></em>~;<em>str<sub>1</sub></em>~;…~:;<em>default</em>~], i.e. the last clause is separated via <code>~:;</code>, then the conditional directive has a default clause which gets performed whenever no other clause could be selected.</p>
+        <p><em>Without default:</em>&nbsp; From a conditional directive ~[<em>str<sub>0</sub></em>~;<em>str<sub>1</sub></em>~;&hellip;~;<em>str<sub>n</sub></em>~], the <em>arg</em>-th clause is selected, where the first clause is number 0. If a prefix parameter is given as <code>~n[</code>, then the parameter <em>n</em> is used instead of an argument. This is useful only if the parameter is specified by <code>#</code>, to dispatch on the number of arguments remaining to be processed. If <em>arg</em> or <em>n</em> is out of range, then no clause is selected and no error is signaled. After the selected alternative has been processed, the control string continues after the <code>~]</code>.</p>
+        <p><em>With default:</em>&nbsp; Whenever the directive has the form ~[<em>str<sub>0</sub></em>~;<em>str<sub>1</sub></em>~;&hellip;~:;<em>default</em>~], i.e. the last clause is separated via <code>~:;</code>, then the conditional directive has a default clause which gets performed whenever no other clause could be selected.</p>
         <p><em>Optional selector:</em>&nbsp; Whenever the directive has the form ~:[<em>none</em>~;<em>some</em>~] the <em>none</em> control string is chosen if <em>arg</em> is <code>nil</code>, otherwise the <em>some</em> control string is chosen.</p>
         <p><em>Boolean selector:</em>&nbsp; Whenever the directive has the form ~+[<em>false</em>~;<em>true</em>~] the <em>false</em> control string is chosen if <em>arg</em> is the boolean value <code>false</code>, otherwise the <em>some</em> control string is chosen.</p>
         <p><em>Selector test:</em>&nbsp; Whenever the directive has the form ~@[<em>true</em>~], the next argument <em>arg</em> is tested for being non-<code>nil</code>. If <em>arg</em> is not <code>nil</code>, then the argument is not used up by the <code>~@[</code> directive but remains as the next one to be processed, and the one clause <em>true</em> is processed. If <em>arg</em> is <code>nil</code>, then the argument is used up, and the clause is not processed. The clause therefore should normally use exactly one argument, and may expect it to be non-<code>nil</code>.</p>
       </td>
     </tr>
     <tr valign="top">
-      <td><strong>~{…~}</strong></td>
+      <td><strong>~{&hellip;~}</strong></td>
       <td>
         ITERATION:&nbsp;&nbsp;<strong>~<em>n</em>{<em>str</em>~}</strong>
         <p>The iteration directive is used to control how a sequence is output. Thus, the next argument <em>arg</em> should be a sequence which is used as a list of arguments as if for a recursive call to <code>format</code>. The string <em>str</em> is used repeatedly as the control string until all elements from <em>arg</em> are consumed. Each iteration can absorb as many elements of <em>arg</em> as it needs. For instance, if <em>str</em> uses up two arguments by itself, then two elements of <em>arg</em> will get used up each time around the loop. If before any iteration step the sequence is empty, then the iteration is terminated. Also, if a prefix parameter <em>n</em> is given, then there will be at most <em>n</em> repetitions of processing of <em>str</em>. Finally, the <code>~^</code> directive can be used to terminate the iteration prematurely. If the iteration is terminated before all the remaining arguments are consumed, then any arguments not processed by the iteration remain to be processed by any directives following the iteration construct.</p>
         <p>&nbsp;&nbsp;<code>(format "Winners:~{ ~A~}." '("Fred" "Harry" "Jill"))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Winners: Fred Harry Jill.</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Winners: Fred Harry Jill.</code><br>
         &nbsp;&nbsp;<code>(format "Winners: ~{~#[~;~A~:;~A, ~]~}." '("Fred" "Harry" "Jill"))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Winners: Fred, Harry, Jill.</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Winners: Fred, Harry, Jill.</code><br>
         &nbsp;&nbsp;<code>(format "Pairs:~{ &lt;~A,~S&gt;~}." '("A" 1 "B" 2 "C" 3))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
         <p><code>~:<em>n,m</em>{<em>str</em>~}</code> is similar, but the argument should be a list of sublists. At each repetition step (capped by <em>n</em>), one sublist is used as the list of arguments for processing <em>str</em> with an iteration cap of <em>m</em>. On the next repetition, a new sublist is used, whether or not all elements of the last sublist had been processed.</p>
         <p>&nbsp;&nbsp;<code>(format "Pairs:~:{ &lt;~A,~S&gt;~}." '(("A" 1) ("B" 2) ("C" 3)))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
         <p><code>~@{<em>str</em>~}</code> is similar to <code>~{<em>str</em>~}</code>, but instead of using one argument that is a sequence, all the remaining arguments are used as the list of arguments for the iteration.</p>
         <p>&nbsp;&nbsp;<code>(format "Pairs:~@{ &lt;~A,~S&gt;~}." "A" 1 "B" 2 "C" 3)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
         <p><code>~:@{<em>str</em>~}</code> combines the features of <code>~:{<em>str</em>~}</code> and <code>~@{<em>str</em>~}</code>. All the remaining arguments are used, and each one must be a sequence. On each iteration, the next argument is used as a list of arguments to <em>str</em>.</p>
         <p>&nbsp;&nbsp;<code>(format "Pairs:~:@{ &lt;~A,~S&gt;~}." '("A" 1) '("B" 2) '("C" 3))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Pairs: &lt;A, 1&gt; &lt;B, 2&gt; &lt;C, 3&gt;.</code></p>
         <p>Terminating the repetition directive with <code>~:}</code> instead of <code>~}</code> forces <em>str</em> to be processed at least once, even if the initial sequence is empty. However, it will not override an explicit prefix parameter of zero. If <em>str</em> is empty, then an argument is used as <em>str</em>. It must be a string and precede any arguments processed by the iteration.</p>
       </td>
     </tr>
     <tr valign="top">
-      <td><strong>~&lt;…~&gt;</strong></td>
+      <td><strong>~&lt;&hellip;~&gt;</strong></td>
       <td>
         JUSTIFICATION:&nbsp;&nbsp; <strong>~<em>mincol,colinc,minpad,padchar,maxcol,elchar</em>&lt;<em>str</em>~&gt;</strong>
         <p>This directive justifies the text produced by processing control string <em>str</em> within a field which is at least <em>mincol</em> columns wide (default: 0). <em>str</em> may be divided up into segments via directive <code>~;</code>, in which case the spacing is evenly divided between the text segments.</p>
         <p>With no modifiers, the leftmost text segment is left-justified in the field and the rightmost text segment is right-justified. If there is only one text element, it is right-justified. The <code>:</code> modifier causes spacing to be introduced before the first text segment. The <code>@</code> modifier causes spacing to be added after the last text segment. The <em>minpad</em> parameter (default: 0) is the minimum number of padding characters to be output between each segment. Whenever padding is needed, the padding character <em>padchar</em> (default: '&nbsp;') is used. If the total width needed to satisfy the constraints is greater than <em>mincol</em>, then the width used is <em>mincol + k × colinc</em> for the smallest possible non-negative integer <em>k</em> with <em>colinc</em> defaulting to 1.</p>
-        <p>&nbsp;&nbsp;<code>(format "|~10,,,'.&lt;foo~;bar~&gt;|")</code> ⟹ <code>|foo....bar|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,,'.:&lt;foo~;bar~&gt;|")</code> ⟹ <code>|..foo..bar|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,,'.:@&lt;foo~;bar~&gt;|")</code> ⟹ <code>|..foo.bar.|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,,'.&lt;foobar~&gt;|")</code> ⟹ <code>|....foobar|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,,'.:&lt;foobar~&gt;|")</code> ⟹ <code>|....foobar|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,,'.@&lt;foobar~&gt;|")</code> ⟹ <code>|foobar....|</code><br>
-        &nbsp;&nbsp;<code>(format "|~10,,,'.:@&lt;foobar~&gt;|")</code> ⟹ <code>|..foobar..|</code></p>
+        <p>&nbsp;&nbsp;<code>(format "|~10,,,'.&lt;foo~;bar~&gt;|")</code> &#10233; <code>|foo....bar|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,,'.:&lt;foo~;bar~&gt;|")</code> &#10233; <code>|..foo..bar|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,,'.:@&lt;foo~;bar~&gt;|")</code> &#10233; <code>|..foo.bar.|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,,'.&lt;foobar~&gt;|")</code> &#10233; <code>|....foobar|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,,'.:&lt;foobar~&gt;|")</code> &#10233; <code>|....foobar|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,,'.@&lt;foobar~&gt;|")</code> &#10233; <code>|foobar....|</code><br>
+        &nbsp;&nbsp;<code>(format "|~10,,,'.:@&lt;foobar~&gt;|")</code> &#10233; <code>|..foobar..|</code></p>
         <p>Note that <em>str</em> may include format directives. All the clauses in <em>str</em> are processed in order. It is the resulting pieces of text that are justified. The <code>~^</code> directive may be used to terminate processing of the clauses prematurely, in which case only the completely processed clauses are justified.</p>
         <p>If the first clause of a <code>~&lt;</code> directive is terminated with <code>~:;</code> instead of <code>~;</code>, then it is used in a special way. All of the clauses are processed, but the first one is not used in performing the spacing and padding. When the padded result has been determined, then, if it fits on the current line of output, it is output, and the text for the first clause is discarded. If, however, the padded text does not fit on the current line, then the text segment for the first clause is output before the padded text. The first clause ought to contain a newline (such as a <code>~%</code> directive). The first clause is always processed, and so any arguments it refers to will be used. The decision is whether to use the resulting segment of text, not whether to process the first clause. If the <code>~:;</code> has a prefix parameter <em>n</em>, then the padded text must fit on the current line with <em>n</em> character positions to spare to avoid outputting the first clause’s text.</p>
         <p>For example, the control string in the following example can be used to print a list of items separated by comma without breaking items over line boundaries, beginning each line with <code>;;</code>. The prefix parameter 1 in <code>~1:;</code> accounts for the width of the comma that will follow the justified item if it is not the last element in the list, or the period if it is. If <code>~:;</code> has a second prefix parameter, like below, then it is used as the width of the line, overriding the line width as specified by <code>format</code>'s <code>linewidth:</code> parameter (default: 80).</p>
         <p>&nbsp;&nbsp;<code>(format "~%;; ~{~&lt;~%;; ~1,30:; ~S~&gt;~^,~}.~%"</code><br>
         &nbsp;&nbsp;<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'("first line" "second" "a long third line"</code><br>
         &nbsp;&nbsp;<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fourth" "fifth"))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹&nbsp;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233;&nbsp;<br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>;; "first line", "second",</code><br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>;; "a long third line",</code><br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>;; "fourth", "fifth".</code><br>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-        <p>If there is only one text segment <em>str</em> and parameter <em>maxcol</em> is provided and the length of the output of <em>str</em> is exceeding <em>maxcol</em>, then the output is truncated at width <em>maxcol - 1</em> and the ellipsis character <em>elchar</em> (default: '…') is inserted at the end.</p>
+        <p>If there is only one text segment <em>str</em> and parameter <em>maxcol</em> is provided and the length of the output of <em>str</em> is exceeding <em>maxcol</em>, then the output is truncated at width <em>maxcol - 1</em> and the ellipsis character <em>elchar</em> (default: '&hellip;') is inserted at the end.</p>
       </td>
     </tr>
     <tr valign="top">
@@ -497,35 +496,35 @@ by Guy L. Steele Jr. Some directives have been extended to meet today's formatti
         UP AND OUT:&nbsp;&nbsp;<strong>~^</strong>
         <p><em>Continue:</em>&nbsp; The <code>~^</code> directive is an escape construct. If there are no more arguments remaining to be processed, then the immediately enclosing <code>~{</code> or <code>~&lt;</code> directive is terminated. If there is no such enclosing directive, then the entire formatting operation is terminated. In the case of <code>~&lt;</code>, the formatting is performed, but no more segments are processed before doing the justification. The <code>~^</code> directive should appear only at the beginning of a <code>~&lt;</code> clause, because it aborts the entire clause it appears in, as well as all following clauses. <code>~^</code> may appear anywhere in a <code>~{</code> construct.</p>
         <p>&nbsp;&nbsp;<code>(format "Done.~^ ~D warning~:P.~^ ~D error~:P.")</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Done.</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Done.</code><br>
         &nbsp;&nbsp;<code>(format "Done.~^ ~D warning~:P.~^ ~D error~:P." 3)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Done. 3 warnings.</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Done. 3 warnings.</code><br>
         &nbsp;&nbsp;<code>(format "Done.~^ ~D warning~:P.~^ ~D error~:P." 1 5)</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Done. 1 warning. 5 errors.</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Done. 1 warning. 5 errors.</code></p>
         <p>If the directive has the form <code>~<em>n</em>^</code>, then termination occurs if <em>n</em> is zero. If the directive has the form <code>~<em>n,m</em>^</code>, termination occurs if the value of <em>n</em> equals the value of <em>m</em>. If the directive has the form <code>~<em>n,m,o</em>^</code>, termination occurs if <em>n</em> ≤ <em>m</em> ≤ <em>o</em>. Of course, this is useless if all the prefix parameters are literals. At least one of them should be a <code>#</code> or a <code>v</code> parameter.</p>
         <p><em>Break:</em>&nbsp; If <code>~^</code> is used within a <code>~:{</code> directive, then it merely terminates the current iteration step because in the standard case, it tests for remaining arguments of the current step only and the next iteration step commences immediately. To terminate the entire iteration process, use <code>~:^</code>. <code>~:^</code> may only be used if the directive it would terminate is <code>~:{</code> or <code>~:@{</code>. The entire iteration process is terminated if and only if the sublist that is supplying the arguments for the current iteration step is the last sublist (in the case of terminating a <code>~:{</code> directive) or the last argument to that call to format (in the case of terminating a <code>~:@{</code> directive).</p>
         <p>Note that while <code>~^</code> is equivalent to <code>~#^</code> in all circumstances, <code>~:^</code> is not equivalent to <code>~#:^</code> because the latter terminates the entire iteration if and only if no arguments remain for the current iteration step, as opposed to no arguments remaining for the entire iteration process.</p>
-        <p>&nbsp;&nbsp;<code>(format "~:{/~A~^ …~}",</code><br>
+        <p>&nbsp;&nbsp;<code>(format "~:{/~A~^ &hellip;~}",</code><br>
         &nbsp;&nbsp;<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'(("hot" "dog") ("hamburger") ("ice" "cream") ("french" "fries")))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>/hot …/hamburger/ice …/french …</code><br>
-        &nbsp;&nbsp;<code>(format "~:{/~A~:^ …~}"</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>/hot &hellip;/hamburger/ice &hellip;/french &hellip;</code><br>
+        &nbsp;&nbsp;<code>(format "~:{/~A~:^ &hellip;~}"</code><br>
         &nbsp;&nbsp;<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'(("hot" "dog") ("hamburger") ("ice" "cream") ("french" "fries")))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>/hot …/hamburger …/ice …/french</code><br>
-        &nbsp;&nbsp;<code>(format "~:{/~A~#:^ …~}"</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>/hot &hellip;/hamburger &hellip;/ice &hellip;/french</code><br>
+        &nbsp;&nbsp;<code>(format "~:{/~A~#:^ &hellip;~}"</code><br>
         &nbsp;&nbsp;<code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'(("hot" "dog") ("hamburger") ("ice" "cream") ("french" "fries")))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>/hot …/hamburger</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>/hot &hellip;/hamburger</code></p>
       </td>
     </tr>
     <tr valign="top">
-      <td><strong>~`…~‘</strong></td>
+      <td><strong>~`&hellip;~‘</strong></td>
       <td>
         UPACK:&nbsp;&nbsp;<strong>~`<em>str</em>~‘</strong>
         <p>This directive is used to format composite objects, such as rational numbers, complex numbers, colors, date-time objects, error objects, records, etc. Such objects get decomposed into a sequence of individual values which are formatted by the <em>str</em> control string.</p>
        <p>The next argument <em>arg</em> can be any Scheme object. If there is a decomposition predefined for this type of objects, it is applied to <em>arg</em> and <em>str</em> is used to format the resulting sequence of values. If no decomposition is possible, <em>str</em> is output assuming there is one argument <em>arg</em>.</p>
-        <p>&nbsp;&nbsp;<code>(format "~S~:* = ~`(~S, ~S)~‘" 17/3)</code> ⟹ <code>17/3 = (17, 3)</code><br>
-        &nbsp;&nbsp;<code>(format "Bits =~`~*~{ ~D~}~‘" (bitset 1 2 7))</code> ⟹ <code>Bits = 1 2 7</code><br>
+        <p>&nbsp;&nbsp;<code>(format "~S~:* = ~`(~S, ~S)~‘" 17/3)</code> &#10233; <code>17/3 = (17, 3)</code><br>
+        &nbsp;&nbsp;<code>(format "Bits =~`~*~{ ~D~}~‘" (bitset 1 2 7))</code> &#10233; <code>Bits = 1 2 7</code><br>
         &nbsp;&nbsp;<code>(format "Color: ~`R=~F, G=~F, B=~F~‘" (color 0.3 1.0 0.74))</code><br>
-        &nbsp;&nbsp;&nbsp;&nbsp;⟹ <code>Color: R=0.3, G=1.0, B=0.74</code></p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&#10233; <code>Color: R=0.3, G=1.0, B=0.74</code></p>
       </td>
     </tr>
   </tbody>
@@ -728,4 +727,3 @@ Returns a list of type tags, i.e. symbols, for which there is a type-specific fo
 **(format-config-parent _config_)**  
 
 Returns the parent configuration of format configuration _config_. If _config_ is not provided, the default configuration `current-format-config` is used. `format-config-parent` returns `#f` if _config_ does not have a parent formatting configuration.
-

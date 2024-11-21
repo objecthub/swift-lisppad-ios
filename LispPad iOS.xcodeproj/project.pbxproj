@@ -180,6 +180,30 @@
 		CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701C26AC7E75008DF3D0 /* Sheet.swift */; };
 		CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */; };
 		CCE74B54295A4139002660C4 /* (lisppad draw map).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */; };
+		CCE80A132CEFF21B008C63A2 /* (lispkit system keychain).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */; };
+		CCE80A152CEFF252008C63A2 /* (lispkit system pasteboard).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */; };
+		CCE80A172CEFF284008C63A2 /* (lispkit json).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A162CEFF284008C63A2 /* (lispkit json).md */; };
+		CCE80A192CEFF2D4008C63A2 /* (lispkit json schema).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */; };
+		CCE80A1B2CEFF321008C63A2 /* (lispkit draw barcode).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */; };
+		CCE80A1D2CEFF35E008C63A2 /* (lispkit url).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */; };
+		CCE80A1F2CEFF3A0008C63A2 /* (lispkit http).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A1E2CEFF3A0008C63A2 /* (lispkit http).md */; };
+		CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */; };
+		CCE80A232CEFF442008C63A2 /* (lispkit http oauth).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */; };
+		CCE80A252CEFF4BA008C63A2 /* (lispkit serialize).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */; };
+		CCE80A272CEFF56A008C63A2 /* (lispkit thread shared-queue).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */; };
+		CCE80A292CEFF59C008C63A2 /* (lispkit thread future).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */; };
+		CCE80A2A2CEFF96F008C63A2 /* (lispkit url).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */; };
+		CCE80A2B2CEFF977008C63A2 /* (lispkit thread shared-queue).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */; };
+		CCE80A2C2CEFF984008C63A2 /* (lispkit thread future).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */; };
+		CCE80A2D2CEFF98F008C63A2 /* (lispkit system pasteboard).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */; };
+		CCE80A2E2CEFF996008C63A2 /* (lispkit system keychain).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */; };
+		CCE80A2F2CEFF99E008C63A2 /* (lispkit serialize).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */; };
+		CCE80A302CEFF9A8008C63A2 /* (lispkit json).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A162CEFF284008C63A2 /* (lispkit json).md */; };
+		CCE80A312CEFF9AD008C63A2 /* (lispkit json schema).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */; };
+		CCE80A322CEFF9B5008C63A2 /* (lispkit http).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A1E2CEFF3A0008C63A2 /* (lispkit http).md */; };
+		CCE80A332CEFF9BB008C63A2 /* (lispkit http oauth).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */; };
+		CCE80A342CEFF9C0008C63A2 /* (lispkit http server).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */; };
+		CCE80A352CEFF9D2008C63A2 /* (lispkit draw barcode).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */; };
 		CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42126219C0000E3DC6A /* PDFViewer.swift */; };
 		CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E4232621A31A00E3DC6A /* DocumentView.swift */; };
 		CCE8E4282621A49F00E3DC6A /* lisppad_ref.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */; };
@@ -244,6 +268,18 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CCE80A352CEFF9D2008C63A2 /* (lispkit draw barcode).md in Copy Documentation/Libraries */,
+				CCE80A342CEFF9C0008C63A2 /* (lispkit http server).md in Copy Documentation/Libraries */,
+				CCE80A332CEFF9BB008C63A2 /* (lispkit http oauth).md in Copy Documentation/Libraries */,
+				CCE80A322CEFF9B5008C63A2 /* (lispkit http).md in Copy Documentation/Libraries */,
+				CCE80A312CEFF9AD008C63A2 /* (lispkit json schema).md in Copy Documentation/Libraries */,
+				CCE80A302CEFF9A8008C63A2 /* (lispkit json).md in Copy Documentation/Libraries */,
+				CCE80A2F2CEFF99E008C63A2 /* (lispkit serialize).md in Copy Documentation/Libraries */,
+				CCE80A2E2CEFF996008C63A2 /* (lispkit system keychain).md in Copy Documentation/Libraries */,
+				CCE80A2D2CEFF98F008C63A2 /* (lispkit system pasteboard).md in Copy Documentation/Libraries */,
+				CCE80A2C2CEFF984008C63A2 /* (lispkit thread future).md in Copy Documentation/Libraries */,
+				CCE80A2B2CEFF977008C63A2 /* (lispkit thread shared-queue).md in Copy Documentation/Libraries */,
+				CCE80A2A2CEFF96F008C63A2 /* (lispkit url).md in Copy Documentation/Libraries */,
 				CCC233712B5328A900C88C68 /* (lisppad turtle).md in Copy Documentation/Libraries */,
 				CCC2336D2B53286800C88C68 /* (lispkit archive tar).md in Copy Documentation/Libraries */,
 				CCC2336E2B53286800C88C68 /* (lispkit crypto).md in Copy Documentation/Libraries */,
@@ -605,6 +641,18 @@
 		CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalScrollView.swift; sourceTree = "<group>"; };
 		CCE5701C26AC7E75008DF3D0 /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
 		CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollSheet.swift; sourceTree = "<group>"; };
+		CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system keychain).md"; sourceTree = "<group>"; };
+		CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system pasteboard).md"; sourceTree = "<group>"; };
+		CCE80A162CEFF284008C63A2 /* (lispkit json).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit json).md"; sourceTree = "<group>"; };
+		CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit json schema).md"; sourceTree = "<group>"; };
+		CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw barcode).md"; sourceTree = "<group>"; };
+		CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit url).md"; sourceTree = "<group>"; };
+		CCE80A1E2CEFF3A0008C63A2 /* (lispkit http).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http).md"; sourceTree = "<group>"; };
+		CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http server).md"; sourceTree = "<group>"; };
+		CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http oauth).md"; sourceTree = "<group>"; };
+		CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit serialize).md"; sourceTree = "<group>"; };
+		CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread shared-queue).md"; sourceTree = "<group>"; };
+		CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread future).md"; sourceTree = "<group>"; };
 		CCE8E42126219C0000E3DC6A /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
 		CCE8E4232621A31A00E3DC6A /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = lisppad_ref.pdf; sourceTree = "<group>"; };
@@ -836,9 +884,10 @@
 				CC8B953B26079FBA00830B4F /* (lispkit date-time).md */,
 				CC8B953F26079FBA00830B4F /* (lispkit debug).md */,
 				CC8B954F26079FBA00830B4F /* (lispkit disjoint-set).md */,
+				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
+				CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */,
 				CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */,
 				CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */,
-				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
 				CC8B953226079FBA00830B4F /* (lispkit dynamic).md */,
 				CC8B952F26079FBA00830B4F /* (lispkit enum).md */,
 				CCC233632B45FA8B00C88C68 /* (lispkit format).md */,
@@ -846,7 +895,12 @@
 				CC8B953A26079FBA00830B4F /* (lispkit gvector).md */,
 				CC8B954526079FBA00830B4F /* (lispkit hashtable).md */,
 				CC8B954026079FBA00830B4F /* (lispkit heap).md */,
+				CCE80A1E2CEFF3A0008C63A2 /* (lispkit http).md */,
+				CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */,
+				CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */,
 				CC8B952726079FBA00830B4F /* (lispkit iterate).md */,
+				CCE80A162CEFF284008C63A2 /* (lispkit json).md */,
+				CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */,
 				CC8B954E26079FBA00830B4F /* (lispkit list).md */,
 				CCC233672B45FBD000C88C68 /* (lispkit list set).md */,
 				CC8B952426079FBA00830B4F /* (lispkit log).md */,
@@ -862,6 +916,7 @@
 				CC8B954A26079FBA00830B4F /* (lispkit queue).md */,
 				CC8B954726079FBA00830B4F /* (lispkit record).md */,
 				CC8B954B26079FBA00830B4F /* (lispkit regexp).md */,
+				CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */,
 				CC8B952D26079FBA00830B4F /* (lispkit set).md */,
 				CC8B952E26079FBA00830B4F /* (lispkit sqlite).md */,
 				CC8B953926079FBA00830B4F /* (lispkit stack).md */,
@@ -870,11 +925,16 @@
 				CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */,
 				CC8B954126079FBA00830B4F /* (lispkit system os).md */,
 				CC8B953726079FBA00830B4F /* (lispkit system).md */,
+				CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */,
+				CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */,
 				CC8B952226079FBA00830B4F /* (lispkit test).md */,
 				CCFA680827653915009A599C /* (lispkit text-table).md */,
 				CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */,
 				CCEF3E2F27CA2E7D00FB56EB /* (lispkit thread channel).md */,
+				CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */,
+				CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */,
 				CC8B952326079FBA00830B4F /* (lispkit type).md */,
+				CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */,
 				CC8B953826079FBA00830B4F /* (lispkit vector).md */,
 				CCEF3E2B27CA2D1A00FB56EB /* images */,
 			);
@@ -1229,20 +1289,32 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCE80A172CEFF284008C63A2 /* (lispkit json).md in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
+				CCE80A232CEFF442008C63A2 /* (lispkit http oauth).md in Resources */,
+				CCE80A272CEFF56A008C63A2 /* (lispkit thread shared-queue).md in Resources */,
 				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
+				CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */,
+				CCE80A192CEFF2D4008C63A2 /* (lispkit json schema).md in Resources */,
+				CCE80A1B2CEFF321008C63A2 /* (lispkit draw barcode).md in Resources */,
+				CCE80A1D2CEFF35E008C63A2 /* (lispkit url).md in Resources */,
 				CC894F122CC300C700896B1D /* iosevka-regular.ttf in Resources */,
 				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
+				CCE80A292CEFF59C008C63A2 /* (lispkit thread future).md in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */,
+				CCE80A252CEFF4BA008C63A2 /* (lispkit serialize).md in Resources */,
+				CCE80A152CEFF252008C63A2 /* (lispkit system pasteboard).md in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,
 				CC894F0F2CC300C000896B1D /* RobotoMono-Regular.ttf in Resources */,
+				CCE80A1F2CEFF3A0008C63A2 /* (lispkit http).md in Resources */,
+				CCE80A132CEFF21B008C63A2 /* (lispkit system keychain).md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

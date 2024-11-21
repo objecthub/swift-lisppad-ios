@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1 (2024-11-22)
+
+
+
+
 ## 2.0.1 (2024-03-03)
 
 - Support sharing of canvases

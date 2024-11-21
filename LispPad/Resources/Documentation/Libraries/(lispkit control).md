@@ -40,7 +40,7 @@ The _test_ is evaluated, and if it evaluates to false, the expressions _alternat
   (display "2"))  ⇒ (void), prints nothing
 ```
 
-**(cond _clause1 clause2 ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>
+**(cond _clause1 clause2 ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 Clauses like _clause1_ and _clause2_ take one of two forms, either
 
@@ -69,7 +69,7 @@ If all tests evaluate to `#f`, and there is no `else` clause, then the result of
       (else #f))           ⇒ 2
 ```
 
-**(case _key clause1 clause2 ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>
+**(case _key clause1 clause2 ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 _key_ can be any expression. Each clause _clause1, clause2, ..._ has the form:
 
@@ -240,7 +240,7 @@ The `let*-optionals` construct is similar to `let-optionals`, but the _default_ 
   (list zero one two three))  ⇒  (0 10 20 21)
 ```
 
-**(let-keywords _args_ (_binding_ ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+**(let-keywords _args_ (_binding_ ...) _body_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 _binding_ has one of two forms:
 

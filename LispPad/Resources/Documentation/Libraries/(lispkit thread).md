@@ -14,7 +14,7 @@ The design of this library as well as most of this documentation originates from
 
 ## Threads
 
-A thread in LispKit encapsulates a _thunk_ which it eventually executes, a _name_ identifying the thread, a _tag_ for storing associated (thread-local) data, a list of mutexes it owns, as well as an end-result and end-exception field for eventually capturing the result of the executed thread. A thread is in exactly one of the following states: new, runnable, blocked, and terminated.
+A thread in LispKit encapsulates a _thunk_ which it eventually executes, a _name_ identifying the thread, a _tag_ for storing associated (thread-local) data, a list of mutexes it owns, as well as an end-result and end-exception field for eventually capturing the result of the executed thread. A thread is in exactly one of the following states: new, runnable, blocked, and terminated. Each thread comes with its own stack whose maximum size can be individually configured.
 
 ### Thread states
 
@@ -390,6 +390,14 @@ Returns the number of threads that are currently in runnable state.
 **(allocated-thread-count)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the number of allocated threads, i.e. threads in any state that are not garbage collected yet.
+
+**(abort-running-threads)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Aborts all threads except for the primordial thread and waits until all threads are terminated. This procedure must only be invoked from the primordial thread.
+
+**(wait-threads-terminated)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Waits until all threads except for the primordial thread are terminated. This procedure must only be invoked from the primordial thread.
 
 ***
 

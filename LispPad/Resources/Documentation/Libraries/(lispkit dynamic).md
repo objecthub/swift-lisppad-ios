@@ -227,8 +227,9 @@ Executes _expr0_, _expr1_, ... in the given order and raises an assertion error 
 Returns `#t` if _obj_ is an error object, `#f` otherwise. Error objects are either implicitly created via `error` or they are created explicitly with procedure `make-error`.
 
 **(error-object-message _err_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(error-object-message _err template?_)**  
 
-Returns the message (which is a string) encapsulated by the error object _err_.
+Returns the message (which is a string) encapsulated by the error object _err_ with placeholders getting expanded. If _template?_ is provided and set to `#t`, placeholders are not getting expanded, i.e. the message that is returned is the error message template string.
 
 **(error-object-irritants _err_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -237,6 +238,11 @@ Returns a list of the irritants encapsulated by the error object _err_.
 **(error-object-stacktrace _err_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a list of procedures representing the stack trace encapsulated by the error object _err_. The stack trace reflects the currently active procedures at the time the error object was created (either implicitly via `error` or explicitly via `make-error`).
+
+**(error-object-\>string _err_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(error-object-\>string _err expanded?_)**  
+
+Returns a string representation of _err_ for the purpose of displaying a description of the error. If _expanded?_ is provided and set to `#t`, then a more comprehensive description is returned. If _expanded?_ is set to symbol `printable`, an even more comprehensive description is returned.
 
 **(read-error? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

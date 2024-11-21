@@ -134,6 +134,12 @@ If is an error if _bytevector_, between _start_ and _end_, is not encoded using 
 
 If is an error if _bytevector_, between _start_ and _end_, is not encoded using _Deflate_ or is not using the _zlib_ wrapper format. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
 
+**(bytevector-zip-header? _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-zip-header? _bytevector start_)**   
+**(bytevector-zip-header? _bytevector start end_)**   
+
+`bytevector-zip-header?` returns `#t` if the _bytevector_ is using a _zlib_ wrapper for data encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns `#f` otherwise. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
 **(bytevector-gzip _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(bytevector-gzip _bytevector start_)**   
 **(bytevector-gzip _bytevector start end_)**   
@@ -147,6 +153,13 @@ If is an error if _bytevector_, between _start_ and _end_, is not encoded using 
 `bytevector-gunzip` assumes _bytevector_ is using a _gzip_ wrapper for data encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns a corresponding new decoded bytevector.
 
 If is an error if _bytevector_, between _start_ and _end_, is not encoded using _Deflate_ or is not using the _gzip_ wrapper format. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
+**(bytevector-gzip-header? _bytevector_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(bytevector-gzip-header? _bytevector start_)**   
+**(bytevector-gzip-header? _bytevector start end_)**   
+
+`bytevector-gzip-header?` returns `#t` if the _bytevector_ is using a _gzip_ wrapper for data encoded using the _Deflate_ data compression alogrithm between _start_ and _end_. The procedure returns `#f` otherwise. If _end_ is not provided, it is assumed to be the length of _bytevector_. If _start_ is not provided, it is assumed to be 0.
+
 
 ## Advanced
 

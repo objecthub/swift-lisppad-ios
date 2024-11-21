@@ -309,6 +309,18 @@ Returns the name of the region identified by the 2-letter region code string _id
 
 Returns the flag of the region identified by the 2-letter region code string _ident_ as a string containing a single flag emoji.
 
+**(region-continent _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a region identifier (string) for the continent containing the region identified by the 2-letter region code string _ident_.
+
+**(region-parent _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns an identifier for the parent of the region identified by the 2-letter region code string _ident_.
+
+**(region-subregions _ident_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of identifiers (strings) for all regions contained in the region identified by the 2-letter region code string _ident_.
+
 **(available-languages)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a list of 2-letter language code identifiers (strings) for all available languages.
@@ -402,25 +414,29 @@ Returns the command line passed to the process as a list of strings. The first s
 
 Returns a list of the feature identifiers which `cond-expand` treats as true. Here is an example of what `features` might return: `(modules x86-64 lispkit macosx syntax-rules complex 64bit macos little-endian dynamic-loading ratios r7rs)`. LispKit supports at least the following feature identifiers:
 
-  * `lispkit`
-  * `r7rs`
-  * `ratios`
-  * `complex`
-  * `syntax-rules`
-  * `little-endian`
-  * `big-endian`
-  * `dynamic-loading`
-  * `modules`
   * `32bit`
   * `64bit`
-  * `macos`
-  * `macosx`
+  * `arm`
+  * `arm64`
+  * `big-endian`
+  * `complex`
+  * `dynamic-loading`
+  * `i386`
   * `ios`
   * `linux`
-  * `i386`
+  * `lispkit`
+  * `lisppad`
+  * `little-endian`
+  * `macos`
+  * `macosx`
+  * `modules`
+  * `r7rs`
+  * `ratios`
+  * `repl`
+  * `runloop`
+  * `syntax-rules`
+  * `threads`
   * `x86-64`
-  * `arm64`
-  * `arm`
 
 **(implementation-name)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -453,6 +469,16 @@ Returns the amount of memory allocated by the application executing the LispKit 
 **(system-uptime)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the uptime of the system in seconds.
+
+**(available-network-interfaces)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(available-network-interfaces _ipv4only_)**  
+
+Returns an association list mapping names of available network interfaces to pairs consisting of local ip addresses and network masks. When _ipv4only_ is set to `#t`, only network interfaces with IPv4 IP addresses are being returned.
+
+```scheme
+(available-network-interfaces)
+⇒  (("en0" "192.168.10.175" . "255.255.255.0") ("utun24" "10.5.0.2" . "255.255.0.0"))
+```
 
 **(os-type)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
