@@ -15,7 +15,7 @@ userinfo = username [":" password]
 
 The following illustration shows all components:
 
-![URL Syntax](x-devonthink-item://54C1ABDC-D6F4-4E5A-B96B-CF58D5C1E5DC)
+![URL Syntax](images/url.png)
 
 
 ## Generic URLs

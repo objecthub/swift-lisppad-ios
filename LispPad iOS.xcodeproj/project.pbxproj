@@ -204,6 +204,18 @@
 		CCE80A332CEFF9BB008C63A2 /* (lispkit http oauth).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */; };
 		CCE80A342CEFF9C0008C63A2 /* (lispkit http server).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */; };
 		CCE80A352CEFF9D2008C63A2 /* (lispkit draw barcode).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */; };
+		CCE80A372CF0003B008C63A2 /* pdf417.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A362CF0003B008C63A2 /* pdf417.png */; };
+		CCE80A392CF0004B008C63A2 /* aztec.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A382CF0004B008C63A2 /* aztec.png */; };
+		CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A3A2CF00051008C63A2 /* qrcode.png */; };
+		CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A3C2CF0005A008C63A2 /* code128.png */; };
+		CCE80A3F2CF00062008C63A2 /* url.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A3E2CF00062008C63A2 /* url.png */; };
+		CCE80A412CF00076008C63A2 /* oauth2flow.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A402CF00076008C63A2 /* oauth2flow.png */; };
+		CCE80A422CF0017B008C63A2 /* url.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A3E2CF00062008C63A2 /* url.png */; };
+		CCE80A432CF00184008C63A2 /* code128.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A3C2CF0005A008C63A2 /* code128.png */; };
+		CCE80A442CF0018C008C63A2 /* qrcode.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A3A2CF00051008C63A2 /* qrcode.png */; };
+		CCE80A452CF00192008C63A2 /* aztec.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A382CF0004B008C63A2 /* aztec.png */; };
+		CCE80A462CF0019C008C63A2 /* pdf417.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A362CF0003B008C63A2 /* pdf417.png */; };
+		CCE80A472CF001A7008C63A2 /* oauth2flow.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A402CF00076008C63A2 /* oauth2flow.png */; };
 		CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42126219C0000E3DC6A /* PDFViewer.swift */; };
 		CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E4232621A31A00E3DC6A /* DocumentView.swift */; };
 		CCE8E4282621A49F00E3DC6A /* lisppad_ref.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */; };
@@ -460,6 +472,12 @@
 			dstPath = Documentation/Libraries/images;
 			dstSubfolderSpec = 7;
 			files = (
+				CCE80A472CF001A7008C63A2 /* oauth2flow.png in Copy Documentation/Libraries/images */,
+				CCE80A462CF0019C008C63A2 /* pdf417.png in Copy Documentation/Libraries/images */,
+				CCE80A452CF00192008C63A2 /* aztec.png in Copy Documentation/Libraries/images */,
+				CCE80A442CF0018C008C63A2 /* qrcode.png in Copy Documentation/Libraries/images */,
+				CCE80A432CF00184008C63A2 /* code128.png in Copy Documentation/Libraries/images */,
+				CCE80A422CF0017B008C63A2 /* url.png in Copy Documentation/Libraries/images */,
 				CC7A55912997D5700014D600 /* sample-graph.png in Copy Documentation/Libraries/images */,
 				CCA9E3DC28A9C97300628DE5 /* bar-chart-params.png in Copy Documentation/Libraries/images */,
 				CCEF3E2D27CA2D8500FB56EB /* thread-states.png in Copy Documentation/Libraries/images */,
@@ -653,6 +671,12 @@
 		CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit serialize).md"; sourceTree = "<group>"; };
 		CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread shared-queue).md"; sourceTree = "<group>"; };
 		CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread future).md"; sourceTree = "<group>"; };
+		CCE80A362CF0003B008C63A2 /* pdf417.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pdf417.png; sourceTree = "<group>"; };
+		CCE80A382CF0004B008C63A2 /* aztec.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = aztec.png; sourceTree = "<group>"; };
+		CCE80A3A2CF00051008C63A2 /* qrcode.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = qrcode.png; sourceTree = "<group>"; };
+		CCE80A3C2CF0005A008C63A2 /* code128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = code128.png; sourceTree = "<group>"; };
+		CCE80A3E2CF00062008C63A2 /* url.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = url.png; sourceTree = "<group>"; };
+		CCE80A402CF00076008C63A2 /* oauth2flow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = oauth2flow.png; sourceTree = "<group>"; };
 		CCE8E42126219C0000E3DC6A /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
 		CCE8E4232621A31A00E3DC6A /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = lisppad_ref.pdf; sourceTree = "<group>"; };
@@ -1155,6 +1179,12 @@
 		CCEF3E2B27CA2D1A00FB56EB /* images */ = {
 			isa = PBXGroup;
 			children = (
+				CCE80A362CF0003B008C63A2 /* pdf417.png */,
+				CCE80A382CF0004B008C63A2 /* aztec.png */,
+				CCE80A3A2CF00051008C63A2 /* qrcode.png */,
+				CCE80A3C2CF0005A008C63A2 /* code128.png */,
+				CCE80A3E2CF00062008C63A2 /* url.png */,
+				CCE80A402CF00076008C63A2 /* oauth2flow.png */,
 				CC7A55902997D4E60014D600 /* sample-graph.png */,
 				CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */,
 				CCA9E3D028A9270500628DE5 /* bar-chart-params.png */,
@@ -1298,8 +1328,10 @@
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
 				CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */,
 				CCE80A192CEFF2D4008C63A2 /* (lispkit json schema).md in Resources */,
+				CCE80A3F2CF00062008C63A2 /* url.png in Resources */,
 				CCE80A1B2CEFF321008C63A2 /* (lispkit draw barcode).md in Resources */,
 				CCE80A1D2CEFF35E008C63A2 /* (lispkit url).md in Resources */,
+				CCE80A412CF00076008C63A2 /* oauth2flow.png in Resources */,
 				CC894F122CC300C700896B1D /* iosevka-regular.ttf in Resources */,
 				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
 				CCE80A292CEFF59C008C63A2 /* (lispkit thread future).md in Resources */,
@@ -1308,13 +1340,17 @@
 				CCE80A252CEFF4BA008C63A2 /* (lispkit serialize).md in Resources */,
 				CCE80A152CEFF252008C63A2 /* (lispkit system pasteboard).md in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
+				CCE80A372CF0003B008C63A2 /* pdf417.png in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
+				CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */,
+				CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,
 				CC894F0F2CC300C000896B1D /* RobotoMono-Regular.ttf in Resources */,
 				CCE80A1F2CEFF3A0008C63A2 /* (lispkit http).md in Resources */,
 				CCE80A132CEFF21B008C63A2 /* (lispkit system keychain).md in Resources */,
+				CCE80A392CF0004B008C63A2 /* aztec.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1553,17 +1589,18 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 105;
+				CURRENT_PROJECT_VERSION = 110;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1581,17 +1618,18 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 105;
+				CURRENT_PROJECT_VERSION = 110;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.1;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

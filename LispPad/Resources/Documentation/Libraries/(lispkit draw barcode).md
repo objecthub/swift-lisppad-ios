@@ -4,19 +4,19 @@ Library `(lispkit draw barcode)` provides procedures for generating images of ba
 
 _Code 128_ is a high-density linear barcode defined in ISO 15417. It is used for alphanumeric or numeric-only barcodes and can encode any of the 128 ASCII characters. _GS1-128_ (formerly known as _UCC/EAN-128_) is a subset of _Code 128_ and is used extensively worldwide in retail, shipping and packaging industries as a product identification code.
 
-![Code 128 Barcode](x-devonthink-item://DF7208E4-1ECE-432E-95FF-D927898889E2)
+![Code 128 Barcode](images/code128.png)
 
 _QR codes_ (quick-response codes) are two-dimensional matrix barcodes, featureing black squares on a white background with fiducial markers, readable by imaging devices like cameras, and processed using Reed–Solomon error correction.
 
-![QR Code](x-devonthink-item://29F1FB6D-52E1-4396-8C90-1896088A126B)
+![QR Code](images/qrcode.png)
 
 _Aztec codes_ are matrix codes defined by ISO 24778. Named after the resemblance of the central finder pattern to an Aztec pyramid, Aztec codes have the potential to use less space than other matrix barcodes because they do not require a surrounding blank/"quiet" zone.
 
-![Aztec Code](x-devonthink-item://5E64B888-D93E-47DC-84EC-70159E6FFA82)
+![Aztec Code](images/aztec.png)
 
 _PDF417_ is a stacked linear barcode format used in a variety of applications such as transport, identification cards, and inventory management. It is defined in ISO 15438.
 
-![PDF417 Code](x-devonthink-item://51DB5D21-B430-483E-A948-00A3AC214C84)
+![PDF417 Code](images/pdf417.png)
 
 
 **(code128-image _str height_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  

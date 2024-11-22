@@ -13,7 +13,7 @@ OAuth2 defines four roles:
 
 The following diagram illustrates the interaction flow between the four roles.
 
-![OAuth 2.0 Protocol Flow](x-devonthink-item://8713FF7E-46EF-4702-BEF3-E04058EA8187)
+![OAuth 2.0 Protocol Flow](images/oauth2flow.png)
 
 The protocol consists of the following steps:
 

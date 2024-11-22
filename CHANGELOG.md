@@ -2,8 +2,20 @@
 
 ## 2.1 (2024-11-22)
 
-
-
+- Fixed keyboard shortcuts
+- Reimplemented edit menu
+- Support separate sets of editor color schemes for light and dark mode
+- Allow setting the appearance (light vs. dark) at the application level
+- Extended available coding fonts
+- Support for all major JSON standards via libraries `(lispkit json)` and `(lispkit json schema)`
+- Support for HTTP-based networking via libraries `(lispkit http)`, `(lispkit http oauth)`, and `(lispkit http server)`
+- Deeper integrations into macOS and iOS operating systems via libraries `(lispkit system keychain)` and `(lispkit system pasteboard)`
+- Support for drawing a variety of different types of bar codes via library `(lispkit draw barcode)`
+- New libraries: `(lispkit url)`, `(lispkit serialize)`, `(lispkit thread future)`, and `(lispkit thread shared-queue)`
+- Extended libraries: `(lispkit box)`, `(lispkit thread)`, `(lispkit system)`, `(lispkit bytevector)`, `(lispkit markdown)`, `(lispkit dynamic)`, `(lispkit control)`
+- New sample code: `Keychain.scm`, `WebAPIs.scm`, and `Webserver.scm`
+- Updated LispPad Library Reference
+- Interpreter now based on LispKit 2.5.0
 
 ## 2.0.1 (2024-03-03)
 
