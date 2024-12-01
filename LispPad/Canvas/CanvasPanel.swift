@@ -64,7 +64,7 @@ struct CanvasPanel: View {
             Menu {
               Picker("", selection:
                            Binding(get: { self.interpreter.canvas },
-                                   set: { c in withAnimation { self.interpreter.canvas = c }})) {
+                                   set: { c in self.interpreter.canvas = c })) {
                 ForEach(self.interpreter.canvases) { canvas in
                   Text("\(canvas.name) (\(canvas.id))").tag(canvas)
                 }
@@ -107,13 +107,10 @@ struct CanvasPanel: View {
                                width: self.interpreter.canvas.size.width,
                                height: self.interpreter.canvas.size.height,
                                scale: self.interpreter.canvas.scale) { name, size, scale in
-                withAnimation {
-                  self.interpreter.canvas.name = name
-                  self.interpreter.canvas.size.width = size.width
-                  self.interpreter.canvas.size.height = size.height
-                  self.interpreter.canvas.scale = scale
-                  self.interpreter.objectWillChange.send()
-                }
+                self.interpreter.canvas.name = name
+                self.interpreter.canvas.size.width = size.width
+                self.interpreter.canvas.size.height = size.height
+                self.interpreter.canvas.scale = scale
               }
               .frame(idealWidth: 240, idealHeight: 150)
               .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
@@ -122,10 +119,7 @@ struct CanvasPanel: View {
           HStack(alignment: .center, spacing: 4) {
             Button {
               let x = self.interpreter.canvas.zoom
-              withAnimation {
-                self.interpreter.canvas.zoom = self.round(x - (x >= 0.6 ? 0.2 : 0.0))
-                self.interpreter.objectWillChange.send()
-              }
+              self.interpreter.canvas.zoom = self.round(x - (x >= 0.6 ? 0.2 : 0.0))
             } label: {
               Image(systemName: "minus.magnifyingglass")
                 .font(LogView.iconFont)
@@ -138,10 +132,7 @@ struct CanvasPanel: View {
               .fixedSize(horizontal: true, vertical: false)
             Button {
               let x = self.interpreter.canvas.zoom
-              withAnimation {
-                self.interpreter.canvas.zoom = self.round(x + (x <= 2.8 ? 0.2 : 0.0))
-                self.interpreter.objectWillChange.send()
-              }
+              self.interpreter.canvas.zoom = self.round(x + (x <= 2.8 ? 0.2 : 0.0))
             } label: {
               Image(systemName: "plus.magnifyingglass")
                 .font(LogView.iconFont)
@@ -260,9 +251,7 @@ struct CanvasPanel: View {
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Divider()
             Button(role: .destructive) {
-              withAnimation {
-                self.interpreter.removeCanvas()
-              }
+              self.interpreter.removeCanvas()
             } label: {
               Label("Close Canvas", systemImage: "xmark.rectangle")
             }

@@ -26,33 +26,46 @@ struct CanvasView: View {
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
   @State var background: Color? = nil
+  @State var image: Image? = nil
+  @State var renderTask: Task<Void, Never>? = nil
+  @State var drawingId: UInt = .max
+  @State var drawingInstr: Int = -1
   @ObservedObject var canvas: CanvasConfig
+  private let processor = RenderProcessor()
   
   var body: some View {
     ScrollView([.horizontal, .vertical]) {
       ZStack(alignment: .center) {
         self.background ?? self.settings.consoleGraphicsBackgroundColor
-        Canvas(opaque: false,
-               colorMode: .nonLinear,
-               rendersAsynchronously: false) { context, size in
-          context.withCGContext { cgcontext in
-            UIGraphicsPushContext(cgcontext)
-            defer {
-              UIGraphicsPopContext()
+        GeometryReader { proxy in
+          ZStack {
+            if let image {
+              image
             }
-            cgcontext.scaleBy(x: self.canvas.drawScale, y: self.canvas.drawScale)
-            self.canvas.drawing.draw()
-            cgcontext.scaleBy(x: 1.0, y: 1.0)
+          }
+          .onChange(of: self.canvas.state) { state in
+            if state.drawingId == self.drawingId && state.drawingInstr != self.drawingInstr {
+              self.drawingInstr = state.drawingInstr
+            } else {
+              self.drawingId = state.drawingId
+              self.drawingInstr = state.drawingInstr
+              self.image = nil
+            }
+            self.render(size: proxy.size, state: state)
+          }
+          .onAppear {
+            if self.image == nil {
+              self.drawingId = self.canvas.state.drawingId
+              self.drawingInstr = self.canvas.state.drawingInstr
+              self.render(size: proxy.size, state: self.canvas.state)
+            }
           }
         }
         .onTapGesture(count: 2) {
-          withAnimation {
-            if self.canvas.zoom == 1.0 {
-              self.canvas.zoom = self.maxZoom
-            } else {
-              self.canvas.zoom = 1.0
-            }
-            self.interpreter.objectWillChange.send()
+          if self.canvas.zoom == 1.0 {
+            self.canvas.zoom = self.maxZoom
+          } else {
+            self.canvas.zoom = 1.0
           }
         }
       }
@@ -72,5 +85,37 @@ struct CanvasView: View {
         self.background = nil
       }
     }
+  }
+  
+  func render(size: CGSize, state: CanvasConfig.State) {
+    self.renderTask?.cancel()
+    self.renderTask = Task.detached {
+      if let image = await processor.render(size: size, state: state), !Task.isCancelled {
+        await MainActor.run {
+          self.image = image
+        }
+      }
+    }
+  }
+}
+
+final actor RenderProcessor {
+  func render(size: CGSize, state: CanvasConfig.State) async -> Image? {
+    if Task.isCancelled {
+      return nil
+    }
+    UIGraphicsBeginImageContextWithOptions(size, false, .zero)
+    defer {
+      UIGraphicsEndImageContext()
+    }
+    guard !Task.isCancelled, let context = UIGraphicsGetCurrentContext() else {
+      return nil
+    }
+    context.scaleBy(x: state.drawScale, y: state.drawScale)
+    state.drawing.draw()
+    guard !Task.isCancelled, let uiImage = UIGraphicsGetImageFromCurrentImageContext() else {
+      return nil
+    }
+    return Image(uiImage: uiImage)
   }
 }

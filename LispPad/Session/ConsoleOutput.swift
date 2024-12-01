@@ -68,7 +68,7 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
   }
   
   static func drawingResult(_ drawing: Drawing) -> ConsoleOutput {
-    if let image = iconImage(for: drawing) {
+    if drawing.numInstructions > 0, let image = iconImage(for: drawing) {
       return ConsoleOutput(.drawingResult(Drawing(copy: drawing), image),
                            Expr.object(drawing).description)
     } else {

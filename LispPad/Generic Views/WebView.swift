@@ -20,7 +20,7 @@
 
 import SwiftUI
 import Combine
-import WebKit
+@preconcurrency import WebKit
 
 class WebViewController: ObservableObject {
   @Published var pageTitle: String = "Loading…"

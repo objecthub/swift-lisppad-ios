@@ -31,6 +31,23 @@ final class CanvasConfig: ObservableObject, Identifiable, Equatable, Hashable {
   
   private static let counter = ManagedAtomic<Int>(0)
   
+  struct State: Equatable {
+    let id: Int
+    let size: CGSize
+    let scale: CGFloat
+    let zoom: CGFloat
+    let drawing: Drawing
+    let drawingInstr: Int
+    
+    var drawingId: UInt {
+      return self.drawing.identity
+    }
+    
+    var drawScale: CGFloat {
+      return self.scale * self.zoom
+    }
+  }
+  
   let id: Int
   @Published var name: String
   @Published var size: CGSize
@@ -52,6 +69,15 @@ final class CanvasConfig: ObservableObject, Identifiable, Equatable, Hashable {
     self.zoom = 1.0
     self.background = background
     self.drawing = drawing
+  }
+  
+  var state: State {
+    return State(id: self.id,
+                 size: self.size,
+                 scale: self.scale,
+                 zoom: self.zoom,
+                 drawing: self.drawing,
+                 drawingInstr: self.drawing.numInstructions)
   }
   
   var width: CGFloat {

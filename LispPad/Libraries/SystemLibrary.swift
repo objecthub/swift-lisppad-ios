@@ -802,9 +802,3 @@ public final class SystemLibrary: NativeLibrary {
     return .void
   }
 }
-
-extension URL: Identifiable {
-  public var id: URL {
-    self
-  }
-}
