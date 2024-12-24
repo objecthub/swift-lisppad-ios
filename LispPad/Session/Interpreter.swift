@@ -381,7 +381,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.envManager.reset()
     let context = Context(delegate: self)
     context.evaluator.maxCallStack = UserSettings.standard.maxCallTrace
-    // Setup search paths
+    // Set up search paths for libraries
     if let internalUrl = Bundle.main.resourceURL?
                            .appendingPathComponent(Interpreter.lispPadLibrariesPath,
                                                    isDirectory: true),
@@ -396,6 +396,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
        let librariesPath = PortableURL.Base.documents.url?.appendingPathComponent("Libraries/").path {
       _ = context.fileHandler.prependLibrarySearchPath(librariesPath)
     }
+    // Set up search paths for assets
     if let internalUrl = Bundle.main.resourceURL?
                            .appendingPathComponent(Interpreter.lispPadAssetsPath,
                                                    isDirectory: true),
@@ -410,19 +411,20 @@ final class Interpreter: ContextDelegate, ObservableObject {
        let assetsPath = PortableURL.Base.documents.url?.appendingPathComponent("Assets/").path {
       _ = context.fileHandler.prependAssetSearchPath(assetsPath)
     }
+    // Set up search paths for programs
     if let internalUrl = Bundle.main.resourceURL?
                            .appendingPathComponent(Interpreter.lispPadResourcePath,
                                                    isDirectory: true),
        context.fileHandler.isDirectory(atPath: internalUrl.path) {
-      _ = context.fileHandler.addSearchPath(internalUrl.path)
+      _ = context.fileHandler.prependSearchPath(internalUrl.path)
     }
     if UserSettings.standard.foldersOnICloud,
        let homePath = PortableURL.Base.icloud.url?.path {
-      _ = context.fileHandler.addSearchPath(homePath)
+      _ = context.fileHandler.prependSearchPath(homePath)
     }
     if UserSettings.standard.foldersOnDevice,
        let homePath = PortableURL.Base.documents.url?.path {
-      _ = context.fileHandler.addSearchPath(homePath)
+      _ = context.fileHandler.prependSearchPath(homePath)
     }
     // Attach file handler to library manager
     self.libManager.attachFileHandler(context.fileHandler)
@@ -433,7 +435,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
       preconditionFailure("cannot import required lispkit libraries")
     }
     // Evaluate prelude
-    let preludePath = Bundle.main.path(forResource: "Prelude",
+    let preludePath = context.fileHandler.filePath(forFile: "Prelude") ??
+                      Bundle.main.path(forResource: "Prelude",
                                        ofType: "scm",
                                        inDirectory: Interpreter.lispPadResourcePath) ??
                       LispKitContext.defaultPreludePath
