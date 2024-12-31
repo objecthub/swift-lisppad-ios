@@ -394,17 +394,15 @@ Creates a bar segment represented by label string _label_ and segment color _col
 Draws the bar diagram _bars_ with _col_ as the default bar color into the drawing _drawing_. _ystep_ defines the increment between values on the y axis. _ydescr_ defines the label of the y axis. _xdescr_ defines the label of the x axis. _loc_ is a point at which the bar diagram is drawn with the bar diagram configuration _config_. If a legend should be drawn, a legend configuration needs to be provided as parameter _legend_.
 
 ```scheme
-(draw-bar-chart
-  (list
-    (bar "Jan" 0) (bar "Feb" 2) (bar "Mar" 6)
-    (bar "Apr" 9) (bar "May" 14) (bar "Jun" 16)
-    (bar "Jul" 19) (bar "Aug" 18) (bar "Sep" 15)
-    (bar "Oct" 11) (bar "Nov" 5) (bar "Dec" 2))
-  gray 5
-  "Temperature [C°]" "Month"
-  (point 50 105)
-  (make-bar-chart-config
-    'size: (size 495 200))
-  #f)
+(define d (make-drawing))
+(draw-bar-chart 
+  (list (bar "Jan" 0) (bar "Feb" 2) (bar "Mar" 6)
+        (bar "Apr" 9) (bar "May" 14) (bar "Jun" 16)
+        (bar "Jul" 19) (bar "Aug" 18) (bar "Sep" 15)
+        (bar "Oct" 11) (bar "Nov" 5) (bar "Dec" 2))
+  gray 5 "Temperature [C°]" "Month"
+  (point 10 0)
+  (make-bar-chart-config 'size: (size 500 200))
+  #f d)
+(save-drawing "test.pdf" d (size 520 210))
 ```
-
