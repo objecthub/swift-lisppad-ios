@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2 (?)
+
+- TODO
+
 ## 2.1 (2024-11-22)
 
 - Fixed keyboard shortcuts

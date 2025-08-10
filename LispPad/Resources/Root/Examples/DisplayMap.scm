@@ -2,12 +2,12 @@
 ;;;
 ;;; This is a demo showing how to create images of maps and how to draw on top
 ;;; of such images. The demo illustrates the direct distance between two
-;;; locations. It uses the `(lisppad draw map)` library to create an image of
+;;; locations. It uses the `(lispkit draw map)` library to create an image of
 ;;; a map, and library `(lispkit location)` to determine geocodes of two given
 ;;; addresses.
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2022 Matthias Zenger. All rights reserved.
+;;; Copyright © 2022-2025 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not
 ;;; use this file except in compliance with the License. You may obtain a copy
@@ -23,8 +23,9 @@
 
 (import (lispkit draw)
         (lispkit math stats)
-        (lisppad location)
-        (lisppad draw map))
+        (lispkit location)
+        (lispkit draw map)
+        (lispkit thread future))
 
 ;; Load the font used for showing the distance label
 (define label-font (font "Helvetica" 13))
@@ -59,7 +60,7 @@
   (let* (; Determine the center of the map
          (center   (center-location loc1 loc2))
          ; Create a map snapshot
-         (snapshot (make-map-snapshot center (map-region loc1 loc2 1.15) msize))
+         (snapshot (future-get (make-map-snapshot center (map-region loc1 loc2 1.15) msize)))
          ; Determine the points on the map image for the two
          ; locations and the center
          (pt1      (map-snapshot-point snapshot loc1))
@@ -94,10 +95,17 @@
                  label-font
                  red))))
 
-;; Return a map drawing in a window which illustrates the distance between two
-;; given addresses.
+;; Returns n locations for n futures created by procedure `geocode`.
+(define (get-results . ftrs)
+  (apply values (map (lambda (ftr) (car (future-get ftr))) ftrs)))
+
+;; Return a map drawing illustrating the distance between two given
+;; addresses. The two given addresses are geocoded concurrently.
 (define (illustrate-location-distance addr1 addr2 msize)
-  (distance-map-drawing (car (geocode addr1)) (car (geocode addr2)) msize))
+  (let-values (((from to) (get-results (geocode addr1) (geocode addr2))))
+    (display* "from = " from "\n")
+    (display* "to = " to "\n")
+    (distance-map-drawing from to msize)))
 
 ;; Show a map illustrating the distance between Zürich and Copenhagen.
 (illustrate-location-distance

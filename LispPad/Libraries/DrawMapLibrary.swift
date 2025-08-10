@@ -1,6 +1,9 @@
 //
 //  DrawMapLibrary.swift
 //  LispPad
+// 
+//  This library is deprecated as of LispPad 2.2 and replaced by
+//  library `(lispkit draw map)`.
 //
 //  Created by Matthias Zenger on 05/09/22.
 //  Copyright © 2022 Matthias Zenger. All rights reserved.

@@ -13,16 +13,20 @@
 	</array>
 	<key>fixed indentation</key>
 	<array>
-		<string>syntax-rules</string>
 		<string>define</string>
+		<string>define-class</string>
 		<string>define-datatype</string>
+		<string>define-enum</string>
 		<string>define-enumeration</string>
 		<string>define-generic</string>
 		<string>define-library</string>
+		<string>define-optionals</string>
+		<string>define-optionals*</string>
 		<string>define-pattern</string>
 		<string>define-record-type</string>
 		<string>define-stream</string>
 		<string>define-syntax</string>
+		<string>environment-define-syntax</string>
 		<string>define-type</string>
 		<string>define-values</string>
 		<string>lambda</string>
@@ -46,6 +50,8 @@
 		<string>match-let*</string>
 		<string>match-letrec</string>
 		<string>stream-let</string>
+		<string>if-let*</string>
+		<string>when-let*</string>
 		<string>do</string>
 		<string>when</string>
 		<string>unless</string>

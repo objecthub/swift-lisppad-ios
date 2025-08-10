@@ -1,7 +1,10 @@
 //
 //  LocationLibrary.swift
 //  LispPad
-//
+// 
+//  This library is deprecated as of LispPad 2.2 and replaced by
+//  library `(lispkit location)`.
+//  
 //  Created by Matthias Zenger on 14/08/2021.
 //  Copyright © 2021 Matthias Zenger. All rights reserved.
 //
