@@ -214,6 +214,9 @@ struct FileHierarchyBrowser: View {
               Label("Delete", systemImage: "trash")
                 .foregroundColor(.red)
             }
+            .disabled(hierarchy.url == nil
+                        ? true
+                        : PortableURL(url: hierarchy.url!) == self.histManager.currentlyEdited)
           }
           Divider()
           if hierarchy.parent != nil {

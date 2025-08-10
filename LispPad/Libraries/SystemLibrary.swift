@@ -192,7 +192,7 @@ public final class SystemLibrary: NativeLibrary {
       case .object(let obj):
         if let image = (obj as? NativeImage)?.value {
           extens = extens ?? "png"
-          data = (fileType ?? .png).data(for: image)
+          data = (fileType ?? .png).data(for: image, qualityFactor: 0.9)
         } else if let drawing = obj as? Drawing {
           if let image = iconImage(for: drawing,
                                    width: 1500,
@@ -201,7 +201,7 @@ public final class SystemLibrary: NativeLibrary {
                                    renderingWidth: 1500,
                                    renderingHeight: 1500) {
             extens = extens ?? "png"
-            data = (fileType ?? .png).data(for: image)
+            data = (fileType ?? .png).data(for: image, qualityFactor: 0.9)
           }
         } else if let astr = (obj as? StyledText)?.value {
           let type: NSAttributedString.DocumentType = extens == "rtf" ? .rtf : .rtfd 

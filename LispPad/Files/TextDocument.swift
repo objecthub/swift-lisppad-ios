@@ -105,6 +105,17 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     }
   }
   
+  func moveFileTo(_ url: URL, complete: @escaping (URL?) -> Void) {
+    self.saveFile { success in 
+      if success {
+        self.moveFile(to: url, complete: complete)
+        self.fileManager?.histManager.trackRecentFile(url)
+      } else {
+        complete(nil)
+      }
+    }
+  }
+  
   func rename(to name: String, complete: @escaping (URL?) -> Void) {
     self.moveFile(to: self.fileURL.deletingLastPathComponent().appendingPathComponent(name),
                   complete: complete)

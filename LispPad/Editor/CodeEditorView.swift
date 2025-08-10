@@ -26,6 +26,7 @@ struct CodeEditorView: View {
   
   enum SheetAction: Identifiable {
     case renameFile
+    case moveFile
     case saveFile
     case editFile
     case organizeFiles
@@ -41,6 +42,8 @@ struct CodeEditorView: View {
       switch self {
         case .renameFile:
           return 0
+        case .moveFile:
+          return 11
         case .saveFile:
           return 1
         case .editFile:
@@ -68,6 +71,7 @@ struct CodeEditorView: View {
   enum NotSavedAlertAction: Identifiable {
     case newFile
     case editFile
+    case deleteFile
     case openFile(URL)
     case notSaved
     case couldNotDuplicate
@@ -79,14 +83,16 @@ struct CodeEditorView: View {
           return 0
         case .editFile:
           return 1
-        case .openFile(_):
+        case .deleteFile:
           return 2
-        case .notSaved:
+        case .openFile(_):
           return 3
-        case .couldNotDuplicate:
+        case .notSaved:
           return 4
-        case .replaceAll(_, _):
+        case .couldNotDuplicate:
           return 5
+        case .replaceAll(_, _):
+          return 6
       }
     }
   }
@@ -455,19 +461,13 @@ struct CodeEditorView: View {
               Button {
                 self.dismissCard()
                 self.fileManager.editorDocument?.saveFile { success in
-                  self.showModal = .saveFile
+                  self.showModal = .moveFile
                 }
               } label: {
-                Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
-                      systemImage: "tray.and.arrow.down")
+                Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Move To…",
+                      systemImage: self.fileManager.editorDocumentInfo.new
+                                     ? "tray.and.arrow.down" : "folder")
               }
-              Button {
-                self.dismissCard()
-                self.showModal = .renameFile
-              } label: {
-                Label("Rename", systemImage: "pencil")
-              }
-              .disabled(self.fileManager.editorDocumentInfo.new)
               Button {
                 self.dismissCard()
                 if let doc = self.fileManager.editorDocument, !doc.info.new {
@@ -490,7 +490,21 @@ struct CodeEditorView: View {
                 Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
               }
               .disabled(self.fileManager.editorDocumentInfo.new)
+              Button(role: .destructive) {
+                self.dismissCard()
+                self.notSavedAlertAction = .deleteFile
+              } label: {
+                Label("Delete", systemImage: "trash")
+              }
+              .disabled(self.fileManager.editorDocumentInfo.new)
             }
+            Button {
+              self.dismissCard()
+              self.showModal = .renameFile
+            } label: {
+              Label("Rename…", systemImage: "pencil")
+            }
+            .disabled(self.fileManager.editorDocumentInfo.new)
             Button {
               self.dismissCard()
               self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
@@ -685,6 +699,19 @@ struct CodeEditorView: View {
                                 self.fileManager.editorDocument?.saveFile { succ in
                                   self.forceEditorUpdate = true
                               }})
+          case .deleteFile:
+            return Alert(title: Text("Delete open file?"),
+                         message: Text("Do you want to proceed deleting the file currently open in the editor?"),
+                         primaryButton: .default(Text("Cancel"), action: { }),
+                         secondaryButton: .destructive(Text("Delete"), action: {
+                           let url = self.histManager.currentlyEdited?.url
+                           self.fileManager.newEditorDocument { success in
+                             self.forceEditorUpdate = true
+                             if let url {
+                               self.fileManager.delete(url, complete: { success in })
+                             }
+                           }
+                         }))
           case .editFile:
             return self.notSavedAlert(
                      save: { self.showModal = .saveBeforeEdit },
@@ -736,7 +763,22 @@ struct CodeEditorView: View {
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                firstSave: self.fileManager.editorDocumentInfo.new,
                lockFolder: true) { url in
-          self.fileManager.editorDocument?.saveFileAs(url) { newURL in
+          self.fileManager.editorDocument?.moveFileTo(url) { newURL in
+            if newURL == nil {
+              self.notSavedAlertAction = .notSaved
+            }
+          }
+          return true
+        }
+        .transition(.move(edge: .top))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.hidden)
+        .modifier(self.globals.services)
+      case .moveFile:
+        SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
+               firstSave: self.fileManager.editorDocumentInfo.new,
+               lockFolder: false) { url in
+          self.fileManager.editorDocument?.moveFileTo(url) { newURL in
             if newURL == nil {
               self.notSavedAlertAction = .notSaved
             }

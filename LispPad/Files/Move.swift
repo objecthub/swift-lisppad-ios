@@ -34,6 +34,7 @@ struct Move: View {
   }
   
   @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var histManager: HistoryManager
   
   @Binding var showShareSheet: Bool
   @Binding var showFileImporter: Bool
@@ -94,6 +95,16 @@ struct Move: View {
         self.fileManager.copy(oldUrl, to: newUrl) { canonicalNewUrl in
           if canonicalNewUrl == nil {
             self.alertAction = .failedCopyingFile
+          } else {
+            withAnimation(.default) {
+              self.urlToMove = nil
+            }
+          }
+        }
+      } else if PortableURL(url: oldUrl) == self.histManager.currentlyEdited {
+        self.fileManager.editorDocument?.moveFileTo(newUrl) { canonicalNewUrl in
+          if canonicalNewUrl == nil {
+            self.alertAction = .failedMovingFile
           } else {
             withAnimation(.default) {
               self.urlToMove = nil
