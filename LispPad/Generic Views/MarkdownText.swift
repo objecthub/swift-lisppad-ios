@@ -162,14 +162,14 @@ struct MarkdownTextView: UIViewRepresentable {
         super.init(outer: outer)
       }
       
-      open override func generate(block: Block, tight: Bool = false) -> String {
+      open override func generate(block: Block, parent: Parent, tight: Bool = false) -> String {
         switch block {
           case .heading(let n, let text):
             guard n == 6,
                   text.count == 2,
                   case .text(let lib) = text[0],
                   case .text(let type) = text[1] else {
-              return super.generate(block: block, tight: tight)
+              return super.generate(block: block, parent: parent, tight: tight)
             }
             return "<table style=\"border-bottom: 0.5px solid #ccc; margin-bottom: 3px;\" " +
                    "width=\"100%\"><tbody>" +
@@ -180,7 +180,7 @@ struct MarkdownTextView: UIViewRepresentable {
                    "<td style=\"text-align: right;padding-right: \(self.rightPadding)px;\">" +
                    type + "</td></tr></tbody></table><br/>\n"
           default:
-            return super.generate(block: block, tight: tight)
+            return super.generate(block: block, parent: parent, tight: tight)
         }
       }
     }

@@ -55,7 +55,7 @@ struct AboutView: View {
             .frame(width: 100, height: 100)
           VStack(alignment: .leading, spacing: 4) {
             Text("LispPad")
-              .font(.system(size: 21))
+              .font(.system(size: 21, weight: .bold))
               .padding(.top, 12)
             (Text("Version ") +
              Text(AboutView.appVersion ?? "?") +

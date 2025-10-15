@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "LispPad-small-2.png",
+      "filename" : "LispPadIcon-iOS-Default-64x64@2x 1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "SmallLogo2.png",
+      "filename" : "LispPadIcon-iOS-Default-64x64@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "SmallLogo3.png",
+      "filename" : "LispPadIcon-iOS-Default-64x64@2x 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

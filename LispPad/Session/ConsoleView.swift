@@ -312,7 +312,7 @@ struct ConsoleView: View {
       }
       //.disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
       .padding(.trailing, 3)
-      .offset(y: -3)
+      .offset(y: -4)
       ZStack {
         if !self.splitViewMode.isSideBySide || self.state.focused {
           Button(action: {

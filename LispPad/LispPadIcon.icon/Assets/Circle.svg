@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="820px" height="820px" viewBox="0 0 820 820" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Circle</title>
+    <defs>
+        <linearGradient x1="1.44969838e-14%" y1="50%" x2="100%" y2="50%" id="linearGradient-1">
+            <stop stop-color="#375270" offset="0%"></stop>
+            <stop stop-color="#7BA4D5" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon" transform="translate(-102, -102)" fill="url(#linearGradient-1)">
+            <path d="M512,922 C285.525585,922 102,738.478694 102,512.00956 C102,285.559545 285.525585,102 512,102 C738.455295,102 922,285.559545 922,512.00956 C922,738.478646 738.455295,922 512,922 Z" id="Circle"></path>
+        </g>
+    </g>
+</svg>

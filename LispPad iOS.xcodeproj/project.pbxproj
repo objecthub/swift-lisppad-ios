@@ -238,6 +238,7 @@
 		CCEF3E2D27CA2D8500FB56EB /* thread-states.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */; };
 		CCEF3E2E27CA2DF200FB56EB /* (lispkit thread).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */; };
 		CCEF3E3527CECEB800FB56EB /* (lispkit thread channel).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E2F27CA2E7D00FB56EB /* (lispkit thread channel).md */; };
+		CCF1AEBC2EA062A300F1D5E6 /* LispPadIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = CCF1AEBB2EA062A300F1D5E6 /* LispPadIcon.icon */; };
 		CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF8F09627C2E96700C2D660 /* FontMap.swift */; };
 		CCFA6807276535E1009A599C /* (lispkit prolog).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CDE27412F74005F15B3 /* (lispkit prolog).md */; };
 		CCFA68092765397D009A599C /* (lispkit text-table).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCFA680827653915009A599C /* (lispkit text-table).md */; };
@@ -709,6 +710,7 @@
 		CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread).md"; sourceTree = "<group>"; };
 		CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thread-states.png"; sourceTree = "<group>"; };
 		CCEF3E2F27CA2E7D00FB56EB /* (lispkit thread channel).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread channel).md"; sourceTree = "<group>"; };
+		CCF1AEBB2EA062A300F1D5E6 /* LispPadIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = LispPadIcon.icon; sourceTree = "<group>"; };
 		CCF8F09627C2E96700C2D660 /* FontMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontMap.swift; sourceTree = "<group>"; };
 		CCF8F09927C431A800C2D660 /* iosevka-regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "iosevka-regular.ttf"; sourceTree = "<group>"; };
 		CCF8F09D27C4344100C2D660 /* iosevka-extended.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "iosevka-extended.ttf"; sourceTree = "<group>"; };
@@ -812,6 +814,7 @@
 				CC8B95B82607FFBC00830B4F /* Libraries */,
 				CC8B951F26079EC700830B4F /* Resources */,
 				CCF8F09827C430DE00C2D660 /* Fonts */,
+				CCF1AEBB2EA062A300F1D5E6 /* LispPadIcon.icon */,
 				CC84C24F25FE59F000758581 /* Assets.xcassets */,
 				CC8B95D32609462800830B4F /* LispPad.entitlements */,
 				CC84C25425FE59F000758581 /* Info.plist */,
@@ -1326,6 +1329,7 @@
 				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
+				CCF1AEBC2EA062A300F1D5E6 /* LispPadIcon.icon in Resources */,
 				CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */,
 				CCE80A192CEFF2D4008C63A2 /* (lispkit json schema).md in Resources */,
 				CCE80A3F2CF00062008C63A2 /* url.png in Resources */,
@@ -1585,7 +1589,7 @@
 		CC84C25825FE59F000758581 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = LispPadIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1606,6 +1610,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1614,7 +1619,7 @@
 		CC84C25925FE59F000758581 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = LispPadIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -1635,6 +1640,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -103,9 +103,13 @@ final class CodeEditorKeyboard {
   private func iPhoneKeyboard(for textView: CodeEditorTextView) -> UIToolbar {
     let bar = UIToolbar(frame: CGRect(x: 0, y: 0,
                                       width: UIScreen.main.bounds.width, height: 35))
+    let appearance = UIToolbarAppearance()
+    appearance.configureWithDefaultBackground()
+    appearance.backgroundColor = UIColor(named: "KeyboardColor")
     bar.barStyle = .default
     bar.isTranslucent = false
-    bar.barTintColor = UIColor(named: "KeyboardColor")
+    bar.standardAppearance = appearance
+    bar.scrollEdgeAppearance = appearance
     bar.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
     if self.editorType == .scheme {
       let dash = self.textButton("-", tag: .dash, to: textView)
@@ -241,7 +245,7 @@ final class CodeEditorKeyboard {
                            tag: KeyTag,
                            pressed pimage: UIImage? = nil,
                            to textView: CodeEditorTextView) -> UIBarButtonItem {
-    let button = UIButton(type: .custom)
+    let button = UIButton(type: .roundedRect)
     button.tag = tag.rawValue
     button.frame.size.width = 34
     button.frame.size.height = 34
@@ -256,11 +260,11 @@ final class CodeEditorKeyboard {
                           tag: KeyTag,
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
     button.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
-                             // .union(UIView.AutoresizingMask.flexibleHeight)
-                             .union(UIView.AutoresizingMask.flexibleLeftMargin)
-                             // .union(UIView.AutoresizingMask.flexibleRightMargin)
-                             // .union(UIView.AutoresizingMask.flexibleTopMargin)
-                             // .union(UIView.AutoresizingMask.flexibleBottomMargin)
+                              // .union(UIView.AutoresizingMask.flexibleHeight)
+                              .union(UIView.AutoresizingMask.flexibleLeftMargin)
+                              // .union(UIView.AutoresizingMask.flexibleRightMargin)
+                              // .union(UIView.AutoresizingMask.flexibleTopMargin)
+                              // .union(UIView.AutoresizingMask.flexibleBottomMargin)
     button.layer.borderWidth = 0
     button.layer.cornerRadius = 5
     button.layer.borderColor = UIColor.systemGray2.cgColor
