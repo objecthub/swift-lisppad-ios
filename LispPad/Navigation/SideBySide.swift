@@ -294,31 +294,31 @@ struct SideBySide<Left: View, Right: View>: View {
                  minSFraction: self.rightMinFraction,
                  dragToHideP: self.dragToHide,
                  dragToHideS: self.dragToHide)
-    .onChange(of: self.mode, perform: { value in
+    .onChange(of: self.mode) { oldValue, newValue in
       withAnimation {
-        self.hidden = value.sideToHide
+        self.hidden = newValue.sideToHide
       }
       if self.delayedMode.isSideBySide {
-        self.delayedMode = value
+        self.delayedMode = newValue
       } else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-          self.delayedMode = value
+          self.delayedMode = newValue
         }
       }
-    })
-    .onChange(of: self.hidden, perform: { value in
-      if value == .primary {
-        let newValue: SideBySideMode = self.mode.isSwapped ? .leftOnRight : .rightOnRight
-        if self.mode != newValue {
-          self.mode = newValue
+    }
+    .onChange(of: self.hidden) { oldValue, newValue in
+      if newValue == .primary {
+        let newModeValue: SideBySideMode = self.mode.isSwapped ? .leftOnRight : .rightOnRight
+        if self.mode != newModeValue {
+          self.mode = newModeValue
         }
-      } else if value == .secondary {
-        let newValue: SideBySideMode = self.mode.isSwapped ? .rightOnLeft : .leftOnLeft
-        if self.mode != newValue {
-          self.mode = newValue
+      } else if newValue == .secondary {
+        let newModeValue: SideBySideMode = self.mode.isSwapped ? .rightOnLeft : .leftOnLeft
+        if self.mode != newModeValue {
+          self.mode = newModeValue
         }
       }
-    })
+    }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }

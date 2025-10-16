@@ -453,21 +453,21 @@ struct ConsoleView: View {
                     self.consoleRow(entry, width: geo.size.width)
                   }
                 }
-                .onChange(of: self.console.content) { _ in
+                .onChange(of: self.console.content) { oldValue, newValue in
                   if let id = self.console.lastOutputId {
                     withAnimation {
                       scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
                     }
                   }
                 }
-                .onChange(of: self.contentBatch) { _ in
+                .onChange(of: self.contentBatch) { oldValue, newValue in
                   if let id = self.console.lastOutputId {
                     withAnimation {
                       scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
                     }
                   }
                 }
-                .onChange(of: self.state.consoleInput) { _ in
+                .onChange(of: self.state.consoleInput) { oldValue, newValue in
                   if let id = self.console.lastOutputId {
                     withAnimation {
                       scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)

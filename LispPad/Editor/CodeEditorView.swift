@@ -349,7 +349,7 @@ struct CodeEditorView: View {
                 break
             }
           }
-          .onChange(of: self.fileManager.editorDocumentInfo.editorType) { value in
+          .onChange(of: self.fileManager.editorDocumentInfo.editorType) {
             self.editorType = self.fileManager.editorDocumentInfo.editorType
           }
       }
@@ -735,7 +735,7 @@ struct CodeEditorView: View {
             
         }
       }
-      .onChange(of: self.urlToOpen) { optUrl in
+      .onChange(of: self.urlToOpen) { _, optUrl in
         if let url = optUrl {
           if (self.fileManager.editorDocumentInfo.new) &&
              !(self.fileManager.editorDocument?.text.isEmpty ?? true) {

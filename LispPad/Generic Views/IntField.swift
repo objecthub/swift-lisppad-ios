@@ -58,8 +58,8 @@ struct IntField : View {
           }
         }
       }
-      .onChange(of: isFocused) { newIsFocused in
-        if !newIsFocused {
+      .onChange(of: isFocused) {
+        if !isFocused {
           if let x = Int(text), x >= self.min, x <= self.max {
            // keep things as they are 
           } else {
@@ -67,9 +67,9 @@ struct IntField : View {
           }
         }
       }
-      .onChange(of: value) { x in
-        self.initial = String(x)
-        self.text = String(x)
+      .onChange(of: value) {
+        self.initial = String(value)
+        self.text = String(value)
       }
   }
 }

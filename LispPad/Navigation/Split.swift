@@ -131,7 +131,7 @@ public struct Split<P: View, D: View, S: View>: View {
       }
       // Monitor changes to the fraction binding as this is the mechanism for clients
       // to programmatically update split fraction
-      .onChange(of: self.fraction, perform: { newValue in
+      .onChange(of: self.fraction) { oldValue, newValue in
         // Enforce fraction constraints
         let constrainedValue = min(1 - (self.constraints.minSFraction ?? 0),
                                    max((self.constraints.minPFraction ?? 0), newValue))
@@ -142,7 +142,7 @@ public struct Split<P: View, D: View, S: View>: View {
             self.fullFraction = constrainedValue
           }
         }
-      })
+      }
       // Our size changes when the window size changes or the containing window's size changes.
       // Note our size doesn't change when dragging the splitter, but when we have nested split
       // views, dragging our splitter can cause the size of another split view to change.

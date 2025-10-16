@@ -528,13 +528,13 @@ struct InterpreterView: View {
               })
         }
       }
-      .onChange(of: self.interpreter.showPhotosPicker) { value in
-        if value != nil {
+      .onChange(of: self.interpreter.showPhotosPicker) { oldValue, newValue in
+        if newValue != nil {
           self.showPhotosPicker = true
           self.pickedPhotos = [.init(itemIdentifier: "___")]
         }
       }
-      .onChange(of: self.pickedPhotos) { selectedPhotos in
+      .onChange(of: self.pickedPhotos) { oldValue, selectedPhotos in
         if selectedPhotos.isEmpty {
           self.interpreter.showPhotosPicker?.imageManager.completeLoadImageFromLibrary()
           self.interpreter.showPhotosPicker = nil
@@ -579,7 +579,7 @@ struct InterpreterView: View {
           }
         }
       }
-      .onChange(of: self.interpreter.previewUrl) { url in
+      .onChange(of: self.interpreter.previewUrl) { oldValue, url in
         if url == nil, let toDeleteUrl = self.interpreter.toDeleteUrl {
           self.interpreter.toDeleteUrl = nil
           DispatchQueue.global(qos: .utility).async {
@@ -587,7 +587,7 @@ struct InterpreterView: View {
           }
         }
       }
-      .onChange(of: self.interpreter.sheetAction) { action in
+      .onChange(of: self.interpreter.sheetAction) { oldValue, action in
         if action == nil, let toDeleteUrl = self.interpreter.toDeleteUrl {
           self.interpreter.toDeleteUrl = nil
           DispatchQueue.global(qos: .utility).async {
@@ -595,7 +595,7 @@ struct InterpreterView: View {
           }
         }
       }
-      .onChange(of: self.interpreter.helpDefinition) { definition in
+      .onChange(of: self.interpreter.helpDefinition) { oldValue, definition in
         if let name = definition,
            let documentation = self.docManager.documentation(for: name) {
           self.showCard = true
@@ -603,13 +603,13 @@ struct InterpreterView: View {
           self.interpreter.helpDefinition = nil
         }
       }
-      .onChange(of: self.interpreter.consoleTab) { tab in
+      .onChange(of: self.interpreter.consoleTab) { oldValue, tab in
         if tab >= 0 {
           self.state.consoleTab = tab
           self.interpreter.consoleTab = -1
         }
       }
-      .onChange(of: self.urlToOpen) { optUrl in
+      .onChange(of: self.urlToOpen) { oldValue, optUrl in
         if let url = optUrl {
           if (self.fileManager.editorDocumentInfo.new) &&
              !(self.fileManager.editorDocument?.text.isEmpty ?? true) {

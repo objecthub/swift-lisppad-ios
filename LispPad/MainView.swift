@@ -117,10 +117,10 @@ struct MainView: View {
         }
       )
       .ignoresSafeArea()
-      .onChange(of: self.splitViewMode) { mode in
+      .onChange(of: self.splitViewMode) { _, mode in
         UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
       }
-      .onChange(of: self.masterWidthFraction) { fraction in
+      .onChange(of: self.masterWidthFraction) { _, fraction in
         UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
       }
     }

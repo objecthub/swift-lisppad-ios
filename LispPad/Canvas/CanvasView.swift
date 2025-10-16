@@ -43,7 +43,7 @@ struct CanvasView: View {
               image
             }
           }
-          .onChange(of: self.canvas.state) { state in
+          .onChange(of: self.canvas.state) { _, state in
             if state.drawingId == self.drawingId && state.drawingInstr != self.drawingInstr {
               self.drawingInstr = state.drawingInstr
             } else {
@@ -71,7 +71,7 @@ struct CanvasView: View {
       }
       .frame(width: self.canvas.width, height: self.canvas.height, alignment: .center)
     }
-    .onChange(of: self.canvas.background) { col in
+    .onChange(of: self.canvas.background) { _, col in
       if let background = col {
         self.background = Color(background)
       } else {

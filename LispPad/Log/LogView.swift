@@ -132,7 +132,7 @@ struct LogView: View {
               .padding(.vertical, 1)
             }
           }
-          .onChange(of: self.sessionLog.filteredLogEntries.count) { _ in
+          .onChange(of: self.sessionLog.filteredLogEntries.count) {
             if self.sessionLog.filteredLogEntries.count > 0 {
               withAnimation {
                 scrollViewProxy.scrollTo(

@@ -83,11 +83,10 @@ struct AttributedText: UIViewRepresentable {
   
   final class Coordinator: NSObject, UITextViewDelegate {
     var openURLProc: OpenURLAction?
-
-    func textView(_ view: UITextView,
+    
+    func textView(_ textView: UITextView,
                   shouldInteractWith url: URL,
-                  in range: NSRange,
-                  interaction ia: UITextItemInteraction) -> Bool {
+                  in characterRange: NSRange) -> Bool {
       self.openURLProc?(url)
       return false
     }

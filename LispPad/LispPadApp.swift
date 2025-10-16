@@ -57,8 +57,8 @@ import LispKit
           }
         }
     }
-    .onChange(of: scenePhase) { phase in
-      switch phase {
+    .onChange(of: scenePhase) { oldValue, newValue in
+      switch newValue {
         case .active:
           self.globals.histManager.setupFilePresenters()
         case .inactive:

@@ -123,8 +123,8 @@ struct SaveAs: View {
                                    self.selectedUrls.insert(url)
                                  })
               .font(.body)
-              .onChange(of: self.selectedUrls) { value in
-                if let folder = self.selectedUrls.first {
+              .onChange(of: self.selectedUrls) { _, newValue in
+                if let folder = newValue.first {
                   self.folder = folder
                 }
               }
@@ -161,7 +161,7 @@ struct SaveAs: View {
           Color(.secondarySystemBackground).opacity(0.85)
             .onAppear {
               self.headerSize = geometry.size
-            }.onChange(of: geometry.size) { newSize in
+            }.onChange(of: geometry.size) { _, newSize in
               self.headerSize = newSize
             }
         })

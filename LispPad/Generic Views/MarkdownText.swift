@@ -103,12 +103,16 @@ struct MarkdownTextView: UIViewRepresentable {
     var openURLProc: OpenURLAction? = nil
     var colorScheme: ColorScheme = .light
     var version: Int = 0
-    func textView(_ view: UITextView,
-                  shouldInteractWith url: URL,
-                  in range: NSRange,
-                  interaction ia: UITextItemInteraction) -> Bool {
-      self.openURLProc?(url)
-      return false
+    
+    func textView(_ textView: UITextView,
+                  primaryActionFor textItem: UITextItem,
+                  defaultAction: UIAction) -> UIAction? {
+      if case .link(let url) = textItem.content {
+        return UIAction { _ in
+          self.openURLProc?(url)
+        }
+      }
+      return defaultAction
     }
   }
   
