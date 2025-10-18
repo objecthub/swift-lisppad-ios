@@ -49,7 +49,21 @@ struct CanvasPanel: View {
   }
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
+    ZStack(alignment: .topLeading) {
+      Color(.secondarySystemBackground)
+        .ignoresSafeArea(.container, edges: [.leading, .trailing])
+      VStack(alignment: .leading, spacing: 0) {
+        if self.interpreter.canvas != .empty {
+          CanvasView(canvas: self.interpreter.canvas)
+            .transition(.slide)
+        } else {
+          Spacer()
+        }
+        if self.includeResults {
+          CanvasConsole(console: self.interpreter.console)
+            .transition(.move(edge: .top))
+        }
+      }
       VStack(alignment: .leading, spacing: 0) {
         Divider()
           .offset(x: 0.0, y: -1.0)
@@ -111,6 +125,7 @@ struct CanvasPanel: View {
                 self.interpreter.canvas.size.width = size.width
                 self.interpreter.canvas.size.height = size.height
                 self.interpreter.canvas.scale = scale
+                self.interpreter.objectWillChange.send()
               }
               .frame(idealWidth: 240, idealHeight: 150)
               .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
@@ -120,6 +135,7 @@ struct CanvasPanel: View {
             Button {
               let x = self.interpreter.canvas.zoom
               self.interpreter.canvas.zoom = self.round(x - (x >= 0.6 ? 0.2 : 0.0))
+              self.interpreter.objectWillChange.send()
             } label: {
               Image(systemName: "minus.magnifyingglass")
                 .font(LogView.iconFont)
@@ -133,6 +149,7 @@ struct CanvasPanel: View {
             Button {
               let x = self.interpreter.canvas.zoom
               self.interpreter.canvas.zoom = self.round(x + (x <= 2.8 ? 0.2 : 0.0))
+              self.interpreter.objectWillChange.send()
             } label: {
               Image(systemName: "plus.magnifyingglass")
                 .font(LogView.iconFont)
@@ -266,27 +283,10 @@ struct CanvasPanel: View {
         .padding(.horizontal, 4)
         .padding(.vertical, 2)
         .background(Color(.tertiarySystemBackground).opacity(0.85)
-        .ignoresSafeArea(.container, edges: [.leading, .trailing]))
+                      .ignoresSafeArea(.container, edges: [.leading, .trailing]))
         Divider()
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
       }
-      ZStack(alignment: .center) {
-        Color(.secondarySystemBackground)
-          .ignoresSafeArea(.container, edges: [.leading, .trailing])
-        VStack(alignment: .leading, spacing: 0) {
-          if self.interpreter.canvas != .empty {
-            CanvasView(canvas: self.interpreter.canvas)
-              .transition(.slide)
-          } else {
-            Spacer()
-          }
-          if self.includeResults {
-            CanvasConsole(console: self.interpreter.console)
-              .transition(.move(edge: .top))
-          }
-        }
-      }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
   }
   

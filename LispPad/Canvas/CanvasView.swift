@@ -34,7 +34,8 @@ struct CanvasView: View {
   private let processor = RenderProcessor()
   
   var body: some View {
-    ScrollView([.horizontal, .vertical]) {
+    ScrollView([.horizontal, .vertical], showsIndicators: true) {
+      Spacer(minLength: 32)
       ZStack(alignment: .center) {
         self.background ?? self.settings.consoleGraphicsBackgroundColor
         GeometryReader { proxy in
@@ -52,6 +53,7 @@ struct CanvasView: View {
               self.image = nil
             }
             self.render(size: proxy.size, state: state)
+            self.interpreter.objectWillChange.send()
           }
           .onAppear {
             if self.image == nil {
