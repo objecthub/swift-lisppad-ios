@@ -21,7 +21,7 @@
 import SwiftUI
 
 struct CanvasView: View {
-  private let minZoom: CGFloat = 0.5
+  private let minZoom: CGFloat = 0.4
   private let maxZoom: CGFloat = 3.0
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
@@ -72,6 +72,7 @@ struct CanvasView: View {
         }
       }
       .frame(width: self.canvas.width, height: self.canvas.height, alignment: .center)
+      .zoomable(minZoomScale: self.minZoom, maxZoomScale: self.maxZoom, scale: $canvas.zoom)
     }
     .onChange(of: self.canvas.background) { _, col in
       if let background = col {
