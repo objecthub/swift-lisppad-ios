@@ -101,6 +101,7 @@ struct InterpreterView: View {
   let splitView: Bool
   
   // External state
+  @Binding var path: NavigationPath
   @Binding var splitViewMode: SideBySideMode
   @Binding var masterWidthFraction: CGFloat
   @Binding var urlToOpen: URL?
@@ -463,16 +464,29 @@ struct InterpreterView: View {
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            NavigationLink(value: NavigationTargets.settings) {
+            // THIS IS A HUGE HACK (to work around a SwiftUI navigation bug)
+            Button {
+              UIApplication.shared.endEditing(true)
+              self.state.shouldFocus = self.state.focused
+              self.path.append(NavigationTargets.settings)
+            } label: {
               Image(systemName: "gearshape")
                 .font(LispPadUI.toolbarFont)
             }
-            NavigationLink(value: NavigationTargets.libraryBrowser) {
+            Button {
+              UIApplication.shared.endEditing(true)
+              self.state.shouldFocus = self.state.focused
+              self.path.append(NavigationTargets.libraryBrowser)
+            } label: {
               Image(systemName: "building.columns")
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(!self.docManager.initialized)
-            NavigationLink(value: NavigationTargets.environmentBrowser) {
+            Button {
+              UIApplication.shared.endEditing(true)
+              self.state.shouldFocus = self.state.focused
+              self.path.append(NavigationTargets.environmentBrowser)
+            } label: {
               Image(systemName: "square.stack.3d.up")
                 .font(LispPadUI.toolbarFont)
             }
@@ -638,15 +652,11 @@ struct InterpreterView: View {
     if self.splitViewMode.isSideBySide {
       if self.state.focused {
         self.updateEditor = { textView in
-          DispatchQueue.main.async {
-            textView.becomeFirstResponder()
-          }
+          textView.becomeFirstResponder()
         }
       } else {
         self.updateConsole = { textView in
-          DispatchQueue.main.async {
-            textView.becomeFirstResponder()
-          }
+          textView.becomeFirstResponder()
         }
       }
     } else {

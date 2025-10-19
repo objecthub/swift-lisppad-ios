@@ -188,9 +188,11 @@ struct CodeEditor: UIViewRepresentable {
         self.forceUpdate = false
       }
     } else if let update = self.update {
-      update(textView)
       DispatchQueue.main.async {
-        self.update = nil
+        if self.update != nil {
+          self.update = nil
+          update(textView)
+        }
       }
     } else /* if UIDevice.current.userInterfaceIdiom != .pad */ {
       let keyboardViewEndFrame = textView.convert(self.keyboardObserver.rect,

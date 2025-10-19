@@ -106,6 +106,7 @@ struct CodeEditorView: View {
 
   let splitView: Bool
 
+  @Binding var path: NavigationPath
   @Binding var splitViewMode: SideBySideMode
   @Binding var masterWidthFraction: CGFloat
   @Binding var urlToOpen: URL?
@@ -165,9 +166,7 @@ struct CodeEditorView: View {
           Button(action: {
             self.dismissCard()
             self.updateEditor = { textView in
-              DispatchQueue.main.async {
-                textView.undoManager?.undo()
-              }
+              textView.undoManager?.undo()
             }
           }) {
             EmptyView()
@@ -176,9 +175,7 @@ struct CodeEditorView: View {
           Button(action: {
             self.dismissCard()
             self.updateEditor = { textView in
-              DispatchQueue.main.async {
-                textView.undoManager?.redo()
-              }
+              textView.undoManager?.redo()
             }
           }) {
             EmptyView()
@@ -341,9 +338,7 @@ struct CodeEditorView: View {
             switch self.splitViewMode {
               case .rightOnRight, .rightOnLeft:
                 self.updateEditor = { textView in
-                  DispatchQueue.main.async {
-                    textView.becomeFirstResponder()
-                  }
+                  textView.becomeFirstResponder()
                 }
               default:
                 break
@@ -873,15 +868,11 @@ struct CodeEditorView: View {
     if self.splitViewMode.isSideBySide {
       if self.editorFocused {
         self.updateConsole = { textView in
-          DispatchQueue.main.async {
-            textView.becomeFirstResponder()
-          }
+          textView.becomeFirstResponder()
         }
       } else {
         self.updateEditor = { textView in
-          DispatchQueue.main.async {
-            textView.becomeFirstResponder()
-          }
+          textView.becomeFirstResponder()
         }
       }
     } else {

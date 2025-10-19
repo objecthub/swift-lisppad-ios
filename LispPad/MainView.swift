@@ -68,6 +68,7 @@ struct MainView: View {
   /// will be reset once the cursor was positioned.
   @State private var editorPosition: NSRange? = nil
   
+  /// True if the editor is in focus
   @State private var editorFocused: Bool = true
 
   /// Setting this to `true` will force an editor update. The variable is automatically reset.
@@ -76,6 +77,10 @@ struct MainView: View {
   /// Support updating the editor and console text views
   @State private var updateEditor: ((CodeEditorTextView) -> Void)? = nil
   @State private var updateConsole: ((CodeEditorTextView) -> Void)? = nil
+  
+  /// Navigation paths for the two navigation stacks
+  @State private var interpreterPath = NavigationPath()
+  @State private var editorPath = NavigationPath()
   
   /// All state powering the interpreter; it is initialized here to make sure that changes to
   /// the view tree do not result in interpreter state getting reset.
@@ -90,8 +95,9 @@ struct MainView: View {
         fraction: self.$masterWidthFraction,
         visibleThickness: 0.5,
         left: {
-          NavigationStack {
+          NavigationStack(path: self.$interpreterPath) {
             InterpreterView(splitView: MainView.splitView,
+                            path: self.$interpreterPath,
                             splitViewMode: self.$splitViewMode,
                             masterWidthFraction: self.$masterWidthFraction,
                             urlToOpen: self.$urlToOpen,
@@ -102,8 +108,9 @@ struct MainView: View {
           .modifier(self.globals.services)
         },
         right: {
-          NavigationStack {
+          NavigationStack(path: self.$editorPath) {
             CodeEditorView(splitView: MainView.splitView,
+                           path: self.$editorPath,
                            splitViewMode: self.$splitViewMode,
                            masterWidthFraction: self.$masterWidthFraction,
                            urlToOpen: self.$urlToOpen,

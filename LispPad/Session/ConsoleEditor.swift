@@ -104,9 +104,11 @@ struct ConsoleEditor: UIViewRepresentable {
       textView.textStorageDelegate.highlight(textView.textStorage)
     }
     if let update = self.update {
-      update(textView)
       DispatchQueue.main.async {
-        self.update = nil
+        if self.update != nil {
+          self.update = nil
+          update(textView)
+        }
       }
     }
     ConsoleEditor.recalculateHeight(textView: textView, result: self._calculatedHeight)

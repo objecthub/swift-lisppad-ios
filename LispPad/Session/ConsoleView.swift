@@ -245,12 +245,13 @@ struct ConsoleView: View {
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
         .padding(.leading, 3)
         .onAppear {
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-           if !self.state.consoleInput.isEmpty && !self.state.focused {
+          // THIS IS A HUGE HACK (to work around a SwiftUI navigation bug)
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let shouldFocus = self.state.shouldFocus
+            self.state.shouldFocus = false
+            if !self.state.focused && shouldFocus {
               self.updateConsole = { textView in
-                DispatchQueue.main.async {
-                  textView.becomeFirstResponder()
-                }
+                textView.becomeFirstResponder()
               }
             }
           }
@@ -525,15 +526,11 @@ struct ConsoleView: View {
     if self.splitViewMode.isSideBySide {
       if self.state.focused {
         self.updateEditor = { textView in
-          DispatchQueue.main.async {
-            textView.becomeFirstResponder()
-          }
+          textView.becomeFirstResponder()
         }
       } else {
         self.updateConsole = { textView in
-          DispatchQueue.main.async {
-            textView.becomeFirstResponder()
-          }
+          textView.becomeFirstResponder()
         }
       }
     } else {

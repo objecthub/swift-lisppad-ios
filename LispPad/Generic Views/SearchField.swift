@@ -255,10 +255,7 @@ struct SearchField: View {
             EmptyView()
           }
           .keyCommand("y", modifiers: [.command, .shift], title: "Replace all")
-          .disabled(!showNext ||
-                      self.searchText.isEmpty ||
-                      self.searchText != self.lastSearchText ||
-                      self.replaceText != self.lastReplaceText)
+          .disabled(self.searchText.isEmpty)
           Button(action: {
             _ = self.replace(self.searchText, self.replaceText, nil)
             withAnimation(.default) {
@@ -298,8 +295,19 @@ struct SearchField: View {
                       self.searchText.isEmpty ||
                       self.searchText != self.lastSearchText ||
                       self.replaceText != self.lastReplaceText)
-          Text("Cancel")
-            .foregroundColor(.clear)
+          ZStack {
+            Text("Cancel")
+              .foregroundColor(.clear)
+            Button("All") {
+              self.replaceAll(self.searchText, self.replaceText)
+              withAnimation(.default) {
+                self.lastSearchText = ""
+                self.lastReplaceText = ""
+                self.showNext = false
+              }
+            }
+            .disabled(self.searchText.isEmpty)
+          }
         }
         .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 8))
         // .animation(.default)
