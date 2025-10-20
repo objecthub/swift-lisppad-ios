@@ -447,9 +447,12 @@ struct CodeEditorView: View {
                 UIPasteboard.general.string = path
               }
             } label: {
-              Label(PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath ?? "Unknown",
+              Label(self.fileManager.editorDocument?.fileURL.lastPathComponent ?? "Unknown",
                     systemImage: PortableURL(self.fileManager
                                                .editorDocument?.fileURL)?.base?.imageName ?? "link")
+              Text(((PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath as NSString?)?.deletingLastPathComponent ?? "/") + 
+                   " • " + (self.fileManager.editorDocument?.size == nil ?
+                              "0 KB" : "\(self.fileManager.editorDocument!.size!) KB"))
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
             ControlGroup {

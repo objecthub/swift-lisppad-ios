@@ -78,6 +78,20 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     }
   }
   
+  var size: Int64? {
+    do {
+      let attribute = try Foundation.FileManager.default.attributesOfItem(atPath:
+                                                                            self.fileURL.path())
+      if let size = attribute[FileAttributeKey.size] as? NSNumber {
+        return size.int64Value
+      } else {
+        return nil
+      }
+    } catch {
+      return nil
+    }
+  }
+  
   func loadFile(action: @escaping ((Bool) -> Void) = { success in }) {
     if self.fileExists {
       self.open(completionHandler: action)
