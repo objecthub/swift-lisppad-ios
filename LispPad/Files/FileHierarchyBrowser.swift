@@ -42,6 +42,20 @@ struct FileHierarchyBrowser: View {
     @Published var editName: String = ""
     @Published var selectedUrls: Set<URL> = []
     
+    var fileHierarchies: [() -> FileHierarchy.Children?] = []
+    
+    func register(hierarchy: FileHierarchy) {
+      weak var hierarchy: FileHierarchy.Children? = hierarchy.container
+      self.fileHierarchies.append { hierarchy }
+    }
+    
+    func invalidateCaches() {
+      for hierarchy in self.fileHierarchies {
+        hierarchy()?.reset()
+      }
+      self.updateView()
+    }
+    
     func updateView() {
       UIApplication.shared.endEditing(true)
       self.objectWillChange.send()
@@ -102,6 +116,7 @@ struct FileHierarchyBrowser: View {
                                !options.contains(.directories) ? nil
                                                                : FileExtensions.editorSupport) {
         roots.append(r)
+        context.register(hierarchy: r)
       }
     }
     self.roots = roots
@@ -205,7 +220,7 @@ struct FileHierarchyBrowser: View {
                 self.fileManager.delete(url) { success in
                   if success {
                     parent.reset()
-                    self.refresher.updateView()
+                    self.context.invalidateCaches()
                   }
                 }
               }
@@ -221,7 +236,7 @@ struct FileHierarchyBrowser: View {
           if hierarchy.parent != nil {
             Button {
               self.histManager.toggleFavorite(hierarchy.url)
-              self.context.updateView()
+              self.context.invalidateCaches()
             } label: {
               if self.histManager.isFavorite(hierarchy.url) {
                 Label("Unstar", systemImage: "star.fill")
