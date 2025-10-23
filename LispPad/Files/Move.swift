@@ -39,10 +39,7 @@ struct Move: View {
   @Binding var showShareSheet: Bool
   @Binding var showFileImporter: Bool
   @Binding var urlToMove: (URL, Bool)?
-  @State var selectedUrl: URL? = nil
-  @State var editUrl: URL? = nil
-  @State var editName: String = ""
-  @State var selectedUrls: Set<URL> = []
+  @StateObject var context = FileHierarchyBrowser.BrowserContext()
   @State var previewUrl: URL? = nil
   @State var alertAction: AlertAction? = nil
   @State var fileName: String = "Untitled.scm"
@@ -143,17 +140,14 @@ struct Move: View {
                                showShareSheet: $showShareSheet,
                                showFileImporter: $showFileImporter,
                                urlToMove: $urlToMove,
-                               selectedUrl: $selectedUrl,
-                               editUrl: $editUrl,
-                               editName: $editName,
-                               selectedUrls: $selectedUrls,
+                               context: self.context,
                                previewUrl: $previewUrl,
                                onSelection: { url in
-            self.selectedUrls.removeAll()
-            self.selectedUrls.insert(url)
-          })
+                                 self.context.selectedUrls.removeAll()
+                                 self.context.selectedUrls.insert(url)
+                               })
           .font(.body)
-          .onChange(of: self.selectedUrls) { _, newValue in
+          .onChange(of: self.context.selectedUrls) { _, newValue in
             if let folder = newValue.first {
               self.folder = folder
             }
@@ -238,7 +232,7 @@ struct Move: View {
         self.fileName = url.lastPathComponent
         self.folder = url.deletingLastPathComponent()
         if let folder = self.folder {
-          self.selectedUrls = [folder]
+          self.context.selectedUrls = [folder]
         }
       }
     }

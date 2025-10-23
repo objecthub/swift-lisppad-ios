@@ -24,22 +24,20 @@ import QuickLook
 struct Organizer: View {
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var histManager: HistoryManager
   
   @State var showShareSheet: Bool = false
   @State var showFileImporter: Bool = false
   @State var searchAndImport: Bool = false
   @State var urlToMove: (URL, Bool)? = nil
-  @State var selectedUrl: URL? = nil
-  @State var editUrl: URL? = nil
-  @State var editName: String = ""
-  @State var selectedUrls: Set<URL> = []
+  @StateObject var context = FileHierarchyBrowser.BrowserContext()
   @State var previewUrl: URL? = nil
   
   var body: some View {
     ZStack {
       Color(.systemGroupedBackground).ignoresSafeArea()
       VStack(alignment: .center, spacing: 0) {
-        if self.showShareSheet, let url = self.selectedUrl {
+        if self.showShareSheet, let url = self.context.selectedUrl {
           ShareSheet(activityItems: [url])
         } else if self.urlToMove == nil {
           Sheet {
@@ -50,10 +48,7 @@ struct Organizer: View {
                                      showShareSheet: $showShareSheet,
                                      showFileImporter: $showFileImporter,
                                      urlToMove: $urlToMove,
-                                     selectedUrl: $selectedUrl,
-                                     editUrl: $editUrl,
-                                     editName: $editName,
-                                     selectedUrls: $selectedUrls,
+                                     context: self.context,
                                      previewUrl: $previewUrl,
                                      onSelection: { url in })
                 .font(.body)
@@ -67,10 +62,7 @@ struct Organizer: View {
                                      showShareSheet: $showShareSheet,
                                      showFileImporter: $showFileImporter,
                                      urlToMove: $urlToMove,
-                                     selectedUrl: $selectedUrl,
-                                     editUrl: $editUrl,
-                                     editName: $editName,
-                                     selectedUrls: $selectedUrls,
+                                     context: self.context,
                                      previewUrl: $previewUrl,
                                      onSelection: { url in })
                   .font(.body)
@@ -83,10 +75,7 @@ struct Organizer: View {
                                      showShareSheet: $showShareSheet,
                                      showFileImporter: $showFileImporter,
                                      urlToMove: $urlToMove,
-                                     selectedUrl: $selectedUrl,
-                                     editUrl: $editUrl,
-                                     editName: $editName,
-                                     selectedUrls: $selectedUrls,
+                                     context: self.context,
                                      previewUrl: $previewUrl,
                                      onSelection: { url in })
                   .font(.body)
@@ -121,7 +110,7 @@ struct Organizer: View {
                   defer {
                     selectedFile.stopAccessingSecurityScopedResource()
                   }
-                  if let target = self.selectedUrl {
+                  if let target = self.context.selectedUrl {
                     self.fileManager.copy(selectedFile, to: target) { url in
                       // Handle copy failed
                     }

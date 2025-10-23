@@ -34,15 +34,13 @@ struct SaveAs: View {
   
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject var fileManager: FileManager
+  @EnvironmentObject var histManager: HistoryManager
   
   @State var showShareSheet: Bool = false
   @State var showFileImporter: Bool = false
   @State var urlToMove: (URL, Bool)? = nil
   @State var searchAndImport: Bool = false
-  @State var selectedUrl: URL? = nil
-  @State var editUrl: URL? = nil
-  @State var editName: String = ""
-  @State var selectedUrls: Set<URL> = []
+  @StateObject var context = FileHierarchyBrowser.BrowserContext()
   @State var previewUrl: URL? = nil
   @State var alertAction: AlertAction? = nil
   @State var fileName: String = "Untitled.scm"
@@ -113,17 +111,14 @@ struct SaveAs: View {
                                  showShareSheet: $showShareSheet,
                                  showFileImporter: $showFileImporter,
                                  urlToMove: $urlToMove,
-                                 selectedUrl: $selectedUrl,
-                                 editUrl: $editUrl,
-                                 editName: $editName,
-                                 selectedUrls: $selectedUrls,
+                                 context: self.context,
                                  previewUrl: $previewUrl,
                                  onSelection: { url in
-                                   self.selectedUrls.removeAll()
-                                   self.selectedUrls.insert(url)
+                                   self.context.selectedUrls.removeAll()
+                                   self.context.selectedUrls.insert(url)
                                  })
               .font(.body)
-              .onChange(of: self.selectedUrls) { _, newValue in
+              .onChange(of: self.context.selectedUrls) { _, newValue in
                 if let folder = newValue.first {
                   self.folder = folder
                 }
@@ -195,7 +190,7 @@ struct SaveAs: View {
         self.fileName = url.lastPathComponent
         self.folder = url.deletingLastPathComponent()
         if let folder = self.folder {
-          self.selectedUrls = [folder]
+          self.context.selectedUrls = [folder]
         }
       }
     }

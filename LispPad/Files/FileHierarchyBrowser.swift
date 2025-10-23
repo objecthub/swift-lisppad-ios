@@ -35,7 +35,19 @@ struct FileHierarchyBrowser: View {
       self.objectWillChange.send()
     }
   }
-
+  
+  class BrowserContext: ObservableObject {
+    @Published var selectedUrl: URL? = nil
+    @Published var editUrl: URL? = nil
+    @Published var editName: String = ""
+    @Published var selectedUrls: Set<URL> = []
+    
+    func updateView() {
+      UIApplication.shared.endEditing(true)
+      self.objectWillChange.send()
+    }
+  }
+  
   // Extract state from the environment
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
@@ -57,15 +69,8 @@ struct FileHierarchyBrowser: View {
   @Binding var showFileImporter: Bool
   @Binding var urlToMove: (URL, Bool)?
   
-  /// The URL used by file mover, file importer and file sharer
-  @Binding var selectedUrl: URL?
-  
-  /// Rename support
-  @Binding var editUrl: URL?
-  @Binding var editName: String
-  
-  /// Selection support
-  @Binding var selectedUrls: Set<URL>
+  /// Browser context
+  @ObservedObject var context: BrowserContext
   
   /// Preview support
   @Binding var previewUrl: URL?
@@ -76,10 +81,7 @@ struct FileHierarchyBrowser: View {
        showShareSheet: Binding<Bool>,
        showFileImporter: Binding<Bool>,
        urlToMove: Binding<(URL, Bool)?>,
-       selectedUrl: Binding<URL?>,
-       editUrl: Binding<URL?>,
-       editName: Binding<String>,
-       selectedUrls: Binding<Set<URL>>,
+       context: BrowserContext,
        previewUrl: Binding<URL?>,
        onSelection: ((URL) -> Void)? = nil) {
     self.options = options
@@ -87,10 +89,7 @@ struct FileHierarchyBrowser: View {
     self._showShareSheet = showShareSheet
     self._showFileImporter = showFileImporter
     self._urlToMove = urlToMove
-    self._selectedUrl = selectedUrl
-    self._editUrl = editUrl
-    self._editName = editName
-    self._selectedUrls = selectedUrls
+    self.context = context
     self._previewUrl = previewUrl
     var roots: [FileHierarchy] = []
     for namedRef in namedRefs {
@@ -112,15 +111,15 @@ struct FileHierarchyBrowser: View {
     guard let url = hierarchy.url else {
       return false
     }
-    return self.selectedUrls.contains(url)
+    return self.context.selectedUrls.contains(url)
   }
   
   func isSelectedContainer(_ hierarchy: FileHierarchy) -> Bool {
-    guard !self.selectedUrls.isEmpty,
+    guard !self.context.selectedUrls.isEmpty,
           let path = hierarchy.url?.path else {
       return false
     }
-    for url in self.selectedUrls {
+    for url in self.context.selectedUrls {
       if url.path.hasPrefix(path) {
         return true
       }
@@ -133,14 +132,14 @@ struct FileHierarchyBrowser: View {
                            @ViewBuilder content: () -> T) -> some View {
     content()
       .contextMenu {
-        if self.editUrl == nil {
+        if self.context.editUrl == nil {
           if self.options.contains(.mutable) && (hierarchy.kind != .file) {
             Button {
               if let url = hierarchy.url,
                  let dir = self.fileManager.makeDirectory(at: url) {
                 hierarchy.container?.reset()
-                self.editName = dir.lastPathComponent
-                self.editUrl = dir
+                self.context.editName = dir.lastPathComponent
+                self.context.editUrl = dir
               }
             } label: {
               Label("New Folder", systemImage: "folder.badge.plus")
@@ -149,7 +148,7 @@ struct FileHierarchyBrowser: View {
             if self.options.contains(.organizer) {
               Button {
                 self.showFileImporter = true
-                self.selectedUrl = hierarchy.url
+                self.context.selectedUrl = hierarchy.url
               } label: {
                 Label("Import Files…", systemImage: "square.and.arrow.down.on.square")
               }
@@ -159,8 +158,8 @@ struct FileHierarchyBrowser: View {
           if self.options.contains(.mutable) &&
               (hierarchy.kind == .file || hierarchy.kind == .directory) {
             Button {
-              self.editName = hierarchy.name
-              self.editUrl = hierarchy.url
+              self.context.editName = hierarchy.name
+              self.context.editUrl = hierarchy.url
             } label: {
               Label("Rename", systemImage: "pencil")
             }
@@ -222,6 +221,7 @@ struct FileHierarchyBrowser: View {
           if hierarchy.parent != nil {
             Button {
               self.histManager.toggleFavorite(hierarchy.url)
+              self.context.updateView()
             } label: {
               if self.histManager.isFavorite(hierarchy.url) {
                 Label("Unstar", systemImage: "star.fill")
@@ -246,7 +246,7 @@ struct FileHierarchyBrowser: View {
   
   func rowContent(_ hierarchy: FileHierarchy) -> some View {
     HStack {
-      if self.editUrl != nil && self.editUrl == hierarchy.url {
+      if self.context.editUrl != nil && self.context.editUrl == hierarchy.url {
         ZStack {
           RoundedRectangle(cornerRadius: 8)
             .fill(Color(UIColor.secondarySystemFill))
@@ -254,30 +254,31 @@ struct FileHierarchyBrowser: View {
             Label("", systemImage: hierarchy.systemImage)
               .foregroundColor(.red)
               .padding(.trailing, -8)
-            TextField("", text: $editName, onCommit: {
-              if !self.editName.isEmpty,
-                 let url = self.editUrl {
+            TextField("", text: $context.editName, onCommit: {
+              if !self.context.editName.isEmpty,
+                 let url = self.context.editUrl {
+                UIApplication.shared.endEditing(true)
                 if let doc = self.fileManager.editorDocument,
                    url.absoluteURL == doc.fileURL {
-                  doc.rename(to: self.editName) { newURL in
+                  doc.rename(to: self.context.editName) { newURL in
                     if newURL != nil {
                       hierarchy.parent?.reset()
                     }
-                    self.editUrl = nil
-                    self.editName = ""
+                    self.context.editUrl = nil
+                    self.context.editName = ""
                   }
                 } else {
-                  self.fileManager.rename(url, to: self.editName) { newURL in
+                  self.fileManager.rename(url, to: self.context.editName) { newURL in
                     if newURL != nil {
                       hierarchy.parent?.reset()
-                      if self.selectedUrls.contains(url) {
-                        self.selectedUrls.remove(url)
-                        self.selectedUrls.insert(newURL!)
+                      if self.context.selectedUrls.contains(url) {
+                        self.context.selectedUrls.remove(url)
+                        self.context.selectedUrls.insert(newURL!)
                         self.refresher.updateView()
                       }
                     }
-                    self.editUrl = nil
-                    self.editName = ""
+                    self.context.editUrl = nil
+                    self.context.editName = ""
                   }
                 }
               }
@@ -286,17 +287,17 @@ struct FileHierarchyBrowser: View {
             .disableAutocorrection(true)
             .padding(.top, -1.5)
             Button {
-              self.editName = ""
+              self.context.editName = ""
             } label: {
               Image(systemName: "xmark.circle.fill")
                 .foregroundColor(.gray)
-                .opacity(self.editName.isEmpty ? 0 : 1)
+                .opacity(self.context.editName.isEmpty ? 0 : 1)
             }
             .buttonStyle(.borderless)
             Spacer(minLength: 4)
             Button(action: {
-              self.editUrl = nil
-              self.editName = ""
+              self.context.editUrl = nil
+              self.context.editName = ""
             }) {
               Image(systemName: "arrow.uturn.backward.circle.fill")
                 .foregroundColor(.gray)
@@ -309,7 +310,7 @@ struct FileHierarchyBrowser: View {
         if (hierarchy.type == .file) && !self.options.contains(.files) ||
             (hierarchy.type == .directory) && !self.options.contains(.directories) ||
             self.onSelection == nil ||
-            self.editUrl != nil {
+            self.context.editUrl != nil {
           self.attachMenu(hierarchy) {
             ZStack {
               if self.isSelected(hierarchy) {
