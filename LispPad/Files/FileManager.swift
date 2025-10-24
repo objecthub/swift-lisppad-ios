@@ -304,7 +304,7 @@ class FileManager: ObservableObject {
     return false
   }
   
-  func copy(_ oldURL: URL, to newURL: URL, complete: @escaping (URL?) -> Void) {
+  func copy(_ oldURL: URL, to newURL: URL, complete: @escaping (Result<URL, Error>) -> Void) {
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
       let fileCoordinator = NSFileCoordinator(filePresenter: nil)
@@ -317,18 +317,18 @@ class FileManager: ObservableObject {
         do {
           try fileManager.copyItem(at: from, to: to)
           DispatchQueue.main.async {
-            complete(coordinatorError == nil ? to : nil)
+            complete(coordinatorError == nil ? .success(to) : .failure(coordinatorError!))
           }
-        } catch {
+        } catch let error {
           DispatchQueue.main.async {
-            complete(nil)
+            complete(.failure(error))
           }
         }
       }
     }
   }
   
-  func move(_ oldURL: URL, to newURL: URL, complete: @escaping (URL?) -> Void) {
+  func move(_ oldURL: URL, to newURL: URL, complete: @escaping (Result<URL, Error>) -> Void) {
     DispatchQueue.global(qos: .default).async {
       var coordinatorError: NSError?
       let fileCoordinator = NSFileCoordinator(filePresenter: nil)
@@ -343,18 +343,18 @@ class FileManager: ObservableObject {
           try fileManager.moveItem(at: from, to: to)
           fileCoordinator.item(at: from, didMoveTo: to)
           DispatchQueue.main.async {
-            complete(coordinatorError == nil ? to : nil)
+            complete(coordinatorError == nil ? .success(to) : .failure(coordinatorError!))
           }
-        } catch {
+        } catch let error {
           DispatchQueue.main.async {
-            complete(nil)
+            complete(.failure(error))
           }
         }
       }
     }
   }
   
-  func rename(_ url: URL, to name: String, complete: @escaping (URL?) -> Void) {
+  func rename(_ url: URL, to name: String, complete: @escaping (Result<URL, Error>) -> Void) {
     let target = url.deletingLastPathComponent().appendingPathComponent(name)
     self.move(url, to: target, complete: complete)
   }

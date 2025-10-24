@@ -36,11 +36,17 @@ struct FileHierarchyBrowser: View {
     }
   }
   
+  struct ErrorMessage: Equatable {
+    let title: String
+    let message: String
+  }
+  
   class BrowserContext: ObservableObject {
     @Published var selectedUrl: URL? = nil
     @Published var editUrl: URL? = nil
     @Published var editName: String = ""
     @Published var selectedUrls: Set<URL> = []
+    @Published var errorMessage: ErrorMessage? = nil
     
     var fileHierarchies: [() -> FileHierarchy.Children?] = []
     
@@ -283,14 +289,18 @@ struct FileHierarchyBrowser: View {
                     self.context.editName = ""
                   }
                 } else {
-                  self.fileManager.rename(url, to: self.context.editName) { newURL in
-                    if newURL != nil {
-                      hierarchy.parent?.reset()
-                      if self.context.selectedUrls.contains(url) {
-                        self.context.selectedUrls.remove(url)
-                        self.context.selectedUrls.insert(newURL!)
-                        self.refresher.updateView()
-                      }
+                  self.fileManager.rename(url, to: self.context.editName) { result in
+                    switch result {
+                      case .success(let newURL):
+                        hierarchy.parent?.reset()
+                        if self.context.selectedUrls.contains(url) {
+                          self.context.selectedUrls.remove(url)
+                          self.context.selectedUrls.insert(newURL)
+                          self.refresher.updateView()
+                        }
+                      case .failure(let error):
+                        self.context.errorMessage = .init(title: "Rename Failure",
+                                                          message: error.localizedDescription)
                     }
                     self.context.editUrl = nil
                     self.context.editName = ""

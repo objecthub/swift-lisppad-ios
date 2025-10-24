@@ -89,13 +89,13 @@ struct Move: View {
   func moveOrCopyFile(to newUrl: URL) {
     if let (oldUrl, copy) = self.urlToMove {
       if copy {
-        self.fileManager.copy(oldUrl, to: newUrl) { canonicalNewUrl in
-          if canonicalNewUrl == nil {
-            self.alertAction = .failedCopyingFile
-          } else {
+        self.fileManager.copy(oldUrl, to: newUrl) { result in
+          if case .success(_) = result {
             withAnimation(.default) {
               self.urlToMove = nil
             }
+          } else {
+            self.alertAction = .failedCopyingFile
           }
         }
       } else if PortableURL(url: oldUrl) == self.histManager.currentlyEdited {
@@ -109,13 +109,13 @@ struct Move: View {
           }
         }
       } else {
-        self.fileManager.move(oldUrl, to: newUrl) { canonicalNewUrl in
-          if canonicalNewUrl == nil {
-            self.alertAction = .failedMovingFile
-          } else {
+        self.fileManager.move(oldUrl, to: newUrl) { result in
+          if case .success(_) = result {
             withAnimation(.default) {
               self.urlToMove = nil
             }
+          } else {
+            self.alertAction = .failedMovingFile
           }
         }
       }

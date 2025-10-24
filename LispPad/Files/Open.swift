@@ -32,6 +32,7 @@ struct Open: View {
   @State var searchAndImport: Bool = false
   @StateObject var context = FileHierarchyBrowser.BrowserContext()
   @State var previewUrl: URL? = nil
+  @State var showError: Bool = false
   
   let title: String
   let directories: Bool
@@ -142,6 +143,9 @@ struct Open: View {
           .transition(.move(edge: .bottom))
       }
     }
+    .onChange(of: self.context.errorMessage) { _, new in
+      self.showError = new != nil
+    }
     .fileImporter(isPresented: $showFileImporter,
                   allowedContentTypes: [.plainText],
                   allowsMultipleSelection: true) { result in
@@ -151,33 +155,57 @@ struct Open: View {
         case .success(let urls):
           if !urls.isEmpty {
             if !sai {
-              do {
-                guard let selectedFile: URL = try result.get().first else {
-                  return
-                }
-                if selectedFile.startAccessingSecurityScopedResource() {
-                  defer {
-                    selectedFile.stopAccessingSecurityScopedResource()
-                  }
-                  if let target = self.context.selectedUrl {
-                    self.fileManager.copy(selectedFile, to: target) { url in
-                      // Handle copy failed
-                    }
-                  }
-                } else {
-                  // Handle denied access
-                }
-              } catch {
-                // Handle general failure
+              if let target = self.context.selectedUrl {
+                self.copy(ArraySlice(urls), to: target, copied: 0, failed: [])
               }
-            } else if let url = urls.first, let action = self.onSelection, action(url, false) {
+            } else {
               self.dismiss()
             }
           }
-        case .failure(_):
-          break
+        case .failure(let error):
+          self.context.errorMessage =
+            .init(title: "Import Failure", message: error.localizedDescription)
       }
     }
     .quickLookPreview(self.$previewUrl)
+  }
+  
+  func copy(_ slice: ArraySlice<URL>, to target: URL, copied: Int, failed: [(String, URL)]) {
+    var urls = slice
+    if urls.count > 0 && copied < 50 {
+      let url = urls.removeFirst() 
+      if url.startAccessingSecurityScopedResource() {
+        self.fileManager.copy(url, to: target.appending(path: url.lastPathComponent)) { result in
+          url.stopAccessingSecurityScopedResource()
+          if case .failure(let error) = result {
+            self.copy(urls, to: target, copied: copied + 1,
+                      failed: failed + [(error.localizedDescription, url)])
+          } else {
+            self.copy(urls, to: target, copied: copied + 1, failed: failed)
+          }
+        }
+      } else {
+        self.copy(urls, to: target, copied: copied + 1, failed: failed + [("Access denied.", url)])
+      }
+    } else {
+      if copied > failed.count {
+        self.context.invalidateCaches()
+      }
+      switch failed.count {
+        case 0:
+          break
+        case 1:
+          self.context.errorMessage =
+            .init(title: "Import Failure",
+                  message: "Failed to import “\(failed.first!.1.lastPathComponent)“. " +
+                           failed.first!.0)
+        default:
+          self.context.errorMessage =
+              .init(title: "Import Failure",
+                    message: "Failed to import \(failed.count) files, " +
+                             "including “\(failed.first!.1.lastPathComponent)“. " +
+                             failed.first!.0)
+      }
+    }
   }
 }
