@@ -448,11 +448,9 @@ struct CodeEditorView: View {
               }
             } label: {
               Label(self.fileManager.editorDocument?.fileURL.lastPathComponent ?? "Unknown",
-                    systemImage: PortableURL(self.fileManager
-                                               .editorDocument?.fileURL)?.base?.imageName ?? "link")
-              Text(((PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath as NSString?)?.deletingLastPathComponent ?? "/") + 
-                   " • " + (self.fileManager.editorDocument?.size == nil ?
-                              "0 KB" : "\(self.fileManager.editorDocument!.size!) KB"))
+                    systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
+              Text((self.fileManager.editorDocument?.pathString ?? "/") + 
+                   " • " + (self.fileManager.editorDocument?.sizeString ?? "? B"))
             }
             .disabled(self.fileManager.editorDocumentInfo.new)
             ControlGroup {
@@ -568,6 +566,7 @@ struct CodeEditorView: View {
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+            /*
             Menu {
               Button {
                 self.dismissCard()
@@ -599,6 +598,29 @@ struct CodeEditorView: View {
               }
             }
             .foregroundColor(self.showSearchField ? .gray : .accentColor)
+            */
+            Button {
+              self.dismissCard()
+              if self.showSearchField {
+                if self.replaceModeSearch {
+                  withAnimation(.default) {
+                    self.showSearchField = false
+                  }
+                  self.replaceModeSearch = false
+                } else {
+                  withAnimation(.default) {
+                    self.replaceModeSearch = true
+                  }
+                }
+              } else {
+                withAnimation(.default) {
+                  self.showSearchField = true
+                }
+              }
+            } label: {
+              Image(systemName: "magnifyingglass")
+                .font(LispPadUI.toolbarFont)
+            }
             Button {
               self.dismissCard()
               guard let doc = self.fileManager.editorDocument else {

@@ -78,17 +78,30 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     }
   }
   
-  var size: Int64? {
-    do {
-      let attribute = try Foundation.FileManager.default.attributesOfItem(atPath:
-                                                                            self.fileURL.path())
-      if let size = attribute[FileAttributeKey.size] as? NSNumber {
-        return size.int64Value
-      } else {
-        return nil
-      }
-    } catch {
+  var size: Int? {
+    if let size = try? self.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+      return size
+    } else {
       return nil
+    }
+  }
+  
+  var pathString: String {
+    let res = (PortableURL(self.fileURL)?.relativePath as NSString?)?.deletingLastPathComponent ?? "/"
+    if res.isEmpty {
+      return "/"
+    } else {
+      return res
+    }
+  }
+  
+  var sizeString: String {
+    // let size = try? self.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+    let size = self.text.count
+    if size < 100000 {
+      return "\(size) B"
+    } else {
+      return "\(size / 1000) KB"
     }
   }
   

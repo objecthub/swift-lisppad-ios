@@ -355,6 +355,12 @@ struct InterpreterView: View {
             }
             Menu {
               Button {
+                self.histManager.verifyFileLists()
+                self.showModal = .loadFile
+              } label: {
+                Label("Load…", systemImage: "arrow.down.document")
+              }
+              Button {
                 let message = self.fileManager.editorDocumentInfo.new ?
                   "<execute editor buffer>" :
                   "<execute \"\(self.fileManager.editorDocumentInfo.title)\">"
@@ -368,13 +374,13 @@ struct InterpreterView: View {
                                           url: self.fileManager.editorDocument?.fileURL)
               } label: {
                 Label(self.fileManager.editorDocumentInfo.new ?
-                      "Editor Buffer" : self.fileManager.editorDocumentInfo.title,
-                      systemImage: "pencil")
+                        "Load Buffer" : "Load “\(self.fileManager.editorDocumentInfo.title)“",
+                        systemImage: "menubar.arrow.down.rectangle") // "pencil"
               }
               .disabled(self.fileManager.editorDocumentInfo.editorType != .scheme)
               if self.interpreter.isReady && !self.histManager.recentlyEdited.isEmpty {
-                // Section("RECENT FILES") {
-                  Divider()
+                // Divider()
+                Section("LOAD RECENT FILE") {
                   ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
                     if let url = purl.url {
                       Button(action: { self.execute(url) }) {
@@ -382,14 +388,11 @@ struct InterpreterView: View {
                       }
                     }
                   }
-                // }
+                }
               }
             } label: {
               Image(systemName: "plus")
                 .font(LispPadUI.toolbarFont)
-            } primaryAction: {
-              self.histManager.verifyFileLists()
-              self.showModal = .loadFile
             }
             .disabled(!self.interpreter.isReady)
           }

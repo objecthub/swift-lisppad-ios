@@ -158,13 +158,13 @@ struct Open: View {
               if let target = self.context.selectedUrl {
                 self.copy(ArraySlice(urls), to: target, copied: 0, failed: [])
               }
-            } else {
+            } else if let url = urls.first, let action = self.onSelection, action(url, false) {
               self.dismiss()
             }
           }
         case .failure(let error):
           self.context.errorMessage =
-            .init(title: "Import Failure", message: error.localizedDescription)
+            .init(title: "Load Failure", message: error.localizedDescription)
       }
     }
     .quickLookPreview(self.$previewUrl)
