@@ -105,6 +105,29 @@ final class DocumentationManager: ObservableObject {
     return self.documentation[components]?.content
   }
   
+  /// Returns the identifiers for which there is documentation
+  func libraryExports(for components: [String],
+                      merging: LibraryManager.LibraryProxy? = nil) -> [String]? {
+    let documented = self.documentation[components]?.symbolDocs.keys.map { id in id.description }
+    let exported = merging?.library?.exported.map { sym in sym.identifier }
+    guard documented != nil || exported != nil else {
+      return nil
+    }
+    if let documented {
+      var res = documented
+      if let exported {
+        for ident in exported {
+          if !documented.contains(ident) {
+            res.append(ident)
+          }
+        }
+      }
+      return res.sorted()
+    } else {
+      return exported?.sorted()
+    }
+  }
+  
   /// Returns a documentation for the given symbol name
   func documentation(for name: String) -> Block? {
     var documentation = Blocks()

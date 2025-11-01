@@ -24,7 +24,7 @@ import SwiftUI
 /// This struct defines the root view of LispPad.
 ///
 struct MainView: View {
-
+  
   /// The registry of all global services
   @EnvironmentObject var globals: LispPadGlobals
 
@@ -86,6 +86,10 @@ struct MainView: View {
   /// the view tree do not result in interpreter state getting reset.
   @StateObject private var interpreterState = InterpreterState()
   
+  @State private var selectedLib: LibraryManager.LibraryProxy? = nil
+  @State private var selectedIdent: String? = nil
+  @State private var docShown: Bool = false
+  
   /// View definition
   var body: some View {
     ZStack {
@@ -95,17 +99,30 @@ struct MainView: View {
         fraction: self.$masterWidthFraction,
         visibleThickness: 0.5,
         left: {
-          NavigationStack(path: self.$interpreterPath) {
-            InterpreterView(splitView: MainView.splitView,
-                            path: self.$interpreterPath,
-                            splitViewMode: self.$splitViewMode,
-                            masterWidthFraction: self.$masterWidthFraction,
-                            urlToOpen: self.$urlToOpen,
-                            updateEditor: self.$updateEditor,
-                            updateConsole: self.$updateConsole,
-                            state: self.interpreterState)
+          ZStack {
+            if self.docShown {
+              DocumentationBrowser(
+                selectedLib: self.$selectedLib,
+                selectedIdent: self.$selectedIdent,
+                docShown: self.$docShown)
+              .modifier(self.globals.services)
+              .transition(.move(edge: .leading))
+            } else {
+              NavigationStack(path: self.$interpreterPath) {
+                InterpreterView(splitView: MainView.splitView,
+                                path: self.$interpreterPath,
+                                splitViewMode: self.$splitViewMode,
+                                masterWidthFraction: self.$masterWidthFraction,
+                                urlToOpen: self.$urlToOpen,
+                                updateEditor: self.$updateEditor,
+                                updateConsole: self.$updateConsole,
+                                docShown: self.$docShown,
+                                state: self.interpreterState)
+              }
+              .modifier(self.globals.services)
+            }
           }
-          .modifier(self.globals.services)
+          .clipShape(.rect) // Without this, NavigationSplitView will extend beyond its borders
         },
         right: {
           NavigationStack(path: self.$editorPath) {

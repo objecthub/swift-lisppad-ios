@@ -25,11 +25,13 @@ import SwiftUI
 /// "Console", "Editor", "Syntax", and "Misc".
 /// 
 struct PreferencesView: View {
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
   @Binding var selectedTab: Int
-  @State var modeSelector: Int = 0
-  @State var resetParameters: Bool = false
+  @State private var modeSelector: Int = 0
+  @State private var resetParameters: Bool = false
+  @State private var currentSizeClass: UserInterfaceSizeClass = .compact
   
   var body: some View {
     TabView(selection: $selectedTab) {
@@ -86,6 +88,7 @@ struct PreferencesView: View {
         Label("Console", systemImage: "terminal")
       }
       .tag(0)
+      .environment(\.horizontalSizeClass, self.currentSizeClass)
       Form {
         Section(header: Text("Files")) {
           Toggle("Remember last edited file", isOn: $settings.rememberLastEditedFile)
@@ -128,6 +131,7 @@ struct PreferencesView: View {
         Label("Editor", systemImage: "square.and.pencil")
       }
       .tag(1)
+      .environment(\.horizontalSizeClass, self.currentSizeClass)
       VStack {
         Form {
           Picker("", selection: self.$modeSelector) {
@@ -180,6 +184,7 @@ struct PreferencesView: View {
         Label("Syntax", systemImage: "paintpalette")
       }
       .tag(2)
+      .environment(\.horizontalSizeClass, self.currentSizeClass)
       Form {
         Section(header: Text("Interpreter")) {
           HStack {
@@ -256,9 +261,18 @@ struct PreferencesView: View {
         _ = self.interpreter.context?.evaluator.evalMachine.setStackLimit(to:
                                                                 self.settings.maxStackSize * 1000)
       }
+      .environment(\.horizontalSizeClass, self.currentSizeClass)
     }
+    .tabViewStyle(.automatic)
     .navigationBarTitleDisplayMode(.inline)
     .navigationTitle("Settings")
+    .transformEnvironment(\.horizontalSizeClass, transform: { sizeClass in
+      let current = sizeClass
+      DispatchQueue.main.async {
+        self.currentSizeClass = current ?? .compact
+      }
+      sizeClass = .compact
+    })
   }
   
   private func bridge(_ binding: Binding<UIColor>) -> Binding<Color> {

@@ -136,7 +136,6 @@
 		CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B95CF2608179000830B4F /* (lisppad audio).md */; };
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
-		CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */; };
 		CC9F3D022B1206A500BBD631 /* turtle.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC9F3D002B12016D00BBD631 /* turtle.sld */; };
 		CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */; };
 		CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */; };
@@ -159,6 +158,8 @@
 		CCBE134D272B3AEA0046F474 /* LogFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134C272B3AEA0046F474 /* LogFilterView.swift */; };
 		CCBE134F272DE1450046F474 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBE134E272DE1450046F474 /* WebView.swift */; };
 		CCBE1354272E10210046F474 /* srfi in Copy Documentation/Web/srfi */ = {isa = PBXBuildFile; fileRef = CCBE1351272E0F410046F474 /* srfi */; };
+		CCBEA78F2EAD6D7B005AD4A3 /* DocumentationBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBEA78E2EAD6D7B005AD4A3 /* DocumentationBrowser.swift */; };
+		CCBEA7AA2EB5667E005AD4A3 /* DocumentationDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBEA7A92EB5667E005AD4A3 /* DocumentationDetailView.swift */; };
 		CCBF9E6826C8744D00654D60 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */; };
 		CCC2336D2B53286800C88C68 /* (lispkit archive tar).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */; };
 		CCC2336E2B53286800C88C68 /* (lispkit crypto).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233652B45FB6C00C88C68 /* (lispkit crypto).md */; };
@@ -247,7 +248,6 @@
 		CCFA680B27653990009A599C /* (lispkit math util).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC624CE22741367E005F15B3 /* (lispkit math util).md */; };
 		CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */; };
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
-		CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */; };
 		CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */; };
 		CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5CA2605F50B00E29F99 /* RichText.swift */; };
 /* End PBXBuildFile section */
@@ -618,7 +618,6 @@
 		CC8B95D32609462800830B4F /* LispPad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LispPad.entitlements; sourceTree = "<group>"; };
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
-		CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDetailView.swift; sourceTree = "<group>"; };
 		CC9F3D002B12016D00BBD631 /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
 		CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncResult.swift; sourceTree = "<group>"; };
 		CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
@@ -640,6 +639,8 @@
 		CCBE134C272B3AEA0046F474 /* LogFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFilterView.swift; sourceTree = "<group>"; };
 		CCBE134E272DE1450046F474 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		CCBE1351272E0F410046F474 /* srfi */ = {isa = PBXFileReference; lastKnownFileType = folder; path = srfi; sourceTree = "<group>"; };
+		CCBEA78E2EAD6D7B005AD4A3 /* DocumentationBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationBrowser.swift; sourceTree = "<group>"; };
+		CCBEA7A92EB5667E005AD4A3 /* DocumentationDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationDetailView.swift; sourceTree = "<group>"; };
 		CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CCBF9E6926C890B400654D60 /* (lisppad location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad location).md"; sourceTree = "<group>"; };
 		CCC233632B45FA8B00C88C68 /* (lispkit format).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit format).md"; sourceTree = "<group>"; };
@@ -728,7 +729,6 @@
 		CCFA680827653915009A599C /* (lispkit text-table).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit text-table).md"; sourceTree = "<group>"; };
 		CCFBC5BB26053FA900E29F99 /* LibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
-		CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		CCFBC5CA2605F50B00E29F99 /* RichText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichText.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -807,6 +807,7 @@
 				CC84C27525FE7B1100758581 /* Session */,
 				CCA3C68C2B0018CD00C0BDE6 /* Canvas */,
 				CC6598CB27240983004C9B89 /* Log */,
+				CCBEA78B2EAD0C73005AD4A3 /* Library Browser */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
 				CCC85639261677560080B96E /* Files */,
 				CCC8565E261D09190080B96E /* Preferences */,
@@ -860,8 +861,6 @@
 				CC7A62BD275D375C009F72E4 /* Console.swift */,
 				CC84C26F25FE78E100758581 /* ConsoleOutput.swift */,
 				CCA3C69F2B09067200C0BDE6 /* ConsoleOutputView.swift */,
-				CCFBC5BF26054A7D00E29F99 /* LibraryView.swift */,
-				CC8CABDD26074CD500FB916B /* LibraryDetailView.swift */,
 				CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */,
 				CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */,
 			);
@@ -1090,6 +1089,15 @@
 				CCBE1351272E0F410046F474 /* srfi */,
 			);
 			path = Web;
+			sourceTree = "<group>";
+		};
+		CCBEA78B2EAD0C73005AD4A3 /* Library Browser */ = {
+			isa = PBXGroup;
+			children = (
+				CCBEA78E2EAD6D7B005AD4A3 /* DocumentationBrowser.swift */,
+				CCBEA7A92EB5667E005AD4A3 /* DocumentationDetailView.swift */,
+			);
+			path = "Library Browser";
 			sourceTree = "<group>";
 		};
 		CCC85639261677560080B96E /* Files */ = {
@@ -1419,6 +1427,7 @@
 				CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */,
 				CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */,
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
+				CCBEA78F2EAD6D7B005AD4A3 /* DocumentationBrowser.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
 				CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */,
 				CCA5F5762AF38BDE0009A97E /* SideBySide.swift in Sources */,
@@ -1431,6 +1440,7 @@
 				CCBE134F272DE1450046F474 /* WebView.swift in Sources */,
 				CCE8E434262A3C2500E3DC6A /* AboutView.swift in Sources */,
 				CCEA5A0D263977C400D78C62 /* Move.swift in Sources */,
+				CCBEA7AA2EB5667E005AD4A3 /* DocumentationDetailView.swift in Sources */,
 				CCA5F5702AF38BBE0009A97E /* Split.swift in Sources */,
 				CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */,
 				CCE8E42E2623B4FB00E3DC6A /* PortableURL.swift in Sources */,
@@ -1450,7 +1460,6 @@
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
 				CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
-				CCFBC5C026054A7D00E29F99 /* LibraryView.swift in Sources */,
 				CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */,
 				CC233D5926696C970038016C /* ImageUtil.swift in Sources */,
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
@@ -1459,7 +1468,6 @@
 				CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */,
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,
 				CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */,
-				CC8CABDE26074CD500FB916B /* LibraryDetailView.swift in Sources */,
 				CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */,
 				CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */,
 			);

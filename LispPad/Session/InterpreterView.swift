@@ -27,7 +27,6 @@ struct InterpreterView: View {
   
   // Navigation targets
   enum NavigationTargets: Hashable {
-    case libraryBrowser
     case environmentBrowser
     case settings
   }
@@ -107,6 +106,7 @@ struct InterpreterView: View {
   @Binding var urlToOpen: URL?
   @Binding var updateEditor: ((CodeEditorTextView) -> Void)?
   @Binding var updateConsole: ((CodeEditorTextView) -> Void)?
+  @Binding var docShown: Bool
   @ObservedObject var state: InterpreterState
   
   // Control flow
@@ -479,18 +479,18 @@ struct InterpreterView: View {
             Button {
               UIApplication.shared.endEditing(true)
               self.state.shouldFocus = self.state.focused
-              self.path.append(NavigationTargets.libraryBrowser)
+              self.path.append(NavigationTargets.environmentBrowser)
             } label: {
-              Image(systemName: "building.columns")
+              Image(systemName: "square.stack.3d.up")
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(!self.docManager.initialized)
             Button {
-              UIApplication.shared.endEditing(true)
-              self.state.shouldFocus = self.state.focused
-              self.path.append(NavigationTargets.environmentBrowser)
+              withAnimation(.default) {
+                self.docShown = true
+              }
             } label: {
-              Image(systemName: "square.stack.3d.up")
+              Image(systemName: "book")
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(!self.docManager.initialized)
@@ -499,8 +499,6 @@ struct InterpreterView: View {
       }
       .navigationDestination(for: NavigationTargets.self) { target in
         switch target {
-          case .libraryBrowser:
-            LibraryView(libManager: interpreter.libManager)
           case .environmentBrowser:
             EnvironmentView(envManager: interpreter.envManager)
           case .settings:

@@ -40,13 +40,15 @@ final class ConsoleEditorTextViewDelegate: EditorTextViewDelegate {
   }
   
   override public func textViewDidChange(_ textView: UITextView) {
-    self.text = textView.text ?? ""
-    self.selectedRange = textView.selectedRange
-    ConsoleEditor.recalculateHeight(textView: textView, result: calculatedHeight)
-    guard textView.markedTextRange == nil else {
-      return
+    doOnMainThreadAsync {
+      self.text = textView.text ?? ""
+      self.selectedRange = textView.selectedRange
+      ConsoleEditor.recalculateHeight(textView: textView, result: self.calculatedHeight)
+      guard textView.markedTextRange == nil else {
+        return
+      }
+      self.lastSelectedRange = textView.selectedRange
     }
-    self.lastSelectedRange = textView.selectedRange
   }
   
   override public func textView(_ textView: UITextView,
