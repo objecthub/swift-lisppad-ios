@@ -37,17 +37,17 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   }
 
   /// Manage appearance of document
-  @Published var info = Info(title: "Untitled", new: true, editorType: .scheme) {
+  var info = Info(title: "Untitled", new: true, editorType: .scheme) {
     didSet {
       self.fileManager?.editorDocumentInfo = self.info
     }
   }
 
   /// Textual content
-  @Published var text = ""
+  var text = ""
 
   /// Currently selected range
-  @Published var selectedRange = NSRange(location: 0, length: 0)
+  var selectedRange = NSRange(location: 0, length: 0)
 
   /// Buffer used by editor
   var lastContentOffset = CGPoint(x: 0, y: 0)
