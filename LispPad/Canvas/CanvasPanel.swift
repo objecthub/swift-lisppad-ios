@@ -29,6 +29,7 @@ struct CanvasPanel: View {
   @State var showSizeEditor: Bool = false
   @ObservedObject var state: InterpreterState
   @Binding var showModal: InterpreterView.SheetAction?
+  @State var showCloseAlert: Bool = false
   
   private func round(_ x: CGFloat) -> CGFloat {
     let y = floor(x)
@@ -270,7 +271,13 @@ struct CanvasPanel: View {
             Button(role: .destructive) {
               self.interpreter.removeCanvas()
             } label: {
-              Label("Close Canvas", systemImage: "xmark.rectangle")
+              Label("Close Canvas", systemImage: "xmark")
+            }
+            .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
+            Button(role: .destructive) {
+              self.showCloseAlert = true
+            } label: {
+              Label("Close All Canvases", systemImage: "xmark.rectangle")
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
           } label: {
@@ -288,6 +295,16 @@ struct CanvasPanel: View {
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
       }
     }
+    .alert("Close Canvases",
+      isPresented: self.$showCloseAlert,
+      actions: {
+        Button("Cancel", role: .cancel) { self.showCloseAlert = false }
+        Button("Proceed", role: .destructive) {
+          self.showCloseAlert = false
+          self.interpreter.removeAllCanvases()
+        }
+      },
+      message: { Text("Proceed closing all canvases?") })
   }
   
   private func presentSheet(_ action: InterpreterView.SheetAction) {

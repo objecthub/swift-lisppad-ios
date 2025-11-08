@@ -19,6 +19,7 @@
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
 		CC233D5C266AC6BC0038016C /* PlotGraphs.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC233D5A266AC6940038016C /* PlotGraphs.scm */; };
 		CC248F8D2958C8E000FFAAF0 /* IntField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC248F8C2958C8E000FFAAF0 /* IntField.swift */; };
+		CC289F262EBC196E00299751 /* DocumentationBrowserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */; };
 		CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5026FE93F900835745 /* LispPadUI.swift */; };
 		CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5A2700828600835745 /* SlideOverCard.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
@@ -502,6 +503,7 @@
 		CC233D5A266AC6940038016C /* PlotGraphs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = PlotGraphs.scm; sourceTree = "<group>"; };
 		CC248F8C2958C8E000FFAAF0 /* IntField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntField.swift; sourceTree = "<group>"; };
 		CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad draw map).md"; sourceTree = "<group>"; };
+		CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationBrowserState.swift; sourceTree = "<group>"; };
 		CC302E5026FE93F900835745 /* LispPadUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadUI.swift; sourceTree = "<group>"; };
 		CC302E5A2700828600835745 /* SlideOverCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideOverCard.swift; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
@@ -1096,6 +1098,7 @@
 			children = (
 				CCBEA78E2EAD6D7B005AD4A3 /* DocumentationBrowser.swift */,
 				CCBEA7A92EB5667E005AD4A3 /* DocumentationDetailView.swift */,
+				CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */,
 			);
 			path = "Library Browser";
 			sourceTree = "<group>";
@@ -1382,6 +1385,7 @@
 				CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */,
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
+				CC289F262EBC196E00299751 /* DocumentationBrowserState.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
 				CCA3C69C2B043DB500C0BDE6 /* CanvasSizeEditor.swift in Sources */,
 				CC59FA3626361A3900EDA3CB /* Open.swift in Sources */,

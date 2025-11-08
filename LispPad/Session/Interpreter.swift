@@ -754,6 +754,14 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
+  func removeAllCanvases() {
+    guard self.canvas != .empty else {
+      return
+    }
+    self.canvas = .empty
+    self.canvases.removeAll()
+  }
+  
   func setActiveCanvas(to canvas: CanvasConfig) {
     self.addCanvas(canvas)
     self.canvas = canvas

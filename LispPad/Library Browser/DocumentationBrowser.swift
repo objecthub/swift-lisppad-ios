@@ -27,39 +27,27 @@
     @EnvironmentObject var interpreter: Interpreter
     @EnvironmentObject var docManager: DocumentationManager
     
-    @Binding var selectedLib: LibraryManager.LibraryProxy?
-    @Binding var selectedIdent: String?
-    @Binding var docShown: Bool
-    
-    @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
-    @State private var preferredColumn = NavigationSplitViewColumn.sidebar
-    @State private var searchLib: String = ""
-    @State private var searchIdent: String = ""
-    @State private var showLoadedLibraries: Bool = false
-    @State private var showLibraryBrowser: Bool = true
-    @State private var toggleSidebar: Bool = false
-    @State private var selectedLibIdents: [String] = []
+    @ObservedObject var state: DocumentationBrowserState
     
     var body: some View {
       GeometryReader { geometry in
-        let view = NavigationSplitView(columnVisibility: self.$columnVisibility,
-                                       preferredCompactColumn: self.$preferredColumn) {
+        let view = NavigationSplitView(columnVisibility: $state.columnVisibility,
+                                       preferredCompactColumn: $state.preferredColumn) {
           ZStack {
-            if self.showLibraryBrowser {
+            if self.state.showLibraryBrowser {
               List(self.interpreter.libManager.libraries.filter { proxy in 
-                    (!self.showLoadedLibraries || proxy.isLoaded) &&
-                    (self.searchLib.isEmpty ||
-                      proxy.name.range(of: self.searchLib, options: .caseInsensitive) != nil)
+                    (!self.state.showLoadedLibraries || proxy.isLoaded) &&
+                    (self.state.searchLib.isEmpty ||
+                       proxy.name.range(of: self.state.searchLib, options: .caseInsensitive) != nil)
                    },
                    id: \.name) { proxy in
                 Button {
                   withAnimation {
-                    self.selectedLibIdents = self.docManager.libraryExports(
-                      for: proxy.components,
-                      merging: proxy) ?? []
-                    self.selectedLib = proxy
-                    if !self.selectedLibIdents.isEmpty {
-                      self.toggleSidebar.toggle()
+                    self.state.selectedLibIdents =
+                      self.docManager.libraryExports(for: proxy.components, merging: proxy) ?? []
+                    self.state.selectedLib = proxy
+                    if !self.state.selectedLibIdents.isEmpty {
+                      self.state.toggleSidebar.toggle()
                     }
                   }
                 } label: {
@@ -72,53 +60,43 @@
                       .foregroundStyle(.secondary)
                   }
                 }
-                .foregroundStyle(proxy == self.selectedLib ? Color.white : .primary)
-                .listRowBackground(proxy == self.selectedLib ? Color.green : Color.clear)
+                .foregroundStyle(proxy == self.state.selectedLib ? Color.white : .primary)
+                .listRowBackground(proxy == self.state.selectedLib ? Color.green : Color.clear)
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                   Button("Import", systemImage: "square.and.arrow.down") {
                     self.interpreter.import(proxy.components)
                   }
                   .tint(.blue)
                 }
-                // .disabled(self.docManager.libraryDocumentation(for: proxy.components) == nil)
               }
               .refreshable {
                 self.interpreter.libManager.updateLibraries()
               }
               .listStyle(.plain)
-              .searchable(text: $searchLib)
+              .searchable(text: $state.searchLib)
               .navigationBarTitleDisplayMode(.inline)
-              /* .gesture(DragGesture()
-                .onEnded { value in
-                  if value.startLocation.x > value.location.x + 24 {
-                    if self.selectedLib != nil {
-                      self.toggleSidebar.toggle()
-                    }
-                  }
-                }
-              ) */
-              .onChange(of: self.selectedLib) { _, _ in
-                 self.selectedIdent = nil
+              .onChange(of: self.state.selectedLib) { _, _ in
+                self.state.selectedIdent = nil
               }
-              .onChange(of: self.toggleSidebar) { _, _ in
+              .onChange(of: self.state.toggleSidebar) { _, _ in
                 withAnimation {
-                  self.showLibraryBrowser = false
+                  self.state.showLibraryBrowser = false
                 }
               }
               .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                   Button {
-                    if self.selectedLib != nil {
-                      self.toggleSidebar.toggle()
+                    if self.state.selectedLib != nil {
+                      self.state.toggleSidebar.toggle()
                     }
                   } label: {
                     Image(systemName: "chevron.right")
                   }
-                  .disabled(self.selectedLib == nil)
+                  .disabled(self.state.selectedLib == nil)
                 }
                 ToolbarItemGroup(placement: .principal) {
                   Menu {
-                    Toggle(isOn: self.$showLoadedLibraries) {
+                    Toggle(isOn: $state.showLoadedLibraries) {
                       Label("Only Loaded", systemImage: "line.3.horizontal.decrease")
                     }
                   } label: {
@@ -139,39 +117,38 @@
                 ToolbarItemGroup(placement: .topBarTrailing) {
                   Button {
                     withAnimation {
-                      self.docShown = false
+                      self.state.docShown = false
                     }
                   } label: {
                     Image(systemName: "xmark.circle.fill")
                       .foregroundStyle(self.colorScheme == .light ? .white : .black, .gray)
-                    // Image(systemName: "apple.terminal.on.rectangle.fill")
                   }
                 }
               }
               .transition(.move(edge: .leading))
             } else {
-              List(self.selectedLibIdents.filter { ident in
-                     (self.searchIdent.isEmpty ||
-                       ident.range(of: self.searchIdent, options: .caseInsensitive) != nil)
+              List(self.state.selectedLibIdents.filter { ident in
+                       (self.state.searchIdent.isEmpty ||
+                        ident.range(of: self.state.searchIdent, options: .caseInsensitive) != nil)
                    },
-                   id: \.self, selection: $selectedIdent) { ident in
+                   id: \.self, selection: $state.selectedIdent) { ident in
                 NavigationLink(ident, value: ident)
               }
               .listStyle(.plain)
-              .searchable(text: $searchIdent)
+              .searchable(text: $state.searchIdent)
               .navigationBarTitleDisplayMode(.inline)
               .gesture(DragGesture()
                 .onEnded { value in
                   if value.startLocation.x < value.location.x - 24 {
                     withAnimation {
-                      self.showLibraryBrowser = true
+                      self.state.showLibraryBrowser = true
                     }
                   }
                   if value.startLocation.x > value.location.x + 24 {
-                    if (columnVisibility == .doubleColumn ||
-                        columnVisibility == .all) {
+                    if (self.state.columnVisibility == .doubleColumn ||
+                        self.state.columnVisibility == .all) {
                       withAnimation {
-                        columnVisibility = .detailOnly
+                        self.state.columnVisibility = .detailOnly
                       }
                     }
                   }
@@ -180,7 +157,7 @@
                 ToolbarItem(placement: .topBarLeading) {
                   Button {
                     withAnimation {
-                      self.showLibraryBrowser = true
+                      self.state.showLibraryBrowser = true
                     }
                   } label: {
                     Image(systemName: "chevron.left")
@@ -190,16 +167,16 @@
                 ToolbarItem(placement: .principal) {
                   Button {
                     withAnimation {
-                      self.selectedIdent = ""
+                      self.state.selectedIdent = ""
                       if self.sizeClass == .compact || geometry.size.width < 700 {
-                        self.columnVisibility = .detailOnly
+                        self.state.columnVisibility = .detailOnly
                       }
                     }
                   } label: {
                     HStack(alignment: .center, spacing: 3) {
                       if geometry.size.width >= 280 {
-                        Text(self.selectedLib?.name ?? "Identifiers")
-                          .font((self.selectedLib?.name ?? "Identifiers").count >= 20
+                        Text(self.state.selectedLib?.name ?? "Identifiers")
+                          .font((self.state.selectedLib?.name ?? "Identifiers").count >= 20
                                   ? LispPadUI.fileNameFont
                                   : LispPadUI.largeFileNameFont)
                           .bold()
@@ -221,12 +198,11 @@
                   HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
                     Button {
                       withAnimation {
-                        self.docShown = false
+                        self.state.docShown = false
                       }
                     } label: {
                       Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(self.colorScheme == .light ? .white : .black, .gray)
-                      // Image(systemName: "apple.terminal.on.rectangle.fill")
                     }
                   }
                 }
@@ -236,13 +212,13 @@
           }
           .navigationSplitViewColumnWidth(min: 280, ideal: 310, max: 380)
         } detail: {
-          DocumentationDetailView(columnVisibility: self.$columnVisibility,
-                                  selectedLib: self.$selectedLib,
-                                  selectedIdent: self.$selectedIdent,
-                                  docShown: self.$docShown)
-          .navigationTitle((self.selectedIdent?.isEmpty ?? true)
-                             ? (self.selectedLib?.name ?? "Documentation")
-                             : (self.selectedIdent ?? self.selectedLib?.name ?? "Documentation"))
+          DocumentationDetailView(columnVisibility: $state.columnVisibility,
+                                  selectedLib: $state.selectedLib,
+                                  selectedIdent: $state.selectedIdent,
+                                  docShown: $state.docShown)
+          .navigationTitle((self.state.selectedIdent?.isEmpty ?? true)
+                             ? (self.state.selectedLib?.name ?? "Documentation")
+                             : (self.state.selectedIdent ?? self.state.selectedLib?.name ?? "Documentation"))
           .navigationBarTitleDisplayMode(.inline)
           .navigationSplitViewColumnWidth(min: 280, ideal: 500, max: 900)
         }

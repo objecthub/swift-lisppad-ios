@@ -86,9 +86,9 @@ struct MainView: View {
   /// the view tree do not result in interpreter state getting reset.
   @StateObject private var interpreterState = InterpreterState()
   
-  @State private var selectedLib: LibraryManager.LibraryProxy? = nil
-  @State private var selectedIdent: String? = nil
-  @State private var docShown: Bool = false
+  /// All state powering the documentation browser; it is initialized here to make sure that
+  /// changes to the view tree do not result in documentation browser state getting reset.
+  @StateObject private var documentationBrowserState = DocumentationBrowserState()
   
   /// View definition
   var body: some View {
@@ -100,13 +100,10 @@ struct MainView: View {
         visibleThickness: 0.5,
         left: {
           ZStack {
-            if self.docShown {
-              DocumentationBrowser(
-                selectedLib: self.$selectedLib,
-                selectedIdent: self.$selectedIdent,
-                docShown: self.$docShown)
-              .modifier(self.globals.services)
-              .transition(.move(edge: .leading))
+            if self.documentationBrowserState.docShown {
+              DocumentationBrowser(state: self.documentationBrowserState)
+                .modifier(self.globals.services)
+                .transition(.move(edge: .leading))
             } else {
               NavigationStack(path: self.$interpreterPath) {
                 InterpreterView(splitView: MainView.splitView,
@@ -116,7 +113,7 @@ struct MainView: View {
                                 urlToOpen: self.$urlToOpen,
                                 updateEditor: self.$updateEditor,
                                 updateConsole: self.$updateConsole,
-                                docShown: self.$docShown,
+                                docShown: $documentationBrowserState.docShown,
                                 state: self.interpreterState)
               }
               .modifier(self.globals.services)
