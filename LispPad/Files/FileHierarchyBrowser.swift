@@ -51,7 +51,7 @@ struct FileHierarchyBrowser: View {
     var fileHierarchies: [() -> FileHierarchy.Children?] = []
     
     func register(hierarchy: FileHierarchy) {
-      weak var hierarchy: FileHierarchy.Children? = hierarchy.container
+      weak let hierarchy: FileHierarchy.Children? = hierarchy.container
       self.fileHierarchies.append { hierarchy }
     }
     

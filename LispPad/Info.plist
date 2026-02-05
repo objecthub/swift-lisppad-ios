@@ -83,7 +83,7 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2021-2025 Matthias Zenger. All rights reserved.</string>
+	<string>© 2021-2026 Matthias Zenger. All rights reserved.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>The library (lispkit location) provides functionality for accessing a users location.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
