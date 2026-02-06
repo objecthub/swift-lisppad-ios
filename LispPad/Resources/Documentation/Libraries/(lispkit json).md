@@ -22,7 +22,7 @@ Library `(lispkit json)` provides an abstract data type `json` encapsulating pot
 
 Library `(lispkit json)` implements a rich API for creating, accessing, and transforming JSON values. There are both mutable and immutable JSON values.
 
-**json-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+**json-type-tag** <span style="float:right;text-align:rigth;">[object]</span>  
 
 Symbol representing the `json` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all JSON values.
 
@@ -53,7 +53,7 @@ Returns `#t` if _obj_ is a JSON array; `#f` otherwise.
 
 **(json-object? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a JSON value; `#f` otherwise.
+Returns `#t` if _obj_ is a JSON object; `#f` otherwise.
 
 **(json)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(json _x_)**  
@@ -77,6 +77,15 @@ The following mapping rules are being used for regular Scheme values _x_:
   - For all other Scheme values, an error is signaled
 
 The inverse mapping is implemented by procedure `json->value`.
+
+**(json-object (_name value_) ...)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
+
+Creates a JSON object with the given name/value pairs. _name_ should be a symbol and _value_ is an expression that evaluates to a value that can be converted to JSON. This is a syntax form that expands to a call to `json` with an association list.
+
+```scheme
+(json-object (name "John") (age 30) (city "New York"))
+⇒  #json-object with members: name, age, city
+```
 
 **(make-json-array _len_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-json-array _len default_)**  
@@ -117,6 +126,12 @@ Returns a JSON value for the data structure represented in string _str_.
 
 Decodes the given bytevector _bvec_ between _start_ and _end_ and returns a JSON value for the encoded value. If is an error if _bvec_ between _start_ and _end_ does not represent a JSON value encoded in a UTF8-encoded string. If _end_ is not provided, it is assumed to be the length of _bvec_. If _start_ is not provided, it is assumed to be 0.
 
+**(cbor-\>json _bvec_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(cbor-\>json _bvec start_)**  
+**(cbor-\>json _bvec start end_)**  
+
+Decodes a CBOR (Concise Binary Object Representation) encoded value from bytevector _bvec_ between _start_ and _end_ and returns the corresponding JSON value. CBOR is a binary data format defined in RFC 8949. If _end_ is not provided, it is assumed to be the length of _bvec_. If _start_ is not provided, it is assumed to be 0.
+
 **(load-json _path_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Loads a text file at _path_, parses its content as JSON and returns it as a JSON value.
@@ -124,6 +139,24 @@ Loads a text file at _path_, parses its content as JSON and returns it as a JSON
 **(json-members _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 If _json_ represents a JSON object, then `json-members` returns a list of all members of this object. Each member is represented as a symbol. For all other JSON values, `json-members` returns an empty list.
+
+**(json-member? _obj member_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if the JSON value _obj_ is an object and has a member with the given _member_ name (a string or symbol); `#f` otherwise.
+
+**(json-member _json member_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(json-member _json member default_)**  
+**(json-member _json members_)**  
+**(json-member _json members default_)**  
+
+Returns the value of the given _member_ (a string or symbol) in JSON object _json_. If _member_ is a list of member names, follows the path through nested JSON objects. If the member is not found, returns _default_, or `#f` if _default_ is not provided.
+
+```scheme
+(define x (string->json "{ \"a\": { \"b\": 42 } }"))
+(json-member x 'a)      ⇒  ((b . 42))
+(json-member x '(a b))  ⇒  42
+(json-member x "c" 99)  ⇒  99
+```
 
 **(json-children _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -149,19 +182,23 @@ Applies update list _updates_ to _json_. An update list is a list of pairs consi
 
 Converts a JSON value into corresponding Scheme values. This procedure implements the inverse mapping of procedure `json`, i.e. null values are mapped to the symbol `null`, boolean values are mapped to `#t` and `#f`, numbers are mapped to fixnum and flonum values, strings are mapped to regular Scheme strings, arrays are mapped to immutable vectors, and objects are mapped to association lists with symbols representing the member names.
 
-**(json->string _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(json->string _json pretty?_)**  
-**(json->string _json pretty? sort?_)**  
-**(json->string _json pretty? sort? slash?_)**  
+**(json-\>string _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(json-\>string _json pretty?_)**  
+**(json-\>string _json pretty? sort?_)**  
+**(json-\>string _json pretty? sort? slash?_)**  
 
 Returns a string representation of _json_. The output is pretty-printed if _pretty?_ is provided and set to true. If _sort?_ is provided and set to true, the members of an object are printed in sorted order allowing for a deterministic output. If _slash?_ is provided and set to true, slashes get escaped in strings, allowing outputted JSON to be safely embedded within HTML/XML. 
 
-**(json->bytevector _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(json->bytevector _json pretty?_)**  
-**(json->bytevector _json pretty? sort?_)**  
-**(json->bytevector _json pretty? sort? slash?_)**  
+**(json-\>bytevector _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(json-\>bytevector _json pretty?_)**  
+**(json-\>bytevector _json pretty? sort?_)**  
+**(json-\>bytevector _json pretty? sort? slash?_)**  
 
 Returns a bytevector of a UTF8-encoded string representation of _json_. The output options _pretty?_, _sort?_, and _slash?_ correspond to the options of procedure `json->string`.
+
+**(json-\>cbor _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a bytevector containing the CBOR (Concise Binary Object Representation) encoding of _json_. CBOR is a binary data format defined in RFC 8949 that provides a compact representation of JSON-like data structures.
 
 **(json-for-each-element _f arr_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -173,7 +210,7 @@ Applies procedure _f_ to every member of JSON object _obj_. _f_ is a procedure a
 
 ## Mutable JSON values
 
-**mutable-json-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+**mutable-json-type-tag** <span style="float:right;text-align:rigth;">[object]</span>  
 
 Symbol representing the `json` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all JSON values.
 
@@ -206,10 +243,10 @@ Removes the values at the JSON references _ref ..._ from mutable JSON value _jso
 
 ### Supported formalisms
 
-Library `(lispkit json)` supports multiple abstractions for referring to values within a JSON document. These abstractions are called _JSON references_. The most established formalism for referring to a location within a JSON document is [JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901/). Here is the complete list of supported _JSON references_:
+Library `(lispkit json)` supports multiple abstractions for referring to values within a JSON document. These abstractions are called _JSON references_. The most established formalism for referring to a location within a JSON document is JSON Pointer. Here is the complete list of supported _JSON references_:
 
-  - Strings containing a valid **_JSON Pointer_** reference as defined by [RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901/); e.g. `"/store/book/0/title"` is a valid JSON reference.
-  - Strings containing a valid **_JSON Location_** reference. JSON location syntax is based on how values are uniquely identified in [JSON Path](https://datatracker.ietf.org/doc/html/rfc9535/).
+  - Strings containing a valid **_JSON Pointer_** reference as defined by RFC 6901; e.g. `"/store/book/0/title"` is a valid JSON reference.
+  - Strings containing a valid **_JSON Location_** reference. JSON location syntax is based on how values are uniquely identified in JSON Path.
   - A fixnum value _i_ refers to the _i_-th element of a JSON array if _i >= 0_. If _i < 0_, then this refers to the _n+i_-th element assuming _n_ is the length of the array.
   - A symbol _s_ refers to member _s_ of a JSON object.
   - The empty list `()` refers to the root of a JSON document.
@@ -291,7 +328,7 @@ Returns a list of symbols and integers representing the sequence of segments for
 
 ## JSON Path
 
-The full _JSON Path_ standard as defined by [RFC 9535](https://datatracker.ietf.org/doc/html/rfc9535/) is supported by library `(lispkit json)`. JSON Path queries are simply represented as strings. They can be applied to JSON values with procedures `json-query`, `json-query-results`, and `json-query-locations`. To illustrate the usage of JSON Path queries, the following JSON value is being defined:
+The full _JSON Path_ standard as defined by RFC 9535 is supported by library `(lispkit json)`. JSON Path queries are simply represented as strings. They can be applied to JSON values with procedures `json-query`, `json-query-results`, and `json-query-locations`. To illustrate the usage of JSON Path queries, the following JSON value is being defined:
 
 ```scheme
 (define jval (string->json (string-append
@@ -357,7 +394,7 @@ Applies JSON Path _query_ to _json_ returning the locations of matching values i
 
 ## JSON Patch
 
-_JSON Patch_ defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. Each operation mutates parts of the JSON document. The supported operations specified by [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/) are represented by the following 6 shapes of lists:
+_JSON Patch_ defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. Each operation mutates parts of the JSON document. The supported operations specified by RFC 6902 are represented by the following 6 shapes of lists:
 
   - **(add _ref json_)**: Add _json_ to the JSON value the JSON pointer _ref_ is referring to
   - **(remove _ref_)**:  Remove the JSON value at the location the JSON pointer _ref_ is referring to
@@ -396,7 +433,7 @@ A more conventional approach would be to define the JSON patch operations in JSO
 
 JSON patch objects can be applied to mutable JSON values with procedure `json-apply!`.
 
-**json-patch-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
+**json-patch-type-tag** <span style="float:right;text-align:rigth;">[object]</span>  
 
 Symbol representing the `json-patch` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all JSON patch objects.
 
@@ -407,7 +444,7 @@ Returns `#t` if _obj_ is a JSON patch object; `#f` otherwise.
 **(json-patch)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(json-patch _expr_)**  
 
-Returns a new JSON patch object. JSON patch objects are mutable containers for lists of operations. If no argument is provided to `json-patch`, then an empty JSON patch object is returned which can be extended via procedure `json-patch-append!`. If _expr_ is provided, it is either an already existing JSON patch object and a copy is returned, or a JSON value representing the JSON patch operation list according to [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/), or it is a list of operations. Each operation has one of the following 6 shapes:
+Returns a new JSON patch object. JSON patch objects are mutable containers for lists of operations. If no argument is provided to `json-patch`, then an empty JSON patch object is returned which can be extended via procedure `json-patch-append!`. If _expr_ is provided, it is either an already existing JSON patch object and a copy is returned, or a JSON value representing the JSON patch operation list according to RFC 6902, or it is a list of operations. Each operation has one of the following 6 shapes:
 
   - **(add _ref json_)**: Add _json_ to the JSON value at _ref_
   - **(remove _ref_)**:  Remove the JSON value at _ref_
@@ -430,17 +467,17 @@ Appends operations _oper_ to the JSON patch object _patch_. Each operation has o
 
 Compares the JSON patch objects _patch ..._ and return `#t` if all patch objects are equivalent; otherwise return `#f`.
 
-**(json-patch->list _patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(json-patch-\>list _patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the list of operations for JSON patch object _patch_.
 
-**(json-patch->json _patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(json-patch-\>json _patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a JSON value representing the operations of the JSON patch object _patch_ as defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/).
+Returns a JSON value representing the operations of the JSON patch object _patch_ as defined by RFC 7396.
 
 **(json-apply! _json patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies a JSON patch object _patch_ to mutable JSON value _json_ using application rules as defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/).
+Applies a JSON patch object _patch_ to mutable JSON value _json_ using application rules as defined by RFC 7396.
 
 
 ## Merging JSON values
@@ -457,6 +494,6 @@ Merges the JSON value _json_ with the JSON value _other_ using merge semantics w
 
 **(json-merge-patch _json patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Merges the JSON value _json_ with the JSON value _patch_ using the rules defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/). The merged JSON value is returned.
+Merges the JSON value _json_ with the JSON value _patch_ using the rules defined by RFC 7396. The merged JSON value is returned.
 
 The _patch_ value describes changes to be made to _json_ using a syntax that closely mimics the document being modified. Recipients of a merge _patch_ value determine the exact set of changes being requested by comparing the content of the provided patch against the current value _json_. If the provided _patch_ value contains members that do not appear within _json_, those members are added. If _json_ does contain the member, the value is replaced. Null values in _patch_ are given special meaning to indicate the removal of existing values in the target.

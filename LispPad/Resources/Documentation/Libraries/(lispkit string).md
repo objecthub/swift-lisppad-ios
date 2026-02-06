@@ -48,6 +48,10 @@ Returns a newly allocated string composed of the arguments. It is analogous to p
 
 Returns a newly allocated string composed of the characters contained in _list_.
 
+**(object-\>string _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a string representation of _obj_. This procedure converts the object to a human-readable string format, similar to what would be displayed when the object is printed.
+
 **(string-ref _str k_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 The `string-ref` procedure returns character _k_ of string _str_ using zero-origin indexing. It is an error if _k_ is not a valid index of string _str_.
@@ -79,9 +83,7 @@ Returns `#t` if all the strings have the same length and contain exactly the sam
 **(string\<=? _str ..._)**  
 **(string\>=? _str ..._)**  
 
-These procedures return `#t` if their arguments are (respectively): monotonically increasing, monotonically decreasing, monotonically non-decreasing, or monotonically non-increasing. These predicates are transitive.
-
-These procedures compare strings in a lexicographic fashion; i.e. `string<?` implements a the lexicographic ordering on strings induced by the ordering `char<?` on characters. If two strings differ in length but are the same up to the length of the shorter string, the shorter string would be considered to be lexicographically less than the longer string.
+These procedures return `#t` if their arguments are (respectively): monotonically increasing, monotonically decreasing, monotonically non-decreasing, or monotonically non-increasing. These predicates are transitive. They compare strings in a lexicographic fashion; i.e. `string<?` implements a the lexicographic ordering on strings induced by the ordering `char<?` on characters. If two strings differ in length but are the same up to the length of the shorter string, the shorter string would be considered to be lexicographically less than the longer string.
 
 A pair of strings satisfies exactly one of `string<?`, `string=?`, and `string>?`. A pair of strings satisfies `string<=?` if and only if they do not satisfy `string>?`. A pair of strings satisfies `string>=?` if and only if they do not satisfy `string<?`.
 

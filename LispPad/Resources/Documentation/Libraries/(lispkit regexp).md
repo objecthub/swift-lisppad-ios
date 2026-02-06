@@ -43,7 +43,7 @@ The regular expression syntax supported by this library corresponds to the one o
 **`.`** : Match any character.  
 **`^`** : Match at the beginning of a line.  
 **`$`** : Match at the end of a line.  
-**`\`** : Quotes the following character. Characters that must be quoted to be treated as literals are `* ? + [ ( ) { } ^ $ | \ . /`.
+**\\** : Quotes the following character. Characters that must be quoted to be treated as literals are `* ? + [ ( ) { } ^ $ | \ . /`.
 
 ### Regular expression operators
 
@@ -97,6 +97,10 @@ The following flags control various aspects of regular expression matching. Thes
 **(regexp? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns `#t` if _obj_ is a regular expression object; otherwise `#f` is returned.
+
+**regexp-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `regexp` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all regular expression objects.
 
 **(regexp _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(regexp _str opt ..._)**   

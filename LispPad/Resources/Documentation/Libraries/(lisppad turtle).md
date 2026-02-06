@@ -37,6 +37,10 @@ Initializes a new turtle and displays its drawing in a graphics pane (a graphics
 
 Closes the graphics pane and resets the turtle library.
 
+**(turtle-window)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the window associated with the current turtle. Returns `#f` if there is no associated window.
+
 **(turtle-drawing)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the drawing associated with the current turtle.
@@ -137,4 +141,3 @@ Moves the turtle backward by _distance_ units drawing a line if the pen is down.
 **(arc _angle radius_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Turns the turtle by the given _angle_ (in radians) and draws an arc with _radius_ around the current turtle position if the pen is down.
-

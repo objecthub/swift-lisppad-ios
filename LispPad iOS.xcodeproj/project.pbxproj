@@ -102,7 +102,6 @@
 		CC8B958C2607B48400830B4F /* (lispkit disjoint-set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B954F26079FBA00830B4F /* (lispkit disjoint-set).md */; };
 		CC8B958D2607B48400830B4F /* (lispkit draw turtle).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */; };
 		CC8B958E2607B48400830B4F /* (lispkit draw).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952B26079FBA00830B4F /* (lispkit draw).md */; };
-		CC8B958F2607B48400830B4F /* (lispkit dynamic).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953226079FBA00830B4F /* (lispkit dynamic).md */; };
 		CC8B95902607B48400830B4F /* (lispkit enum).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952F26079FBA00830B4F /* (lispkit enum).md */; };
 		CC8B95912607B48400830B4F /* (lispkit gvector).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953A26079FBA00830B4F /* (lispkit gvector).md */; };
 		CC8B95922607B48400830B4F /* (lispkit hashtable).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B954526079FBA00830B4F /* (lispkit hashtable).md */; };
@@ -123,7 +122,6 @@
 		CC8B95A12607B48400830B4F /* (lispkit stack).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953926079FBA00830B4F /* (lispkit stack).md */; };
 		CC8B95A22607B48400830B4F /* (lispkit stream).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953026079FBA00830B4F /* (lispkit stream).md */; };
 		CC8B95A32607B48400830B4F /* (lispkit string).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B954826079FBA00830B4F /* (lispkit string).md */; };
-		CC8B95A42607B48400830B4F /* (lispkit system os).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B954126079FBA00830B4F /* (lispkit system os).md */; };
 		CC8B95A52607B48400830B4F /* (lispkit system).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B953726079FBA00830B4F /* (lispkit system).md */; };
 		CC8B95A62607B48400830B4F /* (lispkit test).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952226079FBA00830B4F /* (lispkit test).md */; };
 		CC8B95A72607B48400830B4F /* (lispkit type).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B952326079FBA00830B4F /* (lispkit type).md */; };
@@ -180,6 +178,17 @@
 		CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565C261CE5710080B96E /* TextDocument.swift */; };
 		CCC85660261D09410080B96E /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565F261D09410080B96E /* PreferencesView.swift */; };
 		CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */; };
+		CCE4412E2F355F4500266C57 /* (lispkit pdf).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE4412D2F355F3700266C57 /* (lispkit pdf).md */; };
+		CCE441362F35613100266C57 /* (lispkit dynamic).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE441352F35613100266C57 /* (lispkit dynamic).md */; };
+		CCE4413C2F35655000266C57 /* (lispkit image process).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE4413B2F35654700266C57 /* (lispkit image process).md */; };
+		CCE4413D2F356C5100266C57 /* (lispkit draw map).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441312F35602900266C57 /* (lispkit draw map).md */; };
+		CCE4413E2F356C5100266C57 /* (lispkit draw web).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE4412F2F355FEB00266C57 /* (lispkit draw web).md */; };
+		CCE4413F2F356C5100266C57 /* (lispkit dynamic).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441352F35613100266C57 /* (lispkit dynamic).md */; };
+		CCE441402F356C5100266C57 /* (lispkit image).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441372F3564D100266C57 /* (lispkit image).md */; };
+		CCE441412F356C5100266C57 /* (lispkit image process).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE4413B2F35654700266C57 /* (lispkit image process).md */; };
+		CCE441422F356C5100266C57 /* (lispkit location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441332F35604C00266C57 /* (lispkit location).md */; };
+		CCE441432F356C5100266C57 /* (lispkit pdf).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE4412D2F355F3700266C57 /* (lispkit pdf).md */; };
+		CCE441442F356C5100266C57 /* (lispkit vision).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441392F3564FE00266C57 /* (lispkit vision).md */; };
 		CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701C26AC7E75008DF3D0 /* Sheet.swift */; };
 		CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */; };
 		CCE74B54295A4139002660C4 /* (lisppad draw map).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */; };
@@ -283,6 +292,14 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CCE4413D2F356C5100266C57 /* (lispkit draw map).md in Copy Documentation/Libraries */,
+				CCE4413E2F356C5100266C57 /* (lispkit draw web).md in Copy Documentation/Libraries */,
+				CCE4413F2F356C5100266C57 /* (lispkit dynamic).md in Copy Documentation/Libraries */,
+				CCE441402F356C5100266C57 /* (lispkit image).md in Copy Documentation/Libraries */,
+				CCE441412F356C5100266C57 /* (lispkit image process).md in Copy Documentation/Libraries */,
+				CCE441422F356C5100266C57 /* (lispkit location).md in Copy Documentation/Libraries */,
+				CCE441432F356C5100266C57 /* (lispkit pdf).md in Copy Documentation/Libraries */,
+				CCE441442F356C5100266C57 /* (lispkit vision).md in Copy Documentation/Libraries */,
 				CCE80A352CEFF9D2008C63A2 /* (lispkit draw barcode).md in Copy Documentation/Libraries */,
 				CCE80A342CEFF9C0008C63A2 /* (lispkit http server).md in Copy Documentation/Libraries */,
 				CCE80A332CEFF9BB008C63A2 /* (lispkit http oauth).md in Copy Documentation/Libraries */,
@@ -332,7 +349,6 @@
 				CC8B958C2607B48400830B4F /* (lispkit disjoint-set).md in Copy Documentation/Libraries */,
 				CC8B958D2607B48400830B4F /* (lispkit draw turtle).md in Copy Documentation/Libraries */,
 				CC8B958E2607B48400830B4F /* (lispkit draw).md in Copy Documentation/Libraries */,
-				CC8B958F2607B48400830B4F /* (lispkit dynamic).md in Copy Documentation/Libraries */,
 				CC8B95902607B48400830B4F /* (lispkit enum).md in Copy Documentation/Libraries */,
 				CC8B95912607B48400830B4F /* (lispkit gvector).md in Copy Documentation/Libraries */,
 				CC8B95922607B48400830B4F /* (lispkit hashtable).md in Copy Documentation/Libraries */,
@@ -353,7 +369,6 @@
 				CC8B95A12607B48400830B4F /* (lispkit stack).md in Copy Documentation/Libraries */,
 				CC8B95A22607B48400830B4F /* (lispkit stream).md in Copy Documentation/Libraries */,
 				CC8B95A32607B48400830B4F /* (lispkit string).md in Copy Documentation/Libraries */,
-				CC8B95A42607B48400830B4F /* (lispkit system os).md in Copy Documentation/Libraries */,
 				CC8B95A52607B48400830B4F /* (lispkit system).md in Copy Documentation/Libraries */,
 				CC8B95A62607B48400830B4F /* (lispkit test).md in Copy Documentation/Libraries */,
 				CC8B95A72607B48400830B4F /* (lispkit type).md in Copy Documentation/Libraries */,
@@ -579,7 +594,6 @@
 		CC8B952F26079FBA00830B4F /* (lispkit enum).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit enum).md"; sourceTree = "<group>"; };
 		CC8B953026079FBA00830B4F /* (lispkit stream).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit stream).md"; sourceTree = "<group>"; };
 		CC8B953126079FBA00830B4F /* (lispkit char-set).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit char-set).md"; sourceTree = "<group>"; };
-		CC8B953226079FBA00830B4F /* (lispkit dynamic).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit dynamic).md"; sourceTree = "<group>"; };
 		CC8B953326079FBA00830B4F /* (lispkit port).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit port).md"; sourceTree = "<group>"; };
 		CC8B953426079FBA00830B4F /* (lispkit base).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit base).md"; sourceTree = "<group>"; };
 		CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw turtle).md"; sourceTree = "<group>"; };
@@ -593,7 +607,6 @@
 		CC8B953E26079FBA00830B4F /* (lispkit datatype).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit datatype).md"; sourceTree = "<group>"; };
 		CC8B953F26079FBA00830B4F /* (lispkit debug).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit debug).md"; sourceTree = "<group>"; };
 		CC8B954026079FBA00830B4F /* (lispkit heap).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit heap).md"; sourceTree = "<group>"; };
-		CC8B954126079FBA00830B4F /* (lispkit system os).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system os).md"; sourceTree = "<group>"; };
 		CC8B954226079FBA00830B4F /* (lispkit char).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit char).md"; sourceTree = "<group>"; };
 		CC8B954426079FBA00830B4F /* (lispkit combinator).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit combinator).md"; sourceTree = "<group>"; };
 		CC8B954526079FBA00830B4F /* (lispkit hashtable).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit hashtable).md"; sourceTree = "<group>"; };
@@ -663,6 +676,14 @@
 		CCC8565C261CE5710080B96E /* TextDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDocument.swift; sourceTree = "<group>"; };
 		CCC8565F261D09410080B96E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalScrollView.swift; sourceTree = "<group>"; };
+		CCE4412D2F355F3700266C57 /* (lispkit pdf).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit pdf).md"; sourceTree = "<group>"; };
+		CCE4412F2F355FEB00266C57 /* (lispkit draw web).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw web).md"; sourceTree = "<group>"; };
+		CCE441312F35602900266C57 /* (lispkit draw map).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw map).md"; sourceTree = "<group>"; };
+		CCE441332F35604C00266C57 /* (lispkit location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit location).md"; sourceTree = "<group>"; };
+		CCE441352F35613100266C57 /* (lispkit dynamic).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit dynamic).md"; sourceTree = "<group>"; };
+		CCE441372F3564D100266C57 /* (lispkit image).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit image).md"; sourceTree = "<group>"; };
+		CCE441392F3564FE00266C57 /* (lispkit vision).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit vision).md"; sourceTree = "<group>"; };
+		CCE4413B2F35654700266C57 /* (lispkit image process).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit image process).md"; sourceTree = "<group>"; };
 		CCE5701C26AC7E75008DF3D0 /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
 		CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollSheet.swift; sourceTree = "<group>"; };
 		CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system keychain).md"; sourceTree = "<group>"; };
@@ -891,10 +912,10 @@
 		CC8B952126079F2400830B4F /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				CC327C35260BF98100BD7E32 /* (lisppad system).md */,
 				CC8B95CF2608179000830B4F /* (lisppad audio).md */,
-				CCBF9E6926C890B400654D60 /* (lisppad location).md */,
 				CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */,
+				CCBF9E6926C890B400654D60 /* (lisppad location).md */,
+				CC327C35260BF98100BD7E32 /* (lisppad system).md */,
 				CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */,
 				CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */,
 				CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */,
@@ -917,8 +938,10 @@
 				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
 				CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */,
 				CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */,
+				CCE441312F35602900266C57 /* (lispkit draw map).md */,
 				CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */,
-				CC8B953226079FBA00830B4F /* (lispkit dynamic).md */,
+				CCE4412F2F355FEB00266C57 /* (lispkit draw web).md */,
+				CCE441352F35613100266C57 /* (lispkit dynamic).md */,
 				CC8B952F26079FBA00830B4F /* (lispkit enum).md */,
 				CCC233632B45FA8B00C88C68 /* (lispkit format).md */,
 				CC7A558E2997D3000014D600 /* (lispkit graph).md */,
@@ -928,19 +951,23 @@
 				CCE80A1E2CEFF3A0008C63A2 /* (lispkit http).md */,
 				CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */,
 				CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */,
+				CCE441372F3564D100266C57 /* (lispkit image).md */,
+				CCE4413B2F35654700266C57 /* (lispkit image process).md */,
 				CC8B952726079FBA00830B4F /* (lispkit iterate).md */,
 				CCE80A162CEFF284008C63A2 /* (lispkit json).md */,
 				CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */,
 				CC8B954E26079FBA00830B4F /* (lispkit list).md */,
 				CCC233672B45FBD000C88C68 /* (lispkit list set).md */,
+				CCE441332F35604C00266C57 /* (lispkit location).md */,
 				CC8B952426079FBA00830B4F /* (lispkit log).md */,
 				CC8B952A26079FBA00830B4F /* (lispkit markdown).md */,
 				CC8B954926079FBA00830B4F /* (lispkit match).md */,
 				CC8B952C26079FBA00830B4F /* (lispkit math).md */,
 				CC624CE02741364E005F15B3 /* (lispkit math stats).md */,
-				CC624CE22741367E005F15B3 /* (lispkit math util).md */,
 				CCA9E3D628A9C68B00628DE5 /* (lispkit math matrix).md */,
+				CC624CE22741367E005F15B3 /* (lispkit math util).md */,
 				CC8B954C26079FBA00830B4F /* (lispkit object).md */,
+				CCE4412D2F355F3700266C57 /* (lispkit pdf).md */,
 				CC8B953326079FBA00830B4F /* (lispkit port).md */,
 				CC624CDE27412F74005F15B3 /* (lispkit prolog).md */,
 				CC8B954A26079FBA00830B4F /* (lispkit queue).md */,
@@ -953,7 +980,6 @@
 				CC8B953026079FBA00830B4F /* (lispkit stream).md */,
 				CC8B954826079FBA00830B4F /* (lispkit string).md */,
 				CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */,
-				CC8B954126079FBA00830B4F /* (lispkit system os).md */,
 				CC8B953726079FBA00830B4F /* (lispkit system).md */,
 				CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */,
 				CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */,
@@ -966,6 +992,7 @@
 				CC8B952326079FBA00830B4F /* (lispkit type).md */,
 				CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */,
 				CC8B953826079FBA00830B4F /* (lispkit vector).md */,
+				CCE441392F3564FE00266C57 /* (lispkit vision).md */,
 				CCEF3E2B27CA2D1A00FB56EB /* images */,
 			);
 			path = Libraries;
@@ -1342,6 +1369,7 @@
 				CCE80A272CEFF56A008C63A2 /* (lispkit thread shared-queue).md in Resources */,
 				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
+				CCE4412E2F355F4500266C57 /* (lispkit pdf).md in Resources */,
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
 				CCF1AEBC2EA062A300F1D5E6 /* LispPadIcon.icon in Resources */,
 				CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */,
@@ -1352,6 +1380,7 @@
 				CCE80A412CF00076008C63A2 /* oauth2flow.png in Resources */,
 				CC894F122CC300C700896B1D /* iosevka-regular.ttf in Resources */,
 				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
+				CCE441362F35613100266C57 /* (lispkit dynamic).md in Resources */,
 				CCE80A292CEFF59C008C63A2 /* (lispkit thread future).md in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */,
@@ -1362,6 +1391,7 @@
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */,
 				CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */,
+				CCE4413C2F35655000266C57 /* (lispkit image process).md in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,

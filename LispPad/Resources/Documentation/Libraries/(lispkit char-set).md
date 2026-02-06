@@ -43,7 +43,11 @@ Library `(lispkit char-set)` supports both mutable as well as immutable characte
 
 Library `(lispkit char-set)` predefines these frequently used immutable character sets.
 
-Note that there may be characters in `char-set:letter` that are neither upper or lower case. The `char-set:whitespaces` character set contains whitespace and newline characters. `char-set:blanks` only contains whitespace (i.e. "blank") characters. `char-set:newlines` only contains newline characters.
+Note that there may be characters in `char-set:letter` that are neither upper nor lower case. The `char-set:whitespaces` character set contains whitespace and newline characters. `char-set:blanks` only contains whitespace (i.e. "blank") characters. `char-set:newlines` only contains newline characters.
+
+**char-set-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `char-set` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all character set objects.
 
 ## Predicates
 
@@ -114,11 +118,6 @@ This signature is compatible with the SRFI 16 specification which states that if
 
 If character set _base-cs_ is provided, the characters of _base-cs_ are included in the newly allocated mutable character set.
 
-**(char-set-filter _pred cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(char-set-filter _pred cs base-cs_)**  
-
-Returns a new character set containing every character _c_ in character set _cs_ such that _(pred c)_ returns true. If character set _base-cs_ is provided, the characters specified by _base-cs_ are added to it.
-
 **(-\>char-set _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Coerces object _x_ into a character set. _x_ may be a string, character or character set. A string is converted to the set of its constituent characters; a character is converted to a singleton character set; a character set is returned as is. This procedure is intended for use by other procedures that want to provide "user-friendly", wide-spectrum interfaces to their clients.
@@ -180,6 +179,10 @@ Boundary cases:
 
 `char-set-diff+intersection` returns both the difference and the intersection of the arguments, i.e. it partitions its first parameter. It is equivalent to `(values (char-set-difference cs1 cs2 ...) (char-set-intersection cs1 (char-set-union cs2 ...)))` but can be implemented more efficiently.
 
+**(char-set-filter _pred cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(char-set-filter _pred cs base-cs_)**  
+
+Returns a new character set containing every character _c_ in character set _cs_ such that _(pred c)_ returns true. If character set _base-cs_ is provided, the characters specified by _base-cs_ are added to it.
 
 ## Mutating character sets
 
@@ -239,7 +242,7 @@ Cursors are a low-level facility for iterating over the characters in a characte
 
 A cursor value may not be used in conjunction with a different character set; if it is passed to `char-set-ref` or `char-set-cursor-next` with a character set other than the one used to create it, the results and effects are undefined. These primitives are necessary to export an iteration facility for character sets to loop macros.
 
-```
+```scheme
 (define cs (char-set #\G #\a #\T #\e #\c #\h))
 
 ;; Collect elts of CS into a list.
@@ -252,8 +255,8 @@ A cursor value may not be used in conjunction with a different character set; if
 ;; Equivalently, using a list unfold (from SRFI 1):
 (unfold-right end-of-char-set? 
               (curry char-set-ref cs)
-	          (curry char-set-cursor-next cs)
-	          (char-set-cursor cs))
+            (curry char-set-cursor-next cs)
+            (char-set-cursor cs))
   ⇒  (#\G #\T #\a #\c #\e #\h)
 ```
 
@@ -261,7 +264,7 @@ A cursor value may not be used in conjunction with a different character set; if
 
 This is the fundamental iterator for character sets. Applies the function _kons_ across the character set _cs_ using initial state value _knil_. That is, if _cs_ is the empty set, the procedure returns _knil_. Otherwise, some element _c_ of _cs_ is chosen; let _cs'_ be the remaining, unchosen characters. The procedure returns `(char-set-fold kons (kons c knil) cs')`.
 
-```
+```scheme
 ; CHAR-SET-MEMBERS
 (lambda (cs) (char-set-fold cons '() cs))
 ; CHAR-SET-SIZE
@@ -282,7 +285,7 @@ This is a fundamental constructor for character sets.
 
 More precisely, the following definitions hold, ignoring the optional-argument issues:
 
-```
+```scheme
 (define (char-set-unfold p f g seed base-cs) 
   (char-set-unfold! p f g seed (char-set-copy base-cs)))
 
@@ -295,7 +298,7 @@ More precisely, the following definitions hold, ignoring the optional-argument i
 
 Examples:
 
-```
+```scheme
 (port->char-set p) = (char-set-unfold eof-object?
                                       values
                                       (lambda (x) (read-char p))

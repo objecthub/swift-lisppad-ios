@@ -472,11 +472,20 @@ Returns `#t` if _obj_ is an interned symbol, otherwise returns `#f`.
 **(gensym)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(gensym _str_)**  
 
-Returns a new (fresh) symbol whose name consists of prefix _str_ followed by a number. If _str_ is not provided, "g" is used as a prefix.
+Returns a new (fresh) interned symbol whose name consists of prefix _str_ followed by a number. _str_ is either a symbol or a string. If _str_ is not provided or set to `#f`, "g" is used as a prefix.
+
+**(generate-uninterned-symbol)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(generate-uninterned-symbol _str_)**  
+
+Returns a new uninterned symbol whose name consists of prefix _str_ followed by a number. _str_ is either a symbol or a string. If _str_ is not provided or set to `#f`, "g" is used as a prefix. This procedure is similar to `gensym` but always generates uninterned symbols.
 
 **(symbol=? _sym ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if all the arguments are symbols and all have the same names in the sense of `string=?`.
+
+**(symbol\<? _sym ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if the identifiers of the symbols _sym ..._ are monotonically increasing in lexicographic order (according to `string<?`), otherwise returns `#f`.
 
 **(string-\>symbol _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -743,7 +752,7 @@ It is an error if _filename_ is not a string. If _filename_ is not an absolute f
 
 **(load-program _filename_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-`load-program` reads a source file specified by _filename_ and executes it in a new empty _environment_. Execution of the file consists of reading expressions and definitions from the file, compiling them, and evaluating them sequentially. `load-program` returns the result of evaluating the last expression or definition from the file.
+`load-program` reads a source file specified by _filename_ and executes it in a new empty _environment_. Execution of the file consists of reading expressions and definitions from the file, compiling them, and evaluating them sequentially. `load-program` returns the evaluation result of the last expression.
 
 It is an error if _filename_ is not a string. If _filename_ is not an absolute file path, LispKit will try to find the file in a predefined set of directories, such as the default search path. If no file name suffix is provided, the system will try to determine the right suffix.
 

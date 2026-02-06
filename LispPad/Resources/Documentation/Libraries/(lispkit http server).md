@@ -68,6 +68,10 @@ After starting the server, three requests are made for `/hello/Matthias`, `/hell
 
 ## HTTP servers
 
+**http-server-ipv4** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Constant representing the IPv4 network interface type. This can be used when creating or configuring HTTP servers to force IPv4 usage.
+
 **http-server-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
 
 Symbol representing the `http-server` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all HTTP server objects.
@@ -265,7 +269,7 @@ Returns the IP address of the client issueing the HTTP server request `req` as a
 
 ### HTTP multi-part requests
 
-_HTTP multipart_, specifically _multipart/form-data_, is a media type that allows the encoding of information as a series of parts in a single message as defined by [RFC 2388](https://www.rfc-editor.org/rfc/rfc2388). This format is commonly used for forms that are expressed in HTML and where the form values are sent via HTTP.
+_HTTP multipart_, specifically _multipart/form-data_, is a media type that allows the encoding of information as a series of parts in a single message as defined by RFC 2388. This format is commonly used for forms that are expressed in HTML and where the form values are sent via HTTP.
 
 **srv-multipart-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
 

@@ -14,7 +14,7 @@ The `define-enum` and `define-enumeration` forms defines an enumeration type and
 
 _type-name_ is an identifier that is bound as a syntactic keyword; _symbol ..._ are the symbols that comprise the universe of the enumeration (in order).
 
-`(`_type-name_ _symbol_`)` checks whether the name of _symbol_ is in the universe associated with _type-name_. If it is, `(`_type-name_ _symbol_`)` is equivalent to _symbol_. It is a syntax violation if it is not.
+`(`_type-name_ _symbol_`)` checks whether the name of _symbol_ is in the universe associated with _type-name_. If it is, `(`_type-name_ _symbol_`)` is equivalent to _symbol_. It is a syntax violation if it is not. `(`_type-name_`)` returns the type of the enumeration.
 
 _constructor_ is an identifier that is bound to a syntactic form that, given any finite sequence of the symbols in the universe, possibly with duplicates, expands into an expression that evaluates to the enumeration set of those symbols.
 
@@ -138,7 +138,17 @@ Returns the name of the enum belonging to _enum-type_ whose ordinal is _exact-in
 
 **(enum-ordinal-\>tag _enum-type exact-integer_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the value of the enum belonging to _enum-type_ whose ordinal is _exact-integer_. It is an error if there is no such enum.  
+Returns the value of the enum belonging to _enum-type_ whose ordinal is _exact-integer_. It is an error if there is no such enum.
+
+**(enum-tag-mapper _enum-type_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(enum-tag-mapper _enum-type makeht_)**  
+**(enum-tag-mapper _enum-type hash equal_)**  
+
+Returns a procedure that maps enum tags to enum values for the given enumeration type _enum-type_. The returned procedure accepts a tag and returns the corresponding enum value, or `#f` if not found. _makeht_ is an optional procedure that creates a hashtable from an association list (defaults to `alist->equal-hashtable`). Alternatively, _hash_ and _equal_ procedures can be provided to create a custom hashtable for the mapping.
+
+**(enum-type-\>enum-set _enum-type_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns an enum set containing all enum values from enumeration type _enum-type_.
 
 ## Enum values
 

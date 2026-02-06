@@ -86,6 +86,10 @@ Returns a floating-point number representing the number of seconds since 00:00 U
 
 ## Date-times
 
+**date-time-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `date-time` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all date/time objects.
+
 **(date-time? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a date-time object; returns `#f` otherwise.
@@ -132,9 +136,9 @@ Constructs a date-time representation of the same point in time like _dtime_, bu
 **(string-\>date-time _str tz locale_)**  
 **(string-\>date-time _str tz locale format_)**  
 
-Extracts a date and time from the given string _str_ in the time zone _tz_, or the current time zone if _tz_ is omitted. The format of the string representation is defined in terms of _locale_ and _format_. _format_ can have three different forms:
+Extracts a date and time from the given string _str_ in the time zone _tz_, or the current time zone if _tz_ is omitted. The format of the string representation is defined in terms of _locale_ and _format_. If both _locale_ and _format_ are omitted or set to `#f`, `string->date-time` assumes the date and time is in ISO 8601 format with UTC as timezone. _format_ can have three different forms:
 
-1. Combined format identifier for date and time: `date-time` parsing is based on the settings of the operating system. _format_ is one of the following symbols: `none`, `short`, `medium`, `long`, or `full`.
+1. Combined format identifier for date and time: `date-time` parsing is based on the settings of the underlying operating system. _format_ is one of the following symbols: `none`, `short`, `medium`, `long`, or `full`.
 2. Separate format identifiers for date and time: `date-time` parsing is based on the settings of the operating system, but the format for dates and times is specified separately. _format_ is a list of the form `(`_dateformat_ _timeformat_`)` where both _dateformat_ and _timeformat_ are one of the 5 symbols listed under 1. This makes it possible, for instance, to just parse a date (without time) in string form to a date-time object, e.g. by using `(short none)` as _format_.
 3. Custom format specifier: `date-time` parsing is based on a custom format string. _format_ is a string using the following characters as placeholders. Repetitions of the placeholder characters are used to specify the width and format of the field.
     - `y`: Year
@@ -151,12 +155,12 @@ Extracts a date and time from the given string _str_ in the time zone _tz_, or t
 
 Here are a few examples:
 ```
-EEEE, MMM d, yyyy       ~~>  Thursday, Feb 8, 1973
-dd/MM/yyyy              ~~>  08/02/1973
-dd-MM-yyyy HH:mm        ~~>  08-02-1973 17:01
-MMM d, h:mm a           ~~>  Thu 8, 2:11 AM
-yyyy-MM-dd'T'HH:mm:ssZ  ~~>  1973-08-02T17:01:31+0000
-HH:mm:ss.SSS            ~~>  11:02:19.213
+EEEE, MMM d, yyyy       →  Thursday, Feb 8, 1973
+dd/MM/yyyy              →  08/02/1973
+dd-MM-yyyy HH:mm        →  08-02-1973 17:01
+MMM d, h:mm a           →  Thu 8, 2:11 AM
+yyyy-MM-dd'T'HH:mm:ssZ  →  1973-08-02T17:01:31+0000
+HH:mm:ss.SSS            →  11:02:19.213
 ```
 
 **(date-time-\>string _dtime_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -182,17 +186,19 @@ Returns a string representation of the date-time object _dtime_. The format of t
 
 Here are a few examples:
 ```
-EEEE, MMM d, yyyy       ~~>  Thursday, Feb 8, 1973
-dd/MM/yyyy              ~~>  08/02/1973
-dd-MM-yyyy HH:mm        ~~>  08-02-1973 17:01
-MMM d, h:mm a           ~~>  Thu 8, 2:11 AM
-yyyy-MM-dd'T'HH:mm:ssZ  ~~>  1973-08-02T17:01:31+0000
-HH:mm:ss.SSS            ~~>  11:02:19.213
+EEEE, MMM d, yyyy       →  Thursday, Feb 8, 1973
+dd/MM/yyyy              →  08/02/1973
+dd-MM-yyyy HH:mm        →  08-02-1973 17:01
+MMM d, h:mm a           →  Thu 8, 2:11 AM
+yyyy-MM-dd'T'HH:mm:ssZ  →  1973-08-02T17:01:31+0000
+HH:mm:ss.SSS            →  11:02:19.213
 ```
 
 **(date-time-\>iso8601-string _dtime_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(date-time-\>iso8601-string _dtime fract_)**  
+**(date-time-\>iso8601-string _dtime fract? excl-tz_)**  
 
-Returns a string representation of the date-time object _dtime_ in ISO 8601 format.
+Returns a string representation of the date-time object _dtime_ in ISO 8601 format. If _fract?_ is set to true, seconds are output as floating-point numbers, i.e. with fractional values (default is `#f`). If _excl-tz?_ is set to true, no timezone designator is included in the output (default is `#f`).
 
 **(date-time-timezone _dtime_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

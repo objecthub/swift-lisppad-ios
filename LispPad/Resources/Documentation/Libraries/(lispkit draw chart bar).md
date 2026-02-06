@@ -391,7 +391,9 @@ Creates a bar segment represented by label string _label_ and segment color _col
 **(draw-bar-chart _bars col ystep ydescr xdescr loc config legend_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(draw-bar-chart _bars col ystep ydescr xdescr loc config legend drawing_)**  
 
-Draws the bar diagram _bars_ with _col_ as the default bar color into the drawing _drawing_. _ystep_ defines the increment between values on the y axis. _ydescr_ defines the label of the y axis. _xdescr_ defines the label of the x axis. _loc_ is a point at which the bar diagram is drawn with the bar diagram configuration _config_. If a legend should be drawn, a legend configuration needs to be provided as parameter _legend_.
+Draws the bar diagram _bars_ with _col_ as the default bar color into the drawing _drawing_. If _drawing_ is not provided, the drawing provided by the `current-drawing` parameter object of library `(lispkit draw)` is used.
+
+_ystep_ defines the increment between values on the y axis. _ydescr_ defines the label of the y axis. _xdescr_ defines the label of the x axis. _loc_ is a point at which the bar diagram is drawn with the bar diagram configuration _config_. If a legend should be drawn, a legend configuration needs to be provided as parameter _legend_ and _col_ needs to refer to a list of `bar-segment` objects describing a label string, a bar and a text color for all the segments used within a bar. The legend links labels to bar colors.
 
 ```scheme
 (define d (make-drawing))

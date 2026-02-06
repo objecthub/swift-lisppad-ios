@@ -42,6 +42,10 @@ Each thread has its own dynamic environment. When a thread's dynamic environment
 
 ### Thread-management API
 
+**thread-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `thread` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all thread objects.
+
 **(current-thread)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the current thread, i.e. the thread executing the current expression.
@@ -215,9 +219,13 @@ Upon creation, a mutex can be associated with a tag, which is an arbitrary objec
 
 ### Mutex-management API
 
+**mutex-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `mutex` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all mutex objects.
+
 **(mutex? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a mutex, otherwise returns `#f`.  
+Returns `#t` if _obj_ is a mutex, otherwise returns `#f`.
 
 **(make-mutex)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-mutex _name_)**  
@@ -320,9 +328,13 @@ Each condition variable has a tag which can be used in an application specific w
 
 ### Condition variable management
 
+**condition-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>
+
+Symbol representing the `condition` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all condition objects.
+
 **(condition-variable? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a condition variable, otherwise returns `#f`.  
+Returns `#t` if _obj_ is a condition variable, otherwise returns `#f`.
 
 **(make-condition-variable)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-condition-variable _name_)**  
@@ -376,7 +388,7 @@ Returns `#t` if _obj_ is an "uncaught exception" object, otherwise returns `#f`.
 
 _exc_ must be an "uncaught exception" object. `uncaught-exception-reason` returns the object which was passed to the initial exception handler of that thread.
 
-## Hardware platform and debugging
+## Utilities 
 
 **(processor-count)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(processor-count _active?_)**
@@ -417,4 +429,3 @@ The above copyright notice and this permission notice shall be included in all c
 <small>
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 </small>
-

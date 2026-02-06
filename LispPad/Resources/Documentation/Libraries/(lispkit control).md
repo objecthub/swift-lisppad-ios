@@ -330,11 +330,79 @@ _body_ is expanded in the syntactic environment obtained by extending the syntac
 ```
 
 
+## Conditional local bindings
+
+**(if-let\* _\(clause ...\) consequent_)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+**(if-let\* _\(clause ...\) consequent alternate_)**   
+
+_clause_ is either a variable, an expression in parenthesis, or a binding of the form `(`_variable_ _init_`)` where _variable_ is a symbol and _init_ is an expression. Both _consequent_ and _alternate_ are arbitrary expressions.
+
+An `if-let*` expression is evaluated as follows: first, every clause is evaluated in the given sequence. Variables evaluate to their value, expressions in parenthesis evaluate to the value of the expression, and bindings first evaluate their initializer and then assign the result of this to the given variable. Each clause is evaluated in an environment that includes bindings of prior clauses. Variables of bindings do not need to be distinct. As soon as the first clause evaluates to `#f`, the evaluation of `if-let*` ends with the whole expression returning the value of _alternate_. If _alternate_ is not provided, no value (void) is returned. Once all clauses were evaluated successfully, _consequent_ gets evaluated and its value is returned as the overall result of the `if-let*` expression.
+
+```scheme
+(if-let* ((x "8273")(y (string->number x))) y -1)
+⇒  8273
+(if-let* ((x "foo")(y (string->number x))) y -1)
+⇒  -1
+(define z #t)
+(if-let* ((x "foo") z (y (string-append x x)) z) y "F")
+⇒  "foofoo"
+```
+
+**(when-let\* _\(clause ...\) consequent ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+
+_clause_ is either a variable, an expression in parenthesis, or a binding of the form `(`_variable_ _init_`)` where _variable_ is a symbol and _init_ is an expression.
+
+A `when-let*` expression is evaluated as follows: first, every clause is evaluated in the given sequence. Variables evaluate to their value, expressions in parenthesis evaluate to the value of the expression, and bindings first evaluate their initializer and then assign the result of this to the given variable. Each clause is evaluated in an environment that includes bindings of prior clauses. Variables of bindings do not need to be distinct. As soon as the first clause evaluates to `#f`, the evaluation of `when-let*` ends with no value (void) getting returned. Once all clauses were evaluated successfully, the expressions _consequent ..._ are evaluated in order. The result of the `when-let*` expression is the value to which the last _consequent_ expression evaluates.
+
+```scheme
+(when-let* ((x 2)(y (* x 10))(z (* y 100)))
+  (display x)
+  (display y)
+  (display z))
+⇒ (void), prints: 2202000
+```
+
+
+## Conditional local bindings
+
+**(if-let\* _\(clause ...\) consequent_)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+**(if-let\* _\(clause ...\) consequent alternate_)**   
+
+_clause_ is either a variable, an expression in parenthesis, or a binding of the form `(`_variable_ _init_`)` where _variable_ is a symbol and _init_ is an expression. Both _consequent_ and _alternate_ are arbitrary expressions.
+
+An `if-let*` expression is evaluated as follows: first, every clause is evaluated in the given sequence. Variables evaluate to their value, expressions in parenthesis evaluate to the value of the expression, and bindings first evaluate their initializer and then assign the result of this to the given variable. Each clause is evaluated in an environment that includes bindings of prior clauses. Variables of bindings do not need to be distinct. As soon as the first clause evaluates to `#f`, the evaluation of `if-let*` ends with the whole expression returning the value of _alternate_. If _alternate_ is not provided, no value (void) is returned. Once all clauses were evaluated successfully, _consequent_ gets evaluated and its value is returned as the overall result of the `if-let*` expression.
+
+```scheme
+(if-let* ((x "8273")(y (string->number x))) y -1)
+⇒  8273
+(if-let* ((x "foo")(y (string->number x))) y -1)
+⇒  -1
+(define z #t)
+(if-let* ((x "foo") z (y (string-append x x)) z) y "F")
+⇒  "foofoo"
+```
+
+**(when-let\* _\(clause ...\) consequent ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+
+_clause_ is either a variable, an expression in parenthesis, or a binding of the form `(`_variable_ _init_`)` where _variable_ is a symbol and _init_ is an expression.
+
+A `when-let*` expression is evaluated as follows: first, every clause is evaluated in the given sequence. Variables evaluate to their value, expressions in parenthesis evaluate to the value of the expression, and bindings first evaluate their initializer and then assign the result of this to the given variable. Each clause is evaluated in an environment that includes bindings of prior clauses. Variables of bindings do not need to be distinct. As soon as the first clause evaluates to `#f`, the evaluation of `when-let*` ends with no value (void) getting returned. Once all clauses were evaluated successfully, the expressions _consequent ..._ are evaluated in order. The result of the `when-let*` expression is the value to which the last _consequent_ expression evaluates.
+
+```scheme
+(when-let* ((x 2)(y (* x 10))(z (* y 100)))
+  (display x)
+  (display y)
+  (display z))
+⇒ (void), prints: 2202000
+```
+
+
 ## Iteration
 
-**(do ((_variable init step_) ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(do \(\(_variable init step_\) ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**(_test res ..._)**   
-&nbsp;&nbsp;&nbsp;&nbsp;**_command ..._)**
+&nbsp;&nbsp;&nbsp;&nbsp;**_command ..._)**  
 
 A `do` expression is an iteration construct. It specifies a set of variables to be bound, how they are to be initialized at the start, and how they are to be updated on each iteration. When a termination condition _test_ is met (i.e. it evaluates to `#t`), the loop exits after evaluating the _res_ expressions.
 

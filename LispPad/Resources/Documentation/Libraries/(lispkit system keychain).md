@@ -31,7 +31,7 @@ Returns a new keychain client for the given _service_ and access _group_. _servi
 
 _acc_ specifies access policies. The following access policy specifiers are supported:
 
-  - `symbol`: Symbols specify the [item accessibility](https://developer.apple.com/documentation/security/restricting-keychain-item-accessibility). Supported are `when-unlocked`, `after-first-unlockl`, `always`, `when-unlocked-this-device-only`, `after-first-unlock-this-device-only`, `always-this-device-only`.
+  - `symbol`: Symbols specify the item accessibility. Supported are `when-unlocked`, `after-first-unlockl`, `always`, `when-unlocked-this-device-only`, `after-first-unlock-this-device-only`, `always-this-device-only`.
   - `(prompt)`: An authentication _prompt_ (a string) is provided, which is shown to the user. Default item accessibility is used.
   - `(prompt access)`: An authentication _prompt_ (a string) is provided, which is shown to the user. _access_ specifies the item accessibility via a symbol (see previous bullet point).
   - `(prompt access policy ...)`: An authentication _prompt_ (a string) is provided, which is shown to the user. _access_ specifies the item accessibility via a symbol (see previous bullet point). _policy ..._ are access policy specifiers (symbols) which determine what authentication methods should be allowed. Supported are `user-presence`, `biometry-any`, `biometry-current-set`, `device-passcode`, `watch`, `or`, `and`, `private-key-usage`, and `application-password`.
@@ -62,8 +62,9 @@ Returns `#t` if the given _keychain_ client synchronizes keychain item updates a
 Returns `#t` if _keychain_ contains an item for the given _key_, `#f` otherwise. _keychain_ is a keychain client object, _key_ is a string.
 
 **(keychain-ref _keychain key_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(keychain-ref _keychain key default_)**  
 
-With `keychain-ref` it is possible to retrieve the value set via `keychain-set!` from the item in _keychain_ identified via `key`. Such values are stored in the keychain in serialized fashion. `keychain-ref` deserializes the data and returns the result of this operation. _keychain_ is a keychain client object, _key_ is a string.
+With `keychain-ref` it is possible to retrieve the value set via `keychain-set!` from the item in _keychain_ identified via `key`. Such values are stored in the keychain in serialized fashion. `keychain-ref` deserializes the data and returns the result of this operation. _keychain_ is a keychain client object, _key_ is a string. If the key is unknown, _default_ is returned. If _default_ is not provided, `#f` is used.
 
 **(keychain-ref-attributes _keychain key_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -97,7 +98,7 @@ Returns the item in _keychain_ identified by string _key_ as a string. If the da
 Creates or overwrites an item identified via string _key_ in _keychain_ with _value_. _value_ can be any serializable expression. Optional argument _label_ defines a string label for this new keychain item (by default, _label_ is `#f`), _comment_ specifies a string comment that is stored as metadata (default is `#f`), _acc_ specifies access policies. The following access policy specifiers are supported:
 
   - `()` or `#f`: The _keychain_ client defines the access policies to use.
-  - `symbol`: Symbols specify the [item accessibility](https://developer.apple.com/documentation/security/restricting-keychain-item-accessibility). Supported are `when-unlocked`, `after-first-unlockl`, `always`, `when-unlocked-this-device-only`, `after-first-unlock-this-device-only`, `always-this-device-only`.
+  - `symbol`: Symbols specify the item accessibility. Supported are `when-unlocked`, `after-first-unlockl`, `always`, `when-unlocked-this-device-only`, `after-first-unlock-this-device-only`, `always-this-device-only`.
   - `(prompt)`: An authentication _prompt_ (a string) is provided, which is shown to the user. Default item accessibility is used.
   - `(prompt access)`: An authentication _prompt_ (a string) is provided, which is shown to the user. _access_ specifies the item accessibility via a symbol (see previous bullet point).
   - `(prompt access policy ...)`: An authentication _prompt_ (a string) is provided, which is shown to the user. _access_ specifies the item accessibility via a symbol (see previous bullet point). _policy ..._ are access policy specifiers (symbols) which determine what authentication methods should be allowed. Supported are `user-presence`, `biometry-any`, `biometry-current-set`, `device-passcode`, `watch`, `or`, `and`, `private-key-usage`, and `application-password`.
