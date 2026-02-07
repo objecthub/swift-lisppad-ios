@@ -32,6 +32,7 @@ class WebViewController: ObservableObject {
   @Published var canGoBack: Bool = false
   @Published var goForward: Bool = false
   @Published var canGoForward: Bool = false
+  @Published var zoom: CGFloat = 1.0
 }
 
 enum WebResource {
@@ -198,7 +199,10 @@ struct WebView: UIViewRepresentable {
   public func makeUIView(context: Context) -> WKWebView  {
     let view = WKWebView()
     view.navigationDelegate = context.coordinator
+    view.scrollView.delegate = context.coordinator
     context.coordinator.openURLProc = context.environment.openURL
+    view.scrollView.minimumZoomScale = 0.4
+    view.scrollView.maximumZoomScale = 3.0
     DispatchQueue.main.async {
       view.publisher(for: \.canGoBack).assign(to: &controller.$canGoBack)
       view.publisher(for: \.canGoForward).assign(to: &controller.$canGoForward)
@@ -210,6 +214,16 @@ struct WebView: UIViewRepresentable {
   
   public func updateUIView(_ view: WKWebView, context: Context) {
     DispatchQueue.main.async {
+      // Update zoom scale if changed
+      if view.scrollView.zoomScale != self.controller.zoom {
+        context.coordinator.isUpdatingZoomProgrammatically = true
+        view.scrollView.setZoomScale(self.controller.zoom, animated: true)
+        // Reset flag after animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+          context.coordinator.isUpdatingZoomProgrammatically = false
+        }
+      }
+      // Load content/resources, navigate
       if let resource = controller.load {
         resource.load(into: view)
         controller.load = nil
@@ -229,13 +243,14 @@ struct WebView: UIViewRepresentable {
     }
   }
   
-  final class Coordinator: NSObject, WKNavigationDelegate {
+  final class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
     @ObservedObject var controller: WebViewController
     var openURLProc: OpenURLAction? = nil
     let title: String?
     let policyEvaluator: LinkingPolicy.Evaluator
     let credentialProvider: CredentialProvider
     let action: (NavigationNotification) -> Void
+    var isUpdatingZoomProgrammatically = false
     
     init(controller: WebViewController,
          title: String?,
@@ -251,6 +266,28 @@ struct WebView: UIViewRepresentable {
       self.credentialProvider = credential
       self.action = action
     }
+    
+    // MARK: - UIScrollViewDelegate
+    
+    public func scrollViewDidEndZooming(_ scrollView: UIScrollView,
+                                        with view: UIView?,
+                                        atScale scale: CGFloat) {
+      if !isUpdatingZoomProgrammatically {
+        DispatchQueue.main.async {
+          self.controller.zoom = scale
+        }
+      }
+    }
+    
+    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+      if !isUpdatingZoomProgrammatically {
+        DispatchQueue.main.async {
+          self.controller.zoom = scrollView.zoomScale
+        }
+      }
+    }
+    
+    // MARK: - WKNavigationDelegate
     
     public func webView(_ view: WKWebView,
                         decidePolicyFor navigationAction: WKNavigationAction,
@@ -321,9 +358,14 @@ struct WebView: UIViewRepresentable {
     }
     
     public func webView(_ view: WKWebView, didFinish navigation: WKNavigation!) {
+      // Set the page title
       if let title = self.title ?? view.title {
         self.controller.pageTitle = title
       }
+      // Set the default font
+      view.evaluateJavaScript(
+        "document.getElementsByTagName('body')[0].style.fontFamily =\"-apple-system\"")
+      // Propagate event
       self.action(.didFinish(view, navigation))
     }
     
