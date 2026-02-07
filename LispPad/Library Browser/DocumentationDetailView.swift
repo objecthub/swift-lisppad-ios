@@ -129,11 +129,7 @@ struct DocumentationDetailView: View {
       }
     }
     .onChange(of: self.selectedLib) {
-      if let selectedIdent, !selectedIdent.isEmpty {
-        self.toggle.toggle()
-        self.block = self.docManager.documentation(for: selectedIdent)
-        self.url = nil
-      } else if let selectedLib {
+      if let selectedLib {
         switch self.docManager.libraryDocumentation(for: selectedLib.components) {
           case .markdown(let block):
             self.toggle.toggle()
@@ -153,31 +149,34 @@ struct DocumentationDetailView: View {
         self.block = nil
         self.url = nil
       }
+      self.selectedIdent = nil
     }
     .onChange(of: self.selectedIdent) {
-      if let selectedIdent, !selectedIdent.isEmpty {
-        self.toggle.toggle()
-        self.block = self.docManager.documentation(for: selectedIdent)
-        self.url = nil
-      } else if let selectedLib {
-        switch self.docManager.libraryDocumentation(for: selectedLib.components) {
-          case .markdown(let block):
-            self.toggle.toggle()
-            self.block = block
-            self.url = nil
-          case .htmlFile(let url):
-            if url != self.url {
+      if let selectedIdent {
+        if !selectedIdent.isEmpty {
+          self.toggle.toggle()
+          self.block = self.docManager.documentation(for: selectedIdent)
+          self.url = nil
+        } else if let selectedLib {
+          switch self.docManager.libraryDocumentation(for: selectedLib.components) {
+            case .markdown(let block):
               self.toggle.toggle()
-            }
-            self.block = nil
-            self.url = url
-          default:
-            self.block = nil
-            self.url = nil
+              self.block = block
+              self.url = nil
+            case .htmlFile(let url):
+              if url != self.url {
+                self.toggle.toggle()
+              }
+              self.block = nil
+              self.url = url
+            default:
+              self.block = nil
+              self.url = nil
+          }
+        } else {
+          self.block = nil
+          self.url = nil
         }
-      } else {
-        self.block = nil
-        self.url = nil
       }
     }
     .onAppear {

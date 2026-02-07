@@ -131,7 +131,8 @@
                        (self.state.searchIdent.isEmpty ||
                         ident.range(of: self.state.searchIdent, options: .caseInsensitive) != nil)
                    },
-                   id: \.self, selection: $state.selectedIdent) { ident in
+                   id: \.self,
+                   selection: $state.selectedIdent) { ident in
                 NavigationLink(ident, value: ident)
               }
               .listStyle(.plain)
