@@ -46,7 +46,8 @@
                     self.state.selectedLibIdents =
                       self.docManager.libraryExports(for: proxy.components, merging: proxy) ?? []
                     self.state.selectedLib = proxy
-                    if !self.state.selectedLibIdents.isEmpty {
+                    if !self.state.selectedLibIdents.isEmpty ||
+                       (self.docManager.libraryDocumentation(for: proxy.components) != nil) {
                       self.state.toggleSidebar.toggle()
                     }
                   }
