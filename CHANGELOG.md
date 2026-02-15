@@ -1,8 +1,24 @@
 # Changelog
 
-## 2.2 (?)
+## 2.2 (2026-02-15)
 
-- TODO
+- Updated app icon
+- New library and documentation browser
+- New "center menu" in the editor
+- Reimplemented canvas view to allow for more complex drawings
+- Fixed bugs in the file organizer
+- Allow overriding `Prelude.scm`
+- Bug fixes involving `quasiquote` and `cond-expand`
+- New library for handling locations: `(lispkit location)`
+- New library for creating and editing PDF documents: `(lispkit pdf)`
+- New library for solving computer vision problems: `(lispkit vision)`
+- New libraries for processing/manipulating images: `(lispkit image)`, `(lispkit image process)`
+- New library for drawing maps: `(lispkit draw map)`
+- New library for making and drawing snapshots of web pages: `(lispkit draw web)`
+- Extensions of libraries `(lispkit draw)`, `(lispkit core)`, `(lispkit enum)`, `(lispkit date-time)`, and `(lispkit object)`
+- New sample code: `ImageComposition.scm`, `OCR.scm`, `MermaidDiagrams.scm`, `Pinterest.scm`
+- Updated LispPad Library Reference
+- Interpreter now based on LispKit 2.6.0
 
 ## 2.1 (2024-11-22)
 

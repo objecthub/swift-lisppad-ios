@@ -173,7 +173,11 @@ struct MarkdownTextView: UIViewRepresentable {
                   text.count == 2,
                   case .text(let lib) = text[0],
                   case .text(let type) = text[1] else {
-              return super.generate(block: block, parent: parent, tight: tight)
+              if n == 2 {
+                return "<br/>\n" + super.generate(block: block, parent: parent, tight: tight)
+              } else {
+                return super.generate(block: block, parent: parent, tight: tight)
+              }
             }
             return "<table style=\"border-bottom: 0.5px solid #ccc; margin-bottom: 3px;\" " +
                    "width=\"100%\"><tbody>" +
@@ -183,6 +187,32 @@ struct MarkdownTextView: UIViewRepresentable {
                    "<td style=\"text-align: left;\">" + lib + "</td>" +
                    "<td style=\"text-align: right;padding-right: \(self.rightPadding)px;\">" +
                    type + "</td></tr></tbody></table><br/>\n"
+          case .list(_, let tight, let blocks):
+            if case .block(.listItem(_, _, _), _) = parent {
+              return "<table style=\"width: 100%;\"><tbody>\n" +
+                     self.generate(blocks: blocks, parent: .block(block, parent), tight: tight) +
+                     "</tbody></table>\n"
+            } else {
+              return "<table style=\"width: 100%;margin-bottom: 5em;\"><tbody>\n" +
+                     self.generate(blocks: blocks, parent: .block(block, parent), tight: tight) +
+                     "</tbody></table><br/>\n"
+            }
+          case .listItem(.ordered(let n, let ch), _, let blocks):
+            if tight, let text = blocks.text {
+              return "<tr style=\"margin-left: 8px;vertical-align: top;\"><td style=\"width: 4.5em;text-align: right;\">\(n)\(ch)&nbsp;</td><td style=\"vertical-align: top;\"> " + self.generate(text: text) + "</td></tr>\n"
+            } else {
+              return "<tr style=\"margin-left: 8px;\"><td style=\"width: 4.5em;text-align: right;\">\(n)\(ch)&nbsp;</td><td style=\"vertical-align: top;\"> " +
+                     self.generate(blocks: blocks, parent: .block(block, parent), tight: tight) +
+                     "</td></tr>\n"
+            }
+          case .listItem(_, _, let blocks):
+            if tight, let text = blocks.text {
+              return "<tr style=\"margin-left: 8px;vertical-align: top;\"><td style=\"width: 2em;text-align: center\"><b>•</b></td><td style=\"vertical-align: top;\"> " + self.generate(text: text) + "</td></tr>\n"
+            } else {
+              return "<tr style=\"margin-left: 8px;\"><td style=\"width: 2em;text-align: center\"><b>•</b></td><td style=\"vertical-align: top;\"> " +
+                     self.generate(blocks: blocks, parent: .block(block, parent), tight: tight) +
+                     "</td></tr>\n"
+            }
           default:
             return super.generate(block: block, parent: parent, tight: tight)
         }
