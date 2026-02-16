@@ -240,6 +240,18 @@ struct ConsoleView: View {
                     defineAction: { block in
                       self.showCard = true
                       self.cardContent.block = block
+                    },
+                    returnAction: {
+                      guard !self.state.consoleInput.isEmpty, self.ready ||
+                              self.readingStatus == .accept else {
+                        return
+                      }
+                      self.inputBuffer = nil
+                      self.inputHistoryIndex = -1
+                      self.action()
+                    },
+                    customReturn: {
+                      return self.settings.consoleExecOnReturn
                     })
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)

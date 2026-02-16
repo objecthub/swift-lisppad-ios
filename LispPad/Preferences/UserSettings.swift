@@ -42,6 +42,7 @@ final class UserSettings: ObservableObject {
   private static let documentationFontSizeKey = "Documentation.fontSize"
   private static let consoleHighlightMatchingParenKey = "Console.highlightMatchingParen"
   private static let consoleExtendedKeyboardKey = "Console.extendedKeyboard"
+  private static let consoleExecOnReturnKey = "Console.execOnReturn"
   private static let consoleAutoIndentKey = "Console.schemeAutoIndent"
   private static let consoleHighlightSyntaxKey = "Console.schemeHighlightSyntax"
   private static let consoleMarkupIdentKey = "Console.schemeMarkupIdent"
@@ -258,6 +259,13 @@ final class UserSettings: ObservableObject {
     didSet {
       UserDefaults.standard.set(self.consoleExtendedKeyboard,
                                 forKey: Self.consoleExtendedKeyboardKey)
+    }
+  }
+  
+  @Published var consoleExecOnReturn: Bool {
+    didSet {
+      UserDefaults.standard.set(self.consoleExecOnReturn,
+                                forKey: Self.consoleExecOnReturnKey)
     }
   }
   
@@ -648,6 +656,8 @@ final class UserSettings: ObservableObject {
                                                               Self.consoleHighlightMatchingParenKey)
     self.consoleExtendedKeyboard = UserDefaults.standard.boolean(forKey:
                                                                   Self.consoleExtendedKeyboardKey)
+    self.consoleExecOnReturn = UserDefaults.standard.boolean(forKey: Self.consoleExecOnReturnKey,
+                                                             false)
     self.consoleAutoIndent = UserDefaults.standard.boolean(forKey: Self.consoleAutoIndentKey)
     self.consoleHighlightSyntax = UserDefaults.standard.boolean(forKey:
                                                                 Self.consoleHighlightSyntaxKey)

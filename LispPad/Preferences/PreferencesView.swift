@@ -74,6 +74,7 @@ struct PreferencesView: View {
           Toggle("Require balanced parenthesis", isOn: $settings.balancedParenthesis)
           Toggle("Highlight matching parenthesis", isOn: $settings.consoleHighlightMatchingParen)
           Toggle("Extended keyboard", isOn: $settings.consoleExtendedKeyboard)
+          Toggle("Execute on return", isOn: $settings.consoleExecOnReturn)
           Stepper(value: $settings.maxCommandHistory, in: 5...100, step: 5) {
             Text("Command history: ") + Text(" \(settings.maxCommandHistory)").foregroundColor(.gray)
           }

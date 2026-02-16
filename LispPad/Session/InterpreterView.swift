@@ -255,21 +255,26 @@ struct InterpreterView: View {
             font: settings.consoleFont,
             action: {
               let old = self.state.consoleInput
+              let oldRange = self.state.consoleInputRange
+              var historyUpdated = false
               self.state.consoleInput = ""
               let input: String
               if self.interpreter.isReady {
                 input = InterpreterView.canonicalizeInput(old)
                 self.interpreter.console.append(output: .command(input))
-                self.histManager.addCommandEntry(input)
+                historyUpdated = self.histManager.addCommandEntry(input)
               } else {
                 input = old
               }
               self.interpreter.evaluate(input) {
                 DispatchQueue.main.async {
                   self.state.consoleInput = old
-                  self.state.consoleInputRange = NSRange(location: (old as NSString).length,
-                                                         length: 0)
+                  self.state.consoleInputRange = oldRange
+                  // NSRange(location: (old as NSString).length, length: 0)
                   self.interpreter.console.removeLast()
+                  if historyUpdated {
+                    self.histManager.removeCommandEntry()
+                  }
                 }
               }
             },
@@ -686,7 +691,7 @@ struct InterpreterView: View {
                                         message: input)
       }
       self.interpreter.console.append(output: .command(input))
-      self.histManager.addCommandEntry(input)
+      _ = self.histManager.addCommandEntry(input)
       self.histManager.trackRecentFile(url)
       self.interpreter.load(url)
     }

@@ -38,7 +38,13 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
   /// Action executed when "define" is selected from the input menu and the selected
   /// identifier has documentation.
   let defineAction: ((Block) -> Void)?
-
+  
+  /// Action executed when "return" is pressed on a hardware keyboard
+  let returnAction: (() -> Void)?
+  
+  /// Returns true if the returnAction should be used
+  let customReturn: () -> Bool
+  
   /// Show line numbers?
   private var internalShowLineNumbers: Bool
   
@@ -127,7 +133,9 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
        console: Bool,
        editorType: FileExtensions.EditorType,
        docManager: DocumentationManager,
-       defineAction: ((Block) -> Void)? = nil) {
+       defineAction: ((Block) -> Void)? = nil,
+       returnAction: (() -> Void)? = nil,
+       customReturn: @escaping () -> Bool = { false }) {
     let ts = NSTextStorage()
     let td = CodeEditorTextStorageDelegate(console: console,
                                            editorType: editorType,
@@ -147,6 +155,8 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
     self.internalHighlightCurrentLine = lm.highlightCurrentLine
     self.syntaxHighlightingUpdate = UserSettings.standard.syntaxHighlightingUpdate
     self.defineAction = defineAction
+    self.returnAction = returnAction
+    self.customReturn = customReturn
     self.keyboard = CodeEditorKeyboard(console: console, editorType: editorType)
     super.init(frame: frame, textContainer: tc)
     lm.textView = self
@@ -166,7 +176,35 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
     return self.codeEditorTokenizer
   }
   */
-
+  
+  override var keyCommands: [UIKeyCommand]? {
+    if self.customReturn() {
+      if let commands = super.keyCommands {
+        return commands + [
+          UIKeyCommand(input: "\r", 
+                       modifierFlags: [],
+                       action: #selector(handleReturn))
+        ]
+      } else {
+        return [
+          UIKeyCommand(input: "\r", 
+                       modifierFlags: [],
+                       action: #selector(handleReturn))
+        ]
+      }
+    } else {
+      return super.keyCommands
+    }
+  }
+  
+  @objc private func handleReturn() {
+    if let action = self.returnAction {
+      self.textStorage.removeAttribute(.backgroundColor,
+                                       range: NSRange(location: 0, length: self.textStorage.length))
+      action()
+    }
+  }
+  
   override func draw(_ rect: CGRect) {
     if self.showLineNumbers,
        let context: CGContext = UIGraphicsGetCurrentContext() {

@@ -38,6 +38,8 @@ struct ConsoleEditor: UIViewRepresentable {
   @ObservedObject var keyboardObserver: KeyboardObserver
   
   let defineAction: ((Block) -> Void)?
+  let returnAction: (() -> Void)?
+  let customReturn: () -> Bool
   
   public func makeCoordinator() -> Coordinator {
     return ConsoleEditorTextViewDelegate(text: _text,
@@ -54,7 +56,9 @@ struct ConsoleEditor: UIViewRepresentable {
                                       console: true,
                                       editorType: self.editorType,
                                       docManager: self.docManager,
-                                      defineAction: self.defineAction)
+                                      defineAction: self.defineAction,
+                                      returnAction: self.returnAction,
+                                      customReturn: self.customReturn)
     textView.delegate = context.coordinator
     textView.showLineNumbers = false
     textView.highlightCurrentLine = false
