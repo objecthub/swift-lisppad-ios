@@ -189,11 +189,13 @@ struct MarkdownTextView: UIViewRepresentable {
                    type + "</td></tr></tbody></table><br/>\n"
           case .list(_, let tight, let blocks):
             if case .block(.listItem(_, _, _), _) = parent {
-              return "<table style=\"width: 100%;\"><tbody>\n" +
+              return "<table style=\"font-size: \(UserSettings.standard.documentationTextFontSize)" +
+                     "px; width: 100%;\"><tbody>\n" +
                      self.generate(blocks: blocks, parent: .block(block, parent), tight: tight) +
                      "</tbody></table>\n"
             } else {
-              return "<table style=\"width: 100%;margin-bottom: 5em;\"><tbody>\n" +
+              return "<table style=\"font-size: \(UserSettings.standard.documentationTextFontSize)" +
+                     "px; width: 100%; margin-bottom: 5em;\"><tbody>\n" +
                      self.generate(blocks: blocks, parent: .block(block, parent), tight: tight) +
                      "</tbody></table><br/>\n"
             }
