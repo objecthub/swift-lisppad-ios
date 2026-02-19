@@ -130,6 +130,9 @@ struct CodeEditorView: View {
   @State var showFileNotFoundAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
+  @State var showStructure: Bool = false
+  @State var definitionCache: DefinitionView.Definitions? = nil
+  @State var structureCache: DocStructureView.DocStructure? = nil
   
   var keyboardShortcuts: some View {
     ZStack {
@@ -622,17 +625,17 @@ struct CodeEditorView: View {
                 .font(LispPadUI.toolbarFont)
             }
             Button {
-              self.dismissCard()
-              guard let doc = self.fileManager.editorDocument else {
-                return
-              }
-              if doc.info.editorType == .scheme {
-                if let defs = DefinitionView.parseDefinitions(doc.text) {
-                  self.showModal = .showDefinitions(defs)
-                }
-              } else if doc.info.editorType == .markdown {
-                if let structure = DocStructureView.parseDocStructure(doc.text) {
-                  self.showModal = .showDocStructure(structure)
+              if let doc = self.fileManager.editorDocument {
+                if doc.info.editorType == .scheme,
+                   let defs = DefinitionView.parseDefinitions(doc.text),
+                   !defs.isEmpty {
+                  self.definitionCache = defs
+                  self.showStructure = true
+                } else if doc.info.editorType == .markdown,
+                          let structure = DocStructureView.parseDocStructure(doc.text),
+                          !structure.isEmpty {
+                  self.structureCache = structure
+                  self.showStructure = true
                 }
               }
             } label: {
@@ -640,6 +643,135 @@ struct CodeEditorView: View {
                 .font(LispPadUI.toolbarFont)
             }
             .disabled(self.editorType != .scheme && self.editorType != .markdown)
+            .popover(isPresented: self.$showStructure) {
+              if let doc = self.fileManager.editorDocument {
+                if doc.info.editorType == .scheme,
+                   let defs = self.definitionCache ?? DefinitionView.parseDefinitions(doc.text) {
+                  List {
+                    if defs.values.count > 0 {
+                      Section {
+                        ForEach(defs.values, id: \.1) { tuple in
+                          Button {
+                            self.editorPosition = NSRange(location: tuple.1, length: 0)
+                            self.showStructure = false
+                          } label: {
+                            Text(tuple.0).font(LispPadUI.definitionsFont)
+                          }
+                        }
+                      } header: {
+                        Text("VALUES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+                      }
+                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+                      .listRowSeparator(.visible)
+                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+                    }
+                    if defs.syntax.count > 0 {
+                      Section {
+                        ForEach(defs.syntax, id: \.1) { tuple in
+                          Button {
+                            self.editorPosition = NSRange(location: tuple.1, length: 0)
+                            self.showStructure = false
+                          } label: {
+                            Text(tuple.0).font(LispPadUI.definitionsFont)
+                          }
+                        }
+                      } header: {
+                        Text("SYNTAX").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+                      }
+                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+                      .listRowSeparator(.visible)
+                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+                    }
+                    if defs.records.count > 0 {
+                      Section {
+                        ForEach(defs.records, id: \.1) { tuple in
+                          Button {
+                            self.editorPosition = NSRange(location: tuple.1, length: 0)
+                            self.showStructure = false
+                          } label: {
+                            Text(tuple.0).font(LispPadUI.definitionsFont)
+                          }
+                        }
+                      } header: {
+                        Text("RECORDS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+                      }
+                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+                      .listRowSeparator(.visible)
+                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+                    }
+                    if defs.types.count > 0 {
+                      Section {
+                        ForEach(defs.types, id: \.1) { tuple in
+                          Button {
+                            self.editorPosition = NSRange(location: tuple.1, length: 0)
+                            self.showStructure = false
+                          } label: {
+                            Text(tuple.0).font(LispPadUI.definitionsFont)
+                          }
+                        }
+                      } header: {
+                        Text("TYPES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+                      }
+                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+                      .listRowSeparator(.visible)
+                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+                    }
+                  }
+                  .listStyle(.plain)
+                  .environment(\.defaultMinListRowHeight, 10)
+                  .frame(idealWidth: 300,
+                         idealHeight: popoverHeight(categories: [
+                          defs.values.count,
+                          defs.syntax.count,
+                          defs.records.count,
+                          defs.types.count
+                         ]))
+                  .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
+                  .onDisappear {
+                    self.definitionCache = nil
+                    self.structureCache = nil
+                  }
+                } else if doc.info.editorType == .markdown,
+                          let structure = DocStructureView.parseDocStructure(doc.text) {
+                  List {
+                    if structure.headers.count > 0 {
+                      Section {
+                        ForEach(structure.headers) { header in
+                          Button {
+                            self.editorPosition = header.range
+                            self.showStructure = false
+                          } label: {
+                            HStack {
+                              Image(systemName: self.image(for: header.level))
+                                .font(LispPadUI.definitionsFont)
+                                .foregroundStyle(Color.gray)
+                              Spacer().frame(minWidth: 12.0, maxWidth: CGFloat(header.level) * 12.0)
+                              Text(header.title)
+                                .fixedSize()
+                                .font(LispPadUI.definitionsFont)
+                            }
+                          }
+                        }
+                        .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+                        .listRowSeparator(.visible)
+                        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+                      } header: {
+                        Text("HEADERS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+                      }
+                    }
+                  }
+                  .listStyle(.plain)
+                  .environment(\.defaultMinListRowHeight, 10)
+                  .frame(idealWidth: 300,
+                         idealHeight: popoverHeight(headers: 1, items: structure.headers.count))
+                  .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
+                  .onDisappear {
+                    self.definitionCache = nil
+                    self.structureCache = nil
+                  }
+                }
+              }
+            }
             Menu {
               ControlGroup {
                 Button {
@@ -1175,5 +1307,40 @@ struct CodeEditorView: View {
   
   private func fileNotFoundAlert() -> Alert {
     return Alert(title: Text("File not found"))
+  }
+  
+  private func popoverHeight(categories: [Int]) -> CGFloat {
+    var num = 0
+    var items = 0
+    for cat in categories {
+      if cat > 0 {
+        num += 1
+      }
+      items += cat
+    }
+    return max(min(CGFloat(num) * 60.3 + CGFloat(items) * 33.6, 600.0), 40.0)
+  }
+  
+  private func popoverHeight(headers: Int, items: Int) -> CGFloat {
+    return max(min(CGFloat(headers) * 52.3 + CGFloat(items) * 36.6, 600.0), 40.0)
+  }
+  
+  private func image(for level: Int) -> String {
+    switch level {
+      case 1:
+        return "1.square"
+      case 2:
+        return "2.square"
+      case 3:
+        return "3.square"
+      case 4:
+        return "4.square"
+      case 5:
+        return "5.square"
+      case 6:
+        return "6.square"
+      default:
+        return "h.square"
+    }
   }
 }

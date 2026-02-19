@@ -30,6 +30,12 @@ struct LispPadUI {
   // Size of items in the toolbar
   static let toolbarItemSize: CGFloat = 16
   
+  // Size of items in the definitions panel
+  static let definitionsSize: CGFloat = 15
+  
+  // Size of categories in the definitions panel
+  static let definitionsCategorySize: CGFloat = 12
+  
   // Size of file name in the toolbar
   static let fileNameFontSize: CGFloat = 14
   
@@ -47,6 +53,16 @@ struct LispPadUI {
   // Toolbar item font for switch items
   static let toolbarSwitchFont: SwiftUI.Font = {
     return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
+  }()
+  
+  // Font for definition items
+  static let definitionsFont: SwiftUI.Font = {
+    return .system(size: LispPadUI.definitionsSize, weight: .regular)
+  }()
+  
+  // Font for definition category items
+  static let definitionsCategoryFont: SwiftUI.Font = {
+    return .system(size: LispPadUI.definitionsCategorySize, weight: .regular)
   }()
   
   // Small editor file name font

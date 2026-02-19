@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.1 (2026-02-18)
+
+- Allow executing commands by pressing return on hardware keyboards
+- Fix inconsistent documentation font sizes
+- Redesigned definition/document structure switchboard user experience
+
 ## 2.2 (2026-02-15)
 
 - Updated app icon

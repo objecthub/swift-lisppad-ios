@@ -32,6 +32,10 @@ struct DocStructureView: View {
 
   struct DocStructure {
     let headers: [Header]
+    
+    var isEmpty: Bool {
+      return self.headers.isEmpty
+    }
   }
 
   @Environment(\.dismiss) var dismiss
