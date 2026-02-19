@@ -111,7 +111,7 @@ struct CanvasPanel: View {
                      "\(Int(self.interpreter.canvas.size.height))")
               }
               .font(.caption2)
-              .foregroundColor(.gray)
+              .foregroundColor(.accentColor)
               .lineLimit(2)
               .allowsTightening(true)
               .fixedSize(horizontal: true, vertical: false)
@@ -128,7 +128,7 @@ struct CanvasPanel: View {
                 self.interpreter.canvas.scale = scale
                 self.interpreter.objectWillChange.send()
               }
-              .frame(idealWidth: 240, idealHeight: 150)
+              .frame(idealWidth: 240, idealHeight: 176)
               .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
             }
           }

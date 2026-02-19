@@ -22,17 +22,26 @@ import SwiftUI
 
 struct CanvasSizeEditor: View {
   @Environment(\.dismiss) var dismiss
+  @State var cancelled: Bool = false
   @State var name: String
   @State var width: CGFloat
   @State var height: CGFloat
   @State var scale: CGFloat
   let update: (String, CGSize, CGFloat) -> Void
+  let initialName: String
+  let initialWidth: CGFloat
+  let initialHeight: CGFloat
+  let initialScale: CGFloat
   
   init(name: String,
        width: CGFloat,
        height: CGFloat,
        scale: CGFloat,
        update: @escaping (String, CGSize, CGFloat) -> Void) {
+    self.initialName = name
+    self.initialWidth = width
+    self.initialHeight = height
+    self.initialScale = scale
     self._name = State(initialValue: name)
     self._width = State(initialValue: width)
     self._height = State(initialValue: height)
@@ -48,74 +57,89 @@ struct CanvasSizeEditor: View {
   }()
   
   var body: some View {
-    ZStack(alignment: .center) {
-      Color(.systemGroupedBackground).ignoresSafeArea()
-      VStack(alignment: .leading, spacing: 8) {
-        HStack(alignment: .center, spacing: 8) {
-          TextField("", text: self.$name, prompt: Text("Name"))
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.leading)
+    List {
+      TextField("Canvas Name", text: self.$name, prompt: Text("Canvas Name"))
+        .autocapitalization(.none)
+        .disableAutocorrection(true)
+        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      HStack(alignment: .center, spacing: 8) {
+        Text("Size:")
+        Spacer()
+        TextField("Width", value: self.$width, formatter: formatter)
+          .multilineTextAlignment(.trailing)
+          .frame(idealWidth: 45, maxWidth: 65)
+          .keyboardType(.decimalPad)
+        Text("⨉")
+        TextField("Height", value: self.$height, formatter: formatter)
+          .multilineTextAlignment(.trailing)
+          .frame(idealWidth: 45, maxWidth: 65)
+          .keyboardType(.decimalPad)
+      }
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      HStack(alignment: .center, spacing: 8) {
+        Text("Scale:")
+        Spacer()
+        TextField("Scale", value: self.$scale, formatter: formatter)
+          .multilineTextAlignment(.trailing)
+          // .frame(idealWidth: 45, maxWidth: 65)
+          .keyboardType(.decimalPad)
+      }
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      HStack(alignment: .center, spacing: 8) {
+        Button("Reset", role: .destructive) {
+          self.name = self.initialName
+          self.width = self.initialWidth
+          self.height = self.initialHeight
+          self.scale = self.initialScale
         }
-        HStack(alignment: .center, spacing: 8) {
-          Text("Size:")
-            .frame(width: 50, alignment: .trailing)
-          TextField("Width", value: self.$width, formatter: formatter)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            .frame(idealWidth: 45, maxWidth: 65)
-            .keyboardType(.decimalPad)
-          Text("⨉")
-          TextField("Height", value: self.$height, formatter: formatter)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            .frame(idealWidth: 45, maxWidth: 65)
-            .keyboardType(.decimalPad)
-          
+        .buttonStyle(.borderless)
+        Spacer()
+        Button("Cancel", role: .destructive) {
+          self.cancelled = true
+          self.dismiss()
         }
-        HStack(alignment: .center, spacing: 8) {
-          Text("Scale:")
-            .multilineTextAlignment(.trailing)
-            .frame(width: 50, alignment: .trailing)
-          TextField("Scale", value: self.$scale, formatter: formatter)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            .frame(idealWidth: 45, maxWidth: 65)
-            .keyboardType(.decimalPad)
-          Button {
-            if self.name.count > 0 && self.name.count <= 100 &&
-                self.width >= 10 && self.height >= 10 &&
-                self.width <= 50000 && self.height <= 50000 &&
-                self.scale > 0.0 && self.scale <= 1000.0 {
-              self.dismiss()
-              self.update(self.name, CGSize(width: self.width, height: self.height), self.scale)
-            } else {
-              if self.width < 10 {
-                self.width = 10
-              }
-              if self.width > 50000 {
-                self.width = 50000
-              }
-              if self.height < 10 {
-                self.height = 10
-              }
-              if self.height > 50000 {
-                self.height = 50000
-              }
-              if self.scale <= 0.0 {
-                self.scale = 1.0
-              }
-              if self.scale > 1000.0 {
-                self.scale = 1000.0
-              }
-            }
-          } label: {
-            Text("Done")
-              .bold()
-              .frame(width: 62, alignment: .trailing)
-          }
-          .padding(.horizontal, 12)
+        .buttonStyle(.borderless)
+      }
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      .listRowBackground(Color(UIColor.systemGroupedBackground))
+    }
+    .listStyle(.plain)
+    .scrollDisabled(true)
+    .onAppear {
+      self.cancelled = false
+    }
+    .onDisappear {
+      if self.width < 10 {
+        self.width = 10
+      }
+      if self.width > 50000 {
+        self.width = 50000
+      }
+      if self.height < 10 {
+        self.height = 10
+      }
+      if self.height > 50000 {
+        self.height = 50000
+      }
+      if self.scale <= 0.0 {
+        self.scale = 1.0
+      }
+      if self.scale > 1000.0 {
+        self.scale = 1000.0
+      }
+      if self.name.isEmpty {
+        if self.initialName.isEmpty {
+          self.name = "Unnamed"
+        } else {
+          self.name = self.initialName
         }
-      }.padding(12)
+      }
+      if self.name.count > 100 {
+        self.name = String(self.name.prefix(100))
+      }
+      if !self.cancelled {
+        self.update(self.name, CGSize(width: self.width, height: self.height), self.scale)
+      }
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
