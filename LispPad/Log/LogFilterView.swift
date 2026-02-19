@@ -41,47 +41,47 @@ struct LogFilterView: View {
   }
   
   var body: some View {
-    NavigationView {
-      List {
-        Picker("Severity", selection: $minSeverityFilter) {
-          Text("Debug").tag(Severity.debug)
-          Text("Info").tag(Severity.info)
-          Text("Warning").tag(Severity.warning)
-          Text("Error").tag(Severity.error)
-          Text("Fatal").tag(Severity.fatal)
-        }
-        .pickerStyle(.menu)
-        TextField("Filter", text: $logMessageFilter)
-          .autocapitalization(.none)
-          .disableAutocorrection(true)
-        Toggle("Filter Tag", isOn: $filterTag)
-        Toggle("Filter Message", isOn: $filterMessage)
+    List {
+      Picker("Severity", selection: $minSeverityFilter) {
+        Text("Debug").tag(Severity.debug)
+        Text("Info").tag(Severity.info)
+        Text("Warning").tag(Severity.warning)
+        Text("Error").tag(Severity.error)
+        Text("Fatal").tag(Severity.fatal)
       }
-      .listStyle(.grouped)
-      //.scrollDisabled(true)
-      .navigationBarTitleDisplayMode(.inline)
-      .navigationTitle("Log Filter")
-      .toolbar {
-        ToolbarItemGroup(placement: .navigationBarLeading) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            Button("Reset", role: .destructive) {
-              self.minSeverityFilter = .debug
-              self.logMessageFilter = ""
-              self.filterMessage = true
-              self.filterTag = true
-            }
-          }
+      .pickerStyle(.menu)
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      TextField("Filter", text: $logMessageFilter)
+        .autocapitalization(.none)
+        .disableAutocorrection(true)
+        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      Toggle("Filter Tag", isOn: $filterTag)
+        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      Toggle("Filter Message", isOn: $filterMessage)
+        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      HStack(alignment: .center, spacing: 0.0) {
+        Button("Reset", role: .destructive) {
+          self.minSeverityFilter = .debug
+          self.logMessageFilter = ""
+          self.filterMessage = true
+          self.filterTag = true
         }
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            Button("Done") {
-              self.showLogFilterPopOver = false
-            }
-          }
+        .buttonStyle(.borderless)
+        Spacer()
+        Button("Cancel", role: .destructive) {
+          self.minSeverityFilter = self.settings.logSeverityFilter
+          self.logMessageFilter = self.settings.logMessageFilter
+          self.filterMessage = self.settings.logFilterMessages
+          self.filterTag = self.settings.logFilterTags
+          self.showLogFilterPopOver = false
         }
+        .buttonStyle(.borderless)
       }
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      .listRowBackground(Color(UIColor.systemGroupedBackground))
     }
-    .navigationViewStyle(.stack)
+    .listStyle(.plain)
+    .scrollDisabled(true)
     .onDisappear {
       let searchText = self.logMessageFilter
                          .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
