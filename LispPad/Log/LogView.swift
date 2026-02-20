@@ -176,7 +176,7 @@ struct LogView: View {
                           logMessageFilter: self.settings.logMessageFilter,
                           filterMessage: self.settings.logFilterMessages,
                           filterTag: self.settings.logFilterTags)
-            .frame(idealWidth: 280, idealHeight: 220)
+            .frame(idealWidth: 250, idealHeight: 220)
             .environmentObject(self.settings)
             .environmentObject(self.sessionLog)
             .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)

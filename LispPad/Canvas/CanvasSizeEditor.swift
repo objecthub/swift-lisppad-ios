@@ -59,31 +59,37 @@ struct CanvasSizeEditor: View {
   var body: some View {
     List {
       TextField("Canvas Name", text: self.$name, prompt: Text("Canvas Name"))
+        .font(LispPadUI.definitionsFont)
         .autocapitalization(.none)
         .disableAutocorrection(true)
+        .frame(height: 21)
         .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       HStack(alignment: .center, spacing: 8) {
-        Text("Size:")
+        Text("Size:").font(LispPadUI.definitionsFont)
         Spacer()
         TextField("Width", value: self.$width, formatter: formatter)
+          .font(LispPadUI.definitionsFont)
           .multilineTextAlignment(.trailing)
-          .frame(idealWidth: 45, maxWidth: 65)
+          .frame(idealWidth: 30, maxWidth: 50)
           .keyboardType(.decimalPad)
-        Text("⨉")
+        Text("⨉").font(LispPadUI.definitionsFont)
         TextField("Height", value: self.$height, formatter: formatter)
+          .font(LispPadUI.definitionsFont)
           .multilineTextAlignment(.trailing)
-          .frame(idealWidth: 45, maxWidth: 65)
+          .frame(idealWidth: 30, maxWidth: 50)
           .keyboardType(.decimalPad)
       }
+      .frame(height: 21)
       .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       HStack(alignment: .center, spacing: 8) {
-        Text("Scale:")
+        Text("Scale:").font(LispPadUI.definitionsFont)
         Spacer()
         TextField("Scale", value: self.$scale, formatter: formatter)
+          .font(LispPadUI.definitionsFont)
           .multilineTextAlignment(.trailing)
-          // .frame(idealWidth: 45, maxWidth: 65)
           .keyboardType(.decimalPad)
       }
+      .frame(height: 21)
       .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       HStack(alignment: .center, spacing: 8) {
         Button("Reset", role: .destructive) {
@@ -92,19 +98,23 @@ struct CanvasSizeEditor: View {
           self.height = self.initialHeight
           self.scale = self.initialScale
         }
+        .font(LispPadUI.definitionsFont)
         .buttonStyle(.borderless)
         Spacer()
         Button("Cancel", role: .destructive) {
           self.cancelled = true
           self.dismiss()
         }
+        .font(LispPadUI.definitionsFont)
         .buttonStyle(.borderless)
       }
-      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      .frame(height: 21)
       .listRowBackground(Color(UIColor.systemGroupedBackground))
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
     }
     .listStyle(.plain)
     .scrollDisabled(true)
+    .environment(\.defaultMinListRowHeight, 21)
     .onAppear {
       self.cancelled = false
     }

@@ -128,7 +128,7 @@ struct CanvasPanel: View {
                 self.interpreter.canvas.scale = scale
                 self.interpreter.objectWillChange.send()
               }
-              .frame(idealWidth: 240, idealHeight: 176)
+              .frame(idealWidth: 220, idealHeight: 172)
               .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
             }
           }

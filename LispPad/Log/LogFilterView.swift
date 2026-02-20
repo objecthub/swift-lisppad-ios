@@ -43,21 +43,29 @@ struct LogFilterView: View {
   var body: some View {
     List {
       Picker("Severity", selection: $minSeverityFilter) {
-        Text("Debug").tag(Severity.debug)
-        Text("Info").tag(Severity.info)
-        Text("Warning").tag(Severity.warning)
-        Text("Error").tag(Severity.error)
-        Text("Fatal").tag(Severity.fatal)
+        Text("Debug").font(LispPadUI.definitionsFont).tag(Severity.debug)
+        Text("Info").font(LispPadUI.definitionsFont).tag(Severity.info)
+        Text("Warning").font(LispPadUI.definitionsFont).tag(Severity.warning)
+        Text("Error").font(LispPadUI.definitionsFont).tag(Severity.error)
+        Text("Fatal").font(LispPadUI.definitionsFont).tag(Severity.fatal)
       }
+      .font(LispPadUI.definitionsFont)
       .pickerStyle(.menu)
+      .frame(height: 22)
       .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       TextField("Filter", text: $logMessageFilter)
+        .font(LispPadUI.definitionsFont)
         .autocapitalization(.none)
         .disableAutocorrection(true)
+        .frame(height: 22)
         .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       Toggle("Filter Tag", isOn: $filterTag)
+        .font(LispPadUI.definitionsFont)
+        .frame(height: 22)
         .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       Toggle("Filter Message", isOn: $filterMessage)
+        .font(LispPadUI.definitionsFont)
+        .frame(height: 22)
         .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       HStack(alignment: .center, spacing: 0.0) {
         Button("Reset", role: .destructive) {
@@ -66,6 +74,7 @@ struct LogFilterView: View {
           self.filterMessage = true
           self.filterTag = true
         }
+        .font(LispPadUI.definitionsFont)
         .buttonStyle(.borderless)
         Spacer()
         Button("Cancel", role: .destructive) {
@@ -75,13 +84,16 @@ struct LogFilterView: View {
           self.filterTag = self.settings.logFilterTags
           self.showLogFilterPopOver = false
         }
+        .font(LispPadUI.definitionsFont)
         .buttonStyle(.borderless)
       }
+      .frame(height: 22)
       .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
       .listRowBackground(Color(UIColor.systemGroupedBackground))
     }
     .listStyle(.plain)
     .scrollDisabled(true)
+    .environment(\.defaultMinListRowHeight, 22)
     .onDisappear {
       let searchText = self.logMessageFilter
                          .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
