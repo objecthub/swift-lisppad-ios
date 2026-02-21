@@ -26,6 +26,7 @@ final class CodeEditorKeyboard {
   
   enum KeyTag: Int {
     case dismissKeyboard
+    case toggleKeyboard
     case dash
     case times
     case quote
@@ -37,6 +38,16 @@ final class CodeEditorKeyboard {
     case hash
     case backquote
     case underscore
+    case indent
+    case undent
+    case comment
+    case uncomment
+    case cursorLeft
+    case cursorRight
+    case cursorUp
+    case cursorDown
+    case undo
+    case redo
   }
   
   /// Set to true if this is a keyboard for the console
@@ -45,6 +56,9 @@ final class CodeEditorKeyboard {
   /// Keyboards are editor type-specific. This property defines for what type the current
   /// keyboard was set up.
   var editorType: FileExtensions.EditorType
+  
+  /// Tracks whether cursor navigation keys are currently visible
+  var showingCursorKeys: Bool = false
   
   init(console: Bool, editorType: FileExtensions.EditorType) {
     self.console = console
@@ -112,27 +126,99 @@ final class CodeEditorKeyboard {
     bar.scrollEdgeAppearance = appearance
     bar.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
     if self.editorType == .scheme {
-      let dash = self.textButton("-", tag: .dash, to: textView)
-      let times = self.textButton("*", tag: .times, to: textView)
-      let quote = self.textButton("'", tag: .quote, to: textView)
-      let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
-      let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
-      let parenRight = self.textButton(")", tag: .parenRight, to: textView)
-      let equals = self.textButton("=", tag: .equals, to: textView)
-      let question = self.textButton("?", tag: .question, to: textView)
-      let ibutton = self.imageButton(UIImage(systemName: "keyboard.chevron.compact.down"),
-                                     tag: .dismissKeyboard,
-                                     pressed: UIImage(systemName: "keyboard"),
-                                     to: textView)
-      bar.setItems([dash, UIBarButtonItem.fixedSpace(6),
-                    times, UIBarButtonItem.fixedSpace(6),
-                    quote, UIBarButtonItem.fixedSpace(6),
-                    doubleQuote, UIBarButtonItem.fixedSpace(6),
-                    parenLeft, UIBarButtonItem.fixedSpace(6),
-                    parenRight, UIBarButtonItem.fixedSpace(6),
-                    equals, UIBarButtonItem.fixedSpace(6),
-                    question, UIBarButtonItem.flexibleSpace(),
-                    ibutton], animated: false)
+      if self.showingCursorKeys {
+        let indent = self.iconButton("increase.indent", tag: .indent, to: textView)
+        let undent = self.iconButton("decrease.indent", tag: .undent, to: textView)
+        let comment = self.iconButton("text.bubble", tag: .comment, to: textView)
+        let uncomment = self.iconButton("bubble.left", tag: .uncomment, to: textView)
+        let cursorLeft = self.textButton("←", tag: .cursorLeft, to: textView)
+        let cursorRight = self.textButton("→", tag: .cursorRight, to: textView)
+        let cursorUp = self.textButton("↑", tag: .cursorUp, to: textView)
+        let cursorDown = self.textButton("↓", tag: .cursorDown, to: textView)
+        let cursorNav = self.iconButton("arrow.up.arrow.down.circle.fill",
+                                        pressed: "arrow.up.arrow.down.circle",
+                                        dark: true,
+                                        inset: false,
+                                        tag: .toggleKeyboard,
+                                        to: textView)
+        let close = self.iconButton("keyboard.chevron.compact.down",
+                                    pressed: "keyboard",
+                                    dark: true,
+                                    inset: false,
+                                    tag: .dismissKeyboard,
+                                    to: textView)
+        bar.setItems([indent, UIBarButtonItem.fixedSpace(3),
+                      undent, UIBarButtonItem.fixedSpace(3),
+                      comment, UIBarButtonItem.fixedSpace(3),
+                      uncomment, UIBarButtonItem.fixedSpace(3),
+                      cursorLeft, UIBarButtonItem.fixedSpace(3),
+                      cursorRight, UIBarButtonItem.fixedSpace(3),
+                      cursorUp, UIBarButtonItem.fixedSpace(3),
+                      cursorDown, UIBarButtonItem.flexibleSpace(),
+                      cursorNav, UIBarButtonItem.fixedSpace(4),
+                      close],
+                     animated: true)
+      } else {
+        let dash = self.textButton("-", tag: .dash, to: textView)
+        let times = self.textButton("*", tag: .times, to: textView)
+        let quote = self.textButton("'", tag: .quote, to: textView)
+        let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
+        let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
+        let parenRight = self.textButton(")", tag: .parenRight, to: textView)
+        let equals = self.textButton("=", tag: .equals, to: textView)
+        let question = self.textButton("?", tag: .question, to: textView)
+        let cursorNav = self.iconButton("arrow.up.arrow.down.circle.fill",
+                                        pressed: "arrow.up.arrow.down.circle",
+                                        dark: true,
+                                        inset: false,
+                                        tag: .toggleKeyboard,
+                                        to: textView)
+        let close = self.iconButton("keyboard.chevron.compact.down",
+                                    pressed: "keyboard",
+                                    dark: true,
+                                    inset: false,
+                                    tag: .dismissKeyboard,
+                                    to: textView)
+        bar.setItems([dash, UIBarButtonItem.fixedSpace(3),
+                      times, UIBarButtonItem.fixedSpace(3),
+                      quote, UIBarButtonItem.fixedSpace(3),
+                      doubleQuote, UIBarButtonItem.fixedSpace(3),
+                      parenLeft, UIBarButtonItem.fixedSpace(3),
+                      parenRight, UIBarButtonItem.fixedSpace(3),
+                      equals, UIBarButtonItem.fixedSpace(3),
+                      question, UIBarButtonItem.flexibleSpace(),
+                      cursorNav, UIBarButtonItem.fixedSpace(4),
+                      close],
+                     animated: true)
+      }
+    } else if self.showingCursorKeys {
+      let undo = self.iconButton("arrow.uturn.backward", tag: .undo, to: textView)
+      let redo = self.iconButton("arrow.uturn.forward", tag: .redo, to: textView)
+      let cursorLeft = self.textButton("←", tag: .cursorLeft, to: textView)
+      let cursorRight = self.textButton("→", tag: .cursorRight, to: textView)
+      let cursorUp = self.textButton("↑", tag: .cursorUp, to: textView)
+      let cursorDown = self.textButton("↓", tag: .cursorDown, to: textView)
+      let cursorNav = self.iconButton("arrow.up.arrow.down.circle.fill",
+                                      pressed: "arrow.up.arrow.down.circle",
+                                      dark: true,
+                                      inset: false,
+                                      tag: .toggleKeyboard,
+                                      to: textView)
+      let close = self.iconButton("keyboard.chevron.compact.down",
+                                  pressed: "keyboard",
+                                  dark: true,
+                                  inset: false,
+                                  tag: .dismissKeyboard,
+                                  to: textView)
+      bar.setItems([undo, UIBarButtonItem.fixedSpace(4),
+                    redo, UIBarButtonItem.fixedSpace(4),
+                    cursorLeft, UIBarButtonItem.fixedSpace(4),
+                    cursorRight, UIBarButtonItem.fixedSpace(4),
+                    cursorUp, UIBarButtonItem.fixedSpace(4),
+                    cursorDown, UIBarButtonItem.flexibleSpace(),
+                    cursorNav, UIBarButtonItem.fixedSpace(4),
+                    close],
+                   animated: true)
     } else {
       let hash = self.textButton("#", tag: .hash, to: textView)
       let dash = self.textButton("-", tag: .dash, to: textView)
@@ -142,19 +228,29 @@ final class CodeEditorKeyboard {
       let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
       let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
       let parenRight = self.textButton(")", tag: .parenRight, to: textView)
-      let ibutton = self.imageButton(UIImage(systemName: "keyboard.chevron.compact.down"),
-                                     tag: .dismissKeyboard,
-                                     pressed: UIImage(systemName: "keyboard"),
-                                     to: textView)
-      bar.setItems([hash, UIBarButtonItem.fixedSpace(6),
-                    dash, UIBarButtonItem.fixedSpace(6),
-                    times, UIBarButtonItem.fixedSpace(6),
-                    backquote, UIBarButtonItem.fixedSpace(6),
-                    quote, UIBarButtonItem.fixedSpace(6),
-                    doubleQuote, UIBarButtonItem.fixedSpace(6),
-                    parenLeft, UIBarButtonItem.fixedSpace(6),
+      let cursorNav = self.iconButton("arrow.up.arrow.down.circle.fill",
+                                      pressed: "arrow.up.arrow.down.circle",
+                                      dark: true,
+                                      inset: false,
+                                      tag: .toggleKeyboard,
+                                      to: textView)
+      let close = self.iconButton("keyboard.chevron.compact.down",
+                                  pressed: "keyboard",
+                                  dark: true,
+                                  inset: false,
+                                  tag: .dismissKeyboard,
+                                  to: textView)
+      bar.setItems([hash, UIBarButtonItem.fixedSpace(3),
+                    dash, UIBarButtonItem.fixedSpace(3),
+                    times, UIBarButtonItem.fixedSpace(3),
+                    backquote, UIBarButtonItem.fixedSpace(3),
+                    quote, UIBarButtonItem.fixedSpace(3),
+                    doubleQuote, UIBarButtonItem.fixedSpace(3),
+                    parenLeft, UIBarButtonItem.fixedSpace(3),
                     parenRight, UIBarButtonItem.flexibleSpace(),
-                    ibutton], animated: false)
+                    cursorNav, UIBarButtonItem.fixedSpace(4),
+                    close],
+                   animated: true)
     }
     bar.isUserInteractionEnabled = true
     bar.sizeToFit()
@@ -180,39 +276,39 @@ final class CodeEditorKeyboard {
                 last.barButtonItems.count == 9 {
         textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
       }
-    } else {
-      if self.shouldUseExtendedKeyboard {
-        let currentEditorType = self.currentEditorType(for: textView)
-        if textView.inputAccessoryView == nil {
-          self.editorType = currentEditorType
-          textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
-          // The following hack makes sure the other views adjust correctly
-          if textView.isFirstResponder {
-            textView.resignFirstResponder()
-          } else {
-            textView.becomeFirstResponder()
-          }
-        } else if currentEditorType != self.editorType {
-          self.editorType = currentEditorType
-          textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
-          textView.reloadInputViews()
-        }
-        // bar.frame = CGRect(x: 0, y: 0, width: 13 * (32 + 6) + 8, height: bar.frame.size.height)
-        /* let scrollView = UIScrollView()
-        scrollView.frame = bar.frame
-        scrollView.bounds = bar.bounds
-        scrollView.autoresizingMask = UIView.AutoresizingMask.flexibleWidth.union(
-         UIView.AutoresizingMask.flexibleRightMargin)
-        scrollView.showsVerticalScrollIndicator = false
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.bounces = false
-        scrollView.contentSize = bar.frame.size
-        scrollView.addSubview(bar)
-        textView.inputAccessoryView = scrollView */
-      } else if textView.inputAccessoryView != nil {
-        textView.inputAccessoryView = nil
+    } else if self.shouldUseExtendedKeyboard {
+      let currentEditorType = self.currentEditorType(for: textView)
+      if textView.inputAccessoryView == nil {
+        self.editorType = currentEditorType
+        textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
+        textView.reloadInputViews()
+        // The following hack makes sure the other views adjust correctly
+        /* if textView.isFirstResponder {
+          textView.resignFirstResponder()
+        } else {
+          textView.becomeFirstResponder()
+        } */
+      } else if currentEditorType != self.editorType {
+        self.editorType = currentEditorType
+        textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
         textView.reloadInputViews()
       }
+    } else if textView.inputAccessoryView != nil {
+      textView.inputAccessoryView = nil
+      textView.reloadInputViews()
+    }
+  }
+  
+  func toggleKeyboard(for textView: CodeEditorTextView) {
+    self.showingCursorKeys.toggle()
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      if !textView.inputAssistantItem.trailingBarButtonGroups.isEmpty {
+        textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
+        textView.inputAssistantItem.trailingBarButtonGroups.append(self.iPadKeyboard(for: textView))
+      }
+    } else {
+      textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
+      textView.reloadInputViews()
     }
   }
   
@@ -232,36 +328,55 @@ final class CodeEditorKeyboard {
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
     let button = UIButton(type: .roundedRect)
     button.tag = tag.rawValue
-    button.frame.size.width = 32
-    button.frame.size.height = 34
+    button.heightAnchor.constraint(equalToConstant: 32).isActive = true
+    button.widthAnchor.constraint(equalToConstant: 30).isActive = true
     button.setTitle(title, for: .normal)
     button.setTitleColor(.label, for: .normal)
     button.setTitleColor(UIColor(named: "KeyHighlightColor"), for: .highlighted)
     button.backgroundColor = UIColor(named: "KeyColor")
+    button.translatesAutoresizingMaskIntoConstraints = false
     return self.buttonItem(button, tag: tag, to: textView)
   }
   
-  private func imageButton(_ image: UIImage?,
-                           tag: KeyTag,
-                           pressed pimage: UIImage? = nil,
-                           to textView: CodeEditorTextView) -> UIBarButtonItem {
+  private func iconButton(_ name: String,
+                          pressed hl: String? = nil,
+                          dark: Bool = false,
+                          inset: Bool = true,
+                          tag: KeyTag,
+                          to textView: CodeEditorTextView) -> UIBarButtonItem {
+    let imgConfig = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular, scale: .default)
     let button = UIButton(type: .roundedRect)
+    // var config = UIButton.Configuration.plain()
+    // config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+    // button.configuration = config
     button.tag = tag.rawValue
-    button.frame.size.width = 34
-    button.frame.size.height = 34
-    button.setImage(image, for: .normal)
-    button.setImage(pimage, for: .highlighted)
+    if inset {
+      button.heightAnchor.constraint(equalToConstant: 32).isActive = true
+      button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+      button.setImage(UIImage(systemName: name, withConfiguration: imgConfig)!, for: .normal)
+      if let hl {
+        button.setImage(UIImage(systemName: hl, withConfiguration: imgConfig)!, for: .highlighted)
+      }
+    } else {
+      button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+      button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+      button.setImage(UIImage(systemName: name)!, for: .normal)
+      if let hl {
+        button.setImage(UIImage(systemName: hl)!, for: .highlighted)
+      }
+    }
     button.tintColor = .label
-    button.backgroundColor = UIColor(named: "DarkKeyColor")
+    button.backgroundColor = UIColor(named: dark ? "DarkKeyColor" : "KeyColor")
+    button.translatesAutoresizingMaskIntoConstraints = false
     return self.buttonItem(button, tag: tag, to: textView)
   }
   
   private func buttonItem(_ button: UIButton,
                           tag: KeyTag,
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
-    button.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
+    // button.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
                               // .union(UIView.AutoresizingMask.flexibleHeight)
-                              .union(UIView.AutoresizingMask.flexibleLeftMargin)
+                              // .union(UIView.AutoresizingMask.flexibleLeftMargin)
                               // .union(UIView.AutoresizingMask.flexibleRightMargin)
                               // .union(UIView.AutoresizingMask.flexibleTopMargin)
                               // .union(UIView.AutoresizingMask.flexibleBottomMargin)

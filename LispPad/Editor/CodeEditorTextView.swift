@@ -249,6 +249,8 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
 
   @objc func keyboardButtonPressed(_ sender: UIButton) {
     switch sender.tag {
+      case CodeEditorKeyboard.KeyTag.toggleKeyboard.rawValue:
+        self.keyboard.toggleKeyboard(for: self)
       case CodeEditorKeyboard.KeyTag.dash.rawValue:
         self.insertText("-")
       case CodeEditorKeyboard.KeyTag.times.rawValue:
@@ -271,8 +273,63 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
         self.insertText("`")
       case CodeEditorKeyboard.KeyTag.underscore.rawValue:
         self.insertText("_")
+      case CodeEditorKeyboard.KeyTag.indent.rawValue:
+        self.indent()
+      case CodeEditorKeyboard.KeyTag.undent.rawValue:
+        self.outdent()
+      case CodeEditorKeyboard.KeyTag.comment.rawValue:
+        self.comment()
+      case CodeEditorKeyboard.KeyTag.uncomment.rawValue:
+        self.uncomment()
+      case CodeEditorKeyboard.KeyTag.cursorLeft.rawValue:
+        self.moveCursor(direction: .left)
+      case CodeEditorKeyboard.KeyTag.cursorRight.rawValue:
+        self.moveCursor(direction: .right)
+      case CodeEditorKeyboard.KeyTag.cursorUp.rawValue:
+        self.moveCursor(direction: .up)
+      case CodeEditorKeyboard.KeyTag.cursorDown.rawValue:
+        self.moveCursor(direction: .down)
+      case CodeEditorKeyboard.KeyTag.undo.rawValue:
+        self.undoManager?.undo()
+      case CodeEditorKeyboard.KeyTag.redo.rawValue:
+        self.undoManager?.redo()
       default:
         self.resignFirstResponder()
+    }
+  }
+  
+  private enum CursorDirection {
+    case left, right, up, down
+  }
+  
+  private func moveCursor(direction: CursorDirection) {
+    let currentPosition = self.selectedRange.location
+    var newPosition: Int?
+    switch direction {
+      case .left:
+        if currentPosition > 0 {
+          newPosition = currentPosition - 1
+        }
+      case .right:
+        if currentPosition < self.text.count {
+          newPosition = currentPosition + 1
+        }
+      case .up:
+        if let position = self.position(from: self.beginningOfDocument, offset: currentPosition),
+           let targetPosition = self.position(from: position, in: .up, offset: 1) {
+          newPosition = self.offset(from: self.beginningOfDocument, to: targetPosition)
+        }
+      case .down:
+        if let position = self.position(from: self.beginningOfDocument, offset: currentPosition),
+           let targetPosition = self.position(from: position, in: .down, offset: 1) {
+          newPosition = self.offset(from: self.beginningOfDocument, to: targetPosition)
+        }
+    }
+    if let newPosition = newPosition {
+      self.selectedRange = NSRange(location: newPosition, length: 0)
+      if self.position(from: self.beginningOfDocument, offset: newPosition) != nil {
+        self.scrollRangeToVisible(NSRange(location: newPosition, length: 0))
+      }
     }
   }
   

@@ -353,9 +353,13 @@ struct TextFormatter {
     let selectedRange = textView.selectedRange
     var start = selectedRange.location
     var end = start + selectedRange.length
+    let atLineStart = start <= str.length && start > 0 && str.character(at: start - 1) == NEWLINE
     // Find the beginning of the current line
     while start > 0 && str.character(at: start - 1) != NEWLINE {
       start -= 1
+    }
+    guard start < str.length else {
+      return nil
     }
     var correction = 0
     // Remove first space if it exists
@@ -398,9 +402,9 @@ struct TextFormatter {
     guard end < selectedRange.location + selectedRange.length else {
       return nil
     }
-    // Determine replacement range and replacement string
-    return NSRange(location: selectedRange.location - correction,
-                   length: end - selectedRange.location + correction)
+    // Determine new selected range
+    return NSRange(location: selectedRange.location - correction + (atLineStart ? 1 : 0),
+                   length: max(end - selectedRange.location + correction, 0))
   }
 
   /// Expand the current selection left and right to cover the full enclosing Lisp expression.
