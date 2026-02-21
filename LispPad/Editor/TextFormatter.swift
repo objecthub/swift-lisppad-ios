@@ -403,8 +403,9 @@ struct TextFormatter {
       return nil
     }
     // Determine new selected range
-    return NSRange(location: selectedRange.location - correction + (atLineStart ? 1 : 0),
-                   length: max(end - selectedRange.location + correction, 0))
+    return NSRange(
+             location: selectedRange.location - correction + (atLineStart ? 1 : 0),
+             length: max(end - selectedRange.location + correction - (atLineStart ? 1 : 0), 0))
   }
 
   /// Expand the current selection left and right to cover the full enclosing Lisp expression.

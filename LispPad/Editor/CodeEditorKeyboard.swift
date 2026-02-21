@@ -159,7 +159,7 @@ final class CodeEditorKeyboard {
                       close],
                      animated: true)
       } else {
-        let dash = self.textButton("-", tag: .dash, to: textView)
+        let dash = self.textButton("–", tag: .dash, to: textView)
         let times = self.textButton("*", tag: .times, to: textView)
         let quote = self.textButton("'", tag: .quote, to: textView)
         let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
@@ -167,8 +167,8 @@ final class CodeEditorKeyboard {
         let parenRight = self.textButton(")", tag: .parenRight, to: textView)
         let equals = self.textButton("=", tag: .equals, to: textView)
         let question = self.textButton("?", tag: .question, to: textView)
-        let cursorNav = self.iconButton("arrow.up.arrow.down.circle.fill",
-                                        pressed: "arrow.up.arrow.down.circle",
+        let cursorNav = self.iconButton("arrow.up.arrow.down.circle",
+                                        pressed: "arrow.up.arrow.down.circle.fill",
                                         dark: true,
                                         inset: false,
                                         tag: .toggleKeyboard,
@@ -194,6 +194,8 @@ final class CodeEditorKeyboard {
     } else if self.showingCursorKeys {
       let undo = self.iconButton("arrow.uturn.backward", tag: .undo, to: textView)
       let redo = self.iconButton("arrow.uturn.forward", tag: .redo, to: textView)
+      let indent = self.iconButton("increase.indent", tag: .indent, to: textView)
+      let undent = self.iconButton("decrease.indent", tag: .undent, to: textView)
       let cursorLeft = self.textButton("←", tag: .cursorLeft, to: textView)
       let cursorRight = self.textButton("→", tag: .cursorRight, to: textView)
       let cursorUp = self.textButton("↑", tag: .cursorUp, to: textView)
@@ -210,26 +212,28 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([undo, UIBarButtonItem.fixedSpace(4),
-                    redo, UIBarButtonItem.fixedSpace(4),
-                    cursorLeft, UIBarButtonItem.fixedSpace(4),
-                    cursorRight, UIBarButtonItem.fixedSpace(4),
-                    cursorUp, UIBarButtonItem.fixedSpace(4),
+      bar.setItems([undo, UIBarButtonItem.fixedSpace(3),
+                    redo, UIBarButtonItem.fixedSpace(3),
+                    indent, UIBarButtonItem.fixedSpace(3),
+                    undent, UIBarButtonItem.fixedSpace(3),
+                    cursorLeft, UIBarButtonItem.fixedSpace(3),
+                    cursorRight, UIBarButtonItem.fixedSpace(3),
+                    cursorUp, UIBarButtonItem.fixedSpace(3),
                     cursorDown, UIBarButtonItem.flexibleSpace(),
                     cursorNav, UIBarButtonItem.fixedSpace(4),
                     close],
                    animated: true)
     } else {
       let hash = self.textButton("#", tag: .hash, to: textView)
-      let dash = self.textButton("-", tag: .dash, to: textView)
+      let dash = self.textButton("–", tag: .dash, to: textView)
+      let underscore = self.textButton("_", tag: .underscore, to: textView)
       let times = self.textButton("*", tag: .times, to: textView)
       let backquote = self.textButton("`", tag: .backquote, to: textView)
-      let quote = self.textButton("'", tag: .quote, to: textView)
       let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
       let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
       let parenRight = self.textButton(")", tag: .parenRight, to: textView)
-      let cursorNav = self.iconButton("arrow.up.arrow.down.circle.fill",
-                                      pressed: "arrow.up.arrow.down.circle",
+      let cursorNav = self.iconButton("arrow.up.arrow.down.circle",
+                                      pressed: "arrow.up.arrow.down.circle.fill",
                                       dark: true,
                                       inset: false,
                                       tag: .toggleKeyboard,
@@ -242,9 +246,9 @@ final class CodeEditorKeyboard {
                                   to: textView)
       bar.setItems([hash, UIBarButtonItem.fixedSpace(3),
                     dash, UIBarButtonItem.fixedSpace(3),
+                    underscore, UIBarButtonItem.fixedSpace(3),
                     times, UIBarButtonItem.fixedSpace(3),
                     backquote, UIBarButtonItem.fixedSpace(3),
-                    quote, UIBarButtonItem.fixedSpace(3),
                     doubleQuote, UIBarButtonItem.fixedSpace(3),
                     parenLeft, UIBarButtonItem.fixedSpace(3),
                     parenRight, UIBarButtonItem.flexibleSpace(),
