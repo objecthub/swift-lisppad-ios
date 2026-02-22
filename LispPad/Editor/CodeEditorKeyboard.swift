@@ -82,35 +82,85 @@ final class CodeEditorKeyboard {
   
   private func iPadKeyboard(for textView: CodeEditorTextView) -> UIBarButtonItemGroup {
     if self.editorType == .scheme {
-      let dash = self.keyboardButton("Key.dash", tag: .dash, to: textView)
-      let times = self.keyboardButton("Key.star", tag: .times, to: textView)
-      let quote = self.keyboardButton("Key.quote", tag: .quote, to: textView)
-      let doubleQuote = self.keyboardButton("Key.doublequote", tag: .doubleQuote, to: textView)
-      let parenLeft = self.keyboardButton("Key.lparen", tag: .parenLeft, to: textView)
-      let parenRight = self.keyboardButton("Key.rparen", tag: .parenRight, to: textView)
-      let equals = self.keyboardButton("Key.equals", tag: .equals, to: textView)
-      let question = self.keyboardButton("Key.questionmark", tag: .question, to: textView)
-      let hash = self.keyboardButton("Key.hash", tag: .hash, to: textView)
+      if self.showingCursorKeys {
+        let indent = self.ipadIconButton("increase.indent", tag: .indent, to: textView)
+        let undent = self.ipadIconButton("decrease.indent", tag: .undent, to: textView)
+        let comment = self.ipadIconButton("text.bubble", tag: .comment, to: textView)
+        let uncomment = self.ipadIconButton("bubble.left", tag: .uncomment, to: textView)
+        let cursorLeft = self.ipadButton("←", tag: .cursorLeft, to: textView)
+        let cursorRight = self.ipadButton("→", tag: .cursorRight, to: textView)
+        let cursorUp = self.ipadButton("↑", tag: .cursorUp, to: textView)
+        let cursorDown = self.ipadButton("↓", tag: .cursorDown, to: textView)
+        let cursorNav = self.ipadIconButton("arrow.up.arrow.down.circle.fill",
+                                            pressed: "arrow.up.arrow.down.circle",
+                                            dark: true,
+                                            inset: false,
+                                            tag: .toggleKeyboard,
+                                            to: textView)
+        return .movableGroup(customizationIdentifier: "Scheme keyboard",
+                             representativeItem: nil,
+                             items: [indent, undent, comment, uncomment,
+                                     cursorLeft, cursorRight, cursorUp,
+                                     cursorDown, cursorNav])
+      } else {
+        let dash = self.ipadButton("–", tag: .dash, to: textView)
+        let times = self.ipadButton("*", tag: .times, to: textView)
+        let quote = self.ipadButton("'", tag: .quote, to: textView)
+        let doubleQuote = self.ipadButton("\"", tag: .doubleQuote, to: textView)
+        let parenLeft = self.ipadButton("(", tag: .parenLeft, to: textView)
+        let parenRight = self.ipadButton(")", tag: .parenRight, to: textView)
+        let equals = self.ipadButton("=", tag: .equals, to: textView)
+        let question = self.ipadButton("?", tag: .question, to: textView)
+        let cursorNav = self.ipadIconButton("arrow.up.arrow.down.circle",
+                                            pressed: "arrow.up.arrow.down.circle.fill",
+                                            dark: true,
+                                            inset: false,
+                                            tag: .toggleKeyboard,
+                                            to: textView)
+        return .movableGroup(customizationIdentifier: "Scheme keyboard",
+                             representativeItem: nil,
+                             items: [dash, times, quote, doubleQuote,
+                                     parenLeft, parenRight, equals,
+                                     question, cursorNav])
+      }
+    } else if self.showingCursorKeys {
+      let indent = self.ipadIconButton("increase.indent", tag: .indent, to: textView)
+      let undent = self.ipadIconButton("decrease.indent", tag: .undent, to: textView)
+      let cursorLeft = self.ipadButton("←", tag: .cursorLeft, to: textView)
+      let cursorRight = self.ipadButton("→", tag: .cursorRight, to: textView)
+      let cursorUp = self.ipadButton("↑", tag: .cursorUp, to: textView)
+      let cursorDown = self.ipadButton("↓", tag: .cursorDown, to: textView)
+      let cursorNav = self.ipadIconButton("arrow.up.arrow.down.circle.fill",
+                                          pressed: "arrow.up.arrow.down.circle",
+                                          dark: true,
+                                          inset: false,
+                                          tag: .toggleKeyboard,
+                                          to: textView)
       return .movableGroup(customizationIdentifier: "Scheme keyboard",
                            representativeItem: nil,
-                           items: [dash, times, quote, doubleQuote,
-                                   parenLeft, parenRight, equals,
-                                   question, hash])
+                           items: [indent, undent,
+                                   cursorLeft, cursorRight, cursorUp,
+                                   cursorDown, cursorNav])
     } else {
-      let dash = self.keyboardButton("Key.dash", tag: .dash, to: textView)
-      let times = self.keyboardButton("Key.star", tag: .times, to: textView)
-      let quote = self.keyboardButton("Key.quote", tag: .quote, to: textView)
-      let doubleQuote = self.keyboardButton("Key.doublequote", tag: .doubleQuote, to: textView)
-      let parenLeft = self.keyboardButton("Key.lparen", tag: .parenLeft, to: textView)
-      let parenRight = self.keyboardButton("Key.rparen", tag: .parenRight, to: textView)
-      let backquote = self.keyboardButton("Key.backquote", tag: .backquote, to: textView)
-      let underscore = self.keyboardButton("Key.underscore", tag: .underscore, to: textView)
-      let hash = self.keyboardButton("Key.hash", tag: .hash, to: textView)
+      let hash = self.ipadButton("#", tag: .hash, to: textView)
+      let dash = self.ipadButton("–", tag: .dash, to: textView)
+      let underscore = self.ipadButton("_", tag: .underscore, to: textView)
+      let times = self.ipadButton("*", tag: .times, to: textView)
+      let backquote = self.ipadButton("`", tag: .backquote, to: textView)
+      let doubleQuote = self.ipadButton("\"", tag: .doubleQuote, to: textView)
+      let parenLeft = self.ipadButton("(", tag: .parenLeft, to: textView)
+      let parenRight = self.ipadButton(")", tag: .parenRight, to: textView)
+      let cursorNav = self.ipadIconButton("arrow.up.arrow.down.circle",
+                                      pressed: "arrow.up.arrow.down.circle.fill",
+                                      dark: true,
+                                      inset: false,
+                                      tag: .toggleKeyboard,
+                                      to: textView)
       return .movableGroup(customizationIdentifier: "Text keyboard",
                            representativeItem: nil,
-                           items: [dash, times, quote, doubleQuote,
-                                   parenLeft, parenRight, backquote,
-                                   underscore, hash])
+                           items: [hash, dash, underscore, times,
+                                   backquote, doubleQuote,
+                                   parenLeft, parenRight, cursorNav])
     }
   }
   
@@ -266,19 +316,22 @@ final class CodeEditorKeyboard {
       if self.shouldUseExtendedKeyboard {
         let currentEditorType = self.currentEditorType(for: textView)
         if textView.inputAssistantItem.trailingBarButtonGroups.isEmpty ||
-           textView.inputAssistantItem.trailingBarButtonGroups.last!.barButtonItems.count != 9 {
+           textView.inputAssistantItem.trailingBarButtonGroups.last!.barButtonItems.count < 7 {
           self.editorType = currentEditorType
-          textView.inputAssistantItem.trailingBarButtonGroups.append(
-            self.iPadKeyboard(for: textView))
+          textView.inputAssistantItem.trailingBarButtonGroups.append(self.iPadKeyboard(for: textView))
         } else if currentEditorType != self.editorType {
           self.editorType = currentEditorType
-          textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
-          textView.inputAssistantItem.trailingBarButtonGroups.append(
-            self.iPadKeyboard(for: textView))
+          if let last = textView.inputAssistantItem.trailingBarButtonGroups.last,
+             last.barButtonItems.count >= 7 {
+            textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
+          }
+          textView.inputAssistantItem.trailingBarButtonGroups.append(self.iPadKeyboard(for: textView))
+          textView.reloadInputViews()
         }
       } else if let last = textView.inputAssistantItem.trailingBarButtonGroups.last,
-                last.barButtonItems.count == 9 {
+                last.barButtonItems.count >= 7 {
         textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
+        textView.reloadInputViews()
       }
     } else if self.shouldUseExtendedKeyboard {
       let currentEditorType = self.currentEditorType(for: textView)
@@ -306,25 +359,17 @@ final class CodeEditorKeyboard {
   func toggleKeyboard(for textView: CodeEditorTextView) {
     self.showingCursorKeys.toggle()
     if UIDevice.current.userInterfaceIdiom == .pad {
-      if !textView.inputAssistantItem.trailingBarButtonGroups.isEmpty {
-        textView.inputAssistantItem.trailingBarButtonGroups.removeLast()
-        textView.inputAssistantItem.trailingBarButtonGroups.append(self.iPadKeyboard(for: textView))
+      if let last = textView.inputAssistantItem.trailingBarButtonGroups.last,
+         last.barButtonItems.count >= 7 {
+        let numGroups = textView.inputAssistantItem.trailingBarButtonGroups.count
+        textView.inputAssistantItem.trailingBarButtonGroups[numGroups - 1] =
+          self.iPadKeyboard(for: textView)
+        textView.reloadInputViews()
       }
     } else {
       textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
       textView.reloadInputViews()
     }
-  }
-  
-  private func keyboardButton(_ name: String,
-                              tag: KeyTag,
-                              to textView: CodeEditorTextView) -> UIBarButtonItem {
-    let item = UIBarButtonItem(image: UIImage(named: name)?.withRenderingMode(.alwaysTemplate),
-                               style: .plain,
-                               target: textView,
-                               action: #selector(textView.keyboardButtonPressed(_:)))
-    item.tag = tag.rawValue
-    return item
   }
   
   private func textButton(_ title: String,
@@ -375,7 +420,57 @@ final class CodeEditorKeyboard {
     return self.buttonItem(button, tag: tag, to: textView)
   }
   
+  private func ipadButton(_ title: String,
+                          tag: KeyTag,
+                          to textView: CodeEditorTextView) -> UIBarButtonItem {
+    let button = UIButton(type: .roundedRect)
+    button.tag = tag.rawValue
+    button.setTitle(title, for: .normal)
+    button.setTitleColor(.label, for: .normal)
+    button.setTitleColor(UIColor(named: "KeyHighlightColor"), for: .highlighted)
+    button.backgroundColor = UIColor(named: "KeyColor")
+    button.titleLabel?.font = .systemFont(ofSize: 15)
+    button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+    button.widthAnchor.constraint(equalToConstant: 44).isActive = true
+    // var config = UIButton.Configuration.plain()
+    // config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+    // button.configuration = config
+    button.translatesAutoresizingMaskIntoConstraints = false
+    return self.buttonItem(button, container: true, tag: tag, to: textView)
+  }
+  
+  private func ipadIconButton(_ name: String,
+                              pressed hl: String? = nil,
+                              dark: Bool = false,
+                              inset: Bool = true,
+                              tag: KeyTag,
+                              to textView: CodeEditorTextView) -> UIBarButtonItem {
+    let imgConfig = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular, scale: .default)
+    let button = UIButton(type: .roundedRect)
+    button.tag = tag.rawValue
+    if inset {
+      button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+      button.widthAnchor.constraint(equalToConstant: 44).isActive = true
+      button.setImage(UIImage(systemName: name, withConfiguration: imgConfig)!, for: .normal)
+      if let hl {
+        button.setImage(UIImage(systemName: hl, withConfiguration: imgConfig)!, for: .highlighted)
+      }
+    } else {
+      button.heightAnchor.constraint(equalToConstant: 32).isActive = true
+      button.widthAnchor.constraint(equalToConstant: 44).isActive = true
+      button.setImage(UIImage(systemName: name)!, for: .normal)
+      if let hl {
+        button.setImage(UIImage(systemName: hl)!, for: .highlighted)
+      }
+    }
+    button.tintColor = .label
+    button.backgroundColor = UIColor(named: dark ? "DarkKeyColor" : "KeyColor")
+    button.translatesAutoresizingMaskIntoConstraints = false
+    return self.buttonItem(button, container: true, tag: tag, to: textView)
+  }
+  
   private func buttonItem(_ button: UIButton,
+                          container: Bool = false,
                           tag: KeyTag,
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
     // button.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
@@ -394,7 +489,22 @@ final class CodeEditorKeyboard {
     button.addTarget(textView,
                      action: #selector(textView.keyboardButtonPressed(_:)),
                      for: .touchUpInside)
-    let item = UIBarButtonItem(customView: button)
+    let item: UIBarButtonItem
+    if container {
+      let container = UIView()
+      container.translatesAutoresizingMaskIntoConstraints = false
+      container.addSubview(button)
+      NSLayoutConstraint.activate([
+        button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+        button.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 4),
+        button.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -4),
+        button.heightAnchor.constraint(equalToConstant: 40),
+        container.heightAnchor.constraint(equalToConstant: 44)
+      ])
+      item = UIBarButtonItem(customView: container)
+    } else {
+      item = UIBarButtonItem(customView: button)
+    }
     item.tag = tag.rawValue
     return item
   }
