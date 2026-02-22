@@ -1,10 +1,13 @@
 # Changelog
 
-## 2.2.1 (2026-02-18)
+## 2.2.1 (2026-02-22)
 
 - Allow executing commands by pressing return on hardware keyboards
-- Fix inconsistent documentation font sizes
+- Revamped keyboard experience supporting a second extension focused on navigation
 - Redesigned definition/document structure switchboard user experience
+- Refreshed user experience for some panels
+- Fixed inconsistent documentation font sizes
+- Fixed bugs involving indentation and commenting features
 
 ## 2.2 (2026-02-15)
 
