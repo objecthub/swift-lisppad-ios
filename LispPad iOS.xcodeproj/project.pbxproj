@@ -22,6 +22,11 @@
 		CC289F262EBC196E00299751 /* DocumentationBrowserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */; };
 		CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5026FE93F900835745 /* LispPadUI.swift */; };
 		CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5A2700828600835745 /* SlideOverCard.swift */; };
+		CC321E642F6DA8230094C57A /* EvalIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E632F6DA8230094C57A /* EvalIntent.swift */; };
+		CC321E662F6DA82B0094C57A /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E652F6DA82B0094C57A /* Shortcuts.swift */; };
+		CC321E692F6EABF70094C57A /* IntentInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E682F6EABF20094C57A /* IntentInterpreter.swift */; };
+		CC321E6B2F6F2CEC0094C57A /* EvalResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E6A2F6F2CE60094C57A /* EvalResult.swift */; };
+		CC321E6D2F7032B30094C57A /* AppletLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E6C2F7032A60094C57A /* AppletLibrary.swift */; };
 		CC327C3A260DE60100BD7E32 /* EnvironmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */; };
 		CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */; };
 		CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C46260E1D5100BD7E32 /* ShareSheet.swift */; };
@@ -521,6 +526,11 @@
 		CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationBrowserState.swift; sourceTree = "<group>"; };
 		CC302E5026FE93F900835745 /* LispPadUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadUI.swift; sourceTree = "<group>"; };
 		CC302E5A2700828600835745 /* SlideOverCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideOverCard.swift; sourceTree = "<group>"; };
+		CC321E632F6DA8230094C57A /* EvalIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalIntent.swift; sourceTree = "<group>"; };
+		CC321E652F6DA82B0094C57A /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
+		CC321E682F6EABF20094C57A /* IntentInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentInterpreter.swift; sourceTree = "<group>"; };
+		CC321E6A2F6F2CE60094C57A /* EvalResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalResult.swift; sourceTree = "<group>"; };
+		CC321E6C2F7032A60094C57A /* AppletLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppletLibrary.swift; sourceTree = "<group>"; };
 		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
 		CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResignKeyboard.swift; sourceTree = "<group>"; };
@@ -769,6 +779,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CC321E672F6DFEDC0094C57A /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				CC321E632F6DA8230094C57A /* EvalIntent.swift */,
+				CC321E6A2F6F2CE60094C57A /* EvalResult.swift */,
+				CC321E682F6EABF20094C57A /* IntentInterpreter.swift */,
+				CC321E652F6DA82B0094C57A /* Shortcuts.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
 		CC6598CB27240983004C9B89 /* Log */ = {
 			isa = PBXGroup;
 			children = (
@@ -836,6 +857,7 @@
 				CCC8565E261D09190080B96E /* Preferences */,
 				CCC85642261989710080B96E /* Help */,
 				CCC8564326198A500080B96E /* Generic Views */,
+				CC321E672F6DFEDC0094C57A /* Intents */,
 				CCFBC5C92605F4D700E29F99 /* Util */,
 				CC8B95B82607FFBC00830B4F /* Libraries */,
 				CC8B951F26079EC700830B4F /* Resources */,
@@ -1072,6 +1094,7 @@
 			isa = PBXGroup;
 			children = (
 				CC8B95C82608102300830B4F /* SystemLibrary.swift */,
+				CC321E6C2F7032A60094C57A /* AppletLibrary.swift */,
 				CC8B95B92607FFDA00830B4F /* AudioLibrary.swift */,
 				CCBF9E6726C8744D00654D60 /* LocationLibrary.swift */,
 				CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */,
@@ -1330,7 +1353,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1240;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					CC84C24525FE59EE00758581 = {
 						CreatedOnToolsVersion = 12.4;
@@ -1412,6 +1435,7 @@
 				CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */,
 				CC327C582610CF4D00BD7E32 /* CodeEditor.swift in Sources */,
 				CCE8E444262C258400E3DC6A /* SaveAs.swift in Sources */,
+				CC321E642F6DA8230094C57A /* EvalIntent.swift in Sources */,
 				CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */,
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
@@ -1459,7 +1483,9 @@
 				CCA3C69E2B0885A500C0BDE6 /* CanvasConsole.swift in Sources */,
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
 				CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */,
+				CC321E6B2F6F2CEC0094C57A /* EvalResult.swift in Sources */,
 				CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */,
+				CC321E6D2F7032B30094C57A /* AppletLibrary.swift in Sources */,
 				CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */,
 				CCBEA78F2EAD6D7B005AD4A3 /* DocumentationBrowser.swift in Sources */,
 				CCC85660261D09410080B96E /* PreferencesView.swift in Sources */,
@@ -1489,11 +1515,13 @@
 				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
 				CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */,
+				CC321E662F6DA82B0094C57A /* Shortcuts.swift in Sources */,
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
 				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
 				CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
+				CC321E692F6EABF70094C57A /* IntentInterpreter.swift in Sources */,
 				CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */,
 				CC233D5926696C970038016C /* ImageUtil.swift in Sources */,
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
@@ -1570,6 +1598,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -1628,6 +1657,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;

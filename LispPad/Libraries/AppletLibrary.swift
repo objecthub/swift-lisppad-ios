@@ -1,0 +1,464 @@
+//
+//  ShortcutLibrary.swift
+//  LispPad
+//
+//  Created by Matthias Zenger on 22/03/2026.
+//  Copyright © 2026 Matthias Zenger. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import Foundation
+import AppIntents
+import LispKit
+import UniformTypeIdentifiers
+import PDFKit
+
+///
+/// This class implements the LispPad-specific library `(lisppad applet)`.
+///
+public final class AppletLibrary: NativeLibrary {
+  
+  /// If this is set, it overrides the arguments from the context.
+  private var argumentOverride: AppletResult? = nil
+  
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lisppad", "applet"]
+  }
+  
+  /// Initialization
+  public required init(in context: Context) throws {
+    try super.init(in: context)
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("running-as-applet?", self.isRunningAsApplet))
+    self.define(Procedure("applet-string-arguments", self.appletStringArguments))
+    self.define(Procedure("applet-file-arguments", self.appletFileArguments))
+    self.define(Procedure("applet-arguments-override!", self.appletArgumentsOverride))
+    self.define(Procedure("make-applet-result", self.makeAppletResult))
+    self.define(Procedure("applet-result?", self.isAppletResult))
+    self.define(Procedure("applet-result-append!", self.appletResultAppend))
+    self.define(Procedure("applet-result-strings", self.appletResultStrings))
+    self.define(Procedure("applet-result-string-append!", self.appletResultStringAppend))
+    self.define(Procedure("applet-result-files", self.appletResultFiles))
+    self.define(Procedure("applet-result-file-append!", self.appletResultFileAppend))
+    self.define(Procedure("make-applet-file", self.makeAppletFile))
+    self.define(Procedure("applet-file?", self.isAppletFile))
+    self.define(Procedure("applet-file-transiet?", self.appletFileTransient))
+    self.define(Procedure("applet-file-name", self.appletFileName))
+    self.define(Procedure("applet-file-path", self.appletFilePath))
+    self.define(Procedure("applet-file-type", self.appletFileType))
+    self.define(Procedure("applet-file-data", self.appletFileData))
+    self.define(Procedure("applet-file-available-types", self.appletFileAvailableTypes))
+  }
+  
+  public override func initializations() {
+  }
+  
+  private func appletContext() throws -> IntentInterpreter.Context {
+    guard let context = self.context as? IntentInterpreter.Context else {
+      throw RuntimeError.custom("error", "program not running as an applet", [])
+    }
+    return context
+  }
+  
+  private func appletResult(_ expr: Expr) throws -> AppletResult {
+    guard case .object(let obj) = expr, let res = obj as? AppletResult else {
+      throw RuntimeError.type(expr, expected: [AppletResult.type])
+    }
+    return res
+  }
+  
+  private func appletFile(_ expr: Expr) throws -> AppletFile {
+    guard case .object(let obj) = expr, let res = obj as? AppletFile else {
+      throw RuntimeError.type(expr, expected: [AppletFile.type])
+    }
+    return res
+  }
+  
+  private func isRunningAsApplet() -> Expr {
+    guard self.context is IntentInterpreter.Context else {
+      return .false
+    }
+    return .true
+  }
+  
+  private func appletStringArguments(_ forceOrig: Expr?) throws -> Expr {
+    if forceOrig?.isFalse ?? true, let argumentOverride {
+      var res = Expr.null
+      for str in argumentOverride.strings.reversed() {
+        res = .pair(str == nil ? .false : .makeString(str!), res)
+      }
+      return res
+    } else {
+      let context = try self.appletContext()
+      var res = Expr.null
+      for str in context.strings.reversed() {
+        res = .pair(str == nil ? .false : .makeString(str!), res)
+      }
+      return res
+    }
+  }
+  
+  private func appletFileArguments(_ forceOrig: Expr?) throws -> Expr {
+    if forceOrig?.isFalse ?? true, let argumentOverride {
+      var res = Expr.null
+      for file in argumentOverride.files.reversed() {
+        res = .pair(file == nil ? .false : .object(AppletFile(file!)), res)
+      }
+      return res
+    } else {
+      let context = try self.appletContext()
+      var res = Expr.null
+      for file in context.files.reversed() {
+        res = .pair(file == nil ? .false : .object(AppletFile(file!)), res)
+      }
+      return res
+    }
+  }
+  
+  private func appletArgumentsOverride(_ expr: Expr) throws -> Expr {
+    let currentOverride = self.argumentOverride
+    if expr.isFalse {
+      self.argumentOverride = nil
+    } else {
+      self.argumentOverride = try self.appletResult(expr)
+    }
+    if let currentOverride {
+      return .object(currentOverride)
+    } else {
+      return .false
+    }
+  }
+  
+  private func makeAppletResult(_ expr: Expr?) -> Expr {
+    if let expr {
+      let res = AppletResult()
+      res.include(expr)
+      return .object(res)
+    } else {
+      return .object(AppletResult())
+    }
+  }
+  
+  private func isAppletResult(_ expr: Expr) -> Expr {
+    guard case .object(let obj) = expr, obj is AppletResult else {
+      return .false
+    }
+    return .true
+  }
+  
+  private func appletResultStrings(_ expr: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    var res = Expr.null
+    for str in result.strings.reversed() {
+      res = .pair(str == nil ? .false : .makeString(str!), res)
+    }
+    return res
+  }
+  
+  private func appletResultAppend(_ expr: Expr, _ obj: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    result.include(obj)
+    return .void
+  }
+  
+  private func appletResultStringAppend(_ expr: Expr, _ str: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    if str.isTrue {
+      result.strings.append(try str.asString())
+    } else {
+      result.strings.append(nil)
+    }
+    return .makeNumber(result.strings.count - 1)
+  }
+  
+  private func appletResultFiles(_ expr: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    var res = Expr.null
+    for file in result.files.reversed() {
+      res = .pair(file == nil ? .false : .object(AppletFile(file!)), res)
+    }
+    return res
+  }
+  
+  private func appletResultFileAppend(_ expr: Expr, _ f: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    if f.isTrue {
+      result.files.append(try self.appletFile(f).file)
+    } else {
+      result.files.append(nil)
+    }
+    return .makeNumber(result.files.count - 1)
+  }
+  
+  private func makeAppletFile(_ expr: Expr, _ name: Expr?, _ type: Expr?) throws -> Expr {
+    if case .string(_) = expr {
+      let url = URL(fileURLWithPath:
+        self.context.fileHandler.path(try expr.asPath(),
+                                      relativeTo: self.context.evaluator.currentDirectoryPath))
+      if let name, name.isTrue {
+        if let type, type.isTrue {
+          if let tp = try UTType(type.asString()) {
+            return .object(AppletFile(IntentFile(fileURL: url,
+                                                 filename: try name.asString(),
+                                                 type: tp)))
+          } else {
+            return .false
+          }
+        } else {
+          return .object(AppletFile(IntentFile(fileURL: url, filename: try name.asString())))
+        }
+      } else {
+        if let type, type.isTrue {
+          if let tp = try UTType(type.asString()) {
+            return .object(AppletFile(IntentFile(fileURL: url, filename: nil, type: tp)))
+          } else {
+            return .false
+          }
+        } else {
+          return .object(AppletFile(IntentFile(fileURL: url)))
+        }
+      }
+    } else if let name {
+      let data = Data(try expr.asByteVector().value)
+      if let type, type.isTrue {
+        if let tp = try UTType(type.asString()) {
+          return .object(AppletFile(IntentFile(data: data, filename: try name.asString(), type: tp)))
+        } else {
+          return .false
+        }
+      } else {
+        return .object(AppletFile(IntentFile(data: data, filename: try name.asString())))
+      }
+    } else {
+      return .false
+    }
+  }
+  
+  private func isAppletFile(_ expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr, obj is AppletFile else {
+      return .false
+    }
+    return .true
+  }
+  
+  private func appletFileTransient(_ expr: Expr) throws -> Expr {
+    return .makeBoolean(try self.appletFile(expr).file.removedOnCompletion)
+  }
+  
+  private func appletFileName(_ expr: Expr) throws -> Expr {
+    return .makeString(try self.appletFile(expr).file.filename)
+  }
+  
+  private func appletFilePath(_ expr: Expr, _ percentEncoded: Expr?) throws -> Expr {
+    if let url = try self.appletFile(expr).file.fileURL {
+      if let percentEncoded {
+        return .makeString(url.path(percentEncoded: percentEncoded.isTrue))
+      } else {
+        return .makeString(url.path())
+      }
+    } else {
+      return .false
+    }
+  }
+  
+  private func appletFileType(_ expr: Expr) throws -> Expr {
+    let af = try self.appletFile(expr)
+    if let type = af.file.type {
+      return .makeString(type.identifier)
+    } else {
+      return .false
+    }
+  }
+  
+  private func appletFileData(_ expr: Expr, _ type: Expr?) throws -> Expr {
+    let af = try self.appletFile(expr)
+    if let type {
+      if #available(iOS 18.0, *) {
+        if let tp = try UTType(type.asString()) {
+          let responseSemaphore = DispatchSemaphore(value: 0)
+          var data: Data? = nil
+          Task {
+            data = try await af.file.data(contentType: tp)
+            responseSemaphore.signal()
+          }
+          responseSemaphore.wait()
+          if let data {
+            var res = [UInt8](repeating: 0, count: data.count)
+            data.copyBytes(to: &res, count: data.count)
+            return .bytes(MutableBox(res))
+          }
+        }
+      }
+      return .false
+    } else {
+      let data = af.file.data
+      var res = [UInt8](repeating: 0, count: data.count)
+      data.copyBytes(to: &res, count: data.count)
+      return .bytes(MutableBox(res))
+    }
+  }
+  
+  private func appletFileAvailableTypes(_ expr: Expr) throws -> Expr {
+    if #available(iOS 18.0, *) {
+      let types = try self.appletFile(expr).file.availableContentTypes
+      var res = Expr.null
+      for tpe in types {
+        res = .pair(.makeString(tpe.identifier), res)
+      }
+      return res
+    } else {
+      return .false
+    }
+  }
+}
+
+/// Implementation of applet result objects
+class AppletResult: NativeObject {
+  
+  /// Type representing fonts
+  public static let type = Type.objectType(Symbol(uninterned: "applet-result"))
+  
+  var strings: [String?] = []
+  var files: [IntentFile?] = []
+  
+  public func include(_ expr: Expr, nested: Bool = false) {
+    switch expr {
+      case .void:
+        break
+      case .string(let str):
+        if nested {
+          self.strings.append(expr.description)
+        } else {
+          self.strings.append(str as String)
+        }
+      case .values(let expr):
+        var next = expr
+        while case .pair(let x, let rest) = next {
+          self.include(x, nested: true)
+          next = rest
+        }
+      case .bytes(let bvector):
+        self.files.append(IntentFile(data: Data(bvector.value), filename: "Output"))
+      case .object(let obj):
+        if let result = obj as? AppletResult {
+          self.strings.append(contentsOf: result.strings)
+          self.files.append(contentsOf: result.files)
+        } else if let img = obj as? NativeImage,
+                  let data = BitmapImageFileType.png.data(for: img.value, qualityFactor: nil) {
+          self.files.append(IntentFile(data: data, filename: "Output.png", type: .png))
+        } else if let ndoc = obj as? NativePDFDocument,
+                  let doc = ndoc.document as? LispKitPDFDocument,
+                  let data = (doc.persistDrawings() ?? doc).dataRepresentation(options: [:]) {
+          self.files.append(IntentFile(data: data, filename: "Output.pdf", type: .pdf))
+        } else if let text = obj as? StyledText {
+          do {
+            let data = try text.value.data(from: NSRange(location: 0, length: text.value.length),
+                                           documentAttributes: [
+                                             .documentType: NSAttributedString.DocumentType.rtf
+                                           ])
+            self.files.append(IntentFile(data: data, filename: "Output.rtf", type: .rtf))
+          } catch {
+            fallthrough
+          }
+        } else if let archive = obj as? ZipArchive,
+                  let data = archive.archive.data {
+          self.files.append(IntentFile(data: data, filename: "Output.zip", type: .zip))
+        } else if let archive = obj as? TarArchive {
+          if #available(iOS 18.0, *) {
+            self.files.append(IntentFile(data: archive.data,
+                                         filename: "Output.tar",
+                                         type: .tarArchive))
+          } else if let tp = UTType("public.tar-archive") {
+            self.files.append(IntentFile(data: archive.data,
+                                         filename: "Output.tar",
+                                         type: tp))
+          } else {
+            fallthrough
+          }
+        } else {
+          fallthrough
+        }
+      default:
+        self.strings.append(expr.description)
+    }
+  }
+  
+  public override var type: Type {
+    return Self.type
+  }
+  
+  public override var string: String {
+    return "#<\(self.tagString)>"
+  }
+  
+  public override var tagString: String {
+    return "\(Self.type) \(self.identityString): \(self.strings.count) strings, " +
+           "\(self.files.count) files"
+  }
+  
+  public override func unpack(in context: Context) -> Exprs {
+    return [.makeString(self.identityString),
+            .makeNumber(self.strings.count),
+            .makeNumber(self.files.count)]
+  }
+}
+
+/// Implementation of applet files
+class AppletFile: NativeObject {
+  
+  /// Type representing fonts
+  public static let type = Type.objectType(Symbol(uninterned: "applet-file"))
+  
+  let file: IntentFile
+  
+  init(_ file: IntentFile) {
+    self.file = file
+  }
+  
+  public override var type: Type {
+    return Self.type
+  }
+  
+  public override var string: String {
+    return "#<\(self.tagString)>"
+  }
+  
+  public override var tagString: String {
+    var res = "\(Self.type) \(self.identityString): \"\(self.file.filename)\""
+    if let type = self.file.type {
+      res += " \(type.identifier)"
+    }
+    return res
+  }
+  
+  public override func unpack(in context: Context) -> Exprs {
+    let tp: Expr
+    if let type = self.file.type {
+      tp = .makeString(type.identifier)
+    } else {
+      tp = .false
+    }
+    return [.makeString(self.identityString),
+            .makeString(self.file.filename),
+            tp]
+  }
+}

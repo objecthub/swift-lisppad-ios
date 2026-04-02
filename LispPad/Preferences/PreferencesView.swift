@@ -286,10 +286,6 @@ struct PreferencesView: View {
 
 extension Picker {
   @ViewBuilder func defaultPickerStyle() -> some View {
-    if #available(iOS 16.0, *) {
-      self.pickerStyle(.menu)
-    } else {
-      self
-    }
+    self.pickerStyle(.menu)
   }
 }

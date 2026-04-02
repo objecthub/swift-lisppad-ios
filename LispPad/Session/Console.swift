@@ -3,6 +3,19 @@
 //  LispPad
 //
 //  Created by Matthias Zenger on 05/12/2021.
+//  Copyright © 2021 Matthias Zenger. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 import Foundation
@@ -27,12 +40,12 @@ final class Console: ObservableObject, CustomStringConvertible {
     self.content.append(output)
   }
   
-  func print(_ str: String) {
+  func print(_ str: String, capOutput: Bool = true) {
     if self.content.isEmpty {
       self.append(output: .output(str))
     } else if let last = self.content.last,
               last.kind == .output {
-      if last.text.count < 1000 {
+      if !capOutput || last.text.count < 1000 {
         self.content[self.content.count - 1].text += str
       } else if str.first == "\n" {
         self.append(output: .output(String(str.dropFirst())))
@@ -58,6 +71,21 @@ final class Console: ObservableObject, CustomStringConvertible {
   
   var lastOutputId: UUID? {
     return self.content.isEmpty ? nil : self.content[self.content.endIndex - 1].id
+  }
+  
+  var lastOutputLine: String? {
+    if case .output = self.content.last?.kind {
+      let text = self.content.last!.text
+      if !text.isEmpty,
+         !text.hasSuffix("\n"),
+         let i = text.lastIndex(of: "\n") {
+        return String(text[text.index(after: i)...])
+      } else {
+        return text
+      }
+    } else {
+      return nil
+    }
   }
   
   var description: String {
