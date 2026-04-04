@@ -41,7 +41,7 @@ struct OptionPickerAlert: ViewModifier {
   let message: String?
   let options: [String]
   let selected: String?
-  let cancelLabel: String
+  let cancelLabel: String?
   let confirmLabel: String
   let onCancel: () -> Void
   let onConfirm: (String) -> Void
@@ -57,13 +57,13 @@ struct OptionPickerAlert: ViewModifier {
       }
       .plainFullScreenCover(isPresented: $isPresented) {
         OptionOverlay(title: title,
-                      message: message,
-                      options: options,
-                      cancelLabel: cancelLabel,
-                      confirmLabel: confirmLabel,
-                      selection: $currentSelection,
-                      onCancel: dismiss,
-                      onConfirm: confirm)
+                      message: self.message,
+                      options: self.options,
+                      cancelLabel: self.cancelLabel,
+                      confirmLabel: self.confirmLabel,
+                      selection: self.$currentSelection,
+                      onCancel: self.dismiss,
+                      onConfirm: self.confirm)
       }
   }
   
@@ -83,13 +83,15 @@ private struct OptionOverlay: View {
   let title: String
   let message: String?
   let options: [String]
-  let cancelLabel: String
+  let cancelLabel: String?
   let confirmLabel: String
   
   @Binding var selection: String
   
   let onCancel: () -> Void
   let onConfirm: () -> Void
+  
+  @FocusState private var isFocused: Bool
   
   private let dialogWidth: CGFloat = 270
   private let cornerRadius: CGFloat = 14
@@ -101,61 +103,84 @@ private struct OptionOverlay: View {
       Color.black.opacity(0.2)
         .ignoresSafeArea()
         .onTapGesture { }
+        .focusable()
+        .focused($isFocused)
       // Dialog card
       VStack(spacing: 0) {
-        headerSection
+        VStack(spacing: 4) {
+          Text(title)
+            .font(.headline)
+            .multilineTextAlignment(.center)
+          if let message {
+            Text(message)
+              .font(.footnote)
+              .foregroundStyle(.primary)
+              .multilineTextAlignment(.center)
+          }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 20)
+        // Navigation buttons
+        Button {
+          for i in self.options.indices {
+            if self.options[i] == self.selection {
+              self.selection = self.options[(i + 1) % self.options.count]
+              break
+            }
+          }
+        } label: {
+          EmptyView()
+        }
+        .keyboardShortcut(.downArrow, modifiers: [])
+        Button {
+          for i in self.options.indices {
+            if self.options[i] == self.selection {
+              self.selection = self.options[(i - 1 + self.options.count) % self.options.count]
+              break
+            }
+          }
+        } label: {
+          EmptyView()
+        }
+        .keyboardShortcut(.upArrow, modifiers: [])
+        // Choices
         Divider()
-          .background(dividerColor)
-        optionList
-        buttonRow
+          .background(self.dividerColor)
+        VStack(spacing: 0) {
+          ForEach(self.options, id: \.self) { option in
+            VStack(spacing: 0) {
+              OptionRow(label: option, isSelected: option == selection) {
+                self.selection = option
+              }
+              Divider()
+                .background(self.dividerColor)
+            }
+          }
+        }
+        // Buttons
+        HStack(spacing: 0) {
+          if let cancelLabel {
+            AlertButton(label: cancelLabel, role: .cancel, action: onCancel)
+              .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
+            Rectangle()
+              .fill(self.dividerColor)
+              .frame(width: 0.5)
+          }
+          AlertButton(label: confirmLabel, role: .confirm, action: onConfirm)
+            .keyboardShortcut(KeyEquivalent.return, modifiers: [])
+        }
+        .frame(height: 44)
       }
-      .frame(width: dialogWidth)
-      .background(.regularMaterial, in: RoundedRectangle(cornerRadius: cornerRadius))
+      .frame(width: self.dialogWidth)
+      .background(.regularMaterial)
+      .clipShape(RoundedRectangle(cornerRadius: self.cornerRadius))
       //.shadow(color: .black.opacity(0.25), radius: 30, y: 10)
+      .onAppear {
+        self.isFocused = true
+      }
     }
     .transition(.opacity.combined(with: .scale(scale: 1.08)))
     .animation(.spring(response: 0.28, dampingFraction: 0.82), value: true)
-  }
-  
-  private var headerSection: some View {
-    VStack(spacing: 4) {
-      Text(title)
-        .font(.headline)
-        .multilineTextAlignment(.center)
-      if let message {
-        Text(message)
-          .font(.footnote)
-          .foregroundStyle(.primary)
-          .multilineTextAlignment(.center)
-      }
-    }
-    .padding(.horizontal, 16)
-    .padding(.vertical, 20)
-  }
-  
-  private var optionList: some View {
-    VStack(spacing: 0) {
-      ForEach(options, id: \.self) { option in
-        VStack(spacing: 0) {
-          OptionRow(label: option, isSelected: option == selection) {
-            self.selection = option
-          }
-          Divider()
-            .background(dividerColor)
-        }
-      }
-    }
-  }
-  
-  private var buttonRow: some View {
-    HStack(spacing: 0) {
-      AlertButton(label: cancelLabel, role: .cancel, action: onCancel)
-      Rectangle()
-        .fill(dividerColor)
-        .frame(width: 0.5)
-      AlertButton(label: confirmLabel, role: .confirm, action: onConfirm)
-    }
-    .frame(height: 44)
   }
 }
 
@@ -164,16 +189,14 @@ private struct OptionRow: View {
   let isSelected: Bool
   let onTap: () -> Void
   
-  @State private var isPressed = false
-  
   var body: some View {
     Button(action: onTap) {
       HStack {
-        Text(label)
+        Text(self.label)
           .font(.body)
           .foregroundStyle(.primary)
         Spacer()
-        if isSelected {
+        if self.isSelected {
           Image(systemName: "checkmark")
             .font(.body.weight(.semibold))
             .foregroundStyle(.tint)
@@ -186,38 +209,9 @@ private struct OptionRow: View {
       .padding(.leading, 16)
       .padding(.trailing, 8)
       .padding(.vertical, 8)
-      .background(isPressed ? Color.accentColor : Color.clear)
       .contentShape(Rectangle())
     }
-    .buttonStyle(.plain)
-    ._onButtonGesture(pressing: { isPressed = $0 }, perform: {})
-  }
-}
-
-private struct AlertButton: View {
-  
-  enum Role {
-    case cancel
-    case confirm
-  }
-  
-  let label: String
-  let role: Role
-  let action: () -> Void
-  
-  @State private var isPressed = false
-  
-  var body: some View {
-    Button(action: action) {
-      Text(label)
-        .font(role == .confirm ? .body.weight(.semibold) : .body)
-        .foregroundStyle(.tint)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .background(isPressed ? Color(white: 0.5, opacity: 0.2) : Color.clear)
-    ._onButtonGesture(pressing: { isPressed = $0 }, perform: {})
+    .buttonStyle(AlertButtonStyle())
   }
 }
 
@@ -239,7 +233,7 @@ extension View {
                          message: String? = nil,
                          options: [String],
                          selected: String? = nil,
-                         cancelLabel: String = "Cancel",
+                         cancelLabel: String? = "Cancel",
                          confirmLabel: String = "OK",
                          onCancel: @escaping () -> Void,
                          onConfirm: @escaping (String) -> Void) -> some View {

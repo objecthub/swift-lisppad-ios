@@ -361,18 +361,19 @@ public final class AppletLibrary: NativeLibrary {
       if case .string(let str) = modern {
         title = str as String
       } else {
-        title = "Provide Confirmation"
+        title = "Confirm"
       }
       DispatchQueue.main.async {
-        interpreter.confirmationAlert = .init(
+        interpreter.choiceAlert = .init(
           title: title,
           message: prompt,
+          options: [],
           onCancel: {
             res = false
             done = true
             responseSemaphore.signal()
           },
-          onConfirm: {
+          onConfirm: { str in
             res = true
             done = true
             responseSemaphore.signal()
@@ -423,7 +424,7 @@ public final class AppletLibrary: NativeLibrary {
       if case .string(let str) = modern {
         title = str as String
       } else {
-        title = "Choose Alternative"
+        title = "Choose"
       }
       var alternatives: [String] = []
       while case .pair(let opt, let rest) = lst {
@@ -470,7 +471,7 @@ public final class AppletLibrary: NativeLibrary {
   
   private func appletReadDialog(_ prompt: Expr, _ title: Expr?) throws -> Expr {
     let prompt = try prompt.asString()
-    let title = try title?.asString() ?? "Provide Input"
+    let title = try title?.asString() ?? "Input"
     let responseSemaphore = DispatchSemaphore(value: 0)
     var res: String? = nil
     var done: Bool = false

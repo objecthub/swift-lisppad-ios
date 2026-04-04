@@ -73,17 +73,13 @@ struct TextInputAlert: ViewModifier {
   }
   
   private func dismiss() {
-    // withAnimation(.easeInOut(duration: 0.2)) {
     isPresented = false
-    // }
     self.onCancel()
   }
   
   private func confirm() {
     let result = text
-    // withAnimation(.easeInOut(duration: 0.2)) {
     self.isPresented = false
-    // }
     self.onConfirm(result)
   }
 }
@@ -116,7 +112,8 @@ private struct AlertOverlay: View {
         buttonRow
       }
       .frame(width: dialogWidth)
-      .background(.regularMaterial, in: RoundedRectangle(cornerRadius: cornerRadius))
+      .background(.regularMaterial)
+      .clipShape(RoundedRectangle(cornerRadius: self.cornerRadius))
       // .shadow(color: .black.opacity(0.25), radius: 30, y: 10)
       .padding(.bottom, 16)
       .onAppear { // Select the text field when the alert appears
@@ -165,38 +162,13 @@ private struct AlertOverlay: View {
   private var buttonRow: some View {
     HStack(spacing: 0) {
       AlertButton(label: cancelLabel, role: .cancel, action: onCancel)
+        .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
       Rectangle()
         .fill(dividerColor)
         .frame(width: 0.5)
       AlertButton(label: confirmLabel, role: .confirm, action: onConfirm)
     }
     .frame(height: 44)
-  }
-}
-
-private struct AlertButton: View {
-  enum Role {
-    case cancel
-    case confirm
-  }
-  
-  let label: String
-  let role: Role
-  let action: () -> Void
-  
-  @State private var isPressed = false
-  
-  var body: some View {
-    Button(action: action) {
-      Text(label)
-        .font(role == .confirm ? .body.weight(.semibold) : .body)
-        .foregroundStyle(.tint)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .contentShape(Rectangle())
-    }
-    .buttonStyle(.plain)
-    .background(isPressed ? Color(white: 0.5, opacity: 0.2) : Color.clear)
-    ._onButtonGesture(pressing: { isPressed = $0 }, perform: {})
   }
 }
 

@@ -80,6 +80,10 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("preview-file", self.previewFile))
     self.define(Procedure("share-file", self.shareFile))
     // Show interactive panels
+    self.define(Procedure("show-message-panel", self.showMessagePanel))
+    self.define(Procedure("show-confirmation-panel", self.showConfirmationPanel))
+    self.define(Procedure("show-choice-panel", self.showChoicePanel))
+    self.define(Procedure("show-input-panel", self.showInputPanel))
     self.define(Procedure("show-preview-panel", self.showPreviewPanel))
     self.define(Procedure("show-share-panel", self.showSharePanel))
     self.define(Procedure("show-load-panel", self.showLoadPanel))
@@ -147,6 +151,182 @@ public final class SystemLibrary: NativeLibrary {
       self.interpreter?.sheetAction = .share(url: URL(filePath: path), onDisappear: { })
     }
     return .void
+  }
+  
+  private func showMessagePanel(_ title: Expr,
+                                _ message: Expr?,
+                                _ button: Expr?) throws -> Expr {
+    if let interpreter {
+      let title = title.isTrue ? try title.asString() : "Alert"
+      let message = try message?.asString() ?? ""
+      let yes = (button?.isTrue ?? false) ? try button!.asString() : "OK"
+      let responseSemaphore = DispatchSemaphore(value: 0)
+      var done: Bool = false
+      DispatchQueue.main.async {
+        interpreter.choiceAlert = .init(
+          title: title,
+          message: message,
+          options: [],
+          cancel: nil,
+          confirm: yes,
+          onCancel: {
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: { str in
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+    }
+    return .void
+  }
+  
+  private func showConfirmationPanel(_ title: Expr,
+                                     _ message: Expr,
+                                     _ yes: Expr?,
+                                     _ no: Expr?) throws -> Expr {
+    if let interpreter {
+      let title = title.isTrue ? try title.asString() : "Confirm"
+      let message = message.isTrue ? try message.asString() : ""
+      let yes = (yes?.isTrue ?? false) ? try yes!.asString() : "Yes"
+      let no = (no?.isTrue ?? false) ? try no!.asString() : "No"
+      let responseSemaphore = DispatchSemaphore(value: 0)
+      var res: Bool = false
+      var done: Bool = false
+      DispatchQueue.main.async {
+        interpreter.choiceAlert = .init(
+          title: title,
+          message: message,
+          options: [],
+          cancel: no,
+          confirm: yes,
+          onCancel: {
+            res = false
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: { str in
+            res = true
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+      return .makeBoolean(res)
+    } else {
+      return .false
+    }
+  }
+  
+  private func showChoicePanel(_ title: Expr,
+                               _ message: Expr,
+                               _ options: Expr,
+                               _ selected: Expr?,
+                               _ confirm: Expr?) throws -> Expr {
+    if let interpreter {
+      let title = title.isTrue ? try title.asString() : "Choose"
+      let message = message.isTrue ? try message.asString() : ""
+      var lst = options
+      let responseSemaphore = DispatchSemaphore(value: 0)
+      var res: Int? = nil
+      var done = false
+      var alternatives: [String] = []
+      while case .pair(let opt, let rest) = lst {
+        if case .pair(let str, _) = opt {
+          alternatives.append(try str.asString())
+        } else {
+          alternatives.append(try opt.asString())
+        }
+        lst = rest
+      }
+      let selected = (selected?.isTrue ?? false) ? try selected!.asString() : nil
+      let yes = (confirm?.isTrue ?? false) ? try confirm!.asString() : "Select"
+      var choice: String? = nil
+      DispatchQueue.main.async {
+        interpreter.choiceAlert = .init(
+          title: title,
+          message: message,
+          options: alternatives,
+          selected: selected,
+          cancel: "Cancel",
+          confirm: yes,
+          onCancel: {
+            choice = nil
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: {
+            choice = $0
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+      if let choice {
+        for i in alternatives.indices {
+          if alternatives[i] == choice {
+            res = i
+            break
+          }
+        }
+      }
+      return res == nil ? .false : .makeNumber(res!)
+    } else {
+      return .false
+    }
+  }
+  
+  private func showInputPanel(_ title: Expr,
+                              _ message: Expr,
+                              _ args: Arguments) throws -> Expr {
+    guard let (intl, pholder, confirm) = args.optional(.false, .false, .false) else {
+      throw RuntimeError.argumentCount(of: "show-input-panel",
+                                       min: 2,
+                                       max: 5,
+                                       args: .pair(title, .pair(message, .makeList(args))))
+    }
+    if let interpreter {
+      let title = title.isTrue ? try title.asString() : "Input"
+      let message = message.isTrue ? try message.asString() : ""
+      let initial = intl.isTrue ? try intl.asString() : ""
+      let placeholder = pholder.isTrue ? try pholder.asString() : ""
+      let yes = confirm.isTrue ? try confirm.asString() : "OK"
+      let responseSemaphore = DispatchSemaphore(value: 0)
+      var res: String? = nil
+      var done: Bool = false
+      DispatchQueue.main.async {
+        interpreter.textInputAlert = .init(
+          title: title,
+          message: message,
+          placeholder: placeholder,
+          initial: initial,
+          confirm: yes,
+          onCancel: {
+            res = nil
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: {
+            res = $0
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+      return res == nil ? .false : .makeString(res!)
+    } else {
+      return .false
+    }
   }
   
   private func writeTempFile(expr: Expr, ext: Expr?) throws -> URL? {

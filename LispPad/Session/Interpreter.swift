@@ -97,8 +97,29 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let title: String
     let message: String
     let options: [String]
+    let selected: String?
+    let cancel: String?
+    let confirm: String
     let onCancel: () -> Void
     let onConfirm: (String) -> Void
+    
+    init(title: String,
+         message: String,
+         options: [String] = [],
+         selected: String? = nil,
+         cancel: String? = "Cancel",
+         confirm: String? = nil,
+         onCancel: @escaping () -> Void,
+         onConfirm: @escaping (String) -> Void) {
+      self.title = title
+      self.message = message
+      self.options = options
+      self.selected = selected
+      self.cancel = cancel
+      self.confirm = confirm ?? (options.count == 0 ? "OK" : "Select")
+      self.onCancel = onCancel
+      self.onConfirm = onConfirm
+    }
     
     static func == (lhs: ChoiceAlertConfig, rhs: ChoiceAlertConfig) -> Bool {
       return lhs.id == rhs.id
@@ -109,9 +130,30 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let id = UUID()
     let title: String
     let message: String
+    let placeholder: String
     let initial: String
+    let cancel: String
+    let confirm: String
     let onCancel: () -> Void
     let onConfirm: (String) -> Void
+    
+    init(title: String,
+         message: String,
+         placeholder: String? = nil,
+         initial: String? = nil,
+         cancel: String? = nil,
+         confirm: String? = nil,
+         onCancel: @escaping () -> Void,
+         onConfirm: @escaping (String) -> Void) {
+      self.title = title
+      self.message = message
+      self.placeholder = placeholder ?? ""
+      self.initial = initial ?? ""
+      self.cancel = cancel ?? "Cancel"
+      self.confirm = confirm ?? "OK"
+      self.onCancel = onCancel
+      self.onConfirm = onConfirm
+    }
     
     static func == (lhs: TextInputAlertConfig, rhs: TextInputAlertConfig) -> Bool {
       return lhs.id == rhs.id

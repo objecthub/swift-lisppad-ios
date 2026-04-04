@@ -145,12 +145,12 @@ struct MainView: View {
       //.frame(maxWidth: .infinity, maxHeight: .infinity)
       .textInputAlert(
         isPresented: self.$showInputAlert,
-        title: self.interpreter.textInputAlert?.title ?? "Enter Text",
+        title: self.interpreter.textInputAlert?.title ?? "Input",
         message: self.interpreter.textInputAlert?.message ?? "",
-        placeholder: "",
+        placeholder: self.interpreter.textInputAlert?.placeholder ?? "",
         initialText: self.interpreter.textInputAlert?.initial ?? "",
-        cancelLabel: "Cancel",
-        confirmLabel: "OK",
+        cancelLabel: self.interpreter.textInputAlert?.cancel ?? "Cancel",
+        confirmLabel: self.interpreter.textInputAlert?.confirm ?? "OK",
         onCancel: {
           if let tia = self.interpreter.textInputAlert {
             self.interpreter.textInputAlert = nil
@@ -166,12 +166,12 @@ struct MainView: View {
       )
       .optionPickerAlert(
         isPresented: self.$showChoiceAlert,
-        title: self.interpreter.choiceAlert?.title ?? "Choose Alternative",
+        title: self.interpreter.choiceAlert?.title ?? "Choose",
         message: self.interpreter.choiceAlert?.message ?? "",
         options: self.interpreter.choiceAlert?.options ?? [],
-        selected: "",
-        cancelLabel: "Cancel",
-        confirmLabel: "Select",
+        selected: self.interpreter.choiceAlert?.selected,
+        cancelLabel: self.interpreter.choiceAlert?.cancel,
+        confirmLabel: self.interpreter.choiceAlert?.confirm ?? "OK",
         onCancel: {
           if let ca = self.interpreter.choiceAlert {
             self.interpreter.choiceAlert = nil
@@ -185,26 +185,14 @@ struct MainView: View {
           }
         }
       )
-      .onChange(of: self.interpreter.textInputAlert) { oldValue, newValue in
-        if newValue != nil {
-          Swift.print("### Detected new text input alert")
-          // self.documentationBrowserState.docShown = false
-          // var transaction = Transaction()
-          // transaction.disablesAnimations = true
-          // withTransaction(transaction) {
-            self.showInputAlert = true
-          // }
-        }
-      }
       .onChange(of: self.interpreter.choiceAlert) { oldValue, newValue in
         if newValue != nil {
-          Swift.print("### Detected new choice alert")
-          // self.documentationBrowserState.docShown = false
-          // var transaction = Transaction()
-          // transaction.disablesAnimations = true
-          // withTransaction(transaction) {
-            self.showChoiceAlert = true
-          // }
+          self.showChoiceAlert = true
+        }
+      }
+      .onChange(of: self.interpreter.textInputAlert) { oldValue, newValue in
+        if newValue != nil {
+          self.showInputAlert = true
         }
       }
       .onChange(of: self.splitViewMode) { _, mode in

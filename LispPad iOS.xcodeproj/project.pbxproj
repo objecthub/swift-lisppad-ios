@@ -143,6 +143,7 @@
 		CC972CDB2F804F980053156E /* TextInputAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CDA2F804F930053156E /* TextInputAlert.swift */; };
 		CC972CDD2F807CDB0053156E /* PlainFullScreenCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */; };
 		CC972CDF2F80851F0053156E /* OptionPickerAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CDE2F80851A0053156E /* OptionPickerAlert.swift */; };
+		CC972CE12F816D1B0053156E /* AlertButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CE02F816D170053156E /* AlertButton.swift */; };
 		CC9F3D022B1206A500BBD631 /* turtle.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC9F3D002B12016D00BBD631 /* turtle.sld */; };
 		CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */; };
 		CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */; };
@@ -649,6 +650,7 @@
 		CC972CDA2F804F930053156E /* TextInputAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputAlert.swift; sourceTree = "<group>"; };
 		CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlainFullScreenCover.swift; sourceTree = "<group>"; };
 		CC972CDE2F80851A0053156E /* OptionPickerAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPickerAlert.swift; sourceTree = "<group>"; };
+		CC972CE02F816D170053156E /* AlertButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertButton.swift; sourceTree = "<group>"; };
 		CC9F3D002B12016D00BBD631 /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
 		CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncResult.swift; sourceTree = "<group>"; };
 		CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
@@ -1205,6 +1207,7 @@
 				CC302E5A2700828600835745 /* SlideOverCard.swift */,
 				CCBE134E272DE1450046F474 /* WebView.swift */,
 				CC248F8C2958C8E000FFAAF0 /* IntField.swift */,
+				CC972CE02F816D170053156E /* AlertButton.swift */,
 				CC972CDA2F804F930053156E /* TextInputAlert.swift */,
 				CC972CDE2F80851A0053156E /* OptionPickerAlert.swift */,
 				CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */,
@@ -1505,6 +1508,7 @@
 				CC894F012CC05DD800896B1D /* ThreadUtil.swift in Sources */,
 				CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */,
 				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
+				CC972CE12F816D1B0053156E /* AlertButton.swift in Sources */,
 				CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */,
 				CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */,
 				CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */,

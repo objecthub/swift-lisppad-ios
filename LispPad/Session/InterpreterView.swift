@@ -560,6 +560,9 @@ struct InterpreterView: View {
                          secondaryButton: .default(Text("OK"), action: config.onConfirm))
         }
       }
+      // Most modals in this view won't trigger if the console isn't active. Would
+      // need to revisit this to make sure that long-running tasks with interactions
+      // work also when the editor or other views are being displayed.
       .onChange(of: self.interpreter.confirmationAlert) { oldValue, newValue in
         if let newValue {
           self.alertAction = .confirmation(newValue)
