@@ -25,9 +25,10 @@ import SwiftUI
 ///
 struct MainView: View {
   
-  /// The registry of all global services
+  /// The registry of all global services and the interpreter
   @EnvironmentObject var globals: LispPadGlobals
-
+  @EnvironmentObject var interpreter: Interpreter
+  
   /// URL of a file to load
   @Binding var urlToOpen: URL?
   
@@ -90,6 +91,9 @@ struct MainView: View {
   /// changes to the view tree do not result in documentation browser state getting reset.
   @StateObject private var documentationBrowserState = DocumentationBrowserState()
   
+  @State var showInputAlert: Bool = false
+  @State var showChoiceAlert: Bool = false
+  
   /// View definition
   var body: some View {
     ZStack {
@@ -138,6 +142,71 @@ struct MainView: View {
         }
       )
       .ignoresSafeArea()
+      //.frame(maxWidth: .infinity, maxHeight: .infinity)
+      .textInputAlert(
+        isPresented: self.$showInputAlert,
+        title: self.interpreter.textInputAlert?.title ?? "Enter Text",
+        message: self.interpreter.textInputAlert?.message ?? "",
+        placeholder: "",
+        initialText: self.interpreter.textInputAlert?.initial ?? "",
+        cancelLabel: "Cancel",
+        confirmLabel: "OK",
+        onCancel: {
+          if let tia = self.interpreter.textInputAlert {
+            self.interpreter.textInputAlert = nil
+            tia.onCancel()
+          }
+        },
+        onConfirm: {
+          if let tia = self.interpreter.textInputAlert {
+            self.interpreter.textInputAlert = nil
+            tia.onConfirm($0)
+          }
+        }
+      )
+      .optionPickerAlert(
+        isPresented: self.$showChoiceAlert,
+        title: self.interpreter.choiceAlert?.title ?? "Choose Alternative",
+        message: self.interpreter.choiceAlert?.message ?? "",
+        options: self.interpreter.choiceAlert?.options ?? [],
+        selected: "",
+        cancelLabel: "Cancel",
+        confirmLabel: "Select",
+        onCancel: {
+          if let ca = self.interpreter.choiceAlert {
+            self.interpreter.choiceAlert = nil
+            ca.onCancel()
+          }
+        },
+        onConfirm: {
+          if let ca = self.interpreter.choiceAlert {
+            self.interpreter.choiceAlert = nil
+            ca.onConfirm($0)
+          }
+        }
+      )
+      .onChange(of: self.interpreter.textInputAlert) { oldValue, newValue in
+        if newValue != nil {
+          Swift.print("### Detected new text input alert")
+          // self.documentationBrowserState.docShown = false
+          // var transaction = Transaction()
+          // transaction.disablesAnimations = true
+          // withTransaction(transaction) {
+            self.showInputAlert = true
+          // }
+        }
+      }
+      .onChange(of: self.interpreter.choiceAlert) { oldValue, newValue in
+        if newValue != nil {
+          Swift.print("### Detected new choice alert")
+          // self.documentationBrowserState.docShown = false
+          // var transaction = Transaction()
+          // transaction.disablesAnimations = true
+          // withTransaction(transaction) {
+            self.showChoiceAlert = true
+          // }
+        }
+      }
       .onChange(of: self.splitViewMode) { _, mode in
         UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
       }

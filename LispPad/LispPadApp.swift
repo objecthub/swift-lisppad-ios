@@ -49,6 +49,7 @@ import LispKit
         .preferredColorScheme(self.settings.appearance.colorScheme)
         .environmentObject(KeyCommandHandler.empty)
         .environmentObject(self.globals)
+        .environmentObject(self.globals.interpreter)
         .onOpenURL { url in
           if url.scheme == "lisppad" && url.host == "oauth" {
             _ = HTTPOAuthLibrary.authRequestManager.redirect(url: url)

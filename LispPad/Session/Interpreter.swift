@@ -80,6 +80,44 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let imageManager: ImageManager
   }
   
+  struct ConfirmationAlertConfig: Identifiable, Equatable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let onCancel: () -> Void
+    let onConfirm: () -> Void
+    
+    static func == (lhs: ConfirmationAlertConfig, rhs: ConfirmationAlertConfig) -> Bool {
+      return lhs.id == rhs.id
+    }
+  }
+  
+  struct ChoiceAlertConfig: Identifiable, Equatable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let options: [String]
+    let onCancel: () -> Void
+    let onConfirm: (String) -> Void
+    
+    static func == (lhs: ChoiceAlertConfig, rhs: ChoiceAlertConfig) -> Bool {
+      return lhs.id == rhs.id
+    }
+  }
+  
+  struct TextInputAlertConfig: Identifiable, Equatable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let initial: String
+    let onCancel: () -> Void
+    let onConfirm: (String) -> Void
+    
+    static func == (lhs: TextInputAlertConfig, rhs: TextInputAlertConfig) -> Bool {
+      return lhs.id == rhs.id
+    }
+  }
+  
   enum ProgrammaticSheetAction: Identifiable, Equatable {
     case share(id: UUID,
                url: URL,
@@ -181,6 +219,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var previewUrl: URL? = nil
   @Published var helpDefinition: String? = nil
   @Published var sheetAction: ProgrammaticSheetAction? = nil
+  @Published var confirmationAlert: ConfirmationAlertConfig? = nil
+  @Published var choiceAlert: ChoiceAlertConfig? = nil
+  @Published var textInputAlert: TextInputAlertConfig? = nil
   var toDeleteUrl: URL? = nil
   
   /// Dependencies

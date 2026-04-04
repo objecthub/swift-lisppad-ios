@@ -23,6 +23,18 @@ import Foundation
 import LispKit
 
 struct EvalIntent: AppIntent {
+  
+  enum ChoiceItemStyle: Equatable {
+    case plain
+    case destructive
+    case cancel
+  }
+  
+  struct ChoiceItem: Equatable {
+    let title: String
+    let style: ChoiceItemStyle
+  }
+  
   /// The title of the intent
   static var title: LocalizedStringResource = "Evaluate program"
   
@@ -59,6 +71,65 @@ struct EvalIntent: AppIntent {
   @Parameter(title: "Console input", description: "Console input...")
   var input: String?
   
+  func confirmationDialog(prompt: String, classic: Bool = false) async -> Bool {
+    do {
+      if !classic, #available(iOS 26.0, *) {
+        do {
+          try await requestConfirmation(dialog: IntentDialog(stringLiteral: prompt))
+          return true
+        } catch {
+          return false
+        }
+      } else {
+        return try await $input.requestConfirmation(for: "",
+                                                    dialog: IntentDialog(stringLiteral: prompt))
+      }
+    } catch {
+      return false
+    }
+  }
+  
+  func choiceDialog(prompt: String, options: [ChoiceItem], classic: Bool = false) async -> Int? {
+    do {
+      if !classic, #available(iOS 26.0, *) {
+        let alternatives: [IntentChoiceOption] = options.map { opt in
+          IntentChoiceOption(title: "\(opt.title)",
+                             style: opt.style == .cancel
+                             ? .cancel
+                             : opt.style == .destructive ? .destructive : .default)
+        }
+        let choice = try await requestChoice(between: alternatives,
+                                             dialog: IntentDialog(stringLiteral: prompt))
+        for i in alternatives.indices {
+          if alternatives[i] == choice {
+            return i
+          }
+        }
+        return nil // Should never happen
+      } else {
+        let alternatives: [String] = options.map { opt in opt.title }
+        let choice = try await $input.requestDisambiguation(
+          among: alternatives, dialog: IntentDialog(stringLiteral: prompt))
+        for i in alternatives.indices {
+          if alternatives[i] == choice {
+            return i
+          }
+        }
+        return nil // Should never happen
+      }
+    } catch {
+      return nil
+    }
+  }
+  
+  func readDialog(prompt: String) async -> String? {
+    do {
+      return try await $input.requestValue(IntentDialog(stringLiteral: prompt))
+    } catch {
+      return nil
+    }
+  }
+  
   func perform() async throws -> some IntentResult & ReturnsValue<EvalResult> {
     // Create a console
     let console = Console()
@@ -91,7 +162,10 @@ struct EvalIntent: AppIntent {
     let interpreter = IntentInterpreter(console: console,
                                         strings: strings,
                                         files: files,
-                                        name: "<shortcut>") {
+                                        name: "<shortcut>",
+                                        confirmationDialog: self.confirmationDialog,
+                                        choiceDialog: self.choiceDialog,
+                                        readDialog: self.readDialog) {
       if let res = bridge.getSyncInput() {
         return res + "\n"
       } else {

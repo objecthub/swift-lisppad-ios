@@ -35,13 +35,22 @@ final class IntentInterpreter: ContextDelegate {
   final class Context: LispKit.Context {
     let strings: [String?]
     let files: [IntentFile?]
+    let confirmationDialog: (String, Bool) async -> Bool
+    let choiceDialog: (String, [EvalIntent.ChoiceItem], Bool) async -> Int?
+    let readDialog: (String) async -> String?
     
     public init(delegate: ContextDelegate,
                 maxStackSize: Int,
                 strings: [String?],
-                files: [IntentFile?]) {
+                files: [IntentFile?],
+                confirmationDialog: @escaping (String, Bool) async -> Bool,
+                choiceDialog: @escaping (String, [EvalIntent.ChoiceItem], Bool) async -> Int?,
+                readDialog: @escaping (String) async -> String?) {
       self.strings = strings
       self.files = files
+      self.confirmationDialog = confirmationDialog
+      self.choiceDialog = choiceDialog
+      self.readDialog = readDialog
       super.init(delegate: delegate,
                  implementationName: LispKitContext.implementationName,
                  implementationVersion: LispKitContext.implementationVersion,
@@ -122,6 +131,9 @@ final class IntentInterpreter: ContextDelegate {
        formatString: String? = nil,
        formatWidth: Int? = nil,
        indentSize: Int = 80,
+       confirmationDialog: @escaping (String, Bool) async -> Bool,
+       choiceDialog: @escaping (String, [EvalIntent.ChoiceItem], Bool) async -> Int?,
+       readDialog: @escaping (String) async -> String?,
        input: (() -> String?)? = nil) {
     self.console = console
     self.name = name
@@ -139,7 +151,11 @@ final class IntentInterpreter: ContextDelegate {
     } else {
       self.input = { return nil }
     }
-    self.initialize(strings: strings, files: files)
+    self.initialize(strings: strings,
+                    files: files,
+                    confirmationDialog: confirmationDialog,
+                    choiceDialog: choiceDialog,
+                    readDialog: readDialog)
   }
   
   var isInitialized: Bool {
@@ -261,12 +277,19 @@ final class IntentInterpreter: ContextDelegate {
     }
   }
   
-  private func initialize(strings: [String?], files: [IntentFile?]) {
+  private func initialize(strings: [String?],
+                          files: [IntentFile?],
+                          confirmationDialog: @escaping (String, Bool) async -> Bool,
+                          choiceDialog: @escaping (String, [EvalIntent.ChoiceItem], Bool) async -> Int?,
+                          readDialog: @escaping (String) async -> String?) {
     self.context = nil
     let context = Context(delegate: self,
                           maxStackSize: self.maxStackSize,
                           strings: strings,
-                          files: files)
+                          files: files,
+                          confirmationDialog: confirmationDialog,
+                          choiceDialog: choiceDialog,
+                          readDialog: readDialog)
     context.evaluator.maxCallStack = self.maxCallTrace
     // Set up search paths for libraries
     if let internalUrl = Bundle.main.resourceURL?

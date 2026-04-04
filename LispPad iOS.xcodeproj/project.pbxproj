@@ -140,6 +140,9 @@
 		CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC8B95CF2608179000830B4F /* (lisppad audio).md */; };
 		CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8BBA27269E45EE00552B8F /* KeyCommand.swift */; };
 		CC8BBA3126C0475300552B8F /* Sierpinski.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */; };
+		CC972CDB2F804F980053156E /* TextInputAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CDA2F804F930053156E /* TextInputAlert.swift */; };
+		CC972CDD2F807CDB0053156E /* PlainFullScreenCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */; };
+		CC972CDF2F80851F0053156E /* OptionPickerAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC972CDE2F80851A0053156E /* OptionPickerAlert.swift */; };
 		CC9F3D022B1206A500BBD631 /* turtle.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CC9F3D002B12016D00BBD631 /* turtle.sld */; };
 		CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */; };
 		CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */; };
@@ -643,6 +646,9 @@
 		CC8B95D32609462800830B4F /* LispPad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LispPad.entitlements; sourceTree = "<group>"; };
 		CC8BBA27269E45EE00552B8F /* KeyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyCommand.swift; sourceTree = "<group>"; };
 		CC8BBA2F26C041DA00552B8F /* Sierpinski.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sierpinski.scm; sourceTree = "<group>"; };
+		CC972CDA2F804F930053156E /* TextInputAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputAlert.swift; sourceTree = "<group>"; };
+		CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlainFullScreenCover.swift; sourceTree = "<group>"; };
+		CC972CDE2F80851A0053156E /* OptionPickerAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionPickerAlert.swift; sourceTree = "<group>"; };
 		CC9F3D002B12016D00BBD631 /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
 		CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncResult.swift; sourceTree = "<group>"; };
 		CCA3C68D2B00193900C0BDE6 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
@@ -1199,6 +1205,9 @@
 				CC302E5A2700828600835745 /* SlideOverCard.swift */,
 				CCBE134E272DE1450046F474 /* WebView.swift */,
 				CC248F8C2958C8E000FFAAF0 /* IntField.swift */,
+				CC972CDA2F804F930053156E /* TextInputAlert.swift */,
+				CC972CDE2F80851A0053156E /* OptionPickerAlert.swift */,
+				CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -1453,6 +1462,7 @@
 				CC84C26E25FE78A600758581 /* ConsoleScrollView.swift in Sources */,
 				CC248F8D2958C8E000FFAAF0 /* IntField.swift in Sources */,
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
+				CC972CDD2F807CDB0053156E /* PlainFullScreenCover.swift in Sources */,
 				CCA3C6922B014D4700C0BDE6 /* CanvasPanel.swift in Sources */,
 				CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */,
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
@@ -1474,6 +1484,7 @@
 				CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */,
 				CC8BBA28269E45EE00552B8F /* KeyCommand.swift in Sources */,
 				CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */,
+				CC972CDF2F80851F0053156E /* OptionPickerAlert.swift in Sources */,
 				CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */,
 				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
 				CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */,
@@ -1528,6 +1539,7 @@
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,
 				CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */,
 				CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */,
+				CC972CDB2F804F980053156E /* TextInputAlert.swift in Sources */,
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,
 				CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */,
 				CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */,

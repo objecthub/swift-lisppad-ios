@@ -75,15 +75,22 @@ struct InterpreterView: View {
     case abortEvaluation
     case notSaved
     case openURL(URL)
+    case confirmation(Interpreter.ConfirmationAlertConfig)
     
-    var id: Int {
+    private static let abortEvaluationId = UUID()
+    private static let notSavedId = UUID()
+    private static let openURLId = UUID()
+    
+    var id: UUID {
       switch self {
         case .abortEvaluation:
-          return 0
+          return Self.abortEvaluationId
         case .notSaved:
-          return 1
+          return Self.notSavedId
         case .openURL(_):
-          return 2
+          return Self.openURLId
+        case .confirmation(let config):
+          return config.id
       }
     }
   }
@@ -546,6 +553,17 @@ struct InterpreterView: View {
                       self.switchToEditor()
                     }})
               })
+          case .confirmation(let config):
+            return Alert(title: Text(config.title),
+                         message: Text(config.message),
+                         primaryButton: .cancel(Text("Cancel"), action: config.onCancel),
+                         secondaryButton: .default(Text("OK"), action: config.onConfirm))
+        }
+      }
+      .onChange(of: self.interpreter.confirmationAlert) { oldValue, newValue in
+        if let newValue {
+          self.alertAction = .confirmation(newValue)
+          self.interpreter.confirmationAlert = nil
         }
       }
       .onChange(of: self.interpreter.showPhotosPicker) { oldValue, newValue in

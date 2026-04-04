@@ -67,6 +67,9 @@ public final class AppletLibrary: NativeLibrary {
     self.define(Procedure("applet-file-type", self.appletFileType))
     self.define(Procedure("applet-file-data", self.appletFileData))
     self.define(Procedure("applet-file-available-types", self.appletFileAvailableTypes))
+    self.define(Procedure("applet-confirmation-dialog", self.appletConfirmationDialog))
+    self.define(Procedure("applet-read-dialog", self.appletReadDialog))
+    self.define(Procedure("applet-choice-dialog", self.appletChoiceDialog))
   }
   
   public override func initializations() {
@@ -296,11 +299,19 @@ public final class AppletLibrary: NativeLibrary {
         if let tp = try UTType(type.asString()) {
           let responseSemaphore = DispatchSemaphore(value: 0)
           var data: Data? = nil
+          var done: Bool = false
           Task {
-            data = try await af.file.data(contentType: tp)
+            do {
+              data = try await af.file.data(contentType: tp)
+              done = true
+            } catch {
+              done = true
+            }
             responseSemaphore.signal()
           }
-          responseSemaphore.wait()
+          while !done && !self.context.evaluator.isAbortionRequested() {
+            _ = responseSemaphore.wait(timeout: .now() + 0.5)
+          }
           if let data {
             var res = [UInt8](repeating: 0, count: data.count)
             data.copyBytes(to: &res, count: data.count)
@@ -328,6 +339,174 @@ public final class AppletLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func appletConfirmationDialog(_ prompt: Expr, _ modern: Expr?) throws -> Expr {
+    let prompt = try prompt.asString()
+    let classic = (modern ?? .true).isFalse
+    let responseSemaphore = DispatchSemaphore(value: 0)
+    var res: Bool = false
+    var done: Bool = false
+    if let context = self.context as? IntentInterpreter.Context {
+      Task {
+        res = await context.confirmationDialog(prompt, classic)
+        done = true
+        responseSemaphore.signal()
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+    } else if let interpreter = self.context.delegate as? Interpreter {
+      let title: String
+      if case .string(let str) = modern {
+        title = str as String
+      } else {
+        title = "Provide Confirmation"
+      }
+      DispatchQueue.main.async {
+        interpreter.confirmationAlert = .init(
+          title: title,
+          message: prompt,
+          onCancel: {
+            res = false
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: {
+            res = true
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+    } else {
+      throw RuntimeError.custom("error", "program not running as an applet", [])
+    }
+    return .makeBoolean(res)
+  }
+  
+  private func appletChoiceDialog(_ prompt: Expr, _ options: Expr, _ modern: Expr?) throws -> Expr {
+    let prompt = try prompt.asString()
+    let classic = (modern ?? .true).isFalse
+    var lst = options
+    let responseSemaphore = DispatchSemaphore(value: 0)
+    var res: Int? = nil
+    var done = false
+    if let context = self.context as? IntentInterpreter.Context {
+      var alternatives: [EvalIntent.ChoiceItem] = []
+      while case .pair(let opt, let rest) = lst {
+        if case .pair(let str, let style) = opt {
+          if case .null = style {
+            alternatives.append(.init(title: try str.asString(), style: .plain))
+          } else if style.isTrue {
+            alternatives.append(.init(title: try str.asString(), style: .destructive))
+          } else {
+            alternatives.append(.init(title: try str.asString(), style: .cancel))
+          }
+        } else {
+          alternatives.append(.init(title: try opt.asString(), style: .plain))
+        }
+        lst = rest
+      }
+      Task {
+        res = await context.choiceDialog(prompt, alternatives, classic)
+        done = true
+        responseSemaphore.signal()
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+    } else if let interpreter = self.context.delegate as? Interpreter {
+      let title: String
+      if case .string(let str) = modern {
+        title = str as String
+      } else {
+        title = "Choose Alternative"
+      }
+      var alternatives: [String] = []
+      while case .pair(let opt, let rest) = lst {
+        if case .pair(let str, _) = opt {
+          alternatives.append(try str.asString())
+        } else {
+          alternatives.append(try opt.asString())
+        }
+        lst = rest
+      }
+      var choice: String? = nil
+      DispatchQueue.main.async {
+        interpreter.choiceAlert = .init(
+          title: title,
+          message: prompt,
+          options: alternatives,
+          onCancel: {
+            choice = nil
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: {
+            choice = $0
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+      if let choice {
+        for i in alternatives.indices {
+          if alternatives[i] == choice {
+            res = i
+            break
+          }
+        }
+      }
+    } else {
+      throw RuntimeError.custom("error", "program not running as an applet", [])
+    }
+    return res == nil ? .false : .makeNumber(res!)
+  }
+  
+  private func appletReadDialog(_ prompt: Expr, _ title: Expr?) throws -> Expr {
+    let prompt = try prompt.asString()
+    let title = try title?.asString() ?? "Provide Input"
+    let responseSemaphore = DispatchSemaphore(value: 0)
+    var res: String? = nil
+    var done: Bool = false
+    if let context = self.context as? IntentInterpreter.Context {
+      Task {
+        res = await context.readDialog(prompt)
+        done = true
+        responseSemaphore.signal()
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+    } else if let interpreter = self.context.delegate as? Interpreter {
+      DispatchQueue.main.async {
+        interpreter.textInputAlert = .init(
+          title: title,
+          message: prompt,
+          initial: "",
+          onCancel: {
+            res = nil
+            done = true
+            responseSemaphore.signal()
+          },
+          onConfirm: {
+            res = $0
+            done = true
+            responseSemaphore.signal()
+          })
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+    } else {
+      throw RuntimeError.custom("error", "program not running as an applet", [])
+    }
+    return res == nil ? .false : .makeString(res!)
   }
 }
 
