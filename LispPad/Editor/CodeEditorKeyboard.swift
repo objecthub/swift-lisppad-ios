@@ -197,15 +197,15 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        bar.setItems([indent, UIBarButtonItem.fixedSpace(3),
-                      undent, UIBarButtonItem.fixedSpace(3),
-                      comment, UIBarButtonItem.fixedSpace(3),
-                      uncomment, UIBarButtonItem.fixedSpace(3),
-                      cursorLeft, UIBarButtonItem.fixedSpace(3),
-                      cursorRight, UIBarButtonItem.fixedSpace(3),
-                      cursorUp, UIBarButtonItem.fixedSpace(3),
+        bar.setItems([indent, UIBarButtonItem.fixedSpace(5),
+                      undent, UIBarButtonItem.fixedSpace(5),
+                      comment, UIBarButtonItem.fixedSpace(5),
+                      uncomment, UIBarButtonItem.fixedSpace(5),
+                      cursorLeft, UIBarButtonItem.fixedSpace(5),
+                      cursorRight, UIBarButtonItem.fixedSpace(5),
+                      cursorUp, UIBarButtonItem.fixedSpace(5),
                       cursorDown, UIBarButtonItem.flexibleSpace(),
-                      cursorNav, UIBarButtonItem.fixedSpace(4),
+                      cursorNav, UIBarButtonItem.fixedSpace(5),
                       close],
                      animated: true)
       } else {
@@ -229,15 +229,15 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        bar.setItems([dash, UIBarButtonItem.fixedSpace(3),
-                      times, UIBarButtonItem.fixedSpace(3),
-                      quote, UIBarButtonItem.fixedSpace(3),
-                      doubleQuote, UIBarButtonItem.fixedSpace(3),
-                      parenLeft, UIBarButtonItem.fixedSpace(3),
-                      parenRight, UIBarButtonItem.fixedSpace(3),
-                      equals, UIBarButtonItem.fixedSpace(3),
+        bar.setItems([dash, UIBarButtonItem.fixedSpace(5),
+                      times, UIBarButtonItem.fixedSpace(5),
+                      quote, UIBarButtonItem.fixedSpace(5),
+                      doubleQuote, UIBarButtonItem.fixedSpace(5),
+                      parenLeft, UIBarButtonItem.fixedSpace(5),
+                      parenRight, UIBarButtonItem.fixedSpace(5),
+                      equals, UIBarButtonItem.fixedSpace(5),
                       question, UIBarButtonItem.flexibleSpace(),
-                      cursorNav, UIBarButtonItem.fixedSpace(4),
+                      cursorNav, UIBarButtonItem.fixedSpace(5),
                       close],
                      animated: true)
       }
@@ -262,15 +262,15 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([undo, UIBarButtonItem.fixedSpace(3),
-                    redo, UIBarButtonItem.fixedSpace(3),
-                    indent, UIBarButtonItem.fixedSpace(3),
-                    undent, UIBarButtonItem.fixedSpace(3),
-                    cursorLeft, UIBarButtonItem.fixedSpace(3),
-                    cursorRight, UIBarButtonItem.fixedSpace(3),
-                    cursorUp, UIBarButtonItem.fixedSpace(3),
+      bar.setItems([undo, UIBarButtonItem.fixedSpace(5),
+                    redo, UIBarButtonItem.fixedSpace(5),
+                    indent, UIBarButtonItem.fixedSpace(5),
+                    undent, UIBarButtonItem.fixedSpace(5),
+                    cursorLeft, UIBarButtonItem.fixedSpace(5),
+                    cursorRight, UIBarButtonItem.fixedSpace(5),
+                    cursorUp, UIBarButtonItem.fixedSpace(5),
                     cursorDown, UIBarButtonItem.flexibleSpace(),
-                    cursorNav, UIBarButtonItem.fixedSpace(4),
+                    cursorNav, UIBarButtonItem.fixedSpace(5),
                     close],
                    animated: true)
     } else {
@@ -294,15 +294,15 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([hash, UIBarButtonItem.fixedSpace(3),
-                    dash, UIBarButtonItem.fixedSpace(3),
-                    underscore, UIBarButtonItem.fixedSpace(3),
-                    times, UIBarButtonItem.fixedSpace(3),
-                    backquote, UIBarButtonItem.fixedSpace(3),
-                    doubleQuote, UIBarButtonItem.fixedSpace(3),
-                    parenLeft, UIBarButtonItem.fixedSpace(3),
+      bar.setItems([hash, UIBarButtonItem.fixedSpace(5),
+                    dash, UIBarButtonItem.fixedSpace(5),
+                    underscore, UIBarButtonItem.fixedSpace(5),
+                    times, UIBarButtonItem.fixedSpace(5),
+                    backquote, UIBarButtonItem.fixedSpace(5),
+                    doubleQuote, UIBarButtonItem.fixedSpace(5),
+                    parenLeft, UIBarButtonItem.fixedSpace(5),
                     parenRight, UIBarButtonItem.flexibleSpace(),
-                    cursorNav, UIBarButtonItem.fixedSpace(4),
+                    cursorNav, UIBarButtonItem.fixedSpace(5),
                     close],
                    animated: true)
     }
@@ -378,7 +378,7 @@ final class CodeEditorKeyboard {
     let button = UIButton(type: .roundedRect)
     button.tag = tag.rawValue
     button.heightAnchor.constraint(equalToConstant: 32).isActive = true
-    button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+    button.widthAnchor.constraint(equalToConstant: 31).isActive = true
     button.setTitle(title, for: .normal)
     button.setTitleColor(.label, for: .normal)
     button.setTitleColor(UIColor(named: "KeyHighlightColor"), for: .highlighted)
@@ -401,13 +401,13 @@ final class CodeEditorKeyboard {
     button.tag = tag.rawValue
     if inset {
       button.heightAnchor.constraint(equalToConstant: 32).isActive = true
-      button.widthAnchor.constraint(equalToConstant: 30).isActive = true
+      button.widthAnchor.constraint(equalToConstant: 31).isActive = true
       button.setImage(UIImage(systemName: name, withConfiguration: imgConfig)!, for: .normal)
       if let hl {
         button.setImage(UIImage(systemName: hl, withConfiguration: imgConfig)!, for: .highlighted)
       }
     } else {
-      button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+      button.heightAnchor.constraint(equalToConstant: 32).isActive = true
       button.widthAnchor.constraint(equalToConstant: 30).isActive = true
       button.setImage(UIImage(systemName: name)!, for: .normal)
       if let hl {
