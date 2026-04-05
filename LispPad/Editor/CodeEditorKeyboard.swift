@@ -50,6 +50,8 @@ final class CodeEditorKeyboard {
     case redo
   }
   
+  static let iPhoneButtonSpace = CGFloat(5)
+  
   /// Set to true if this is a keyboard for the console
   let console: Bool
   
@@ -175,6 +177,8 @@ final class CodeEditorKeyboard {
     bar.standardAppearance = appearance
     bar.scrollEdgeAppearance = appearance
     bar.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
+    // Reduce the left margin to minimize gap before first button
+    // bar.layoutMargins = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
     if self.editorType == .scheme {
       if self.showingCursorKeys {
         let indent = self.iconButton("increase.indent", tag: .indent, to: textView)
@@ -197,16 +201,17 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        bar.setItems([indent, UIBarButtonItem.fixedSpace(5),
-                      undent, UIBarButtonItem.fixedSpace(5),
-                      comment, UIBarButtonItem.fixedSpace(5),
-                      uncomment, UIBarButtonItem.fixedSpace(5),
-                      cursorLeft, UIBarButtonItem.fixedSpace(5),
-                      cursorRight, UIBarButtonItem.fixedSpace(5),
-                      cursorUp, UIBarButtonItem.fixedSpace(5),
+        bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      indent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      undent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      comment, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      uncomment, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      cursorLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      cursorRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      cursorUp, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                       cursorDown, UIBarButtonItem.flexibleSpace(),
-                      cursorNav, UIBarButtonItem.fixedSpace(5),
-                      close],
+                      cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
                      animated: true)
       } else {
         let dash = self.textButton("–", tag: .dash, to: textView)
@@ -229,16 +234,17 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        bar.setItems([dash, UIBarButtonItem.fixedSpace(5),
-                      times, UIBarButtonItem.fixedSpace(5),
-                      quote, UIBarButtonItem.fixedSpace(5),
-                      doubleQuote, UIBarButtonItem.fixedSpace(5),
-                      parenLeft, UIBarButtonItem.fixedSpace(5),
-                      parenRight, UIBarButtonItem.fixedSpace(5),
-                      equals, UIBarButtonItem.fixedSpace(5),
+        bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      quote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      parenRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      equals, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                       question, UIBarButtonItem.flexibleSpace(),
-                      cursorNav, UIBarButtonItem.fixedSpace(5),
-                      close],
+                      cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                      close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
                      animated: true)
       }
     } else if self.showingCursorKeys {
@@ -262,16 +268,17 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([undo, UIBarButtonItem.fixedSpace(5),
-                    redo, UIBarButtonItem.fixedSpace(5),
-                    indent, UIBarButtonItem.fixedSpace(5),
-                    undent, UIBarButtonItem.fixedSpace(5),
-                    cursorLeft, UIBarButtonItem.fixedSpace(5),
-                    cursorRight, UIBarButtonItem.fixedSpace(5),
-                    cursorUp, UIBarButtonItem.fixedSpace(5),
+      bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    undo, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    redo, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    indent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    undent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    cursorLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    cursorRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    cursorUp, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                     cursorDown, UIBarButtonItem.flexibleSpace(),
-                    cursorNav, UIBarButtonItem.fixedSpace(5),
-                    close],
+                    cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
                    animated: true)
     } else {
       let hash = self.textButton("#", tag: .hash, to: textView)
@@ -294,16 +301,17 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([hash, UIBarButtonItem.fixedSpace(5),
-                    dash, UIBarButtonItem.fixedSpace(5),
-                    underscore, UIBarButtonItem.fixedSpace(5),
-                    times, UIBarButtonItem.fixedSpace(5),
-                    backquote, UIBarButtonItem.fixedSpace(5),
-                    doubleQuote, UIBarButtonItem.fixedSpace(5),
-                    parenLeft, UIBarButtonItem.fixedSpace(5),
+      bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    hash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    underscore, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    backquote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                     parenRight, UIBarButtonItem.flexibleSpace(),
-                    cursorNav, UIBarButtonItem.fixedSpace(5),
-                    close],
+                    cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+                    close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
                    animated: true)
     }
     bar.isUserInteractionEnabled = true
