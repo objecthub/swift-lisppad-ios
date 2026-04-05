@@ -35,6 +35,8 @@ final class CodeEditorKeyboard {
     case parenRight
     case equals
     case question
+    case exclamation
+    case bracket
     case hash
     case backquote
     case underscore
@@ -48,6 +50,12 @@ final class CodeEditorKeyboard {
     case cursorDown
     case undo
     case redo
+  }
+  
+  enum KeyboardSize: Equatable {
+    case small
+    case medium
+    case large
   }
   
   static let iPhoneButtonSpace = CGFloat(5)
@@ -177,6 +185,13 @@ final class CodeEditorKeyboard {
     bar.standardAppearance = appearance
     bar.scrollEdgeAppearance = appearance
     bar.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
+    let smallestSize = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+    let kbd: KeyboardSize
+    if smallestSize >= 400 {
+      kbd = smallestSize >= 450 ? .large : .medium
+    } else {
+      kbd = .small
+    }
     // Reduce the left margin to minimize gap before first button
     // bar.layoutMargins = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
     if self.editorType == .scheme {
@@ -222,6 +237,8 @@ final class CodeEditorKeyboard {
         let parenRight = self.textButton(")", tag: .parenRight, to: textView)
         let equals = self.textButton("=", tag: .equals, to: textView)
         let question = self.textButton("?", tag: .question, to: textView)
+        let exclamation = self.textButton("!", tag: .exclamation, to: textView)
+        let hash = self.textButton("#", tag: .hash, to: textView)
         let cursorNav = self.iconButton("arrow.up.arrow.down.circle",
                                         pressed: "arrow.up.arrow.down.circle.fill",
                                         dark: true,
@@ -234,15 +251,26 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      quote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      parenRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      equals, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      question, UIBarButtonItem.flexibleSpace(),
+        var items: [UIBarButtonItem] = [
+          UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          quote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          parenRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+          equals, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        ]
+        if kbd == .large {
+          items.append(hash)
+          items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+        }
+        if kbd == .large || kbd == .medium {
+          items.append(exclamation)
+          items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+        }
+        bar.setItems(items +
+                     [question, UIBarButtonItem.flexibleSpace(),
                       cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                       close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
                      animated: true)
@@ -287,6 +315,8 @@ final class CodeEditorKeyboard {
       let times = self.textButton("*", tag: .times, to: textView)
       let backquote = self.textButton("`", tag: .backquote, to: textView)
       let doubleQuote = self.textButton("\"", tag: .doubleQuote, to: textView)
+      let question = self.textButton("?", tag: .question, to: textView)
+      let bracket = self.textButton(">", tag: .bracket, to: textView)
       let parenLeft = self.textButton("(", tag: .parenLeft, to: textView)
       let parenRight = self.textButton(")", tag: .parenRight, to: textView)
       let cursorNav = self.iconButton("arrow.up.arrow.down.circle",
@@ -301,14 +331,25 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    hash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    underscore, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    backquote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+      var items: [UIBarButtonItem] = [
+        UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        hash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        underscore, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        backquote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+      ]
+      if kbd == .large || kbd == .medium {
+        items.append(bracket)
+        items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+      }
+      if kbd == .large {
+        items.append(question)
+        items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+      }
+      bar.setItems(items +
+                   [parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                     parenRight, UIBarButtonItem.flexibleSpace(),
                     cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
                     close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],

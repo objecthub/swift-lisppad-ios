@@ -265,8 +265,12 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
         self.insertText(")")
       case CodeEditorKeyboard.KeyTag.equals.rawValue:
         self.insertText("=")
+      case CodeEditorKeyboard.KeyTag.exclamation.rawValue:
+        self.insertText("!")
       case CodeEditorKeyboard.KeyTag.question.rawValue:
         self.insertText("?")
+      case CodeEditorKeyboard.KeyTag.bracket.rawValue:
+        self.insertText(">")
       case CodeEditorKeyboard.KeyTag.hash.rawValue:
         self.insertText("#")
       case CodeEditorKeyboard.KeyTag.backquote.rawValue:
