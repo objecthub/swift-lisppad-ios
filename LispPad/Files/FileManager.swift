@@ -186,6 +186,7 @@ class FileManager: ObservableObject {
   
   /// Creates the following directories under the given `container` URL:
   ///   - `Libraries`
+  ///   - `Applets`
   ///   - `Assets`:
   ///       - `Images`
   ///       - `Audio`
@@ -209,6 +210,9 @@ class FileManager: ObservableObject {
     let libDir = self.createExtensionDirectory(in: container,
                                                name: "Libraries",
                                                using: sysFileManager)
+    let appletDir = self.createExtensionDirectory(in: container,
+                                                 name: "Applets",
+                                                 using: sysFileManager)
     if let assetDir = self.createExtensionDirectory(in: container,
                                                     name: "Assets",
                                                     using: sysFileManager) {
@@ -217,7 +221,7 @@ class FileManager: ObservableObject {
       _ = self.createExtensionDirectory(in: assetDir, name: "Documents", using: sysFileManager)
       _ = self.createExtensionDirectory(in: assetDir, name: "Datasets", using: sysFileManager)
       _ = self.createExtensionDirectory(in: assetDir, name: "ColorLists", using: sysFileManager)
-      return libDir != nil
+      return libDir != nil && appletDir != nil
     } else {
       return false
     }

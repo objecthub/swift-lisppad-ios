@@ -80,18 +80,6 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let imageManager: ImageManager
   }
   
-  struct ConfirmationAlertConfig: Identifiable, Equatable {
-    let id = UUID()
-    let title: String
-    let message: String
-    let onCancel: () -> Void
-    let onConfirm: () -> Void
-    
-    static func == (lhs: ConfirmationAlertConfig, rhs: ConfirmationAlertConfig) -> Bool {
-      return lhs.id == rhs.id
-    }
-  }
-  
   struct ChoiceAlertConfig: Identifiable, Equatable {
     let id = UUID()
     let title: String
@@ -156,6 +144,43 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     
     static func == (lhs: TextInputAlertConfig, rhs: TextInputAlertConfig) -> Bool {
+      return lhs.id == rhs.id
+    }
+  }
+  
+  struct DateInputAlertConfig: Identifiable, Equatable {
+    let id = UUID()
+    let title: String?
+    let message: String?
+    let initial: MultiDatePickerAlert.Initial?
+    let bounds: Range<Date>?
+    let timezone: TimeZone
+    let cancel: String
+    let confirm: String
+    let onCancel: () -> Void
+    let onConfirm: (MultiDatePickerAlert.Result) -> Void
+    
+    init(title: String?,
+         message: String?,
+         initial: MultiDatePickerAlert.Initial? = nil,
+         bounds: Range<Date>? = nil,
+         timezone: TimeZone = .current,
+         cancel: String? = nil,
+         confirm: String? = nil,
+         onCancel: @escaping () -> Void,
+         onConfirm: @escaping (MultiDatePickerAlert.Result) -> Void) {
+      self.title = title
+      self.message = message
+      self.initial = initial
+      self.bounds = bounds
+      self.timezone = timezone
+      self.cancel = cancel ?? "Cancel"
+      self.confirm = confirm ?? "Select"
+      self.onCancel = onCancel
+      self.onConfirm = onConfirm
+    }
+    
+    static func == (lhs: DateInputAlertConfig, rhs: DateInputAlertConfig) -> Bool {
       return lhs.id == rhs.id
     }
   }
@@ -261,9 +286,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var previewUrl: URL? = nil
   @Published var helpDefinition: String? = nil
   @Published var sheetAction: ProgrammaticSheetAction? = nil
-  @Published var confirmationAlert: ConfirmationAlertConfig? = nil
   @Published var choiceAlert: ChoiceAlertConfig? = nil
   @Published var textInputAlert: TextInputAlertConfig? = nil
+  @Published var dateInputAlert: DateInputAlertConfig? = nil
   var toDeleteUrl: URL? = nil
   
   /// Dependencies

@@ -67,6 +67,7 @@ public final class AppletLibrary: NativeLibrary {
     self.define(Procedure("applet-file-type", self.appletFileType))
     self.define(Procedure("applet-file-data", self.appletFileData))
     self.define(Procedure("applet-file-available-types", self.appletFileAvailableTypes))
+    self.define(Procedure("applet-file->object", self.appletFileToObject))
     self.define(Procedure("applet-confirmation-dialog", self.appletConfirmationDialog))
     self.define(Procedure("applet-read-dialog", self.appletReadDialog))
     self.define(Procedure("applet-choice-dialog", self.appletChoiceDialog))
@@ -241,15 +242,21 @@ public final class AppletLibrary: NativeLibrary {
         }
       }
     } else if let name {
-      let data = Data(try expr.asByteVector().value)
-      if let type, type.isTrue {
-        if let tp = try UTType(type.asString()) {
-          return .object(AppletFile(IntentFile(data: data, filename: try name.asString(), type: tp)))
+      if case .bytes(_) = expr {
+        let data = Data(try expr.asByteVector().value)
+        if let type, type.isTrue {
+          if let tp = try UTType(type.asString()) {
+            return .object(AppletFile(IntentFile(data: data, filename: try name.asString(), type: tp)))
+          } else {
+            return .false
+          }
         } else {
-          return .false
+          return .object(AppletFile(IntentFile(data: data, filename: try name.asString())))
         }
+      } else if let ifile = AppletResult.toIntentFile(expr, filename: try name.asString()) {
+        return .object(AppletFile(ifile))
       } else {
-        return .object(AppletFile(IntentFile(data: data, filename: try name.asString())))
+        return .false
       }
     } else {
       return .false
@@ -292,39 +299,42 @@ public final class AppletLibrary: NativeLibrary {
     }
   }
   
-  private func appletFileData(_ expr: Expr, _ type: Expr?) throws -> Expr {
-    let af = try self.appletFile(expr)
+  private func getData(from ifile: IntentFile, type: UTType?) throws -> Data? {
     if let type {
       if #available(iOS 18.0, *) {
-        if let tp = try UTType(type.asString()) {
-          let responseSemaphore = DispatchSemaphore(value: 0)
-          var data: Data? = nil
-          var done: Bool = false
-          Task {
-            do {
-              data = try await af.file.data(contentType: tp)
-              done = true
-            } catch {
-              done = true
-            }
-            responseSemaphore.signal()
+        let responseSemaphore = DispatchSemaphore(value: 0)
+        var data: Data? = nil
+        var done: Bool = false
+        Task {
+          do {
+            data = try await ifile.data(contentType: type)
+            done = true
+          } catch {
+            done = true
           }
-          while !done && !self.context.evaluator.isAbortionRequested() {
-            _ = responseSemaphore.wait(timeout: .now() + 0.5)
-          }
-          if let data {
-            var res = [UInt8](repeating: 0, count: data.count)
-            data.copyBytes(to: &res, count: data.count)
-            return .bytes(MutableBox(res))
-          }
+          responseSemaphore.signal()
         }
+        while !done && !self.context.evaluator.isAbortionRequested() {
+          _ = responseSemaphore.wait(timeout: .now() + 0.5)
+        }
+        return data
+      } else {
+        return ifile.data
       }
-      return .false
     } else {
-      let data = af.file.data
+      return ifile.data
+    }
+  }
+  
+  private func appletFileData(_ expr: Expr, _ type: Expr?) throws -> Expr {
+    let af = try self.appletFile(expr)
+    let tp = type == nil ? nil : try UTType(type!.asString())    
+    if let data = try self.getData(from: af.file, type: tp) {
       var res = [UInt8](repeating: 0, count: data.count)
       data.copyBytes(to: &res, count: data.count)
       return .bytes(MutableBox(res))
+    } else {
+      return .false
     }
   }
   
@@ -336,6 +346,84 @@ public final class AppletLibrary: NativeLibrary {
         res = .pair(.makeString(tpe.identifier), res)
       }
       return res
+    } else {
+      return .false
+    }
+  }
+  
+  private func appletFileToObject(_ expr: Expr, _ type: Expr?) throws -> Expr {
+    let af = try self.appletFile(expr)
+    let tp = try (type == nil ? nil : UTType(type!.asString())) ?? af.file.type
+    if let data = try self.getData(from: af.file, type: tp) {
+      switch tp {
+        case .plainText, .utf8PlainText, .text, .delimitedText,
+             .tabSeparatedText, .commaSeparatedText, .utf8TabSeparatedText:
+          if let tr = String(data: data, encoding: .utf8) {
+            return .makeString(tr)
+          } else {
+            return .false
+          }
+        case .utf16PlainText, .utf16ExternalPlainText:
+          if let tr = String(data: data, encoding: .utf16) {
+            return .makeString(tr)
+          } else {
+            return .false
+          }
+        case .gif, .bmp, .png, .jpeg, .tiff:
+          if let image = UIImage(data: data) {
+            return .object(NativeImage(image))
+          } else {
+            return .false
+          }
+        case .pdf:
+          if let pdf = PDFDocument(data: data) {
+            return .object(NativePDFDocument(document: pdf))
+          } else {
+            return .false
+          }
+        case .zip:
+          if let archive = ZipArchive(data) {
+            return .object(archive)
+          } else {
+            return .false
+          }
+        case .rtf:
+          do {
+            let text = try NSMutableAttributedString(
+                              data: data,
+                              options: [.documentType: NSAttributedString.DocumentType.rtf],
+                              documentAttributes: nil)
+            return .object(StyledText(text))
+          } catch {
+            return .false
+          }
+        case .rtfd, .flatRTFD:
+          do {
+            let text = try NSMutableAttributedString(
+                              data: data,
+                              options: [.documentType: NSAttributedString.DocumentType.rtfd],
+                              documentAttributes: nil)
+            return .object(StyledText(text))
+          } catch {
+            return .false
+          }
+        default:
+          if #available(iOS 18.0, *), tp == .tarArchive {
+            if let archive = TarArchive(url: af.file.fileURL, data: data) {
+              return .object(archive)
+            } else {
+              return .false
+            }
+          } else if let tar = UTType("public.tar-archive"), tp == tar {
+            if let archive = TarArchive(url: af.file.fileURL, data: data) {
+              return .object(archive)
+            } else {
+              return .false
+            }
+          } else {
+            return .false
+          }
+      }
     } else {
       return .false
     }
@@ -364,20 +452,25 @@ public final class AppletLibrary: NativeLibrary {
         title = "Confirm"
       }
       DispatchQueue.main.async {
-        interpreter.choiceAlert = .init(
-          title: title,
-          message: prompt,
-          options: [],
-          onCancel: {
-            res = false
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: { str in
-            res = true
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.choiceAlert == nil {
+          interpreter.choiceAlert = .init(
+            title: title,
+            message: prompt,
+            options: [],
+            onCancel: {
+              res = false
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: { str in
+              res = true
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
@@ -437,20 +530,25 @@ public final class AppletLibrary: NativeLibrary {
       }
       var choice: String? = nil
       DispatchQueue.main.async {
-        interpreter.choiceAlert = .init(
-          title: title,
-          message: prompt,
-          options: alternatives,
-          onCancel: {
-            choice = nil
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: {
-            choice = $0
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.choiceAlert == nil {
+          interpreter.choiceAlert = .init(
+            title: title,
+            message: prompt,
+            options: alternatives,
+            onCancel: {
+              choice = nil
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: {
+              choice = $0
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
@@ -486,20 +584,25 @@ public final class AppletLibrary: NativeLibrary {
       }
     } else if let interpreter = self.context.delegate as? Interpreter {
       DispatchQueue.main.async {
-        interpreter.textInputAlert = .init(
-          title: title,
-          message: prompt,
-          initial: "",
-          onCancel: {
-            res = nil
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: {
-            res = $0
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.textInputAlert == nil {
+          interpreter.textInputAlert = .init(
+            title: title,
+            message: prompt,
+            initial: "",
+            onCancel: {
+              res = nil
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: {
+              res = $0
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
@@ -519,6 +622,51 @@ class AppletResult: NativeObject {
   
   var strings: [String?] = []
   var files: [IntentFile?] = []
+  
+  public static func toIntentFile(_ expr: Expr, filename: String) -> IntentFile? {
+    switch expr {
+      case .string(let str):
+        if let data = (str as String).data(using: .utf8) {
+          return IntentFile(data: data, filename: filename, type: .utf8PlainText)
+        } else {
+          return nil
+        }
+      case .object(let obj):
+        if let img = obj as? NativeImage,
+           let data = BitmapImageFileType.png.data(for: img.value, qualityFactor: nil) {
+          return IntentFile(data: data, filename: filename, type: .png)
+        } else if let ndoc = obj as? NativePDFDocument,
+                  let doc = ndoc.document as? LispKitPDFDocument,
+                  let data = (doc.persistDrawings() ?? doc).dataRepresentation(options: [:]) {
+          return IntentFile(data: data, filename: filename, type: .pdf)
+        } else if let text = obj as? StyledText {
+          do {
+            let data = try text.value.data(from: NSRange(location: 0, length: text.value.length),
+                                           documentAttributes: [
+                                             .documentType: NSAttributedString.DocumentType.rtf
+                                           ])
+            return IntentFile(data: data, filename: filename, type: .rtf)
+          } catch {
+            return nil
+          }
+        } else if let archive = obj as? ZipArchive,
+                  let data = archive.archive.data {
+          return IntentFile(data: data, filename: filename, type: .zip)
+        } else if let archive = obj as? TarArchive {
+          if #available(iOS 18.0, *) {
+            return IntentFile(data: archive.data, filename: filename, type: .tarArchive)
+          } else if let tp = UTType("public.tar-archive") {
+            return IntentFile(data: archive.data, filename: filename, type: tp)
+          } else {
+            return nil
+          }
+        } else {
+          return nil
+        }
+      default:
+        return nil
+    }
+  }
   
   public func include(_ expr: Expr, nested: Bool = false) {
     switch expr {

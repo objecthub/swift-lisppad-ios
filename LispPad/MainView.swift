@@ -91,8 +91,9 @@ struct MainView: View {
   /// changes to the view tree do not result in documentation browser state getting reset.
   @StateObject private var documentationBrowserState = DocumentationBrowserState()
   
-  @State var showInputAlert: Bool = false
   @State var showChoiceAlert: Bool = false
+  @State var showInputAlert: Bool = false
+  @State var showDateAlert: Bool = false
   
   /// View definition
   var body: some View {
@@ -164,6 +165,27 @@ struct MainView: View {
           }
         }
       )
+      .flexDatePickerAlert(
+        isPresented: self.$showDateAlert,
+        title: self.interpreter.dateInputAlert?.title,
+        message: self.interpreter.dateInputAlert?.message,
+        initial: self.interpreter.dateInputAlert?.initial ?? .single(nil),
+        bounds: self.interpreter.dateInputAlert?.bounds, 
+        cancelLabel: self.interpreter.dateInputAlert?.cancel,
+        confirmLabel: self.interpreter.dateInputAlert?.confirm ?? "Select",
+        onCancel: {
+          if let dia = self.interpreter.dateInputAlert {
+            self.interpreter.dateInputAlert = nil
+            dia.onCancel()
+          }
+        },
+        onConfirm: {
+          if let dia = self.interpreter.dateInputAlert {
+            self.interpreter.dateInputAlert = nil
+            dia.onConfirm($0)
+          }
+        }
+      )
       .optionPickerAlert(
         isPresented: self.$showChoiceAlert,
         title: self.interpreter.choiceAlert?.title ?? "Choose",
@@ -185,14 +207,19 @@ struct MainView: View {
           }
         }
       )
-      .onChange(of: self.interpreter.choiceAlert) { oldValue, newValue in
-        if newValue != nil {
-          self.showChoiceAlert = true
-        }
-      }
       .onChange(of: self.interpreter.textInputAlert) { oldValue, newValue in
         if newValue != nil {
           self.showInputAlert = true
+        }
+      }
+      .onChange(of: self.interpreter.dateInputAlert) { oldValue, newValue in
+        if newValue != nil {
+          self.showDateAlert = true
+        }
+      }
+      .onChange(of: self.interpreter.choiceAlert) { oldValue, newValue in
+        if newValue != nil {
+          self.showChoiceAlert = true
         }
       }
       .onChange(of: self.splitViewMode) { _, mode in

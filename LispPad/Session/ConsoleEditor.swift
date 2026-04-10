@@ -77,6 +77,9 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.autocapitalizationType = .none
     textView.autocorrectionType = .no
     textView.spellCheckingType = .no
+    if #available(iOS 18.0, *) {
+      textView.writingToolsBehavior = .none
+    }
     textView.font = self.settings.inputFont
     textView.textColor = UIColor(named: "CodeEditorTextColor")
     textView.backgroundColor = .clear

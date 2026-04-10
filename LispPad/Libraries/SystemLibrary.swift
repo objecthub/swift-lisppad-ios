@@ -84,6 +84,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("show-confirmation-panel", self.showConfirmationPanel))
     self.define(Procedure("show-choice-panel", self.showChoicePanel))
     self.define(Procedure("show-input-panel", self.showInputPanel))
+    self.define(Procedure("show-date-panel", self.showDatePanel))
     self.define(Procedure("show-preview-panel", self.showPreviewPanel))
     self.define(Procedure("show-share-panel", self.showSharePanel))
     self.define(Procedure("show-load-panel", self.showLoadPanel))
@@ -161,26 +162,35 @@ public final class SystemLibrary: NativeLibrary {
       let message = try message?.asString() ?? ""
       let yes = (button?.isTrue ?? false) ? try button!.asString() : "OK"
       let responseSemaphore = DispatchSemaphore(value: 0)
+      var confirmed: Bool = false
       var done: Bool = false
       DispatchQueue.main.async {
-        interpreter.choiceAlert = .init(
-          title: title,
-          message: message,
-          options: [],
-          cancel: nil,
-          confirm: yes,
-          onCancel: {
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: { str in
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.choiceAlert == nil {
+          interpreter.choiceAlert = .init(
+            title: title,
+            message: message,
+            options: [],
+            cancel: nil,
+            confirm: yes,
+            onCancel: {
+              done = true
+              confirmed = true
+              responseSemaphore.signal()
+            },
+            onConfirm: { str in
+              done = true
+              confirmed = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
       }
+      return confirmed ? .void : .false
     }
     return .void
   }
@@ -198,22 +208,27 @@ public final class SystemLibrary: NativeLibrary {
       var res: Bool = false
       var done: Bool = false
       DispatchQueue.main.async {
-        interpreter.choiceAlert = .init(
-          title: title,
-          message: message,
-          options: [],
-          cancel: no,
-          confirm: yes,
-          onCancel: {
-            res = false
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: { str in
-            res = true
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.choiceAlert == nil {
+          interpreter.choiceAlert = .init(
+            title: title,
+            message: message,
+            options: [],
+            cancel: no,
+            confirm: yes,
+            onCancel: {
+              res = false
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: { str in
+              res = true
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
@@ -249,23 +264,28 @@ public final class SystemLibrary: NativeLibrary {
       let yes = (confirm?.isTrue ?? false) ? try confirm!.asString() : "Select"
       var choice: String? = nil
       DispatchQueue.main.async {
-        interpreter.choiceAlert = .init(
-          title: title,
-          message: message,
-          options: alternatives,
-          selected: selected,
-          cancel: "Cancel",
-          confirm: yes,
-          onCancel: {
-            choice = nil
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: {
-            choice = $0
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.choiceAlert == nil {
+          interpreter.choiceAlert = .init(
+            title: title,
+            message: message,
+            options: alternatives,
+            selected: selected,
+            cancel: "Cancel",
+            confirm: yes,
+            onCancel: {
+              choice = nil
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: {
+              choice = $0
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
@@ -303,27 +323,198 @@ public final class SystemLibrary: NativeLibrary {
       var res: String? = nil
       var done: Bool = false
       DispatchQueue.main.async {
-        interpreter.textInputAlert = .init(
-          title: title,
-          message: message,
-          placeholder: placeholder,
-          initial: initial,
-          confirm: yes,
-          onCancel: {
-            res = nil
-            done = true
-            responseSemaphore.signal()
-          },
-          onConfirm: {
-            res = $0
-            done = true
-            responseSemaphore.signal()
-          })
+        if interpreter.textInputAlert == nil {
+          interpreter.textInputAlert = .init(
+            title: title,
+            message: message,
+            placeholder: placeholder,
+            initial: initial,
+            confirm: yes,
+            onCancel: {
+              res = nil
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: {
+              res = $0
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
       }
       while !done && !self.context.evaluator.isAbortionRequested() {
         _ = responseSemaphore.wait(timeout: .now() + 0.5)
       }
       return res == nil ? .false : .makeString(res!)
+    } else {
+      return .false
+    }
+  }
+  
+  static let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+  
+  private func asDate(_ expr: Expr) throws -> Date {
+    guard case .object(let obj) = expr,
+          let box = obj as? NativeDateTime else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    if let res = Self.calendar.date(from: box.value) {
+      return res
+    } else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+  }
+  
+  private func asDateComponents(_ expr: Expr) throws -> DateComponents {
+    guard case .object(let obj) = expr,
+          let box = obj as? NativeDateTime else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    return box.value
+  }
+  
+  private func toDateTime(_ date: Date, in timeZone: TimeZone) -> Expr {
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: timeZone, from: date)))
+  }
+  
+  private func showDatePanel(_ title: Expr,
+                             _ message: Expr,
+                             _ type: Expr,
+                             _ args: Arguments) throws -> Expr {
+    guard let (intl, rng, tzone, confirm, cancel) = args.optional(.false, .false, .false,
+                                                                  .false, .false) else {
+      throw RuntimeError.argumentCount(of: "show-date-panel",
+                                       min: 3,
+                                       max: 8,
+                                       args: .pair(title, .pair(message, .makeList(args))))
+    }
+    if let interpreter {
+      let title = title.isTrue ? try title.asString() : nil
+      let message = message.isTrue ? try message.asString() : nil
+      // Determine timezone
+      let timezone: TimeZone?
+      switch tzone {
+        case .false:
+          timezone = .current
+        case .fixnum(let delta):
+          if delta > Int64(Int.min) && delta < Int64(Int.max) {
+            timezone = TimeZone(secondsFromGMT: Int(delta))
+          } else {
+            timezone = nil
+          }
+        case .flonum(let delta):
+          if delta > Double(Int.min) && delta < Double(Int.max) {
+            timezone = TimeZone(secondsFromGMT: Int(delta)) ?? .current
+          } else {
+            timezone = nil
+          }
+        case .symbol(let sym):
+          timezone = TimeZone(abbreviation: sym.identifier)
+        case .string(let str):
+          timezone = TimeZone(identifier: str as String) ?? TimeZone(abbreviation: str as String)
+        default:
+          timezone = nil
+      }
+      guard let timezone else {
+        throw RuntimeError.eval(.invalidTimeZone, tzone)
+      }
+      // Determine date panel type and initial selection
+      let initial: MultiDatePickerAlert.Initial
+      switch try type.asSymbol().identifier {
+        case "single":
+          initial = .single(intl.isTrue ? try self.asDate(intl) : nil)
+        case "range":
+          switch intl {
+            case .false, .null:
+              initial = .range(nil)
+            case .pair(let lower, let upper):
+              initial = .range(ClosedRange(uncheckedBounds: (try self.asDate(lower),
+                                                             try self.asDate(upper))))
+            default:
+              throw RuntimeError.type(intl, expected: [.pairType])
+          }
+        case "multiple":
+          switch intl {
+            case .false, .null:
+              initial = .multiple([])
+            case .pair(_, _):
+              var lst = intl
+              var dates = Set<DateComponents>()
+              while case .pair(let d, let rest) = lst {
+                dates.insert(try self.asDateComponents(d))
+                lst = rest
+              }
+              initial = .multiple(dates)
+            default:
+              throw RuntimeError.type(intl, expected: [.pairType])
+          }
+        default:
+          throw RuntimeError.type(type, expected: [NativeDateTime.type, .pairType])
+      }
+      // Determine allowed date range
+      let bounds: Range<Date>?
+      switch rng {
+        case .false, .null:
+          bounds = nil
+        case .pair(let lower, let upper):
+          bounds = Range(uncheckedBounds: (try self.asDate(lower), try self.asDate(upper)))
+        default:
+          throw RuntimeError.type(rng, expected: [.pairType])
+      }
+      // Extract the rest of the arguments
+      let no = cancel.isTrue ? try cancel.asString() : "Cancel"
+      let yes = confirm.isTrue ? try confirm.asString() : "Select"
+      let responseSemaphore = DispatchSemaphore(value: 0)
+      var res: MultiDatePickerAlert.Result? = nil
+      var done: Bool = false
+      DispatchQueue.main.async {
+        if interpreter.dateInputAlert == nil {
+          interpreter.dateInputAlert = .init(
+            title: title,
+            message: message,
+            initial: initial,
+            bounds: bounds,
+            cancel: no,
+            confirm: yes,
+            onCancel: {
+              res = nil
+              done = true
+              responseSemaphore.signal()
+            },
+            onConfirm: {
+              res = $0
+              done = true
+              responseSemaphore.signal()
+            })
+        } else {
+          done = true
+          responseSemaphore.signal()
+        }
+      }
+      while !done && !self.context.evaluator.isAbortionRequested() {
+        _ = responseSemaphore.wait(timeout: .now() + 0.5)
+      }
+      guard let res else {
+        return .false
+      }
+      switch res {
+        case .none:
+          return .null
+        case .single(let date):
+          return self.toDateTime(date, in: timezone)
+        case .range(let range):
+          return .pair(self.toDateTime(range.lowerBound, in: timezone),
+                       self.toDateTime(range.upperBound, in: timezone))
+        case .multiple(let dates):
+          var res = Expr.null
+          for date in dates {
+            res = .pair(.object(NativeDateTime(date)), res)
+          }
+          return res
+      }
     } else {
       return .false
     }

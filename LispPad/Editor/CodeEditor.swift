@@ -71,6 +71,9 @@ struct CodeEditor: UIViewRepresentable {
     textView.autocapitalizationType = .none
     textView.autocorrectionType = .no
     textView.spellCheckingType = .no
+    if #available(iOS 18.0, *) {
+      textView.writingToolsBehavior = .none
+    }
     textView.font = self.settings.editorFont
     textView.textColor = UIColor(named: "CodeEditorTextColor")
     let textInputTraits = textView.value(forKey: "textInputTraits") as? NSObject

@@ -75,7 +75,6 @@ struct InterpreterView: View {
     case abortEvaluation
     case notSaved
     case openURL(URL)
-    case confirmation(Interpreter.ConfirmationAlertConfig)
     
     private static let abortEvaluationId = UUID()
     private static let notSavedId = UUID()
@@ -89,8 +88,6 @@ struct InterpreterView: View {
           return Self.notSavedId
         case .openURL(_):
           return Self.openURLId
-        case .confirmation(let config):
-          return config.id
       }
     }
   }
@@ -553,22 +550,11 @@ struct InterpreterView: View {
                       self.switchToEditor()
                     }})
               })
-          case .confirmation(let config):
-            return Alert(title: Text(config.title),
-                         message: Text(config.message),
-                         primaryButton: .cancel(Text("Cancel"), action: config.onCancel),
-                         secondaryButton: .default(Text("OK"), action: config.onConfirm))
         }
       }
       // Most modals in this view won't trigger if the console isn't active. Would
       // need to revisit this to make sure that long-running tasks with interactions
       // work also when the editor or other views are being displayed.
-      .onChange(of: self.interpreter.confirmationAlert) { oldValue, newValue in
-        if let newValue {
-          self.alertAction = .confirmation(newValue)
-          self.interpreter.confirmationAlert = nil
-        }
-      }
       .onChange(of: self.interpreter.showPhotosPicker) { oldValue, newValue in
         if newValue != nil {
           self.showPhotosPicker = true

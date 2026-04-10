@@ -1,8 +1,8 @@
 ;;; Default Prelude for LispPad Go
 ;;; 
 ;;; Author: Matthias Zenger
-;;; Copyright © 2021 Matthias Zenger. All
-;;; rights reserved.
+;;; Copyright © 2021-2026 Matthias Zenger.
+;;; All rights reserved.
 ;;;
 ;;; Licensed under the Apache License,
 ;;; Version 2.0 (the "License"); you may not
@@ -23,28 +23,15 @@
 ;;; under the License.
 
 ;; Import (lispkit base) from the LispKit
-;; release for the initial environment.
+;; release as well as (lisppad system ios)
+;; for the initial environment.
 
 (import (lispkit base)
         (lisppad system ios))
 
-(define random
-  (let ((a 69069)
-        (c 1)
-        (m (expt 2 32))
-        (seed 19380110))
-    (lambda new-seed
-      (if (pair? new-seed)
-          (set! seed (car new-seed))
-          (set! seed
-            (modulo (+ (* seed a) c) m)))
-      (inexact (/ seed m)))))
+;; Define utilities that are useful primarily
+;; for operational/development purposes.
 
-(define random-integer
-  (case-lambda
-    ((hi)
-      (exact (floor (* (random) hi))))
-    ((lo hi)
-      (+ lo (exact (floor
-                     (* (random)
-                        (- hi lo))))))))
+(define (local-ip-address . args)
+  (let ((intf (apply available-network-interfaces args)))
+    (and (pair? intf) (cadar intf))))

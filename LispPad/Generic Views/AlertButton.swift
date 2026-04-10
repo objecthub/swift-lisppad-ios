@@ -23,6 +23,7 @@ import SwiftUI
 struct AlertButton: View {
   
   enum Role {
+    case reset
     case cancel
     case confirm
   }
@@ -35,7 +36,7 @@ struct AlertButton: View {
     Button(action: action) {
       Text(label)
         .font(role == .confirm ? .body.weight(.semibold) : .body)
-        .foregroundStyle(.tint)
+        .foregroundStyle(role == .reset ? Color.red : Color.accentColor)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
     }

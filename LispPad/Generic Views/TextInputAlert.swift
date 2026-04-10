@@ -92,11 +92,12 @@ private struct AlertOverlay: View {
   let confirmLabel: String
   
   @Binding var text: String
-  @FocusState private var fieldFocused: Bool
   
   let onCancel: () -> Void
   let onConfirm: () -> Void
   
+  @FocusState private var fieldFocused: Bool
+
   private let dialogWidth: CGFloat = 270
   private let cornerRadius: CGFloat = 14
   private let dividerColor = Color(white: 0.5, opacity: 0.35)
