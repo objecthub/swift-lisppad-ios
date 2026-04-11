@@ -452,8 +452,8 @@ public final class AppletLibrary: NativeLibrary {
         title = "Confirm"
       }
       DispatchQueue.main.async {
-        if interpreter.choiceAlert == nil {
-          interpreter.choiceAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .choice(.init(
             title: title,
             message: prompt,
             options: [],
@@ -466,7 +466,7 @@ public final class AppletLibrary: NativeLibrary {
               res = true
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()
@@ -530,8 +530,8 @@ public final class AppletLibrary: NativeLibrary {
       }
       var choice: String? = nil
       DispatchQueue.main.async {
-        if interpreter.choiceAlert == nil {
-          interpreter.choiceAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .choice(.init(
             title: title,
             message: prompt,
             options: alternatives,
@@ -544,7 +544,7 @@ public final class AppletLibrary: NativeLibrary {
               choice = $0
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()
@@ -584,8 +584,8 @@ public final class AppletLibrary: NativeLibrary {
       }
     } else if let interpreter = self.context.delegate as? Interpreter {
       DispatchQueue.main.async {
-        if interpreter.textInputAlert == nil {
-          interpreter.textInputAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .textInput(.init(
             title: title,
             message: prompt,
             initial: "",
@@ -598,7 +598,7 @@ public final class AppletLibrary: NativeLibrary {
               res = $0
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()

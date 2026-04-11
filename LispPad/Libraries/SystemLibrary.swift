@@ -165,8 +165,8 @@ public final class SystemLibrary: NativeLibrary {
       var confirmed: Bool = false
       var done: Bool = false
       DispatchQueue.main.async {
-        if interpreter.choiceAlert == nil {
-          interpreter.choiceAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .choice(.init(
             title: title,
             message: message,
             options: [],
@@ -181,7 +181,7 @@ public final class SystemLibrary: NativeLibrary {
               done = true
               confirmed = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()
@@ -208,8 +208,8 @@ public final class SystemLibrary: NativeLibrary {
       var res: Bool = false
       var done: Bool = false
       DispatchQueue.main.async {
-        if interpreter.choiceAlert == nil {
-          interpreter.choiceAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .choice(.init(
             title: title,
             message: message,
             options: [],
@@ -224,7 +224,7 @@ public final class SystemLibrary: NativeLibrary {
               res = true
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()
@@ -264,8 +264,8 @@ public final class SystemLibrary: NativeLibrary {
       let yes = (confirm?.isTrue ?? false) ? try confirm!.asString() : "Select"
       var choice: String? = nil
       DispatchQueue.main.async {
-        if interpreter.choiceAlert == nil {
-          interpreter.choiceAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .choice(.init(
             title: title,
             message: message,
             options: alternatives,
@@ -281,7 +281,7 @@ public final class SystemLibrary: NativeLibrary {
               choice = $0
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()
@@ -323,8 +323,8 @@ public final class SystemLibrary: NativeLibrary {
       var res: String? = nil
       var done: Bool = false
       DispatchQueue.main.async {
-        if interpreter.textInputAlert == nil {
-          interpreter.textInputAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .textInput(.init(
             title: title,
             message: message,
             placeholder: placeholder,
@@ -339,7 +339,7 @@ public final class SystemLibrary: NativeLibrary {
               res = $0
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()
@@ -471,8 +471,8 @@ public final class SystemLibrary: NativeLibrary {
       var res: FlexDatePicker.Value? = nil
       var done: Bool = false
       DispatchQueue.main.async {
-        if interpreter.dateInputAlert == nil {
-          interpreter.dateInputAlert = .init(
+        if interpreter.alertConfig == nil {
+          interpreter.alertConfig = .datePickerAlert(.init(
             title: title,
             message: message,
             initial: initial,
@@ -488,7 +488,7 @@ public final class SystemLibrary: NativeLibrary {
               res = $0
               done = true
               responseSemaphore.signal()
-            })
+            }))
         } else {
           done = true
           responseSemaphore.signal()

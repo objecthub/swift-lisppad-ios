@@ -91,10 +91,10 @@ struct MainView: View {
   /// changes to the view tree do not result in documentation browser state getting reset.
   @StateObject private var documentationBrowserState = DocumentationBrowserState()
   
-  @State var showChoiceAlert: Bool = false
-  @State var showInputAlert: Bool = false
-  @State var showDateAlert: Bool = false
+  @State var showAlert: Bool = false
   @State var datePickerValue: FlexDatePicker.Value = .single(nil)
+  @State var choiceValue: String = ""
+  @State var textValue: String = ""
 
   /// View definition
   var body: some View {
@@ -145,65 +145,22 @@ struct MainView: View {
       )
       .ignoresSafeArea()
       //.frame(maxWidth: .infinity, maxHeight: .infinity)
-      .plainFullScreenCover(isPresented: $showDateAlert) {
+      .plainFullScreenCover(isPresented: $showAlert) {
         self.alertView
       }
-      .textInputAlert(
-        isPresented: self.$showInputAlert,
-        title: self.interpreter.textInputAlert?.title ?? "Input",
-        message: self.interpreter.textInputAlert?.message ?? "",
-        placeholder: self.interpreter.textInputAlert?.placeholder ?? "",
-        initialText: self.interpreter.textInputAlert?.initial ?? "",
-        cancelLabel: self.interpreter.textInputAlert?.cancel ?? "Cancel",
-        confirmLabel: self.interpreter.textInputAlert?.confirm ?? "OK",
-        onCancel: {
-          if let tia = self.interpreter.textInputAlert {
-            self.interpreter.textInputAlert = nil
-            tia.onCancel()
-          }
-        },
-        onConfirm: {
-          if let tia = self.interpreter.textInputAlert {
-            self.interpreter.textInputAlert = nil
-            tia.onConfirm($0)
-          }
-        }
-      )
-      .optionPickerAlert(
-        isPresented: self.$showChoiceAlert,
-        title: self.interpreter.choiceAlert?.title ?? "Choose",
-        message: self.interpreter.choiceAlert?.message ?? "",
-        options: self.interpreter.choiceAlert?.options ?? [],
-        selected: self.interpreter.choiceAlert?.selected,
-        cancelLabel: self.interpreter.choiceAlert?.cancel,
-        confirmLabel: self.interpreter.choiceAlert?.confirm ?? "OK",
-        onCancel: {
-          if let ca = self.interpreter.choiceAlert {
-            self.interpreter.choiceAlert = nil
-            ca.onCancel()
-          }
-        },
-        onConfirm: {
-          if let ca = self.interpreter.choiceAlert {
-            self.interpreter.choiceAlert = nil
-            ca.onConfirm($0)
-          }
-        }
-      )
-      .onChange(of: self.interpreter.textInputAlert) { oldValue, newValue in
-        if newValue != nil {
-          self.showInputAlert = true
-        }
-      }
-      .onChange(of: self.interpreter.dateInputAlert) { oldValue, newValue in
-        if let newValue {
-          self.showDateAlert = true
-          self.datePickerValue = newValue.initial
-        }
-      }
-      .onChange(of: self.interpreter.choiceAlert) { oldValue, newValue in
-        if newValue != nil {
-          self.showChoiceAlert = true
+      .onChange(of: self.interpreter.alertConfig) { oldValue, newValue in
+        switch newValue {
+          case .none:
+            break
+          case .textInput(let config):
+            self.showAlert = true
+            self.textValue = config.initial
+          case .choice(let config):
+            self.showAlert = true
+            self.choiceValue = config.selected ?? config.options.first ?? ""
+          case .datePickerAlert(let config):
+            self.showAlert = true
+            self.datePickerValue = config.initial
         }
       }
       .onChange(of: self.splitViewMode) { _, mode in
@@ -217,26 +174,69 @@ struct MainView: View {
   
   @ViewBuilder
   private var alertView: some View {
-    if let alert = self.interpreter.dateInputAlert {
-      DatePickerAlert(
-        title: alert.title,
-        message: alert.message,
-        selection: $datePickerValue,
-        bounds: alert.bounds,
-        cancelLabel: alert.cancel,
-        confirmLabel: alert.confirm,
-        onCancel: {
-          self.showDateAlert = false
-          self.interpreter.dateInputAlert = nil
-          alert.onCancel()
-        },
-        onConfirm: { (result: FlexDatePicker.Value) in
-          self.showDateAlert = false
-          self.interpreter.dateInputAlert = nil
-          alert.onConfirm(result)
-        }
-      )
-      .environment(\.timeZone, alert.timezone)
+    switch self.interpreter.alertConfig {
+      case .none:
+        EmptyView()
+      case .textInput(let alert):
+        TextInputModal(
+          title: alert.title,
+          message: alert.message,
+          placeholder: alert.placeholder,
+          text: $textValue,
+          cancelLabel: alert.cancel,
+          confirmLabel: alert.confirm,
+          onCancel: {
+            self.showAlert = false
+            self.interpreter.alertConfig = nil
+            alert.onCancel()
+          },
+          onConfirm: {
+            let result = self.textValue
+            self.showAlert = false
+            self.interpreter.alertConfig = nil
+            alert.onConfirm(result)
+          }
+        )
+      case .choice(let alert):
+        ChoiceModal(
+          title: alert.title,
+          message: alert.message,
+          options: alert.options,
+          selection: $choiceValue,
+          cancelLabel: alert.cancel,
+          confirmLabel: alert.confirm,
+          onCancel: {
+            self.showAlert = false
+            self.interpreter.alertConfig = nil
+            alert.onCancel()
+          },
+          onConfirm: {
+            let result = self.choiceValue
+            self.showAlert = false
+            self.interpreter.alertConfig = nil
+            alert.onConfirm(result)
+          }
+        )
+      case .datePickerAlert(let alert):
+        DateInputModal(
+          title: alert.title,
+          message: alert.message,
+          selection: $datePickerValue,
+          bounds: alert.bounds,
+          cancelLabel: alert.cancel,
+          confirmLabel: alert.confirm,
+          onCancel: {
+            self.showAlert = false
+            self.interpreter.alertConfig = nil
+            alert.onCancel()
+          },
+          onConfirm: { (result: FlexDatePicker.Value) in
+            self.showAlert = false
+            self.interpreter.alertConfig = nil
+            alert.onConfirm(result)
+          }
+        )
+        .environment(\.timeZone, alert.timezone)
     }
   }
 }

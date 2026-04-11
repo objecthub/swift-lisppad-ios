@@ -1,5 +1,5 @@
 //
-//  MultiDatePickerAlert.swift
+//  DateInputModal.swift
 //  LispPad
 //
 //  Created by Matthias Zenger on 09/04/2026.
@@ -25,7 +25,7 @@ import SwiftUI
 /// and lets the user pick a single date, multiple dates, or a date range
 /// using a calendar. Backed by FlexDatePicker.
 /// 
-struct DatePickerAlert: View {
+struct DateInputModal: View {
   @Environment(\.calendar) private var calendar
   @Environment(\.timeZone) private var timezone
   

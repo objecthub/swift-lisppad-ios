@@ -80,111 +80,6 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let imageManager: ImageManager
   }
   
-  struct ChoiceAlertConfig: Identifiable, Equatable {
-    let id = UUID()
-    let title: String
-    let message: String
-    let options: [String]
-    let selected: String?
-    let cancel: String?
-    let confirm: String
-    let onCancel: () -> Void
-    let onConfirm: (String) -> Void
-    
-    init(title: String,
-         message: String,
-         options: [String] = [],
-         selected: String? = nil,
-         cancel: String? = "Cancel",
-         confirm: String? = nil,
-         onCancel: @escaping () -> Void,
-         onConfirm: @escaping (String) -> Void) {
-      self.title = title
-      self.message = message
-      self.options = options
-      self.selected = selected
-      self.cancel = cancel
-      self.confirm = confirm ?? (options.count == 0 ? "OK" : "Select")
-      self.onCancel = onCancel
-      self.onConfirm = onConfirm
-    }
-    
-    static func == (lhs: ChoiceAlertConfig, rhs: ChoiceAlertConfig) -> Bool {
-      return lhs.id == rhs.id
-    }
-  }
-  
-  struct TextInputAlertConfig: Identifiable, Equatable {
-    let id = UUID()
-    let title: String
-    let message: String
-    let placeholder: String
-    let initial: String
-    let cancel: String
-    let confirm: String
-    let onCancel: () -> Void
-    let onConfirm: (String) -> Void
-    
-    init(title: String,
-         message: String,
-         placeholder: String? = nil,
-         initial: String? = nil,
-         cancel: String? = nil,
-         confirm: String? = nil,
-         onCancel: @escaping () -> Void,
-         onConfirm: @escaping (String) -> Void) {
-      self.title = title
-      self.message = message
-      self.placeholder = placeholder ?? ""
-      self.initial = initial ?? ""
-      self.cancel = cancel ?? "Cancel"
-      self.confirm = confirm ?? "OK"
-      self.onCancel = onCancel
-      self.onConfirm = onConfirm
-    }
-    
-    static func == (lhs: TextInputAlertConfig, rhs: TextInputAlertConfig) -> Bool {
-      return lhs.id == rhs.id
-    }
-  }
-  
-  struct DateInputAlertConfig: Identifiable, Equatable {
-    let id = UUID()
-    let title: String?
-    let message: String?
-    let initial: FlexDatePicker.Value
-    let bounds: Range<Date>?
-    let timezone: TimeZone
-    let cancel: String
-    let confirm: String
-    let onCancel: () -> Void
-    let onConfirm: (FlexDatePicker.Value) -> Void
-    
-    init(title: String?,
-         message: String?,
-         initial: FlexDatePicker.Value,
-         bounds: Range<Date>? = nil,
-         timezone: TimeZone = .current,
-         cancel: String? = nil,
-         confirm: String? = nil,
-         onCancel: @escaping () -> Void,
-         onConfirm: @escaping (FlexDatePicker.Value) -> Void) {
-      self.title = title
-      self.message = message
-      self.initial = initial
-      self.bounds = bounds
-      self.timezone = timezone
-      self.cancel = cancel ?? "Cancel"
-      self.confirm = confirm ?? "Select"
-      self.onCancel = onCancel
-      self.onConfirm = onConfirm
-    }
-    
-    static func == (lhs: DateInputAlertConfig, rhs: DateInputAlertConfig) -> Bool {
-      return lhs.id == rhs.id
-    }
-  }
-  
   enum ProgrammaticSheetAction: Identifiable, Equatable {
     case share(id: UUID,
                url: URL,
@@ -286,9 +181,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
   @Published var previewUrl: URL? = nil
   @Published var helpDefinition: String? = nil
   @Published var sheetAction: ProgrammaticSheetAction? = nil
-  @Published var choiceAlert: ChoiceAlertConfig? = nil
-  @Published var textInputAlert: TextInputAlertConfig? = nil
-  @Published var dateInputAlert: DateInputAlertConfig? = nil
+  @Published var alertConfig: ModalConfig? = nil
   var toDeleteUrl: URL? = nil
   
   /// Dependencies
