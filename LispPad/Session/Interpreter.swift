@@ -152,23 +152,23 @@ final class Interpreter: ContextDelegate, ObservableObject {
     let id = UUID()
     let title: String?
     let message: String?
-    let initial: MultiDatePickerAlert.Initial?
+    let initial: FlexDatePicker.Value
     let bounds: Range<Date>?
     let timezone: TimeZone
     let cancel: String
     let confirm: String
     let onCancel: () -> Void
-    let onConfirm: (MultiDatePickerAlert.Result) -> Void
+    let onConfirm: (FlexDatePicker.Value) -> Void
     
     init(title: String?,
          message: String?,
-         initial: MultiDatePickerAlert.Initial? = nil,
+         initial: FlexDatePicker.Value,
          bounds: Range<Date>? = nil,
          timezone: TimeZone = .current,
          cancel: String? = nil,
          confirm: String? = nil,
          onCancel: @escaping () -> Void,
-         onConfirm: @escaping (MultiDatePickerAlert.Result) -> Void) {
+         onConfirm: @escaping (FlexDatePicker.Value) -> Void) {
       self.title = title
       self.message = message
       self.initial = initial

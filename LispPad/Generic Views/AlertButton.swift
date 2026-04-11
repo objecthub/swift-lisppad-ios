@@ -21,6 +21,7 @@
 import SwiftUI
 
 struct AlertButton: View {
+  @Environment(\.isEnabled) var isEnabled
   
   enum Role {
     case reset
@@ -33,10 +34,11 @@ struct AlertButton: View {
   let action: () -> Void
   
   var body: some View {
-    Button(action: action) {
+    Button(action: self.action) {
       Text(label)
-        .font(role == .confirm ? .body.weight(.semibold) : .body)
-        .foregroundStyle(role == .reset ? Color.red : Color.accentColor)
+        .font(self.role == .confirm ? .body.weight(.semibold) : .body)
+        .foregroundStyle(self.isEnabled ? (self.role == .reset ? Color.red : Color.accentColor)
+                                        : Color.gray)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .contentShape(Rectangle())
     }

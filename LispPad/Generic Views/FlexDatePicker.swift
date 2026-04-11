@@ -20,45 +20,84 @@
 
 import SwiftUI
 
-enum DatePickerSelectionMode {
-  case single(Binding<Date?>)
-  case multi(Binding<Set<DateComponents>>)
-  case range(Binding<ClosedRange<Date>?>)
-  
-  func clear() {
-    switch self {
-      case .single(let date):
-        date.wrappedValue = nil
-      case .multi(let dates):
-        dates.wrappedValue.removeAll()
-      case .range(let range):
-        range.wrappedValue = nil
-    }
-  }
-}
 
 struct FlexDatePicker: View {
+  
+  enum Value: Equatable {
+    case single(Date?)
+    case multi(Set<DateComponents>)
+    case range(ClosedRange<Date>?)
+    
+    var cleared: Value {
+      switch self {
+        case .single(_):
+          return .single(nil)
+        case .multi(_):
+          return .multi([])
+        case .range(_):
+          return .range(nil)
+      }
+    }
+    
+    var isValid: Bool {
+      switch self {
+        case .single(let date):
+          return date != nil
+        case .multi(_):
+          return true
+        case .range(let range):
+          return range != nil
+      }
+    }
+    
+    var title: String {
+      switch self {
+        case .single(_):
+          return "Select Date"
+        case .range(_):
+          return "Select Date Range"
+        case .multi(_):
+          return "Select Dates"
+      }
+    }
+    
+    func expanded(with bounds: Range<Date>? = nil,
+                  using calendar: Calendar = .current) -> Set<DateComponents> {
+      switch self {
+        case .single(let date):
+          return date.map { [calendar.dateComponents([.year, .month, .day], from: $0)] } ?? []
+        case .multi(let dates):
+          return dates
+        case .range(let range):
+          guard let range else { return [] }
+          let start = bounds.map { max(range.lowerBound, $0.lowerBound) } ?? range.lowerBound
+          let end = bounds.map { min(range.upperBound, $0.upperBound) } ?? range.upperBound
+          guard start <= end else { return [] }
+          return FlexDatePicker.allDays(in: start ... end, using: calendar)
+      }
+    }
+  }
+  
+  @Environment(\.calendar) private var calendar
+  @Environment(\.timeZone) private var timezone
+  
   let title: String
-  let mode: DatePickerSelectionMode
+  @Binding var value: Value
   let bounds: Range<Date>?
   
-  @Binding private var selection: Set<DateComponents>
+  @State private var selection: Set<DateComponents> = []
   
-  init(_ title: String = "",
-       mode: DatePickerSelectionMode,
-       in bounds: Range<Date>? = nil,
-       selection: Binding<Set<DateComponents>>) {
+  init(_ title: String = "", value: Binding<Value>, in bounds: Range<Date>? = nil) {
     self.title = title
-    self.mode = mode
+    self._value = value
     self.bounds = bounds
-    self._selection = selection
   }
   
   var body: some View {
     picker
-    .onAppear {
-      syncFromMode()
-    }
+      .onAppear { Swift.print("  on appear"); syncFromValue() }
+      .onChange(of: value) { syncFromValue() }
+      .onChange(of: selection) { pushToValue() }
   }
   
   @ViewBuilder
@@ -73,104 +112,91 @@ struct FlexDatePicker: View {
   private var selectionBinding: Binding<Set<DateComponents>> {
     Binding(
       get: { selection },
-      set: { newValue in
-        selection = constrained(newValue)
-        pushToMode()
-      }
+      set: { selection = constrained($0) }
     )
   }
   
   private func constrained(_ raw: Set<DateComponents>) -> Set<DateComponents> {
     let filtered = bounds.map { range in
       raw.filter { components in
-        guard let date = Calendar.current.date(from: components) else {
-          return false
-        }
+        guard let date = self.calendar.date(from: components) else { return false }
         return range.contains(date)
       }
     } ?? raw
-    switch mode {
+    switch value {
       case .single:
-        guard let newest = filtered.subtracting(selection).first ?? filtered.first else {
+        // If raw equals the current selection, the user tapped the selected date — deselect it.
+        if filtered == selection {
           return []
         }
+        guard let newest = filtered.subtracting(selection).first ?? filtered.first else { return [] }
         return [newest]
       case .multi:
         return filtered
       case .range:
-        // Derive the new anchor from whatever date was just added or removed.
         let added = filtered.subtracting(selection)
         let removed = selection.subtracting(filtered)
-        // Determine the new anchor date: prefer a newly tapped date, fall back to
-        // the opposite end of whatever was just deselected.
         let anchorComponents: DateComponents? = added.first ?? removed.first
-        guard let anchor = anchorComponents.flatMap({ Calendar.current.date(from: $0) }) else {
+        guard let anchor = anchorComponents.flatMap({ self.calendar.date(from: $0) }) else {
           return []
         }
-        // The fixed end is whichever existing endpoint is not the anchor.
-        let existingDates = selection.compactMap { Calendar.current.date(from: $0) }.sorted()
+        let existingDates = selection.compactMap { self.calendar.date(from: $0) }.sorted()
         let fixedEnd: Date? = existingDates.first == anchor || existingDates.isEmpty
                             ? existingDates.last
                             : existingDates.first
         guard let fixed = fixedEnd else {
-          // Only one anchor so far — store just that date.
-          return [Calendar.current.dateComponents([.year, .month, .day], from: anchor)]
+          return [self.calendar.dateComponents([.year, .month, .day], from: anchor)]
         }
-        let rangeStart = min(anchor, fixed)
-        let rangeEnd = max(anchor, fixed)
-        let clamped = clampedRange(from: rangeStart, to: rangeEnd)
-        return allDays(in: clamped)
+        return Self.allDays(in: clampedRange(from: min(anchor, fixed), to: max(anchor, fixed)),
+                            using: self.calendar)
     }
   }
   
   private func clampedRange(from start: Date, to end: Date) -> ClosedRange<Date> {
     guard let bounds else { return start ... end }
     let clampedStart = max(start, bounds.lowerBound)
-    let clampedEnd = min(end, bounds.upperBound)
-    return clampedStart <= clampedEnd ? clampedStart...clampedEnd : clampedStart...clampedStart
+    let clampedEnd   = min(end, bounds.upperBound)
+    return clampedStart <= clampedEnd ? clampedStart ... clampedEnd : clampedStart ... clampedStart
   }
   
-  private func allDays(in range: ClosedRange<Date>) -> Set<DateComponents> {
+  private static func allDays(in range: ClosedRange<Date>,
+                              using calendar: Calendar) -> Set<DateComponents> {
     var result: Set<DateComponents> = []
-    var current = range.lowerBound
-    while current <= range.upperBound {
-      result.insert(Calendar.current.dateComponents([.year, .month, .day], from: current))
-      guard let next = Calendar.current.date(byAdding: .day, value: 1, to: current) else { break }
-      current = next
+    var cur = range.lowerBound
+    while cur <= range.upperBound {
+      result.insert(calendar.dateComponents([.year, .month, .day], from: cur))
+      guard let next = calendar.date(byAdding: .day, value: 1, to: cur) else {
+        break
+      }
+      cur = next
     }
     return result
   }
   
-  private func pushToMode() {
-    switch mode {
-      case .single(let binding):
-        binding.wrappedValue = selection.first.flatMap { Calendar.current.date(from: $0) }
-      case .multi(let binding):
-        binding.wrappedValue = selection
-      case .range(let binding):
-        let sorted = selection.compactMap { Calendar.current.date(from: $0) }.sorted()
+  private func pushToValue() {
+    Swift.print("  push \(selection)")
+    switch self.value {
+      case .single:
+        let date = selection.first.flatMap { self.calendar.date(from: $0) }
+        value = .single(date)
+      case .multi:
+        value = .multi(selection)
+      case .range:
+        let sorted = selection.compactMap { self.calendar.date(from: $0) }.sorted()
         if let start = sorted.first, let end = sorted.last {
-          binding.wrappedValue = start...end
+          value = .range(start ... end)
         } else {
-          binding.wrappedValue = nil
+          value = .range(nil)
         }
     }
   }
   
-  private func syncFromMode() {
-    switch mode {
-      case .single(let binding):
-        selection = binding.wrappedValue.map {
-          [Calendar.current.dateComponents([.year, .month, .day], from: $0)]
-        } ?? []
-      case .multi(let binding):
-        selection = binding.wrappedValue
-      case .range(let binding):
-        guard let range = binding.wrappedValue else { selection = []; return }
-        let start = bounds.map { max(range.lowerBound, $0.lowerBound) } ?? range.lowerBound
-        let end = bounds.map { min(range.upperBound, $0.upperBound) } ?? range.upperBound
-        guard start <= end else { selection = []; return }
-        selection = allDays(in: start ... end)
+  private func syncFromValue() {
+    Swift.print("  sync from \(self.value)")
+    let new = self.value.expanded(with: self.bounds, using: self.calendar)
+    guard self.selection != new else {
+      return
     }
+    self.selection = new
   }
 }

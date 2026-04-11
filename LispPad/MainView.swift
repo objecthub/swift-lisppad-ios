@@ -94,7 +94,8 @@ struct MainView: View {
   @State var showChoiceAlert: Bool = false
   @State var showInputAlert: Bool = false
   @State var showDateAlert: Bool = false
-  
+  @State var datePickerValue: FlexDatePicker.Value = .single(nil)
+
   /// View definition
   var body: some View {
     ZStack {
@@ -144,6 +145,9 @@ struct MainView: View {
       )
       .ignoresSafeArea()
       //.frame(maxWidth: .infinity, maxHeight: .infinity)
+      .plainFullScreenCover(isPresented: $showDateAlert) {
+        self.alertView
+      }
       .textInputAlert(
         isPresented: self.$showInputAlert,
         title: self.interpreter.textInputAlert?.title ?? "Input",
@@ -162,27 +166,6 @@ struct MainView: View {
           if let tia = self.interpreter.textInputAlert {
             self.interpreter.textInputAlert = nil
             tia.onConfirm($0)
-          }
-        }
-      )
-      .flexDatePickerAlert(
-        isPresented: self.$showDateAlert,
-        title: self.interpreter.dateInputAlert?.title,
-        message: self.interpreter.dateInputAlert?.message,
-        initial: self.interpreter.dateInputAlert?.initial ?? .single(nil),
-        bounds: self.interpreter.dateInputAlert?.bounds, 
-        cancelLabel: self.interpreter.dateInputAlert?.cancel,
-        confirmLabel: self.interpreter.dateInputAlert?.confirm ?? "Select",
-        onCancel: {
-          if let dia = self.interpreter.dateInputAlert {
-            self.interpreter.dateInputAlert = nil
-            dia.onCancel()
-          }
-        },
-        onConfirm: {
-          if let dia = self.interpreter.dateInputAlert {
-            self.interpreter.dateInputAlert = nil
-            dia.onConfirm($0)
           }
         }
       )
@@ -213,8 +196,9 @@ struct MainView: View {
         }
       }
       .onChange(of: self.interpreter.dateInputAlert) { oldValue, newValue in
-        if newValue != nil {
+        if let newValue {
           self.showDateAlert = true
+          self.datePickerValue = newValue.initial
         }
       }
       .onChange(of: self.interpreter.choiceAlert) { oldValue, newValue in
@@ -228,6 +212,31 @@ struct MainView: View {
       .onChange(of: self.masterWidthFraction) { _, fraction in
         UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
       }
+    }
+  }
+  
+  @ViewBuilder
+  private var alertView: some View {
+    if let alert = self.interpreter.dateInputAlert {
+      DatePickerAlert(
+        title: alert.title,
+        message: alert.message,
+        selection: $datePickerValue,
+        bounds: alert.bounds,
+        cancelLabel: alert.cancel,
+        confirmLabel: alert.confirm,
+        onCancel: {
+          self.showDateAlert = false
+          self.interpreter.dateInputAlert = nil
+          alert.onCancel()
+        },
+        onConfirm: { (result: FlexDatePicker.Value) in
+          self.showDateAlert = false
+          self.interpreter.dateInputAlert = nil
+          alert.onConfirm(result)
+        }
+      )
+      .environment(\.timeZone, alert.timezone)
     }
   }
 }

@@ -422,7 +422,7 @@ public final class SystemLibrary: NativeLibrary {
         throw RuntimeError.eval(.invalidTimeZone, tzone)
       }
       // Determine date panel type and initial selection
-      let initial: MultiDatePickerAlert.Initial
+      let initial: FlexDatePicker.Value
       switch try type.asSymbol().identifier {
         case "single":
           initial = .single(intl.isTrue ? try self.asDate(intl) : nil)
@@ -439,7 +439,7 @@ public final class SystemLibrary: NativeLibrary {
         case "multiple":
           switch intl {
             case .false, .null:
-              initial = .multiple([])
+              initial = .multi([])
             case .pair(_, _):
               var lst = intl
               var dates = Set<DateComponents>()
@@ -447,7 +447,7 @@ public final class SystemLibrary: NativeLibrary {
                 dates.insert(try self.asDateComponents(d))
                 lst = rest
               }
-              initial = .multiple(dates)
+              initial = .multi(dates)
             default:
               throw RuntimeError.type(intl, expected: [.pairType])
           }
@@ -468,7 +468,7 @@ public final class SystemLibrary: NativeLibrary {
       let no = cancel.isTrue ? try cancel.asString() : "Cancel"
       let yes = confirm.isTrue ? try confirm.asString() : "Select"
       let responseSemaphore = DispatchSemaphore(value: 0)
-      var res: MultiDatePickerAlert.Result? = nil
+      var res: FlexDatePicker.Value? = nil
       var done: Bool = false
       DispatchQueue.main.async {
         if interpreter.dateInputAlert == nil {
@@ -501,14 +501,20 @@ public final class SystemLibrary: NativeLibrary {
         return .false
       }
       switch res {
-        case .none:
-          return .null
         case .single(let date):
-          return self.toDateTime(date, in: timezone)
+          if let date {
+            return self.toDateTime(date, in: timezone)
+          } else {
+            return .false
+          }
         case .range(let range):
-          return .pair(self.toDateTime(range.lowerBound, in: timezone),
-                       self.toDateTime(range.upperBound, in: timezone))
-        case .multiple(let dates):
+          if let range {
+            return .pair(self.toDateTime(range.lowerBound, in: timezone),
+                         self.toDateTime(range.upperBound, in: timezone))
+          } else {
+            return .false
+          }
+        case .multi(let dates):
           var res = Expr.null
           for date in dates {
             res = .pair(.object(NativeDateTime(date)), res)
