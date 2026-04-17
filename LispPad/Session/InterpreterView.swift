@@ -321,7 +321,7 @@ struct InterpreterView: View {
                                                        self.state.consoleTab = newValue
                                                      }
                                                    })) {
-                  Label("Log", systemImage: "scroll").tag(0)
+                  Label("Log", systemImage: "list.bullet.rectangle.portrait").tag(0)
                   Label("Console", systemImage: "terminal").tag(1)
                   Label("Canvas", systemImage: "photo.stack").tag(2)
                 }

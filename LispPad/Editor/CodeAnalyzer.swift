@@ -1,9 +1,9 @@
 //
-//  DefinitionView.swift
+//  CodeAnalyzer.swift
 //  LispPad
 //
-//  Created by Matthias Zenger on 05/04/2021.
-//  Copyright © 2021 Matthias Zenger. All rights reserved.
+//  Created by Matthias Zenger on 14/04/2026.
+//  Copyright © 2026 Matthias Zenger. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -19,9 +19,24 @@
 //
 
 import SwiftUI
+import LispKit
 
-struct DefinitionView: View {
-
+struct CodeAnalyzer {
+  
+  enum CodeType: CustomStringConvertible {
+    case library([String])
+    case applet(String)
+    
+    var description: String {
+      switch self {
+        case .library(let name):
+          return "(\(name.joined(separator: " ")))"
+        case .applet(let name):
+          return "“\(name)”"
+      }
+    }
+  }
+  
   enum DefinitionType: String {
     case value = "values"
     case record = "record-type"
@@ -43,83 +58,7 @@ struct DefinitionView: View {
              self.types.isEmpty
     }
   }
-
-  @Environment(\.dismiss) var dismiss
-  let defitions: Definitions
-  @Binding var position: NSRange?
-
-  var body: some View {
-    ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
-      Color(.systemGroupedBackground).ignoresSafeArea()
-      Form {
-        if self.defitions.values.count > 0 {
-          Section {
-            ForEach(self.defitions.values, id: \.1) { tuple in
-              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.dismiss() }) {
-                Text(tuple.0).font(.body)
-              }
-            }
-          } header: {
-            Text("Values")
-              .padding(.top, 20)
-          }
-        }
-        if self.defitions.syntax.count > 0 {
-          Section {
-            ForEach(self.defitions.syntax, id: \.1) { tuple in
-              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.dismiss() }) {
-                Text(tuple.0).font(.body)
-              }
-            }
-          } header: {
-            Text("Syntax")
-              .padding(.top, self.defitions.values.count == 0 ? 20 : 0)
-          }
-        }
-        if self.defitions.records.count > 0 {
-          Section {
-            ForEach(self.defitions.records, id: \.1) { tuple in
-              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.dismiss() }) {
-                Text(tuple.0).font(.body)
-              }
-            }
-          } header: {
-            Text("Records")
-              .padding(.top, self.defitions.values.count + self.defitions.syntax.count == 0
-                               ? 20 : 0)
-          }
-        }
-        if self.defitions.types.count > 0 {
-          Section {
-            ForEach(self.defitions.types, id: \.1) { tuple in
-              Button(action: { self.position = NSRange(location: tuple.1, length: 0)
-                               self.dismiss() }) {
-                Text(tuple.0).font(.body)
-              }
-            }
-          } header: {
-            Text("Types")
-              .padding(.top, self.defitions.values.count + self.defitions.syntax.count
-                               + self.defitions.records.count == 0
-                               ? 20 : 0)
-          }
-        }
-      }
-      .padding(.top, LispPadUI.panelTopPadding)
-      Button(action: {
-        self.dismiss()
-      }) {
-        ExitButton()
-      }
-      .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
-      // .keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
-      .padding()
-    }
-  }
-
+  
   static func parseDefinitions(_ text: String,
                                maxCount: Int = 20000,
                                maxDefs: Int = 200,
@@ -356,16 +295,44 @@ struct DefinitionView: View {
       return nil
     }
   }
-}
-
-struct DefinitionView_Previews: PreviewProvider {
-  @State static var position: NSRange? = nil
-  static var previews: some View {
-    DefinitionView(
-      defitions: DefinitionView.Definitions(values: [("One", 1),("Two", 2)],
-                                               syntax: [("Three", 3)],
-                                               records: [],
-                                               types: [("Four", 4), ("Five", 5), ("Six", 6)]),
-      position: $position)
+  
+  static func codeType(doc: TextDocument?, context: Interpreter.Context?) -> CodeType? {
+    if let doc,
+       doc.info.editorType == .scheme,
+       let exprs = try? context?.evaluator.parseExprs(str: doc.text,
+                                                      sourceId: SourceManager.unknownSourceId) {
+      var togo = 10 // Evaluate at most 10 top-level expressions
+      for expr in exprs {
+        guard togo > 0 else {
+          break
+        }
+        if case .pair(.symbol(let sym), .pair(let name, let rest)) = expr {
+          if sym.identifier == "define-library",
+             case .pair(_, _) = rest {
+            var lst = name
+            var impl: [String] = []
+            while case .pair(.symbol(let cmp), let rest) = lst {
+              impl.append(cmp.identifier)
+              lst = rest
+            }
+            guard case .null = lst else {
+              return nil
+            }
+            return .library(impl)
+          } else if sym.identifier == "import" {
+            var lst = Expr.pair(name, rest)
+            while case .pair(let impt, let rest) = lst {
+              if case .pair(.symbol(let fst), .pair(.symbol(let snd), .null)) = impt,
+                 fst.identifier == "lisppad" && snd.identifier == "applet" {
+                return .applet(doc.info.title)
+              }
+              lst = rest
+            }
+          }
+        }
+        togo -= 1
+      }
+    }
+    return nil
   }
 }

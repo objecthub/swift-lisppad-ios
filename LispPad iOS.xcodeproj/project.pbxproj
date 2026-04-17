@@ -17,6 +17,8 @@
 		CC1CBAE22F87129900D55310 /* DateInputModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE12F87129200D55310 /* DateInputModal.swift */; };
 		CC1CBAE42F878F0E00D55310 /* FlexDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE32F878F0A00D55310 /* FlexDatePicker.swift */; };
 		CC1CBAE72F8A796C00D55310 /* ModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE62F8A796800D55310 /* ModalConfig.swift */; };
+		CC1CBAE92F90579600D55310 /* CentralMenuContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */; };
+		CC1CBAEB2F9230CD00D55310 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAEA2F9230C800D55310 /* Error.swift */; };
 		CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */ = {isa = PBXBuildFile; fileRef = CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */; };
 		CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1DDB6126A734C60049E99D /* RTFTextView.swift */; };
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
@@ -186,7 +188,7 @@
 		CCC8564A261995030080B96E /* LispKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */; };
 		CCC85659261B18C80080B96E /* SearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC85658261B18C70080B96E /* SearchField.swift */; };
-		CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565A261BADAD0080B96E /* DefinitionView.swift */; };
+		CCC8565B261BADAD0080B96E /* CodeAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565A261BADAD0080B96E /* CodeAnalyzer.swift */; };
 		CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565C261CE5710080B96E /* TextDocument.swift */; };
 		CCC85660261D09410080B96E /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565F261D09410080B96E /* PreferencesView.swift */; };
 		CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */; };
@@ -527,6 +529,8 @@
 		CC1CBAE12F87129200D55310 /* DateInputModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputModal.swift; sourceTree = "<group>"; };
 		CC1CBAE32F878F0A00D55310 /* FlexDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexDatePicker.swift; sourceTree = "<group>"; };
 		CC1CBAE62F8A796800D55310 /* ModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalConfig.swift; sourceTree = "<group>"; };
+		CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralMenuContent.swift; sourceTree = "<group>"; };
+		CC1CBAEA2F9230C800D55310 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = KeyboardShortcuts.rtf; sourceTree = "<group>"; };
 		CC1DDB6126A734C60049E99D /* RTFTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RTFTextView.swift; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
@@ -696,7 +700,7 @@
 		CCC856542619F93B0080B96E /* LispPad_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LispPad_small.png; sourceTree = "<group>"; };
 		CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextViewDelegate.swift; sourceTree = "<group>"; };
 		CCC85658261B18C70080B96E /* SearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchField.swift; sourceTree = "<group>"; };
-		CCC8565A261BADAD0080B96E /* DefinitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefinitionView.swift; sourceTree = "<group>"; };
+		CCC8565A261BADAD0080B96E /* CodeAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeAnalyzer.swift; sourceTree = "<group>"; };
 		CCC8565C261CE5710080B96E /* TextDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDocument.swift; sourceTree = "<group>"; };
 		CCC8565F261D09410080B96E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalScrollView.swift; sourceTree = "<group>"; };
@@ -1315,8 +1319,9 @@
 				CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */,
 				CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */,
 				CCE8E431262975E900E3DC6A /* CodeEditorTextTokenizer.swift */,
+				CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */,
 				CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */,
-				CCC8565A261BADAD0080B96E /* DefinitionView.swift */,
+				CCC8565A261BADAD0080B96E /* CodeAnalyzer.swift */,
 				CC55DD8126492307001AAD10 /* DocStructureView.swift */,
 			);
 			path = Editor;
@@ -1335,6 +1340,7 @@
 				CCA3C68A2AFFE1FC00C0BDE6 /* AsyncResult.swift */,
 				CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */,
 				CC894F002CC05DD800896B1D /* ThreadUtil.swift */,
+				CC1CBAEA2F9230C800D55310 /* Error.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -1467,7 +1473,7 @@
 				CC321E642F6DA8230094C57A /* EvalIntent.swift in Sources */,
 				CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */,
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
-				CCC8565B261BADAD0080B96E /* DefinitionView.swift in Sources */,
+				CCC8565B261BADAD0080B96E /* CodeAnalyzer.swift in Sources */,
 				CC289F262EBC196E00299751 /* DocumentationBrowserState.swift in Sources */,
 				CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */,
 				CCA3C69C2B043DB500C0BDE6 /* CanvasSizeEditor.swift in Sources */,
@@ -1554,12 +1560,14 @@
 				CC84C27225FE791000758581 /* ConsoleView.swift in Sources */,
 				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
+				CC1CBAE92F90579600D55310 /* CentralMenuContent.swift in Sources */,
 				CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
 				CC321E692F6EABF70094C57A /* IntentInterpreter.swift in Sources */,
 				CCC8563F2617A8960080B96E /* FileHierarchy.swift in Sources */,
 				CC233D5926696C970038016C /* ImageUtil.swift in Sources */,
 				CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */,
+				CC1CBAEB2F9230CD00D55310 /* Error.swift in Sources */,
 				CC8B95C92608102300830B4F /* SystemLibrary.swift in Sources */,
 				CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */,
 				CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */,

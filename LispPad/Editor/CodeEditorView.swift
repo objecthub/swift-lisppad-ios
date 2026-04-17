@@ -22,6 +22,7 @@ import SwiftUI
 import MarkdownKit
 import UniformTypeIdentifiers
 
+
 struct CodeEditorView: View {
   
   enum SheetAction: Identifiable {
@@ -33,8 +34,6 @@ struct CodeEditorView: View {
     case saveBeforeNew
     case saveBeforeEdit
     case saveBeforeOpen(URL)
-    case showDefinitions(DefinitionView.Definitions)
-    case showDocStructure(DocStructureView.DocStructure)
     case markdownPreview(Block)
     case showDocumentation(Block)
     
@@ -43,27 +42,23 @@ struct CodeEditorView: View {
         case .renameFile:
           return 0
         case .moveFile:
-          return 11
-        case .saveFile:
           return 1
-        case .editFile:
+        case .saveFile:
           return 2
-        case .organizeFiles:
+        case .editFile:
           return 3
-        case .saveBeforeNew:
+        case .organizeFiles:
           return 4
-        case .saveBeforeEdit:
+        case .saveBeforeNew:
           return 5
-        case .saveBeforeOpen(_):
+        case .saveBeforeEdit:
           return 6
-        case .showDefinitions(_):
+        case .saveBeforeOpen(_):
           return 7
-        case .showDocStructure(_):
-          return 8
         case .markdownPreview(_):
-          return 9
+          return 8
         case .showDocumentation(_):
-          return 10
+          return 9
       }
     }
   }
@@ -76,6 +71,8 @@ struct CodeEditorView: View {
     case notSaved
     case couldNotDuplicate
     case replaceAll(String, String)
+    case installOverwrites(String, URL)
+    case installFailed(String, Error?)
     
     var id: Int {
       switch self {
@@ -93,6 +90,10 @@ struct CodeEditorView: View {
           return 5
         case .replaceAll(_, _):
           return 6
+        case .installOverwrites(_, _):
+          return 7
+        case .installFailed(_, _):
+          return 8
       }
     }
   }
@@ -130,8 +131,10 @@ struct CodeEditorView: View {
   @State var showFileNotFoundAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
+  @State var codeType: CodeAnalyzer.CodeType? = nil
+  @State var menuIsOpen: Bool = false
   @State var showStructure: Bool = false
-  @State var definitionCache: DefinitionView.Definitions? = nil
+  @State var definitionCache: CodeAnalyzer.Definitions? = nil
   @State var structureCache: DocStructureView.DocStructure? = nil
   
   var keyboardShortcuts: some View {
@@ -444,113 +447,18 @@ struct CodeEditorView: View {
         }
         ToolbarItemGroup(placement: .principal) {
           Menu {
-            Button {
-              self.dismissCard()
-              if let path = PortableURL(self.fileManager.editorDocument?.fileURL)?.relativePath {
-                UIPasteboard.general.string = path
-              }
-            } label: {
-              Label(self.fileManager.editorDocument?.fileURL.lastPathComponent ?? "Unknown",
-                    systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
-              Text((self.fileManager.editorDocument?.pathString ?? "/") + 
-                   " • " + (self.fileManager.editorDocument?.sizeString ?? "? B"))
-            }
-            .disabled(self.fileManager.editorDocumentInfo.new)
-            ControlGroup {
-              Button {
-                self.dismissCard()
-                self.fileManager.editorDocument?.saveFile { success in
-                  self.showModal = .moveFile
-                }
-              } label: {
-                Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Move To…",
-                      systemImage: self.fileManager.editorDocumentInfo.new
-                                     ? "tray.and.arrow.down" : "folder")
-              }
-              Button {
-                self.dismissCard()
-                if let doc = self.fileManager.editorDocument, !doc.info.new {
-                  doc.saveFile { success in
-                    if success {
-                      self.fileManager.loadEditorDocument(
-                        source: doc.fileURL,
-                        makeUntitled: true,
-                        action: { success in
-                          if !success {
-                            self.notSavedAlertAction = .couldNotDuplicate
-                          }
-                        })
-                    } else {
-                      self.notSavedAlertAction = .couldNotDuplicate
-                    }
-                  }
-                }
-              } label: {
-                Label("Duplicate", systemImage: "plus.rectangle.on.rectangle")
-              }
-              .disabled(self.fileManager.editorDocumentInfo.new)
-              Button(role: .destructive) {
-                self.dismissCard()
-                self.notSavedAlertAction = .deleteFile
-              } label: {
-                Label("Delete", systemImage: "trash")
-              }
-              .disabled(self.fileManager.editorDocumentInfo.new)
-            }
-            Button {
-              self.dismissCard()
-              self.showModal = .renameFile
-            } label: {
-              Label("Rename…", systemImage: "pencil")
-            }
-            .disabled(self.fileManager.editorDocumentInfo.new)
-            Button {
-              self.dismissCard()
-              self.histManager.toggleFavorite(self.fileManager.editorDocument?.fileURL)
-            } label: {
-              if self.histManager.isFavorite(self.fileManager.editorDocument?.fileURL) {
-                Label("Unstar", systemImage: "star.fill")
-              } else {
-                Label("Star", systemImage: "star")
-              }
-            }
-            .disabled(!self.histManager.canBeFavorite(self.fileManager.editorDocument?.fileURL))
-            if let url = self.fileManager.editorDocument?.fileURL {
-              ShareLink(item: url)
-                .disabled(self.fileManager.editorDocumentInfo.new)
-            }
-            Button {
-              if let url = self.fileManager.editorDocument?.fileURL {
-                UIPasteboard.general.string = url.path
-              }
-            } label: {
-              Label("Copy Path", systemImage: "doc.on.clipboard")
-            }
-            .disabled(self.fileManager.editorDocumentInfo.new)
-            Divider()
-            Menu {
-              Toggle("Show line numbers", isOn: $settings.showLineNumbers)
-              Toggle("Highlight current line", isOn: $settings.highlightCurrentLine)
-              Toggle("Highlight parenthesis", isOn: $settings.highlightMatchingParen)
-              if self.editorType == .scheme {
-                Divider()
-                Toggle("Indent automatically", isOn: $settings.schemeAutoIndent)
-                Toggle("Highlight syntax", isOn: $settings.schemeHighlightSyntax)
-                Toggle("Markup identifiers", isOn: $settings.schemeMarkupIdent)
-              } else if self.editorType == .markdown {
-                Divider()
-                Toggle("Indent automatically", isOn: $settings.markdownAutoIndent)
-                Toggle("Highlight syntax", isOn: $settings.markdownHighlightSyntax)
-              }
-            } label: {
-              Label("Settings", systemImage: "switch.2")
-            }
+            CentralMenuContent(
+              showModal: $showModal,
+              notSavedAlertAction: $notSavedAlertAction,
+              editorType: $editorType,
+              codeType: $codeType,
+              dismissCard: self.dismissCard)
           } label: {
             HStack(alignment: .center, spacing: 4) {
               if geometry.size.width >= 380 {
                 Text(self.fileManager.editorDocumentInfo.title)
                   .font(geometry.size.width < 540 ? LispPadUI.fileNameFont
-                                                  : LispPadUI.largeFileNameFont)
+                        : LispPadUI.largeFileNameFont)
                   .bold()
                   .foregroundColor(.primary)
                   .truncationMode(.middle)
@@ -563,8 +471,20 @@ struct CodeEditorView: View {
                 .font(.caption)
                 .bold()
                 .foregroundColor(self.editorFocused && self.splitViewMode.isSideBySide
-                                   ? Color.green : Color(LispPadUI.menuIndicatorColor))
+                                 ? Color.green : Color(LispPadUI.menuIndicatorColor))
             }
+            .onLongPressGesture(
+              minimumDuration: 0.2,
+              maximumDistance: .infinity,
+              pressing: { isPressing in
+                self.codeType = UserSettings.standard.foldersOnICloud ||
+                                UserSettings.standard.foldersOnDevice
+                              ? CodeAnalyzer.codeType(doc: self.fileManager.editorDocument,
+                                                      context: self.interpreter.context)
+                              : nil
+              },
+              perform: {}
+            )
           }
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -627,7 +547,7 @@ struct CodeEditorView: View {
             Button {
               if let doc = self.fileManager.editorDocument {
                 if doc.info.editorType == .scheme,
-                   let defs = DefinitionView.parseDefinitions(doc.text),
+                   let defs = CodeAnalyzer.parseDefinitions(doc.text),
                    !defs.isEmpty {
                   self.definitionCache = defs
                   self.showStructure = true
@@ -646,7 +566,7 @@ struct CodeEditorView: View {
             .popover(isPresented: self.$showStructure) {
               if let doc = self.fileManager.editorDocument {
                 if doc.info.editorType == .scheme,
-                   let defs = self.definitionCache ?? DefinitionView.parseDefinitions(doc.text) {
+                   let defs = self.definitionCache ?? CodeAnalyzer.parseDefinitions(doc.text) {
                   List {
                     if defs.values.count > 0 {
                       Section {
@@ -884,6 +804,27 @@ struct CodeEditorView: View {
             return self.couldNotDuplicate()
           case .replaceAll(let str, let repl):
             return self.replaceAll(str, repl)
+          case .installOverwrites(let what, let url):
+            return Alert(title: Text("Overwrite \(what)?"),
+                         message: Text("Do you want to proceed installing \(what) overwriting the existing file?"),
+                         primaryButton: .default(Text("Cancel"), action: { }),
+                         secondaryButton: .destructive(Text("Overwrite"), action: {
+              if let source = self.fileManager.editorDocument?.fileURL {
+                do {
+                  try self.fileManager.sysFileManager.removeItem(at: url)
+                  try self.fileManager.sysFileManager.copyItem(at: source, to: url)
+                } catch let err {
+                  self.notSavedAlertAction = .installFailed(what, err)
+                }
+              } else {
+                self.notSavedAlertAction = .installFailed(what, nil)
+              }
+            }))
+          case .installFailed(let what, let err):
+            return Alert(title: Text("Install failed"),
+                         message: Text("Could not install \(what)." +
+                                       (err != nil ? " \(err!.richDescription())" : "")),
+                         dismissButton: .default(Text("OK")))
             
         }
       }
@@ -909,7 +850,8 @@ struct CodeEditorView: View {
     }
   }
   
-  @ViewBuilder private func sheetView(_ sheet: SheetAction) -> some View {
+  @ViewBuilder
+  private func sheetView(_ sheet: SheetAction) -> some View {
     switch sheet {
       case .renameFile:
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
@@ -1002,12 +944,6 @@ struct CodeEditorView: View {
           return true
         }
         .modifier(self.globals.services)
-      case .showDefinitions(let definitions):
-        DefinitionView(defitions: definitions, position: $editorPosition)
-          .modifier(self.globals.services)
-      case .showDocStructure(let structure):
-        DocStructureView(structure: structure, position: $editorPosition)
-          .modifier(self.globals.services)
       case .markdownPreview(let block):
         MarkdownViewer(markdown: block)
           .modifier(self.globals.services)
