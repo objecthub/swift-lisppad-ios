@@ -132,6 +132,7 @@ struct CodeEditorView: View {
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
   @State var codeType: CodeAnalyzer.CodeType? = nil
+  @State var sizeString: String? = nil
   @State var menuIsOpen: Bool = false
   @State var showStructure: Bool = false
   @State var definitionCache: CodeAnalyzer.Definitions? = nil
@@ -452,6 +453,7 @@ struct CodeEditorView: View {
               notSavedAlertAction: $notSavedAlertAction,
               editorType: $editorType,
               codeType: $codeType,
+              sizeString: $sizeString,
               dismissCard: self.dismissCard)
           } label: {
             HStack(alignment: .center, spacing: 4) {
@@ -477,11 +479,11 @@ struct CodeEditorView: View {
               minimumDuration: 0.2,
               maximumDistance: .infinity,
               pressing: { isPressing in
-                self.codeType = UserSettings.standard.foldersOnICloud ||
-                                UserSettings.standard.foldersOnDevice
+                self.codeType = self.settings.foldersOnICloud || self.settings.foldersOnDevice
                               ? CodeAnalyzer.codeType(doc: self.fileManager.editorDocument,
                                                       context: self.interpreter.context)
                               : nil
+                self.sizeString = self.fileManager.editorDocument?.sizeString
               },
               perform: {}
             )

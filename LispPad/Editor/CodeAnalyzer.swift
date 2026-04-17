@@ -27,6 +27,33 @@ struct CodeAnalyzer {
     case library([String])
     case applet(String)
     
+    var icon: String {
+      switch self {
+        case .library(_):
+          return "shippingbox"
+        case .applet(_):
+          return "scroll"
+      }
+    }
+    
+    var folderName: String {
+      switch self {
+        case .library(_):
+          return "Libraries"
+        case .applet(_):
+          return "Applets"
+      }
+    }
+    
+    var itemType: String {
+      switch self {
+        case .library(_):
+          return "library"
+        case .applet(_):
+          return "applet"
+      }
+    }
+    
     var description: String {
       switch self {
         case .library(let name):

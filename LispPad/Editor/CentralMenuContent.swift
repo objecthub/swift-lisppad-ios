@@ -31,6 +31,7 @@ struct CentralMenuContent: View {
   @Binding var notSavedAlertAction: CodeEditorView.NotSavedAlertAction?
   @Binding var editorType: FileExtensions.EditorType
   @Binding var codeType: CodeAnalyzer.CodeType?
+  @Binding var sizeString: String?
   
   let dismissCard: () -> Void
   
@@ -44,7 +45,7 @@ struct CentralMenuContent: View {
       Label(self.fileManager.editorDocument?.fileURL.lastPathComponent ?? "Unknown",
             systemImage: PortableURL(self.fileManager.editorDocument?.fileURL)?.base?.imageName ?? "link")
       Text((self.fileManager.editorDocument?.pathString ?? "/") + 
-           " • " + (self.fileManager.editorDocument?.sizeString ?? "? B"))
+           " • \(self.sizeString ?? "? B")")
     }
     .disabled(self.fileManager.editorDocumentInfo.new)
     ControlGroup {
@@ -148,115 +149,59 @@ struct CentralMenuContent: View {
   
   @ViewBuilder
   private func installMenuItems(type: CodeAnalyzer.CodeType, divider: Bool) -> some View {
-    switch type {
-      case .library(let lib):
-        if divider {
-          Divider()
+    if divider {
+      Divider()
+    }
+    if self.settings.foldersOnICloud && self.settings.foldersOnDevice {
+      Menu {
+        Button {
+          self.performInstall(type: type,
+                              base: PortableURL.Base.icloud,
+                              locationName: "on iCloud Drive")
+        } label: {
+          Label("On iCloud Drive", systemImage: "icloud")
         }
-        if self.settings.foldersOnICloud && self.settings.foldersOnDevice {
-          Menu {
-            Button {
-              let descr = "library \(type.description) on iCloud Drive"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.icloud.url?.appendingPathComponent("Libraries") {
-                self.installLibrary(lib: lib, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            } label: {
-              Label("On iCloud Drive", systemImage: "icloud")
-            }
-            Button {
-              let descr = "library \(type.description) \(self.localInstallName())"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.documents.url?.appendingPathComponent("Libraries") {
-                self.installLibrary(lib: lib, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            } label: {
-              self.localInstallLabel()
-            }
-          } label: {
-            Label("Install \(type.description)", systemImage: "shippingbox")
-          }
-        } else {
-          Button {
-            if self.settings.foldersOnICloud {
-              let descr = "library \(type.description) on iCloud Drive"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.icloud.url?.appendingPathComponent("Libraries") {
-                self.installLibrary(lib: lib, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            } else if self.settings.foldersOnDevice {
-              let descr = "library \(type.description) \(self.localInstallName())"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.documents.url?.appendingPathComponent("Libraries") {
-                self.installLibrary(lib: lib, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            }
-          } label: {
-            Label("Install \(type.description)", systemImage: "shippingbox")
-          }
+        Button {
+          self.performInstall(type: type,
+                              base: PortableURL.Base.documents,
+                              locationName: self.localInstallName())
+        } label: {
+          self.localInstallLabel()
         }
-      case .applet(let name):
-        if divider {
-          Divider()
+      } label: {
+        Label("Install \(type.description)", systemImage: type.icon)
+      }
+    } else {
+      Button {
+        if self.settings.foldersOnICloud {
+          self.performInstall(type: type,
+                              base: PortableURL.Base.icloud,
+                              locationName: "on iCloud Drive")
+        } else if self.settings.foldersOnDevice {
+          self.performInstall(type: type,
+                              base: PortableURL.Base.documents,
+                              locationName: self.localInstallName())
         }
-        if self.settings.foldersOnICloud && self.settings.foldersOnDevice {
-          Menu {
-            Button {
-              let descr = "applet \(type.description) on iCloud Drive"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.icloud.url?.appendingPathComponent("Applets") {
-                self.installApplet(name: name, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            } label: {
-              Label("On iCloud Drive", systemImage: "icloud")
-            }
-            Button {
-              let descr = "applet \(type.description) \(self.localInstallName())"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.documents.url?.appendingPathComponent("Applets") {
-                self.installApplet(name: name, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            } label: {
-              self.localInstallLabel()
-            }
-          } label: {
-            Label("Install \(type.description)", systemImage: "scroll")
-          }
-        } else {
-          Button {
-            if self.settings.foldersOnICloud {
-              let descr = "applet \(type.description) on iCloud Drive"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.icloud.url?.appendingPathComponent("Applets") {
-                self.installApplet(name: name, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            } else if self.settings.foldersOnDevice {
-              let descr = "applet \(type.description) \(self.localInstallName())"
-              if let doc = self.fileManager.editorDocument,
-                 let url = PortableURL.Base.documents.url?.appendingPathComponent("Applets") {
-                self.installApplet(name: name, base: url, doc: doc, description: descr)
-              } else {
-                self.notSavedAlertAction = .installFailed(descr, nil)
-              }
-            }
-          } label: {
-            Label("Install \(type.description)", systemImage: "scroll")
-          }
-        }
+      } label: {
+        Label("Install \(type.description)", systemImage: type.icon)
+      }
+    }
+  }
+  
+  private func performInstall(type: CodeAnalyzer.CodeType,
+                              base: PortableURL.Base,
+                              locationName: String) {
+    let descr = "\(type.itemType) \(type.description) \(locationName)"
+    if let doc = self.fileManager.editorDocument,
+       let url = base.url?.appendingPathComponent(type.folderName) {
+      switch type {
+        case .library(let lib):
+          self.installLibrary(lib: lib, base: url, doc: doc, description: descr)
+        case .applet(let name):
+          self.installApplet(name: name, base: url, doc: doc, description: descr)
+      }
+    } else {
+      self.notSavedAlertAction = .installFailed(descr, nil)
     }
   }
   

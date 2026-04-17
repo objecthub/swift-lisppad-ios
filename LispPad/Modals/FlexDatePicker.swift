@@ -95,7 +95,7 @@ struct FlexDatePicker: View {
   
   var body: some View {
     picker
-      .onAppear { Swift.print("  on appear"); syncFromValue() }
+      .onAppear { syncFromValue() }
       .onChange(of: value) { syncFromValue() }
       .onChange(of: selection) { pushToValue() }
   }
@@ -174,7 +174,6 @@ struct FlexDatePicker: View {
   }
   
   private func pushToValue() {
-    Swift.print("  push \(selection)")
     switch self.value {
       case .single:
         let date = selection.first.flatMap { self.calendar.date(from: $0) }
@@ -192,7 +191,6 @@ struct FlexDatePicker: View {
   }
   
   private func syncFromValue() {
-    Swift.print("  sync from \(self.value)")
     let new = self.value.expanded(with: self.bounds, using: self.calendar)
     guard self.selection != new else {
       return
