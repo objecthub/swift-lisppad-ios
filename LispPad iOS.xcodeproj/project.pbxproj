@@ -19,6 +19,9 @@
 		CC1CBAE72F8A796C00D55310 /* ModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE62F8A796800D55310 /* ModalConfig.swift */; };
 		CC1CBAE92F90579600D55310 /* CentralMenuContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */; };
 		CC1CBAEB2F9230CD00D55310 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAEA2F9230C800D55310 /* Error.swift */; };
+		CC1CBAF22F93B87700D55310 /* GetFileFromResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAF12F93B86200D55310 /* GetFileFromResult.swift */; };
+		CC1CBAF42F9423D200D55310 /* GetStringFromResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAF32F9423C700D55310 /* GetStringFromResult.swift */; };
+		CC1CBAF52F942F6700D55310 /* LogoImposition.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1CBAEC2F92D4BA00D55310 /* LogoImposition.scm */; };
 		CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */ = {isa = PBXBuildFile; fileRef = CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */; };
 		CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1DDB6126A734C60049E99D /* RTFTextView.swift */; };
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
@@ -27,7 +30,7 @@
 		CC289F262EBC196E00299751 /* DocumentationBrowserState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */; };
 		CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5026FE93F900835745 /* LispPadUI.swift */; };
 		CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC302E5A2700828600835745 /* SlideOverCard.swift */; };
-		CC321E642F6DA8230094C57A /* EvalIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E632F6DA8230094C57A /* EvalIntent.swift */; };
+		CC321E642F6DA8230094C57A /* RunProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E632F6DA8230094C57A /* RunProgram.swift */; };
 		CC321E662F6DA82B0094C57A /* Shortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E652F6DA82B0094C57A /* Shortcuts.swift */; };
 		CC321E692F6EABF70094C57A /* IntentInterpreter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E682F6EABF20094C57A /* IntentInterpreter.swift */; };
 		CC321E6B2F6F2CEC0094C57A /* EvalResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC321E6A2F6F2CE60094C57A /* EvalResult.swift */; };
@@ -192,9 +195,6 @@
 		CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565C261CE5710080B96E /* TextDocument.swift */; };
 		CCC85660261D09410080B96E /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8565F261D09410080B96E /* PreferencesView.swift */; };
 		CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDE104E27066FEF00F950FF /* OptionalScrollView.swift */; };
-		CCE4412E2F355F4500266C57 /* (lispkit pdf).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE4412D2F355F3700266C57 /* (lispkit pdf).md */; };
-		CCE441362F35613100266C57 /* (lispkit dynamic).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE441352F35613100266C57 /* (lispkit dynamic).md */; };
-		CCE4413C2F35655000266C57 /* (lispkit image process).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE4413B2F35654700266C57 /* (lispkit image process).md */; };
 		CCE4413D2F356C5100266C57 /* (lispkit draw map).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441312F35602900266C57 /* (lispkit draw map).md */; };
 		CCE4413E2F356C5100266C57 /* (lispkit draw web).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE4412F2F355FEB00266C57 /* (lispkit draw web).md */; };
 		CCE4413F2F356C5100266C57 /* (lispkit dynamic).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441352F35613100266C57 /* (lispkit dynamic).md */; };
@@ -206,18 +206,6 @@
 		CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701C26AC7E75008DF3D0 /* Sheet.swift */; };
 		CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */; };
 		CCE74B54295A4139002660C4 /* (lisppad draw map).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */; };
-		CCE80A132CEFF21B008C63A2 /* (lispkit system keychain).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */; };
-		CCE80A152CEFF252008C63A2 /* (lispkit system pasteboard).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */; };
-		CCE80A172CEFF284008C63A2 /* (lispkit json).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A162CEFF284008C63A2 /* (lispkit json).md */; };
-		CCE80A192CEFF2D4008C63A2 /* (lispkit json schema).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */; };
-		CCE80A1B2CEFF321008C63A2 /* (lispkit draw barcode).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */; };
-		CCE80A1D2CEFF35E008C63A2 /* (lispkit url).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */; };
-		CCE80A1F2CEFF3A0008C63A2 /* (lispkit http).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A1E2CEFF3A0008C63A2 /* (lispkit http).md */; };
-		CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A202CEFF3D9008C63A2 /* (lispkit http server).md */; };
-		CCE80A232CEFF442008C63A2 /* (lispkit http oauth).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A222CEFF442008C63A2 /* (lispkit http oauth).md */; };
-		CCE80A252CEFF4BA008C63A2 /* (lispkit serialize).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */; };
-		CCE80A272CEFF56A008C63A2 /* (lispkit thread shared-queue).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */; };
-		CCE80A292CEFF59C008C63A2 /* (lispkit thread future).md in Resources */ = {isa = PBXBuildFile; fileRef = CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */; };
 		CCE80A2A2CEFF96F008C63A2 /* (lispkit url).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */; };
 		CCE80A2B2CEFF977008C63A2 /* (lispkit thread shared-queue).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */; };
 		CCE80A2C2CEFF984008C63A2 /* (lispkit thread future).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A282CEFF59C008C63A2 /* (lispkit thread future).md */; };
@@ -450,6 +438,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1CBAF52F942F6700D55310 /* LogoImposition.scm in Copy Root/Examples */,
 				CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */,
 				CC853D4F2B54834600139243 /* Fractals.scm in Copy Root/Examples */,
 				CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */,
@@ -531,6 +520,9 @@
 		CC1CBAE62F8A796800D55310 /* ModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalConfig.swift; sourceTree = "<group>"; };
 		CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralMenuContent.swift; sourceTree = "<group>"; };
 		CC1CBAEA2F9230C800D55310 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		CC1CBAEC2F92D4BA00D55310 /* LogoImposition.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = LogoImposition.scm; sourceTree = "<group>"; };
+		CC1CBAF12F93B86200D55310 /* GetFileFromResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFileFromResult.swift; sourceTree = "<group>"; };
+		CC1CBAF32F9423C700D55310 /* GetStringFromResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetStringFromResult.swift; sourceTree = "<group>"; };
 		CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = KeyboardShortcuts.rtf; sourceTree = "<group>"; };
 		CC1DDB6126A734C60049E99D /* RTFTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RTFTextView.swift; sourceTree = "<group>"; };
 		CC233D5826696C970038016C /* ImageUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
@@ -540,7 +532,7 @@
 		CC289F252EBC196E00299751 /* DocumentationBrowserState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationBrowserState.swift; sourceTree = "<group>"; };
 		CC302E5026FE93F900835745 /* LispPadUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadUI.swift; sourceTree = "<group>"; };
 		CC302E5A2700828600835745 /* SlideOverCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideOverCard.swift; sourceTree = "<group>"; };
-		CC321E632F6DA8230094C57A /* EvalIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalIntent.swift; sourceTree = "<group>"; };
+		CC321E632F6DA8230094C57A /* RunProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunProgram.swift; sourceTree = "<group>"; };
 		CC321E652F6DA82B0094C57A /* Shortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shortcuts.swift; sourceTree = "<group>"; };
 		CC321E682F6EABF20094C57A /* IntentInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentInterpreter.swift; sourceTree = "<group>"; };
 		CC321E6A2F6F2CE60094C57A /* EvalResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalResult.swift; sourceTree = "<group>"; };
@@ -813,7 +805,9 @@
 		CC321E672F6DFEDC0094C57A /* Intents */ = {
 			isa = PBXGroup;
 			children = (
-				CC321E632F6DA8230094C57A /* EvalIntent.swift */,
+				CC321E632F6DA8230094C57A /* RunProgram.swift */,
+				CC1CBAF12F93B86200D55310 /* GetFileFromResult.swift */,
+				CC1CBAF32F9423C700D55310 /* GetStringFromResult.swift */,
 				CC321E6A2F6F2CE60094C57A /* EvalResult.swift */,
 				CC321E682F6EABF20094C57A /* IntentInterpreter.swift */,
 				CC321E652F6DA82B0094C57A /* Shortcuts.swift */,
@@ -1092,6 +1086,7 @@
 				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
 				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
+				CC1CBAEC2F92D4BA00D55310 /* LogoImposition.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 				CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */,
 				CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */,
@@ -1421,41 +1416,26 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCE80A172CEFF284008C63A2 /* (lispkit json).md in Resources */,
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
-				CCE80A232CEFF442008C63A2 /* (lispkit http oauth).md in Resources */,
-				CCE80A272CEFF56A008C63A2 /* (lispkit thread shared-queue).md in Resources */,
 				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
-				CCE4412E2F355F4500266C57 /* (lispkit pdf).md in Resources */,
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
 				CCF1AEBC2EA062A300F1D5E6 /* LispPadIcon.icon in Resources */,
-				CCE80A212CEFF3D9008C63A2 /* (lispkit http server).md in Resources */,
-				CCE80A192CEFF2D4008C63A2 /* (lispkit json schema).md in Resources */,
 				CCE80A3F2CF00062008C63A2 /* url.png in Resources */,
-				CCE80A1B2CEFF321008C63A2 /* (lispkit draw barcode).md in Resources */,
-				CCE80A1D2CEFF35E008C63A2 /* (lispkit url).md in Resources */,
 				CCE80A412CF00076008C63A2 /* oauth2flow.png in Resources */,
 				CC894F122CC300C700896B1D /* iosevka-regular.ttf in Resources */,
 				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
-				CCE441362F35613100266C57 /* (lispkit dynamic).md in Resources */,
-				CCE80A292CEFF59C008C63A2 /* (lispkit thread future).md in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */,
-				CCE80A252CEFF4BA008C63A2 /* (lispkit serialize).md in Resources */,
-				CCE80A152CEFF252008C63A2 /* (lispkit system pasteboard).md in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CCE80A372CF0003B008C63A2 /* pdf417.png in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */,
 				CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */,
-				CCE4413C2F35655000266C57 /* (lispkit image process).md in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,
 				CC894F0F2CC300C000896B1D /* RobotoMono-Regular.ttf in Resources */,
-				CCE80A1F2CEFF3A0008C63A2 /* (lispkit http).md in Resources */,
-				CCE80A132CEFF21B008C63A2 /* (lispkit system keychain).md in Resources */,
 				CCE80A392CF0004B008C63A2 /* aztec.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1470,7 +1450,7 @@
 				CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */,
 				CC327C582610CF4D00BD7E32 /* CodeEditor.swift in Sources */,
 				CCE8E444262C258400E3DC6A /* SaveAs.swift in Sources */,
-				CC321E642F6DA8230094C57A /* EvalIntent.swift in Sources */,
+				CC321E642F6DA8230094C57A /* RunProgram.swift in Sources */,
 				CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */,
 				CCC856382615DC4A0080B96E /* Organizer.swift in Sources */,
 				CCC8565B261BADAD0080B96E /* CodeAnalyzer.swift in Sources */,
@@ -1520,6 +1500,7 @@
 				CCA3C69E2B0885A500C0BDE6 /* CanvasConsole.swift in Sources */,
 				CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */,
 				CC302E5126FE93F900835745 /* LispPadUI.swift in Sources */,
+				CC1CBAF22F93B87700D55310 /* GetFileFromResult.swift in Sources */,
 				CC321E6B2F6F2CEC0094C57A /* EvalResult.swift in Sources */,
 				CCF8F09727C2E96700C2D660 /* FontMap.swift in Sources */,
 				CC321E6D2F7032B30094C57A /* AppletLibrary.swift in Sources */,
@@ -1575,6 +1556,7 @@
 				CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */,
 				CC890A56267E829100FA8BAA /* ConsoleEditor.swift in Sources */,
 				CCFBC5BC26053FA900E29F99 /* LibraryManager.swift in Sources */,
+				CC1CBAF42F9423D200D55310 /* GetStringFromResult.swift in Sources */,
 				CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

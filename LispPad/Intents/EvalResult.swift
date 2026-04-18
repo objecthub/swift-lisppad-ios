@@ -40,8 +40,13 @@ struct EvalResult: TransientAppEntity {
   }
   
   init(console: Console, res: Expr) {
-    let appResult = AppletResult()
-    appResult.include(res)
+    let appResult: AppletResult
+    if case .object(let obj) = res, let result = obj as? AppletResult {
+      appResult = result
+    } else {
+      appResult = AppletResult()
+      appResult.include(res)
+    }
     var strings: [String] = []
     for str in appResult.strings {
       strings.append(str ?? "")
@@ -56,7 +61,8 @@ struct EvalResult: TransientAppEntity {
   }
   
   var displayRepresentation: DisplayRepresentation {
-    let firstLine = self.strings.first ?? "Terminated"
+    let firstLine = self.strings.first ??
+                    (self.files.isEmpty ? "Empty Result" : "\(self.files.count) Files")
     var firstImage: DisplayRepresentation.Image? = nil
     for file in self.files {
       if let image = file.displayRepresentation.image {
@@ -88,5 +94,27 @@ struct EvalFailure: Error, CustomLocalizedStringResourceConvertible, CustomStrin
   
   var localizedDescription: String {
     return self.message
+  }
+}
+
+enum ReferenceError: Error, CustomLocalizedStringResourceConvertible, CustomStringConvertible {
+  case indexOutOfRange(index: Int, min: Int, max: Int)
+  
+  var localizedStringResource: LocalizedStringResource {
+    switch self {
+      case .indexOutOfRange(index: let index, min: let min, max: let max):
+        return "Index \(index) out of range [\(min), \(max)]"
+    }
+  }
+  
+  var description: String {
+    switch self {
+      case .indexOutOfRange(index: let index, min: let min, max: let max):
+        return "Index \(index) out of range [\(min), \(max)]"
+    }
+  }
+  
+  var localizedDescription: String {
+    return self.description
   }
 }

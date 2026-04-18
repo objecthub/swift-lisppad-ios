@@ -36,7 +36,7 @@ final class IntentInterpreter: ContextDelegate {
     let strings: [String?]
     let files: [IntentFile?]
     let confirmationDialog: (String, Bool) async -> Bool
-    let choiceDialog: (String, [EvalIntent.ChoiceItem], Bool) async -> Int?
+    let choiceDialog: (String, [RunProgram.ChoiceItem], Bool) async -> Int?
     let readDialog: (String) async -> String?
     
     public init(delegate: ContextDelegate,
@@ -44,7 +44,7 @@ final class IntentInterpreter: ContextDelegate {
                 strings: [String?],
                 files: [IntentFile?],
                 confirmationDialog: @escaping (String, Bool) async -> Bool,
-                choiceDialog: @escaping (String, [EvalIntent.ChoiceItem], Bool) async -> Int?,
+                choiceDialog: @escaping (String, [RunProgram.ChoiceItem], Bool) async -> Int?,
                 readDialog: @escaping (String) async -> String?) {
       self.strings = strings
       self.files = files
@@ -132,7 +132,7 @@ final class IntentInterpreter: ContextDelegate {
        formatWidth: Int? = nil,
        indentSize: Int = 80,
        confirmationDialog: @escaping (String, Bool) async -> Bool,
-       choiceDialog: @escaping (String, [EvalIntent.ChoiceItem], Bool) async -> Int?,
+       choiceDialog: @escaping (String, [RunProgram.ChoiceItem], Bool) async -> Int?,
        readDialog: @escaping (String) async -> String?,
        input: (() -> String?)? = nil) {
     self.console = console
@@ -280,7 +280,7 @@ final class IntentInterpreter: ContextDelegate {
   private func initialize(strings: [String?],
                           files: [IntentFile?],
                           confirmationDialog: @escaping (String, Bool) async -> Bool,
-                          choiceDialog: @escaping (String, [EvalIntent.ChoiceItem], Bool) async -> Int?,
+                          choiceDialog: @escaping (String, [RunProgram.ChoiceItem], Bool) async -> Int?,
                           readDialog: @escaping (String) async -> String?) {
     self.context = nil
     let context = Context(delegate: self,

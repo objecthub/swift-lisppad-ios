@@ -25,12 +25,12 @@ struct Shortcuts: AppShortcutsProvider {
   
   static var appShortcuts: [AppShortcut] {
     AppShortcut(
-      intent: EvalIntent(),
+      intent: RunProgram(),
       phrases: [
         "Evaluate a program with \(.applicationName)",
         "Execute code with \(.applicationName)"
       ],
-      shortTitle: "Evaluate program",
+      shortTitle: "Evaluate Program",
       systemImageName: "chevron.left.slash.chevron.right"
     )
   }

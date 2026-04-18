@@ -22,7 +22,54 @@ import AppIntents
 import Foundation
 import LispKit
 
-struct EvalIntent: AppIntent {
+struct RunProgram: AppIntent {
+  
+  enum RunError: Error, CustomLocalizedStringResourceConvertible, CustomStringConvertible {
+    case codeNotProvided
+    case programNotFound(IntentFile?)
+    
+    var localizedStringResource: LocalizedStringResource {
+      switch self {
+        case .codeNotProvided:
+          return "No code provided"
+        case .programNotFound(let file):
+          if let file {
+            return "Program not found: \(file.filename)"
+          } else {
+            return "Program not found"
+          }
+      }
+    }
+    
+    var description: String {
+      switch self {
+        case .codeNotProvided:
+          return "No code provided"
+        case .programNotFound(let file):
+          if let file {
+            return "Program not found: \(file.filename)"
+          } else {
+            return "Program not found"
+          }
+      }
+    }
+    
+    var localizedDescription: String {
+      return self.description
+    }
+  }
+  
+  enum Source: String, AppEnum {
+    case code
+    case program
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Source"
+    
+    static var caseDisplayRepresentations: [Source : DisplayRepresentation] = [
+      .code: "Code",
+      .program: "Program"
+    ]
+  }
   
   enum ChoiceItemStyle: Equatable {
     case plain
@@ -36,13 +83,19 @@ struct EvalIntent: AppIntent {
   }
   
   /// The title of the intent
-  static var title: LocalizedStringResource = "Evaluate program"
+  static var title: LocalizedStringResource = "Run Program"
   
   /// The description of the intent
-  static var description = IntentDescription("Takes the source code of a Scheme program and evaluates it, returning the result of the last expression.")
+  static var description = IntentDescription("Takes the source code of a Scheme program and executes it, returning the result of the last expression.")
+
+  @Parameter(title: "Source", description: "Is the code provided directly or loaded from a file?")
+  var source: Source
   
-  @Parameter(title: "Program", description: "The source code of the Scheme program to execute.")
-  var program: String
+  @Parameter(title: "Code", description: "The source code of the Scheme program to execute.")
+  var code: String?
+  
+  @Parameter(title: "Program", description: "The file containing the program to execute.")
+  var program: IntentFile?
   
   @Parameter(title: "Argument 1", description: "First string argument for the program.")
   var string1: String?
@@ -70,6 +123,34 @@ struct EvalIntent: AppIntent {
   
   @Parameter(title: "Console input", description: "Console input...")
   var input: String?
+  
+  static var parameterSummary: some ParameterSummary {
+    When(\RunProgram.$source, .equalTo, .program) {
+      Summary("Run \(\.$source) \(\.$program)") {
+        \.$string1
+        \.$string2
+        \.$string3
+        \.$string4
+        \.$file1
+        \.$file2
+        \.$file3
+        \.$file4
+        \.$input
+      }
+    } otherwise: {
+      Summary("Run \(\.$source) \(\.$code)") {
+        \.$string1
+        \.$string2
+        \.$string3
+        \.$string4
+        \.$file1
+        \.$file2
+        \.$file3
+        \.$file4        
+        \.$input
+      }
+    }
+  }
   
   func confirmationDialog(prompt: String, classic: Bool = false) async -> Bool {
     do {
@@ -131,6 +212,21 @@ struct EvalIntent: AppIntent {
   }
   
   func perform() async throws -> some IntentResult & ReturnsValue<EvalResult> {
+    // Determine what code to execute
+    let code: String
+    switch self.source {
+      case .code:
+        guard let str = self.code else {
+          throw RunError.codeNotProvided
+        }
+        code = str
+      case .program:
+        guard let data = self.program?.data,
+              let str = String(data: data, encoding: .utf8) else {
+          throw RunError.programNotFound(self.program)
+        }
+        code = str
+    }
     // Create a console
     let console = Console()
     // Bridge between sync and async contexts to allow entering text from the console
@@ -173,7 +269,7 @@ struct EvalIntent: AppIntent {
       }
     }
     // Evaluate program
-    let res = interpreter.evaluate(program)
+    let res = interpreter.evaluate(code)
     // Cancel the input task when done
     inputTask.cancel()
     // Either propagate the error or return the result

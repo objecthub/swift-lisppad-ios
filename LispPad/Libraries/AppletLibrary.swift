@@ -104,35 +104,137 @@ public final class AppletLibrary: NativeLibrary {
     return .true
   }
   
-  private func appletStringArguments(_ forceOrig: Expr?) throws -> Expr {
-    if forceOrig?.isFalse ?? true, let argumentOverride {
+  private func appletStringArguments(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
+    // Determine forceOrig and defaults
+    let forceOrig: Expr?
+    let defaults: Exprs?
+    if case .pair(_, _) = fst {
+      forceOrig = snd
+      var defs = Exprs()
+      var lst = fst!
+      while case .pair(let def, let rest) = lst {
+        defs.append(def)
+        lst = rest
+      }
+      defaults = defs
+    } else {
+      forceOrig = fst
+      if var snd {
+        var defs = Exprs()
+        while case .pair(let def, let rest) = snd {
+          defs.append(def)
+          snd = rest
+        }
+        defaults = defs
+      } else {
+        defaults = nil
+      }
+    }
+    // Determine the number of arguments if limited by defaults
+    let maxArgs: Int = defaults?.count ?? .max
+    if forceOrig?.isFalse ?? true, let override = self.argumentOverride {
       var res = Expr.null
-      for str in argumentOverride.strings.reversed() {
-        res = .pair(str == nil ? .false : .makeString(str!), res)
+      if let defaults {
+        for def in defaults[min(override.strings.count, maxArgs)...].reversed() {
+          res = .pair(def, res)
+        }
+      }
+      for i in (0..<min(override.strings.count, maxArgs)).reversed() {
+        if let str = override.strings[i], !str.isEmpty {
+          res = .pair(.makeString(str), res)
+        } else if let defaults, i < defaults.count {
+          res = .pair(defaults[i], res)
+        } else if let str = override.strings[i] {
+          res = .pair(.makeString(str), res)
+        } else {
+          res = .pair(.false, res)
+        }
       }
       return res
     } else {
       let context = try self.appletContext()
       var res = Expr.null
-      for str in context.strings.reversed() {
-        res = .pair(str == nil ? .false : .makeString(str!), res)
+      if let defaults {
+        for def in defaults[min(context.strings.count, maxArgs)...].reversed() {
+          res = .pair(def, res)
+        }
+      }
+      for i in (0..<min(context.strings.count, maxArgs)).reversed() {
+        if let str = context.strings[i], !str.isEmpty {
+          res = .pair(.makeString(str), res)
+        } else if let defaults, i < defaults.count {
+          res = .pair(defaults[i], res)
+        } else if let str = context.strings[i] {
+          res = .pair(.makeString(str), res)
+        } else {
+          res = .pair(.false, res)
+        }
       }
       return res
     }
   }
   
-  private func appletFileArguments(_ forceOrig: Expr?) throws -> Expr {
-    if forceOrig?.isFalse ?? true, let argumentOverride {
+  private func appletFileArguments(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
+    // Determine forceOrig and defaults
+    let forceOrig: Expr?
+    let defaults: Exprs?
+    if case .pair(_, _) = fst {
+      forceOrig = snd
+      var defs = Exprs()
+      var lst = fst!
+      while case .pair(let def, let rest) = lst {
+        defs.append(def)
+        lst = rest
+      }
+      defaults = defs
+    } else {
+      forceOrig = fst
+      if var snd {
+        var defs = Exprs()
+        while case .pair(let def, let rest) = snd {
+          defs.append(def)
+          snd = rest
+        }
+        defaults = defs
+      } else {
+        defaults = nil
+      }
+    }
+    // Determine the number of arguments if limited by defaults
+    let maxArgs: Int = defaults?.count ?? .max
+    if forceOrig?.isFalse ?? true, let override = self.argumentOverride {
       var res = Expr.null
-      for file in argumentOverride.files.reversed() {
-        res = .pair(file == nil ? .false : .object(AppletFile(file!)), res)
+      if let defaults {
+        for def in defaults[min(override.files.count, maxArgs)...].reversed() {
+          res = .pair(def, res)
+        }
+      }
+      for i in (0..<min(override.files.count, maxArgs)).reversed() {
+        if let file = override.files[i] {
+          res = .pair(.object(AppletFile(file)), res)
+        } else if let defaults, i < defaults.count {
+          res = .pair(defaults[i], res)
+        } else {
+          res = .pair(.false, res)
+        }
       }
       return res
     } else {
       let context = try self.appletContext()
       var res = Expr.null
-      for file in context.files.reversed() {
-        res = .pair(file == nil ? .false : .object(AppletFile(file!)), res)
+      if let defaults {
+        for def in defaults[min(context.files.count, maxArgs)...].reversed() {
+          res = .pair(def, res)
+        }
+      }
+      for i in (0..<min(context.files.count, maxArgs)).reversed() {
+        if let file = context.files[i] {
+          res = .pair(.object(AppletFile(file)), res)
+        } else if let defaults, i < defaults.count {
+          res = .pair(defaults[i], res)
+        } else {
+          res = .pair(.false, res)
+        }
       }
       return res
     }
@@ -152,14 +254,12 @@ public final class AppletLibrary: NativeLibrary {
     }
   }
   
-  private func makeAppletResult(_ expr: Expr?) -> Expr {
-    if let expr {
-      let res = AppletResult()
+  private func makeAppletResult(_ args: Arguments) -> Expr {
+    let res = AppletResult()
+    for expr in args {
       res.include(expr)
-      return .object(res)
-    } else {
-      return .object(AppletResult())
     }
+    return .object(res)
   }
   
   private func isAppletResult(_ expr: Expr) -> Expr {
@@ -489,7 +589,7 @@ public final class AppletLibrary: NativeLibrary {
     var res: Int? = nil
     var done = false
     if let context = self.context as? IntentInterpreter.Context {
-      var alternatives: [EvalIntent.ChoiceItem] = []
+      var alternatives: [RunProgram.ChoiceItem] = []
       while case .pair(let opt, let rest) = lst {
         if case .pair(let str, let style) = opt {
           if case .null = style {
