@@ -121,8 +121,11 @@ struct RunProgram: AppIntent {
   @Parameter(title: "File 4", description: "Binary arguments for the program.")
   var file4: IntentFile?
   
-  @Parameter(title: "Console input", description: "Console input...")
+  @Parameter(title: "Console input", description: "Console input, separated by newlines.")
   var input: String?
+  
+  @Parameter(title: "iCloud Drive", description: "Enable LispPad folder on iCloud Drive.")
+  var foldersOnICloudDrive: Bool
   
   static var parameterSummary: some ParameterSummary {
     When(\RunProgram.$source, .equalTo, .program) {
@@ -136,6 +139,7 @@ struct RunProgram: AppIntent {
         \.$file3
         \.$file4
         \.$input
+        \.$foldersOnICloudDrive
       }
     } otherwise: {
       Summary("Run \(\.$source) \(\.$code)") {
@@ -146,8 +150,9 @@ struct RunProgram: AppIntent {
         \.$file1
         \.$file2
         \.$file3
-        \.$file4        
+        \.$file4
         \.$input
+        \.$foldersOnICloudDrive
       }
     }
   }
@@ -259,6 +264,8 @@ struct RunProgram: AppIntent {
                                         strings: strings,
                                         files: files,
                                         name: "<shortcut>",
+                                        foldersOnDevice: true,
+                                        foldersOnICloud: self.foldersOnICloudDrive,
                                         confirmationDialog: self.confirmationDialog,
                                         choiceDialog: self.choiceDialog,
                                         readDialog: self.readDialog) {

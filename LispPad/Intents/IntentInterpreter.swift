@@ -107,6 +107,8 @@ final class IntentInterpreter: ContextDelegate {
   /// Include folders on iCloud
   let foldersOnICloud: Bool
   
+  let logGarbageCollection: Bool
+  
   let formatString: String?
   
   let formatWidth: Int?
@@ -128,6 +130,7 @@ final class IntentInterpreter: ContextDelegate {
        executePrelude: Bool = false,
        foldersOnDevice: Bool = true,
        foldersOnICloud: Bool = false,
+       logGarbageCollection: Bool = false,
        formatString: String? = nil,
        formatWidth: Int? = nil,
        indentSize: Int = 80,
@@ -143,6 +146,7 @@ final class IntentInterpreter: ContextDelegate {
     self.executePrelude = executePrelude
     self.foldersOnDevice = foldersOnDevice
     self.foldersOnICloud = foldersOnICloud
+    self.logGarbageCollection = logGarbageCollection
     self.formatString = formatString
     self.formatWidth = formatWidth
     self.indentSize = indentSize
@@ -465,7 +469,7 @@ final class IntentInterpreter: ContextDelegate {
 
   /// This is called whenever garbage collection was called
   func garbageCollected(objectPool: ManagedObjectPool, time: Double, objectsBefore: Int) {
-    if UserSettings.standard.logGarbageCollection {
+    if self.logGarbageCollection {
       SessionLog.standard.addLogEntry(
         severity: .info,
         tag: "repl/gc/\(objectPool.cycles)",
