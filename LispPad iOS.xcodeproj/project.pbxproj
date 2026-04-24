@@ -21,7 +21,7 @@
 		CC1CBAEB2F9230CD00D55310 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAEA2F9230C800D55310 /* Error.swift */; };
 		CC1CBAF22F93B87700D55310 /* GetResultAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAF12F93B86200D55310 /* GetResultAttachment.swift */; };
 		CC1CBAF42F9423D200D55310 /* GetResultValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAF32F9423C700D55310 /* GetResultValue.swift */; };
-		CC1CBAF52F942F6700D55310 /* LogoImposition.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1CBAEC2F92D4BA00D55310 /* LogoImposition.scm */; };
+		CC1CBAF52F942F6700D55310 /* ImposeLogo.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1CBAEC2F92D4BA00D55310 /* ImposeLogo.scm */; };
 		CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */ = {isa = PBXBuildFile; fileRef = CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */; };
 		CC1DDB6226A734C60049E99D /* RTFTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1DDB6126A734C60049E99D /* RTFTextView.swift */; };
 		CC233D5926696C970038016C /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC233D5826696C970038016C /* ImageUtil.swift */; };
@@ -439,7 +439,7 @@
 			dstPath = Root/Examples;
 			dstSubfolderSpec = 7;
 			files = (
-				CC1CBAF52F942F6700D55310 /* LogoImposition.scm in Copy Root/Examples */,
+				CC1CBAF52F942F6700D55310 /* ImposeLogo.scm in Copy Root/Examples */,
 				CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */,
 				CC853D4F2B54834600139243 /* Fractals.scm in Copy Root/Examples */,
 				CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */,
@@ -521,7 +521,7 @@
 		CC1CBAE62F8A796800D55310 /* ModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalConfig.swift; sourceTree = "<group>"; };
 		CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralMenuContent.swift; sourceTree = "<group>"; };
 		CC1CBAEA2F9230C800D55310 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
-		CC1CBAEC2F92D4BA00D55310 /* LogoImposition.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = LogoImposition.scm; sourceTree = "<group>"; };
+		CC1CBAEC2F92D4BA00D55310 /* ImposeLogo.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImposeLogo.scm; sourceTree = "<group>"; };
 		CC1CBAF12F93B86200D55310 /* GetResultAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetResultAttachment.swift; sourceTree = "<group>"; };
 		CC1CBAF32F9423C700D55310 /* GetResultValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetResultValue.swift; sourceTree = "<group>"; };
 		CC1DDB5D26A5DDA10049E99D /* KeyboardShortcuts.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = KeyboardShortcuts.rtf; sourceTree = "<group>"; };
@@ -1053,9 +1053,9 @@
 			isa = PBXGroup;
 			children = (
 				CC8B95AD2607FBDC00830B4F /* Examples */,
-				CC8B95AC2607FBD200830B4F /* Libraries */,
 				CC8B95AB2607FBBF00830B4F /* Assets */,
 				CC8B95AE2607FBF900830B4F /* Prelude.scm */,
+				CC8B95AC2607FBD200830B4F /* Libraries */,
 			);
 			path = Root;
 			sourceTree = "<group>";
@@ -1089,7 +1089,7 @@
 				CC1896D9266D010400D384F6 /* DisplayTrees.scm */,
 				CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */,
 				CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */,
-				CC1CBAEC2F92D4BA00D55310 /* LogoImposition.scm */,
+				CC1CBAEC2F92D4BA00D55310 /* ImposeLogo.scm */,
 				CC8B95CA260810E000830B4F /* PlayMusic.scm */,
 				CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */,
 				CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */,

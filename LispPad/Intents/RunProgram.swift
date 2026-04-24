@@ -129,31 +129,34 @@ struct RunProgram: AppIntent {
   var foldersOnICloudDrive: Bool
   
   static var parameterSummary: some ParameterSummary {
-    When(\RunProgram.$source, .equalTo, .program) {
-      Summary("Run \(\.$source) \(\.$program)") {
-        \.$string1
-        \.$string2
-        \.$string3
-        \.$string4
-        \.$file1
-        \.$file2
-        \.$file3
-        \.$file4
-        \.$input
-        \.$foldersOnICloudDrive
+    Switch(\RunProgram.$source) {
+      Case(Source.program) {
+        Summary("Run \(\.$source) \(\.$program)") {
+          \.$string1
+          \.$string2
+          \.$string3
+          \.$string4
+          \.$file1
+          \.$file2
+          \.$file3
+          \.$file4
+          \.$input
+          \.$foldersOnICloudDrive
+        }
       }
-    } otherwise: {
-      Summary("Run \(\.$source) \(\.$code)") {
-        \.$string1
-        \.$string2
-        \.$string3
-        \.$string4
-        \.$file1
-        \.$file2
-        \.$file3
-        \.$file4
-        \.$input
-        \.$foldersOnICloudDrive
+      DefaultCase {
+        Summary("Run \(\.$source) \(\.$code)") {
+          \.$string1
+          \.$string2
+          \.$string3
+          \.$string4
+          \.$file1
+          \.$file2
+          \.$file3
+          \.$file4
+          \.$input
+          \.$foldersOnICloudDrive
+        }
       }
     }
   }
@@ -168,8 +171,10 @@ struct RunProgram: AppIntent {
           return false
         }
       } else {
-        return try await $input.requestConfirmation(for: "",
-                                                    dialog: IntentDialog(stringLiteral: prompt))
+        let res = try await $input.requestConfirmation(for: "",
+                                                       dialog: IntentDialog(stringLiteral: prompt))
+        self.input = nil
+        return res
       }
     } catch {
       return false
@@ -197,6 +202,7 @@ struct RunProgram: AppIntent {
         let alternatives: [String] = options.map { opt in opt.title }
         let choice = try await $input.requestDisambiguation(
           among: alternatives, dialog: IntentDialog(stringLiteral: prompt))
+        self.input = nil
         for i in alternatives.indices {
           if alternatives[i] == choice {
             return i
@@ -211,12 +217,14 @@ struct RunProgram: AppIntent {
   
   func readDialog(prompt: String) async -> String? {
     do {
-      return try await $input.requestValue(IntentDialog(stringLiteral: prompt))
+      let result = try await $input.requestValue(IntentDialog(stringLiteral: prompt))
+      self.input = nil
+      return result
     } catch {
       return nil
     }
   }
-  
+
   func perform() async throws -> some IntentResult & ReturnsValue<EvalResult> & ShowsSnippetView {
     // Determine what code to execute
     let code: String
@@ -236,7 +244,8 @@ struct RunProgram: AppIntent {
     // Create a console
     let console = Console()
     // Bridge between sync and async contexts to allow entering text from the console
-    let bridge = InputBridge(initial: input ?? "")
+    let bridge = InputBridge(initial: self.input ?? "")
+    self.input = nil
     // Create a task to handle async input requests
     let inputTask = Task {
       while !Task.isCancelled {
@@ -249,7 +258,7 @@ struct RunProgram: AppIntent {
             prompt = String(prompt.prefix(199)) + " ⃨"
           }
           let userInput = try await $input.requestValue(IntentDialog(stringLiteral: prompt))
-          input = nil
+          self.input = nil
           bridge.provideInput(userInput)
         } catch {
           // If user cancels or error occurs, provide empty string
@@ -336,7 +345,7 @@ struct RunProgram: AppIntent {
       // If we have unconsumed input, return it
       if self.input == nil {
         self.lock.unlock()
-        return nil 
+        return nil
       } else if !(self.input!.isEmpty) {
         let result = self.input
         self.input = ""

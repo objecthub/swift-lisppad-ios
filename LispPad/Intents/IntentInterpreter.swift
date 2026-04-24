@@ -117,6 +117,9 @@ final class IntentInterpreter: ContextDelegate {
   
   let input: () -> String?
   
+  var inputBuffer: [String] = []
+  let inputLock = NSLock()
+  
   /// The context of the interpreter
   var context: Context? = nil
   
@@ -454,7 +457,23 @@ final class IntentInterpreter: ContextDelegate {
   
   /// Reads a string from the user
   func read() -> String? {
-    if let input = self.input() {
+    self.inputLock.lock()
+    defer {
+      self.inputLock.unlock()
+    }
+    if self.inputBuffer.isEmpty {
+      if let input = self.input() {
+        self.inputBuffer = input.split(separator: "\n",
+                                       omittingEmptySubsequences: false).map(String.init)
+        if let last = self.inputBuffer.last, last.isEmpty {
+          self.inputBuffer.removeLast()
+        }
+      } else {
+        return nil
+      }
+    }
+    if !self.inputBuffer.isEmpty {
+      let input = self.inputBuffer.removeFirst() + "\n"
       self.console.print(input, capOutput: false)
       return input
     } else {
