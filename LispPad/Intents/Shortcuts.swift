@@ -27,10 +27,10 @@ struct Shortcuts: AppShortcutsProvider {
     AppShortcut(
       intent: RunProgram(),
       phrases: [
-        "Evaluate a program with \(.applicationName)",
-        "Execute code with \(.applicationName)"
+        "Run a \(.applicationName) program.",
+        "Execute \(.applicationName) code."
       ],
-      shortTitle: "Evaluate Program",
+      shortTitle: "Run Program",
       systemImageName: "chevron.left.slash.chevron.right"
     )
   }

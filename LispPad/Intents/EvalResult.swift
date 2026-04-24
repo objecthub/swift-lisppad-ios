@@ -24,13 +24,13 @@ import LispKit
 struct EvalResult: TransientAppEntity {
   static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Evaluation Result")
   
-  @Property(title: "String Results")
+  @Property(title: "Result Strings")
   var strings: [String]
   
-  @Property(title: "File Results")
+  @Property(title: "Result Attachments")
   var files: [IntentFile]
   
-  @Property(title: "Evaluation Transcript")
+  @Property(title: "Execution Transcript")
   var transcript: String
   
   init() {

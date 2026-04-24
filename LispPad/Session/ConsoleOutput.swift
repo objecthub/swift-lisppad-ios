@@ -76,6 +76,10 @@ struct ConsoleOutput: CustomStringConvertible, Identifiable, Equatable {
     }
   }
   
+  static func drawingResult(_ image: UIImage) -> ConsoleOutput {
+    return ConsoleOutput(.drawingResult(Drawing(), image), "")
+  }
+  
   var textOutput: ConsoleOutput {
     if case .drawingResult(_, _) = self.kind {
       return ConsoleOutput(.result, self.text)

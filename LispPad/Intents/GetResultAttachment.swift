@@ -1,5 +1,5 @@
 //
-//  GetStringFromResultIntent.swift
+//  GetResultAttachment.swift
 //  LispPad
 //
 //  Created by Matthias Zenger on 18/04/2026.
@@ -22,48 +22,48 @@ import AppIntents
 import Foundation
 import LispKit
 
-struct GetStringFromResult: AppIntent {
+struct GetResultAttachment: AppIntent {
   
   /// The title of the intent
-  static var title: LocalizedStringResource = "Get String from Result"
+  static var title: LocalizedStringResource = "Get Result Attachment"
   
   /// The description of the intent
-  static var description = IntentDescription("Takes an evaluation result and returns the n-th string result.")
+  static var description = IntentDescription("Returns the n-th attachment of a program execution run.")
   
-  @Parameter(title: "Result", description: "The result of a program evaluation run.")
+  @Parameter(title: "Result", description: "The result of a program execution run.")
   var result: EvalResult
   
   @Parameter(title: "Index",
-             description: "The index of the string result to return.",
+             description: "The index of the result attachment.",
              controlStyle: .stepper,
              inclusiveRange: (lowerBound: 0, upperBound: 9))
   var index: Int
   
   @Parameter(title: "Default",
-             description: "A default string in case the result does not have a string at the given index.",
+             description: "A default in case the result does not have an attachment at the given index.",
              inputConnectionBehavior: .never)
-  var defaultValue: String?
+  var defaultValue: IntentFile?
   
   static var parameterSummary: some ParameterSummary {
-    Summary("Get string from \(\.$result) at \(\.$index)") {
+    Summary("Get attachment from \(\.$result) at \(\.$index)") {
       \.$defaultValue
     }
   }
   
-  func perform() async throws -> some IntentResult & ReturnsValue<String> {
-    if self.result.strings.indices.contains(self.index) {
-      let string = self.result.strings[self.index]
-      if let defaultValue, string.isEmpty {
+  func perform() async throws -> some IntentResult & ReturnsValue<IntentFile> {
+    if self.result.files.indices.contains(self.index) {
+      let file = self.result.files[self.index]
+      if let defaultValue, file.data.isEmpty {
         return .result(value: defaultValue)
       } else {
-        return .result(value: string)
+        return .result(value: file)
       }
     } else if let defaultValue {
       return .result(value: defaultValue)
     } else {
       throw ReferenceError.indexOutOfRange(index: self.index,
                                            min: 0,
-                                           max: self.result.strings.count - 1)
+                                           max: self.result.files.count - 1)
     }
   }
 }

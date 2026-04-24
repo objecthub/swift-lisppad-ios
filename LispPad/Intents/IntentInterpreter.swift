@@ -54,7 +54,7 @@ final class IntentInterpreter: ContextDelegate {
       super.init(delegate: delegate,
                  implementationName: LispKitContext.implementationName,
                  implementationVersion: LispKitContext.implementationVersion,
-                 commandLineArguments: CommandLine.arguments,
+                 commandLineArguments: strings.map { str in str ?? "" },
                  initialHomePath: PortableURL.Base.documents.url?.path ??
                                   PortableURL.Base.icloud.url?.path,
                  includeInternalResources: true,
@@ -454,7 +454,12 @@ final class IntentInterpreter: ContextDelegate {
   
   /// Reads a string from the user
   func read() -> String? {
-    return self.input()
+    if let input = self.input() {
+      self.console.print(input, capOutput: false)
+      return input
+    } else {
+      return nil
+    }
   }
   
   /// This is called whenever a new library is loaded

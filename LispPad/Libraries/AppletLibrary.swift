@@ -1,5 +1,5 @@
 //
-//  ShortcutLibrary.swift
+//  AppletLibrary.swift
 //  LispPad
 //
 //  Created by Matthias Zenger on 22/03/2026.
@@ -49,25 +49,30 @@ public final class AppletLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("running-as-applet?", self.isRunningAsApplet))
-    self.define(Procedure("applet-string-arguments", self.appletStringArguments))
-    self.define(Procedure("applet-file-arguments", self.appletFileArguments))
-    self.define(Procedure("applet-arguments-override!", self.appletArgumentsOverride))
+    self.define(Procedure("applet-argument", self.appletStringArgument))
+    self.define(Procedure("applet-arguments", self.appletStringArguments))
+    self.define(Procedure("applet-attachment", self.appletFileArgument))
+    self.define(Procedure("applet-attachments", self.appletFileArguments))
+    self.define(Procedure("applet-input-override!", self.appletArgumentsOverride))
     self.define(Procedure("make-applet-result", self.makeAppletResult))
     self.define(Procedure("applet-result?", self.isAppletResult))
     self.define(Procedure("applet-result-append!", self.appletResultAppend))
-    self.define(Procedure("applet-result-strings", self.appletResultStrings))
-    self.define(Procedure("applet-result-string-append!", self.appletResultStringAppend))
-    self.define(Procedure("applet-result-files", self.appletResultFiles))
-    self.define(Procedure("applet-result-file-append!", self.appletResultFileAppend))
-    self.define(Procedure("make-applet-file", self.makeAppletFile))
-    self.define(Procedure("applet-file?", self.isAppletFile))
-    self.define(Procedure("applet-file-transiet?", self.appletFileTransient))
-    self.define(Procedure("applet-file-name", self.appletFileName))
-    self.define(Procedure("applet-file-path", self.appletFilePath))
-    self.define(Procedure("applet-file-type", self.appletFileType))
-    self.define(Procedure("applet-file-data", self.appletFileData))
-    self.define(Procedure("applet-file-available-types", self.appletFileAvailableTypes))
-    self.define(Procedure("applet-file->object", self.appletFileToObject))
+    self.define(Procedure("applet-result-values", self.appletResultStrings))
+    self.define(Procedure("applet-result-value-append!", self.appletResultStringAppend))
+    self.define(Procedure("applet-result-attachments", self.appletResultFiles))
+    self.define(Procedure("applet-result-attachment-append!", self.appletResultFileAppend))
+    self.define(Procedure("applet-result-view", self.appletResultView))
+    self.define(Procedure("applet-result-view-clear!", self.appletResultViewClear))
+    self.define(Procedure("applet-result-view-append!", self.appletResultViewAppend))
+    self.define(Procedure("make-applet-attachment", self.makeAppletFile))
+    self.define(Procedure("applet-attachment?", self.isAppletFile))
+    self.define(Procedure("applet-attachment-transiet?", self.appletFileTransient))
+    self.define(Procedure("applet-attachment-name", self.appletFileName))
+    self.define(Procedure("applet-attachment-path", self.appletFilePath))
+    self.define(Procedure("applet-attachment-type", self.appletFileType))
+    self.define(Procedure("applet-attachment-data", self.appletFileData))
+    self.define(Procedure("applet-attachment-available-types", self.appletFileAvailableTypes))
+    self.define(Procedure("applet-attachment->object", self.appletFileToObject))
     self.define(Procedure("applet-confirmation-dialog", self.appletConfirmationDialog))
     self.define(Procedure("applet-read-dialog", self.appletReadDialog))
     self.define(Procedure("applet-choice-dialog", self.appletChoiceDialog))
@@ -102,6 +107,30 @@ public final class AppletLibrary: NativeLibrary {
       return .false
     }
     return .true
+  }
+  
+  private func appletStringArgument(_ idx: Expr, _ def: Expr?, _ forceOrig: Expr?) throws -> Expr {
+    let `default`: Expr
+    if let str = (def?.isTrue ?? false) ? try def?.asString() : nil {
+      `default` = .makeString(str)
+    } else {
+      `default` = .false
+    }
+    let strings = try self.appletContext().strings
+    let index = try idx.asInt(above: 0)
+    if forceOrig?.isFalse ?? true, let override = self.argumentOverride?.strings {
+      if index >= 0 && index < override.count, let str = override[index], !str.isEmpty {
+        return .makeString(str)
+      } else if index >= 0 && index < strings.count, let str = strings[index], !str.isEmpty {
+        return .makeString(str)
+      } else {
+        return `default`
+      }
+    } else if index >= 0 && index < strings.count, let str = strings[index], !str.isEmpty {
+      return .makeString(str)
+    } else {
+      return `default`
+    }
   }
   
   private func appletStringArguments(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
@@ -171,6 +200,24 @@ public final class AppletLibrary: NativeLibrary {
         }
       }
       return res
+    }
+  }
+  
+  private func appletFileArgument(_ idx: Expr, _ def: Expr?, _ forceOrig: Expr?) throws -> Expr {
+    let files = try self.appletContext().files
+    let index = try idx.asInt(above: 0)
+    if forceOrig?.isFalse ?? true, let override = self.argumentOverride?.files {
+      if index >= 0 && index < override.count, let file = override[index] {
+        return .object(AppletFile(file))
+      } else if index >= 0 && index < files.count, let file = files[index] {
+        return .object(AppletFile(file))
+      } else {
+        return def ?? .false
+      }
+    } else if index >= 0 && index < files.count, let file = files[index] {
+      return .object(AppletFile(file))
+    } else {
+      return def ?? .false
     }
   }
   
@@ -311,6 +358,58 @@ public final class AppletLibrary: NativeLibrary {
       result.files.append(nil)
     }
     return .makeNumber(result.files.count - 1)
+  }
+  
+  private func appletResultView(_ expr: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    var res = Expr.null
+    if let view = result.view {
+      for entry in view.reversed() {
+        switch entry.kind {
+          case .drawingResult(_, let image):
+            res = .pair(.object(NativeImage(image)), res)
+          default:
+            res = .pair(.makeString(entry.text), res)
+        }
+      }
+      return res
+    } else {
+      return .false
+    }
+  }
+  
+  private func appletResultViewClear(_ expr: Expr, _ override: Expr?) throws -> Expr {
+    let result = try self.appletResult(expr)
+    result.view = (override?.isTrue ?? true) ? [] : nil
+    return .void
+  }
+  
+  private func appletResultViewAppend(_ expr: Expr, _ obj: Expr) throws -> Expr {
+    let result = try self.appletResult(expr)
+    if result.view == nil {
+      result.view = []
+    }
+    switch obj {
+      case .string(let str):
+        result.view?.append(.output(str as String))
+      case .object(let obj):
+        if let drawing = obj as? Drawing {
+          result.view?.append(.drawingResult(drawing))
+        } else if let image = obj as? NativeImage {
+          result.view?.append(.drawingResult(image.value))
+        } else if let ai = obj as? AbstractImage,
+                  let cgImage = AppletResult.ciContext.createCGImage(ai.ciImage,
+                                                                     from: ai.ciImage.extent) {
+          result.view?.append(.drawingResult(UIImage(cgImage: cgImage,
+                                                     scale: 1.0,
+                                                     orientation: .up)))
+        } else {
+          fallthrough
+        }
+      default:
+        result.view?.append(.output(obj.description))
+    }
+    return .void
   }
   
   private func makeAppletFile(_ expr: Expr, _ name: Expr?, _ type: Expr?) throws -> Expr {
@@ -719,9 +818,11 @@ class AppletResult: NativeObject {
   
   /// Type representing fonts
   public static let type = Type.objectType(Symbol(uninterned: "applet-result"))
+  fileprivate static let ciContext: CIContext = CIContext(options: [:])
   
   var strings: [String?] = []
   var files: [IntentFile?] = []
+  var view: [ConsoleOutput]? = nil
   
   public static func toIntentFile(_ expr: Expr, filename: String) -> IntentFile? {
     switch expr {
@@ -791,7 +892,17 @@ class AppletResult: NativeObject {
           self.strings.append(contentsOf: result.strings)
           self.files.append(contentsOf: result.files)
         } else if let img = obj as? NativeImage,
-                  let data = BitmapImageFileType.png.data(for: img.value, qualityFactor: nil) {
+                  let data = BitmapImageFileType.jpeg.data(for: img.value, qualityFactor: nil) {
+          self.files.append(IntentFile(data: data, filename: "Output.jpg", type: .jpeg))
+        } else if let ai = obj as? AbstractImage,
+                  let cgImage = Self.ciContext.createCGImage(ai.ciImage, from: ai.ciImage.extent),
+                  let data = BitmapImageFileType.jpeg.data(
+                               for: UIImage(cgImage: cgImage, scale: 1.0, orientation: .up),
+                               qualityFactor: nil) {
+          self.files.append(IntentFile(data: data, filename: "Output.jpg", type: .jpeg))
+        } else if let drawing = obj as? Drawing,
+                  let image = iconImage(for: drawing),
+                  let data = BitmapImageFileType.png.data(for: image, qualityFactor: nil) {
           self.files.append(IntentFile(data: data, filename: "Output.png", type: .png))
         } else if let ndoc = obj as? NativePDFDocument,
                   let doc = ndoc.document as? LispKitPDFDocument,

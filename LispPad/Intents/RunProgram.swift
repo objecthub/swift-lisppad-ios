@@ -1,5 +1,5 @@
 //
-//  EvalIntent.swift
+//  RunProgram.swift
 //  LispPad
 //
 //  Created by Matthias Zenger on 20/03/2026.
@@ -18,8 +18,9 @@
 //  limitations under the License.
 //
 
-import AppIntents
 import Foundation
+import AppIntents
+import SwiftUI
 import LispKit
 
 struct RunProgram: AppIntent {
@@ -86,7 +87,7 @@ struct RunProgram: AppIntent {
   static var title: LocalizedStringResource = "Run Program"
   
   /// The description of the intent
-  static var description = IntentDescription("Takes the source code of a Scheme program and executes it, returning the result of the last expression.")
+  static var description = IntentDescription("Executes a Scheme program with LispPad's interpreter.")
 
   @Parameter(title: "Source", description: "Is the code provided directly or loaded from a file?")
   var source: Source
@@ -109,19 +110,19 @@ struct RunProgram: AppIntent {
   @Parameter(title: "Argument 4", description: "Fourth string argument for the program.")
   var string4: String?
   
-  @Parameter(title: "File 1", description: "Binary arguments for the program.")
+  @Parameter(title: "Attachment 1", description: "First attachment for the program.")
   var file1: IntentFile?
   
-  @Parameter(title: "File 2", description: "Binary arguments for the program.")
+  @Parameter(title: "Attachment 2", description: "Second attachment for the program.")
   var file2: IntentFile?
   
-  @Parameter(title: "File 3", description: "Binary arguments for the program.")
+  @Parameter(title: "Attachment 3", description: "Third attachment for the program.")
   var file3: IntentFile?
   
-  @Parameter(title: "File 4", description: "Binary arguments for the program.")
+  @Parameter(title: "Attachment 4", description: "Fourth attachment for the program.")
   var file4: IntentFile?
   
-  @Parameter(title: "Console input", description: "Console input, separated by newlines.")
+  @Parameter(title: "Console Input", description: "Console input, separated by newlines.")
   var input: String?
   
   @Parameter(title: "iCloud Drive", description: "Enable LispPad folder on iCloud Drive.")
@@ -216,7 +217,7 @@ struct RunProgram: AppIntent {
     }
   }
   
-  func perform() async throws -> some IntentResult & ReturnsValue<EvalResult> {
+  func perform() async throws -> some IntentResult & ReturnsValue<EvalResult> & ShowsSnippetView {
     // Determine what code to execute
     let code: String
     switch self.source {
@@ -292,7 +293,31 @@ struct RunProgram: AppIntent {
                             transcript: console.description)
         }
       default:
-        return .result(value: EvalResult(console: console, res: res!))
+        let viewConsole: Console
+        if case .object(let obj) = res!, let result = obj as? AppletResult {
+          if let resultView = result.view {
+            viewConsole = Console()
+            viewConsole.content = resultView
+          } else {
+            viewConsole = console
+          }
+        } else {
+          viewConsole = console
+        }
+        if viewConsole.isEmpty {
+          return .result(value: EvalResult(console: console, res: res!))
+        } else if viewConsole.content.count == 1 {
+          switch viewConsole.content[0].kind {
+            case .empty, .result:
+              return .result(value: EvalResult(console: console, res: res!))
+            default:
+              return .result(value: EvalResult(console: console, res: res!),
+                             view: IntentConsoleView(console: viewConsole))
+          }
+        } else {
+          return .result(value: EvalResult(console: console, res: res!),
+                         view: IntentConsoleView(console: viewConsole))
+        }
     }
   }
   

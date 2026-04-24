@@ -1,5 +1,5 @@
 //
-//  GetFileFromResult.swift
+//  GetResultValue.swift
 //  LispPad
 //
 //  Created by Matthias Zenger on 18/04/2026.
@@ -22,48 +22,48 @@ import AppIntents
 import Foundation
 import LispKit
 
-struct GetFileFromResult: AppIntent {
+struct GetResultValue: AppIntent {
   
   /// The title of the intent
-  static var title: LocalizedStringResource = "Get File from Result"
+  static var title: LocalizedStringResource = "Get Result Value"
   
   /// The description of the intent
-  static var description = IntentDescription("Takes an evaluation result and returns the n-th file result.")
+  static var description = IntentDescription("Returns the n-th result value of a program execution run.")
   
   @Parameter(title: "Result", description: "The result of a program evaluation run.")
   var result: EvalResult
   
   @Parameter(title: "Index",
-             description: "The index of the file result to return.",
+             description: "The index of the result value.",
              controlStyle: .stepper,
              inclusiveRange: (lowerBound: 0, upperBound: 9))
   var index: Int
   
   @Parameter(title: "Default",
-             description: "A default file in case the result does not have a file at the given index.",
+             description: "A default in case the result does not have a value at the given index.",
              inputConnectionBehavior: .never)
-  var defaultValue: IntentFile?
+  var defaultValue: String?
   
   static var parameterSummary: some ParameterSummary {
-    Summary("Get file from \(\.$result) at \(\.$index)") {
+    Summary("Get value from \(\.$result) at \(\.$index)") {
       \.$defaultValue
     }
   }
   
-  func perform() async throws -> some IntentResult & ReturnsValue<IntentFile> {
-    if self.result.files.indices.contains(self.index) {
-      let file = self.result.files[self.index]
-      if let defaultValue, file.data.isEmpty {
+  func perform() async throws -> some IntentResult & ReturnsValue<String> {
+    if self.result.strings.indices.contains(self.index) {
+      let string = self.result.strings[self.index]
+      if let defaultValue, string.isEmpty {
         return .result(value: defaultValue)
       } else {
-        return .result(value: file)
+        return .result(value: string)
       }
     } else if let defaultValue {
       return .result(value: defaultValue)
     } else {
       throw ReferenceError.indexOutOfRange(index: self.index,
                                            min: 0,
-                                           max: self.result.files.count - 1)
+                                           max: self.result.strings.count - 1)
     }
   }
 }
