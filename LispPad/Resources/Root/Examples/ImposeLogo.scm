@@ -33,8 +33,10 @@
 ;;; under the License.
 
 (import (lispkit base)
-        (lispkit image)
+        (lispkit date-time)
         (lispkit draw)
+        (lispkit format)
+        (lispkit image)
         (lisppad applet))
 
 (define (vignette input intensity radius)
@@ -103,35 +105,45 @@
       pad-fraction)))
 
 (define (get-abstract-image x)
-  (if (applet-file? x)
-      (make-abstract-image (applet-file-data x))
+  (if (applet-attachment? x)
+      (make-abstract-image (applet-attachment-data x))
       (make-abstract-image x)))
 
-(define default-logo-path
-  (asset-file-path "LispPadLogo" "png" "Images"))
+(define default-logo
+  (make-applet-attachment
+    (asset-file-path "LispPadLogo" "png" "Images") #f 'png))
 
 ;; If this is running as a regular program, ask
 ;; the user to select a photo from the photo
 ;; library.
 (unless (running-as-applet?)
-  (applet-arguments-override!
+  (applet-input-override!
     (make-applet-result
       "0.2"   ; Override the logo fraction
       "0.05"  ; Override the padding fraction
       (car (load-bitmaps-from-library)))))
+
+(define start-time (date-time))
+(display-format
+  "Start time: ~a~%"
+  (date-time->string start-time 'en_US 'long))
 
 (define image
   (let-values
     (((logo-frac pad-frac intensity radius)
       (apply values
              (map string->number
-                  (applet-string-arguments
+                  (applet-arguments
                     '("0.15" "0.04" "1.2" "1.8")))))
      ((base-image logo-image)
       (apply values
              (map get-abstract-image
-                  (applet-file-arguments
-                    (list #f default-logo-path))))))
+                  (applet-attachments
+                    (list #f default-logo))))))
+    (display-format
+      "Base image: ~a~%Logo image: ~a~%"
+      (applet-attachment-path (applet-attachment 0))
+      (applet-attachment-path (applet-attachment 1 default-logo)))
     (abstract-image->image
       (compose-image base-image
                      logo-image
@@ -139,6 +151,12 @@
                      pad-frac
                      intensity
                      radius))))
+
+(let ((end-time (date-time)))
+  (display-format
+    "End time: ~a~%Total runtime: ~,2fs~%"
+    (date-time->string end-time 'en_US 'long)
+    (date-time-diff-seconds start-time end-time)))
 
 (if (running-as-applet?)
   ; If this program runs as an applet,

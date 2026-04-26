@@ -92,22 +92,52 @@ struct RunProgram: AppIntent {
   @Parameter(title: "Source", description: "Is the code provided directly or loaded from a file?")
   var source: Source
   
-  @Parameter(title: "Code", description: "The source code of the Scheme program to execute.")
+  @Parameter(title: "Code",
+             description: "The source code of the Scheme program to execute.",
+             inputOptions: String.IntentInputOptions(capitalizationType: .none,
+                                                     multiline: true,
+                                                     autocorrect: false,
+                                                     smartQuotes: false,
+                                                     smartDashes: false))
   var code: String?
   
   @Parameter(title: "Program", description: "The file containing the program to execute.")
   var program: IntentFile?
   
-  @Parameter(title: "Argument 1", description: "First string argument for the program.")
+  @Parameter(title: "Argument 1",
+             description: "First string argument for the program.",
+             inputOptions: String.IntentInputOptions(capitalizationType: .none,
+                                                     multiline: false,
+                                                     autocorrect: false,
+                                                     smartQuotes: false,
+                                                     smartDashes: false))
   var string1: String?
   
-  @Parameter(title: "Argument 2", description: "Second string argument for the program.")
+  @Parameter(title: "Argument 2",
+             description: "Second string argument for the program.",
+             inputOptions: String.IntentInputOptions(capitalizationType: .none,
+                                                     multiline: false,
+                                                     autocorrect: false,
+                                                     smartQuotes: false,
+                                                     smartDashes: false))
   var string2: String?
   
-  @Parameter(title: "Argument 3", description: "Third string argument for the program.")
+  @Parameter(title: "Argument 3",
+             description: "Third string argument for the program.",
+             inputOptions: String.IntentInputOptions(capitalizationType: .none,
+                                                     multiline: false,
+                                                     autocorrect: false,
+                                                     smartQuotes: false,
+                                                     smartDashes: false))
   var string3: String?
   
-  @Parameter(title: "Argument 4", description: "Fourth string argument for the program.")
+  @Parameter(title: "Argument 4",
+             description: "Fourth string argument for the program.",
+             inputOptions: String.IntentInputOptions(capitalizationType: .none,
+                                                     multiline: false,
+                                                     autocorrect: false,
+                                                     smartQuotes: false,
+                                                     smartDashes: false))
   var string4: String?
   
   @Parameter(title: "Attachment 1", description: "First attachment for the program.")
@@ -122,10 +152,19 @@ struct RunProgram: AppIntent {
   @Parameter(title: "Attachment 4", description: "Fourth attachment for the program.")
   var file4: IntentFile?
   
-  @Parameter(title: "Console Input", description: "Console input, separated by newlines.")
+  @Parameter(title: "Console Input",
+             description: "Console input, separated by newlines.",
+             inputOptions: String.IntentInputOptions(capitalizationType: .none,
+                                                     multiline: false,
+                                                     autocorrect: false,
+                                                     smartQuotes: false,
+                                                     smartDashes: false),
+             inputConnectionBehavior: .never)
   var input: String?
   
-  @Parameter(title: "iCloud Drive", description: "Enable LispPad folder on iCloud Drive.")
+  @Parameter(title: "iCloud Drive",
+             description: "Enable LispPad folder on iCloud Drive.",
+             default: false)
   var foldersOnICloudDrive: Bool
   
   static var parameterSummary: some ParameterSummary {

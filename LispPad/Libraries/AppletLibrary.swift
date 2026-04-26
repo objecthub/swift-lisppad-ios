@@ -88,6 +88,13 @@ public final class AppletLibrary: NativeLibrary {
     return context
   }
   
+  private func appletContextOpt() -> IntentInterpreter.Context? {
+    guard let context = self.context as? IntentInterpreter.Context else {
+      return nil
+    }
+    return context
+  }
+  
   private func appletResult(_ expr: Expr) throws -> AppletResult {
     guard case .object(let obj) = expr, let res = obj as? AppletResult else {
       throw RuntimeError.type(expr, expected: [AppletResult.type])
@@ -100,6 +107,56 @@ public final class AppletLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [AppletFile.type])
     }
     return res
+  }
+  
+  private func utType(_ expr: Expr) throws -> UTType? {
+    switch expr {
+      case .symbol(let sym):
+        switch sym.identifier {
+          case "jpg", "jpeg":
+            return .jpeg
+          case "png":
+            return .png
+          case "heic":
+            return .heic
+          case "tiff", "tif":
+            return .tiff
+          case "bmp":
+            return .bmp
+          case "gif":
+            return .gif
+          case "image":
+            return .image
+          case "pdf":
+            return .pdf
+          case "txt", "text":
+            return .plainText
+          case "rtf":
+            return .rtf
+          case "rtfd":
+            return .rtfd
+          case "html":
+            return .html
+          case "scm":
+            return .schemeProgram
+          case "sld":
+            return .schemeLibrary
+          case "data":
+            return .data
+          case "gzip":
+            return .gzip
+          case "markdown", "md":
+            return UTType("net.daringfireball.markdown")
+          case "zip":
+            return .zip
+          case "tar":
+            return UTType("public.tar-archive")
+          default:
+            return UTType(sym.identifier)
+        }
+      default:
+        return UTType(try expr.asString())
+    }
   }
   
   private func isRunningAsApplet() -> Expr {
@@ -116,7 +173,7 @@ public final class AppletLibrary: NativeLibrary {
     } else {
       `default` = .false
     }
-    let strings = try self.appletContext().strings
+    let strings = self.appletContextOpt()?.strings ?? []
     let index = try idx.asInt(above: 0)
     if forceOrig?.isFalse ?? true, let override = self.argumentOverride?.strings {
       if index >= 0 && index < override.count, let str = override[index], !str.isEmpty {
@@ -204,7 +261,7 @@ public final class AppletLibrary: NativeLibrary {
   }
   
   private func appletFileArgument(_ idx: Expr, _ def: Expr?, _ forceOrig: Expr?) throws -> Expr {
-    let files = try self.appletContext().files
+    let files = self.appletContextOpt()?.files ?? []
     let index = try idx.asInt(above: 0)
     if forceOrig?.isFalse ?? true, let override = self.argumentOverride?.files {
       if index >= 0 && index < override.count, let file = override[index] {
@@ -419,7 +476,7 @@ public final class AppletLibrary: NativeLibrary {
                                       relativeTo: self.context.evaluator.currentDirectoryPath))
       if let name, name.isTrue {
         if let type, type.isTrue {
-          if let tp = try UTType(type.asString()) {
+          if let tp = try self.utType(type) {
             return .object(AppletFile(IntentFile(fileURL: url,
                                                  filename: try name.asString(),
                                                  type: tp)))
@@ -431,7 +488,7 @@ public final class AppletLibrary: NativeLibrary {
         }
       } else {
         if let type, type.isTrue {
-          if let tp = try UTType(type.asString()) {
+          if let tp = try self.utType(type) {
             return .object(AppletFile(IntentFile(fileURL: url, filename: nil, type: tp)))
           } else {
             return .false
@@ -444,7 +501,7 @@ public final class AppletLibrary: NativeLibrary {
       if case .bytes(_) = expr {
         let data = Data(try expr.asByteVector().value)
         if let type, type.isTrue {
-          if let tp = try UTType(type.asString()) {
+          if let tp = try self.utType(type) {
             return .object(AppletFile(IntentFile(data: data, filename: try name.asString(), type: tp)))
           } else {
             return .false
@@ -527,7 +584,7 @@ public final class AppletLibrary: NativeLibrary {
   
   private func appletFileData(_ expr: Expr, _ type: Expr?) throws -> Expr {
     let af = try self.appletFile(expr)
-    let tp = type == nil ? nil : try UTType(type!.asString())    
+    let tp = type == nil ? nil : try self.utType(type!)
     if let data = try self.getData(from: af.file, type: tp) {
       var res = [UInt8](repeating: 0, count: data.count)
       data.copyBytes(to: &res, count: data.count)
@@ -552,7 +609,7 @@ public final class AppletLibrary: NativeLibrary {
   
   private func appletFileToObject(_ expr: Expr, _ type: Expr?) throws -> Expr {
     let af = try self.appletFile(expr)
-    let tp = try (type == nil ? nil : UTType(type!.asString())) ?? af.file.type
+    let tp = try (type == nil ? nil : self.utType(type!)) ?? af.file.type
     if let data = try self.getData(from: af.file, type: tp) {
       switch tp {
         case .plainText, .utf8PlainText, .text, .delimitedText,
@@ -965,7 +1022,7 @@ class AppletResult: NativeObject {
 class AppletFile: NativeObject {
   
   /// Type representing fonts
-  public static let type = Type.objectType(Symbol(uninterned: "applet-file"))
+  public static let type = Type.objectType(Symbol(uninterned: "applet-attachment"))
   
   let file: IntentFile
   

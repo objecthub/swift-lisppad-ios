@@ -22,7 +22,7 @@ import AppIntents
 import LispKit
 
 struct EvalResult: TransientAppEntity {
-  static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Evaluation Result")
+  static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Program Result")
   
   @Property(title: "Result Strings")
   var strings: [String]

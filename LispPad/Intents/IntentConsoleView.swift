@@ -10,7 +10,7 @@ import SwiftUI
 struct IntentConsoleView: View {
   @ObservedObject var console: Console
   @State private var width: CGFloat = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
-  let font: SwiftUI.Font = .system(size: 14, weight: .regular)
+  let font: SwiftUI.Font = .system(size: 15, weight: .regular)
   
   func errorText(image: String, text: String?) -> Text {
     return text == nil ? Text("") : Text("\n") + Text(Image(systemName: image)) + Text(" " + text!)
@@ -44,12 +44,12 @@ struct IntentConsoleView: View {
                   .fixedSize(horizontal: false, vertical: true) */
                 Image(uiImage: image)
                   .resizable()
-                  .frame(maxWidth: min(image.size.width, self.width * 0.98),
-                         maxHeight: min(image.size.width, self.width * 0.98) /
+                  .frame(maxWidth: min(image.size.width, self.width * 0.97),
+                         maxHeight: min(image.size.width, self.width * 0.97) /
                                     image.size.width * image.size.height)
                   .padding(.vertical, 4)
               }
-              .padding(.horizontal, 4)
+              .padding(.horizontal, 8)
             case .error(let context):
               (Text(entry.text).foregroundColor(.red) +
                self.errorText(image: "mappin.and.ellipse", text: context?.position) +
@@ -60,7 +60,7 @@ struct IntentConsoleView: View {
               .foregroundColor(.secondary)
               .frame(maxWidth: .infinity, alignment: .topLeading)
               .fixedSize(horizontal: false, vertical: true)
-              .padding(.horizontal, 8)
+              .padding(.horizontal, 16)
             default:
               Text(entry.text)
                 .font(self.font)
@@ -68,7 +68,7 @@ struct IntentConsoleView: View {
                 .foregroundColor(entry.kind == .result ? ConsoleView.resultColor : .primary)
                 .frame(maxWidth: .infinity, alignment: .topLeading)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 4)
           }
         }
