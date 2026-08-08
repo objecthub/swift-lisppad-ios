@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3 (2026-05-01)
+
+- LispPad programs can now be executed as "applets" running both in the app and as an intent within Shortcut flows
+- Included libray `(lisppad applet)` which provides an API for managing the lifecycle of an applet, in particular supporting data exchange
+- When libraries and applets are being developed in the editor, LispPad now facilitates the installation in its resource tree
+- Support for new modal input dialogs provided by library `(lisppad system ios)`: `show-message-panel`, `show-confirmation-panel`, `show-choice-panel`, `show-input-panel`, and `show-date-panel`
+- Fixed sizing issues of the virtual keyboard extension on iPhones
+- New sample code: `ImposeLogo.scm`
+
 ## 2.2.1 (2026-02-22)
 
 - Allow executing commands by pressing return on hardware keyboards

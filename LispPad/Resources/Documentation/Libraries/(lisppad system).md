@@ -1,7 +1,6 @@
 # LispPad System iOS
 
-Library `(lisppad system ios)` implements a simple API for LispPad Go-specific system procedures. Procedures that match the same functionality on macOS are also available via library `(lisppad system)`.
-
+Library `(lisppad system ios)` implements a simple API for LispPad Go-specific system procedures. Procedures matching the same functionality on macOS are also available via library `(lisppad system)`.
 
 ## Files
 
@@ -54,7 +53,47 @@ The following image type tags, expressed as a symbol, are supported: `bursts`, `
 Opens an image selector showing the images of the user's photo library. The user can select up to _max_ images from the photo library. These are returned by procedure `load-bitmaps-from-library` as a list of bytevectors. _filter_ is an image filter for narrowing down the types of images that are shown, as documented for procedure `load-bitmaps-from-library`. `load-bytevectors-from-library` is useful if one is dealing with videos or other types of data that are not supported natively.
 
 
-## Navigation
+## Interaction
+
+**(show-message-panel _title_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(show-message-panel _title message_)**  
+**(show-message-panel _title message button_)**  
+
+Shows a message panel (an alert) with the given _title_ and _message_, and a single button labeled _button_ for dismissing it. If _title_ is `#f`, the title `"Alert"` is used. If _message_ is not provided or `#f`, no message text is shown. If _button_ is not provided or `#f`, the button is labeled `"OK"`. `show-message-panel` returns an unspecified value once the panel was dismissed by the user, or `#f` if the panel could not be displayed.
+
+**(show-confirmation-panel _title message_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(show-confirmation-panel _title message yes_)**  
+**(show-confirmation-panel _title message yes no_)**  
+
+Shows a confirmation panel with the given _title_ and _message_, providing two buttons for confirming (labeled _yes_) or rejecting (labeled _no_) the request. If _title_ is `#f`, the title `"Confirm"` is used. If _yes_ is not provided or `#f`, the confirmation button is labeled `"Yes"`. If _no_ is not provided or `#f`, the rejection button is labeled `"No"`. Procedure `show-confirmation-panel` returns `#t` if the user confirms the request, and `#f` if the user rejects it or the panel could not be displayed.
+
+**(show-choice-panel _title message options_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(show-choice-panel _title message options selected_)**  
+**(show-choice-panel _title message options selected confirm_)**  
+
+Shows a choice panel with the given _title_ and _message_, letting the user pick one alternative from list _options_. Each element of _options_ is either a string, or a pair whose first component is a string used as the label of the alternative. _selected_ is a string identifying the label of the alternative that is selected initially; if _selected_ is not provided or `#f`, no alternative is pre-selected. _confirm_ is the label of the button used to confirm the selection; the default is `"Select"`. Procedure `show-choice-panel` returns the zero-based index of the alternative chosen by the user within _options_, or `#f` if the choice was cancelled or the panel could not be displayed.
+
+**(show-input-panel _title message_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(show-input-panel _title message initial_)**  
+**(show-input-panel _title message initial placeholder_)**  
+**(show-input-panel _title message initial placeholder confirm_)**  
+
+Shows an input panel with the given _title_ and _message_, letting the user enter a line of text. _initial_ is the text shown initially in the input field; the default is the empty string. _placeholder_ is a placeholder text shown when the input field is empty; the default is the empty string. _confirm_ is the label of the button used to confirm the input; the default is `"OK"`. Procedure `show-input-panel` returns the string entered by the user, or `#f` if the input was cancelled or the panel could not be displayed.
+
+**(show-date-panel _title message type_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(show-date-panel _title message type initial_)**  
+**(show-date-panel _title message type initial range_)**  
+**(show-date-panel _title message type initial range tz_)**  
+**(show-date-panel _title message type initial range tz confirm_)**  
+**(show-date-panel _title message type initial range tz confirm cancel_)**  
+
+Shows a date panel with the given _title_ and _message_, letting the user pick a date, a range of dates, or several dates, depending on _type_. _type_ is one of the symbols `single`, `range`, or `multiple`:
+
+   - If _type_ is `single`, _initial_ is either `#f` (no date pre-selected) or a date-time object representing the initially selected date. `show-date-panel` returns a date-time object for the date picked by the user, or `#f` if the panel was cancelled.
+   - If _type_ is `range`, _initial_ is either `#f` (no range pre-selected) or a pair of two date-time objects representing the lower and upper bound of the initially selected range. `show-date-panel` returns a pair of two date-time objects for the range picked by the user, or `#f` if the panel was cancelled.
+   - If _type_ is `multiple`, _initial_ is either `#f` (no dates pre-selected) or a list of date-time objects representing the initially selected dates. `show-date-panel` returns a list of date-time objects for the dates picked by the user, or `#f` if the panel was cancelled.
+
+_range_ restricts the dates that can be selected to a given interval. It is either `#f` (no restriction) or a pair of two date-time objects representing the lower and upper bound of the selectable interval. _tz_ specifies the time zone used for interpreting and returning date-time values. It is either `#f` (the current, operating-system defined time zone is used), a number representing an offset from GMT in seconds, a symbol referring to a time zone abbreviation (e.g. `PST`), or a string referring to a time zone identifier (e.g. `"America/Los_Angeles"`) or a time zone abbreviation. If _title_ or _message_ is `#f`, no title, respectively no message, is shown. _confirm_ and _cancel_ are the labels of the buttons used to confirm (default `"Select"`) and cancel (default `"Cancel"`) the panel. Procedure `show-date-panel` also returns `#f` if the panel could not be displayed.
 
 **(show-preview-panel _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(show-preview-panel _obj type_)**  
