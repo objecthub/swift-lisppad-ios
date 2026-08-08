@@ -6,6 +6,8 @@
 	<dict>
 		<key>lisppad audio</key>
 		<string>(lisppad audio).md</string>
+		<key>lisppad applet</key>
+		<string>(lisppad applet).md</string>
 		<key>lisppad draw map</key>
 		<string>(lisppad draw map).md</string>
 		<key>lisppad location</key>
@@ -56,6 +58,8 @@
 		<string>(lispkit draw barcode).md</string>
 		<key>lispkit draw chart bar</key>
 		<string>(lispkit draw chart bar).md</string>
+		<key>lispkit draw chart function</key>
+		<string>(lispkit draw chart function).md</string>
 		<key>lispkit draw map</key>
 		<string>(lispkit draw map).md</string>
 		<key>lispkit draw turtle</key>

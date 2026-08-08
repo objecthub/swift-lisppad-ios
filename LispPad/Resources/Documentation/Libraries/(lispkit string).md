@@ -61,8 +61,13 @@ The `string-ref` procedure returns character _k_ of string _str_ using zero-orig
 The `string-set!` procedure stores _char_ in element _k_ of string _str_. It is an error if _k_ is not a valid index of string _str_.
 
 **(string-length _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(string-length _str chars?_)**  
 
-Returns the number of characters in the given string _str_.
+Returns the number of characters in the given string _str_. By default (or if _chars?_ is `#f`), the result is the number of UTF-16 code units, matching the indices used by `string-ref` and `string-set!`. If _chars?_ is set to `#t`, `string-length` instead returns the number of Unicode extended grapheme clusters (i.e. "perceived characters") in _str_, which may be lower than the UTF-16-based length for strings containing characters outside the basic multilingual plane or composed of multiple Unicode scalar values (e.g. emoji, accented characters).
+
+**(string-display-width _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the width of string _str_ in terms of the number of columns it would occupy when being displayed on a monospaced terminal. Unlike `string-length`, `string-display-width` accounts for characters that occupy more than one column, such as East Asian wide characters and many emoji.
 
 ## Predicates
 

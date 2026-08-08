@@ -466,6 +466,14 @@ Returns the amount of physical memory of the device executing the LispKit code i
 
 Returns the amount of memory allocated by the application executing the LispKit code in bytes.
 
+**(device-battery-level)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the current battery charge level of the device executing the LispKit code as a floating-point number between `0.0` (empty) and `1.0` (full). Returns `#f` if there is no battery, or if the battery level cannot be determined.
+
+**(device-battery-state)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a symbol describing the charging state of the device's battery. Possible values are `charging`, `full`, `discharging`, `plugged-in-no-charging` (macOS only), and `unknown`. Returns `#f` if there is no battery, or if the battery state cannot be determined.
+
 **(system-uptime)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the uptime of the system in seconds.

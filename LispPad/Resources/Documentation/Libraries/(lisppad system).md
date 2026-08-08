@@ -48,9 +48,11 @@ Opens an image selector showing the images of the user's photo library. The user
 
 The following image type tags, expressed as a symbol, are supported: `bursts`, `cinematic-videos`, `depth-effect-photos`, `images`, `live-photos`, `panoramas`, `screen-recordings`, `screenshots`, `slomo-videos`, `timelapse-videos`, and `videos`. The default is `images`.
 
-**(load-bytevectors-from-library _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(load-bytevectors-from-library)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(load-bytevectors-from-library _max_)**  
+**(load-bytevectors-from-library _max filter_)**  
 
-Opens an image selector showing the images of the user's photo library. The user can select up to _max_ images from the photo library. These are returned by procedure `load-bitmaps-from-library` as a list of bytevectors. _filter_ is an image filter for narrowing down the types of images that are shown, as documented for procedure `load-bitmaps-from-library`. `load-bytevectors-from-library` is useful if one is dealing with videos or other types of data that are not supported natively.
+Opens an image selector showing the images of the user's photo library. The user can select up to _max_ images from the photo library. These are returned by procedure `load-bytevectors-from-library` as a list of bytevectors. _filter_ is an image filter for narrowing down the types of images that are shown, as documented for procedure `load-bitmaps-from-library`. `load-bytevectors-from-library` is useful if one is dealing with videos or other types of data that are not supported natively.
 
 
 ## Interaction

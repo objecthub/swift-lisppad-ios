@@ -243,10 +243,10 @@ Removes the values at the JSON references _ref ..._ from mutable JSON value _jso
 
 ### Supported formalisms
 
-Library `(lispkit json)` supports multiple abstractions for referring to values within a JSON document. These abstractions are called _JSON references_. The most established formalism for referring to a location within a JSON document is JSON Pointer. Here is the complete list of supported _JSON references_:
+Library `(lispkit json)` supports multiple abstractions for referring to values within a JSON document. These abstractions are called _JSON references_. The most established formalism for referring to a location within a JSON document is [JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901/). Here is the complete list of supported _JSON references_:
 
-  - Strings containing a valid **_JSON Pointer_** reference as defined by RFC 6901; e.g. `"/store/book/0/title"` is a valid JSON reference.
-  - Strings containing a valid **_JSON Location_** reference. JSON location syntax is based on how values are uniquely identified in JSON Path.
+  - Strings containing a valid **_JSON Pointer_** reference as defined by [RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901/); e.g. `"/store/book/0/title"` is a valid JSON reference.
+  - Strings containing a valid **_JSON Location_** reference. JSON location syntax is based on how values are uniquely identified in [JSON Path](https://datatracker.ietf.org/doc/html/rfc9535/).
   - A fixnum value _i_ refers to the _i_-th element of a JSON array if _i >= 0_. If _i < 0_, then this refers to the _n+i_-th element assuming _n_ is the length of the array.
   - A symbol _s_ refers to member _s_ of a JSON object.
   - The empty list `()` refers to the root of a JSON document.
@@ -328,7 +328,7 @@ Returns a list of symbols and integers representing the sequence of segments for
 
 ## JSON Path
 
-The full _JSON Path_ standard as defined by RFC 9535 is supported by library `(lispkit json)`. JSON Path queries are simply represented as strings. They can be applied to JSON values with procedures `json-query`, `json-query-results`, and `json-query-locations`. To illustrate the usage of JSON Path queries, the following JSON value is being defined:
+The full _JSON Path_ standard as defined by [RFC 9535](https://datatracker.ietf.org/doc/html/rfc9535/) is supported by library `(lispkit json)`. JSON Path queries are simply represented as strings. They can be applied to JSON values with procedures `json-query`, `json-query-results`, and `json-query-locations`. To illustrate the usage of JSON Path queries, the following JSON value is being defined:
 
 ```scheme
 (define jval (string->json (string-append
@@ -394,7 +394,7 @@ Applies JSON Path _query_ to _json_ returning the locations of matching values i
 
 ## JSON Patch
 
-_JSON Patch_ defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. Each operation mutates parts of the JSON document. The supported operations specified by RFC 6902 are represented by the following 6 shapes of lists:
+_JSON Patch_ defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. Each operation mutates parts of the JSON document. The supported operations specified by [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/) are represented by the following 6 shapes of lists:
 
   - **(add _ref json_)**: Add _json_ to the JSON value the JSON pointer _ref_ is referring to
   - **(remove _ref_)**:  Remove the JSON value at the location the JSON pointer _ref_ is referring to
@@ -444,7 +444,7 @@ Returns `#t` if _obj_ is a JSON patch object; `#f` otherwise.
 **(json-patch)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(json-patch _expr_)**  
 
-Returns a new JSON patch object. JSON patch objects are mutable containers for lists of operations. If no argument is provided to `json-patch`, then an empty JSON patch object is returned which can be extended via procedure `json-patch-append!`. If _expr_ is provided, it is either an already existing JSON patch object and a copy is returned, or a JSON value representing the JSON patch operation list according to RFC 6902, or it is a list of operations. Each operation has one of the following 6 shapes:
+Returns a new JSON patch object. JSON patch objects are mutable containers for lists of operations. If no argument is provided to `json-patch`, then an empty JSON patch object is returned which can be extended via procedure `json-patch-append!`. If _expr_ is provided, it is either an already existing JSON patch object and a copy is returned, or a JSON value representing the JSON patch operation list according to [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/), or it is a list of operations. Each operation has one of the following 6 shapes:
 
   - **(add _ref json_)**: Add _json_ to the JSON value at _ref_
   - **(remove _ref_)**:  Remove the JSON value at _ref_
@@ -473,11 +473,11 @@ Returns the list of operations for JSON patch object _patch_.
 
 **(json-patch-\>json _patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a JSON value representing the operations of the JSON patch object _patch_ as defined by RFC 7396.
+Returns a JSON value representing the operations of the JSON patch object _patch_ as defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/).
 
 **(json-apply! _json patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies a JSON patch object _patch_ to mutable JSON value _json_ using application rules as defined by RFC 7396.
+Applies a JSON patch object _patch_ to mutable JSON value _json_ using application rules as defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/).
 
 
 ## Merging JSON values
@@ -494,6 +494,6 @@ Merges the JSON value _json_ with the JSON value _other_ using merge semantics w
 
 **(json-merge-patch _json patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Merges the JSON value _json_ with the JSON value _patch_ using the rules defined by RFC 7396. The merged JSON value is returned.
+Merges the JSON value _json_ with the JSON value _patch_ using the rules defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/). The merged JSON value is returned.
 
 The _patch_ value describes changes to be made to _json_ using a syntax that closely mimics the document being modified. Recipients of a merge _patch_ value determine the exact set of changes being requested by comparing the content of the provided patch against the current value _json_. If the provided _patch_ value contains members that do not appear within _json_, those members are added. If _json_ does contain the member, the value is replaced. Null values in _patch_ are given special meaning to indicate the removal of existing values in the target.

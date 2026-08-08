@@ -217,8 +217,50 @@ Converts Markdown inline text or list of inline texts _txt_ into HTML, represent
 **(markdown-\>html-doc _md style codestyle_)**  
 **(markdown-\>html-doc _md style codestyle cblockstyle_)**  
 **(markdown-\>html-doc _md style codestyle cblockstyle colors_)**  
+**(markdown-\>html-doc _md style codestyle cblockstyle colors syntax_)**  
 
-Converts a Markdown document _md_ into a styled HTML document, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. _style_ is a list with up to three elements: _(size font color)_. It specifies the default text style of the document. _size_ is the point size of the font, _font_ is a font name, and _color_ is a HTML color specification (e.g. `"#FF6789"`). _codestyle_ specifies the style of inline code in the same format. _colors_ is a list of HTML color specifications for the following document elements in this order: the border color of code blocks, the color of  blockquote "bars", the color of H1, H2, H3 and H4 headers.
+Converts a Markdown document _md_ into a styled HTML document, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. _style_ is a list with up to three elements: _(size font color)_. It specifies the default text style of the document. _size_ is the point size of the font, _font_ is a font name, and _color_ is a HTML color specification (e.g. `"#FF6789"`). _codestyle_ specifies the style of inline code in the same format. _colors_ is a list of HTML color specifications for the following document elements in this order: the border color of code blocks, the color of  blockquote "bars", the color of H1, H2, H3 and H4 headers. Any of _style_, _codestyle_, _cblockstyle_, and _colors_ can be set to `#f` to use the default for that argument.
+
+_syntax_ configures syntax highlighting for code blocks and is a list with up to four elements: _(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks?)_. _theme_ is the name of a syntax highlighting theme (a string), or `#f` to use the default theme. _ignore-syntax-errors?_ is a boolean determining whether syntactic issues in the code being highlighted should be ignored (default: `#t`). _ignored-languages_ is a list of language name strings for which syntax highlighting is skipped. _highlight-indented-code-blocks?_ is a boolean determining whether indented (as opposed to fenced) code blocks are syntax-highlighted (default: `#t`). If _syntax_ is omitted or `#f`, default syntax highlighting is used. If _syntax_ is `#t` or `'()`, syntax highlighting is disabled entirely.
+
+**(markdown-\>string _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(markdown-\>string _md width_)**  
+**(markdown-\>string _md width ansi_)**  
+
+Converts a Markdown document _md_ into a plain-text string suitable for display on a terminal. _md_ needs to satisfy the _markdown?_ predicate. _width_ specifies the number of columns available for typesetting; if _width_ is omitted or `#f`, the current terminal size (as determined by `terminal-size`) is used if available, falling back to 80 columns otherwise.
+
+If _ansi_ is omitted or `#f`, the output is plain text without ANSI escape sequences. If _ansi_ is `#t`, the output uses ANSI escape sequences with default styling for headers, links, code, emphasis, etc. so that the result can be printed to an ANSI-compatible terminal with visual markup. Alternatively, _ansi_ can be a list configuring the styling and colors used for each document element, as well as syntax highlighting for code blocks. This configuration list has up to twelve elements, all of which are optional and can be omitted from the end of the list, or set to `#f` individually to fall back to the corresponding default:
+
+1. _header-properties_: a list of text properties (see below), one for each header level, e.g. `(h1-properties h2-properties ...)`. Headers for which no entry is provided are typeset using the properties of the last provided entry, or without styling if the list is empty.
+2. _link-properties_: text properties used for typesetting link text.
+3. _code-properties_: text properties used for typesetting inline code.
+4. _code-block-border-properties_: text properties used for the border framing indented and fenced code blocks.
+5. _code-block-lang-properties_: text properties used for typesetting the language tag of fenced code blocks.
+6. _emphasis-properties_: text properties used for emphasized text (e.g. `*this*`).
+7. _strong-properties_: text properties used for strongly emphasized text (e.g. `**this**`).
+8. _def-term-properties_: text properties used for typesetting the term of a definition list entry.
+9. _def-descr-properties_: text properties used for typesetting the description of a definition list entry.
+10. _blockquote-properties_: text properties used for typesetting block quotes.
+11. _break-properties_: text properties used for typesetting thematic breaks (horizontal rules).
+12. _syntax-highlighting_: configuration for syntax-highlighting the content of code blocks. `#f` disables syntax highlighting entirely; omitting this element (or ending the list before it) enables syntax highlighting with default settings. Otherwise, this is a list with up to five elements _(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks? full-color?)_, all of which are optional: _theme_ is the name of a syntax highlighting theme (a string), or `#f` for the default theme; _ignore-syntax-errors?_ is a boolean determining whether syntactic issues in the code being highlighted should be ignored (default: `#t`); _ignored-languages_ is a list of language name strings for which syntax highlighting is skipped; _highlight-indented-code-blocks?_ is a boolean determining whether indented (as opposed to fenced) code blocks are syntax-highlighted (default: `#t`); _full-color?_ is a boolean determining whether full RGB colors are used for highlighting as opposed to the limited, extended ANSI color palette (default: `#t`).
+
+Each _properties_ argument above is a "text properties" value in one of the following formats:
+
+- `#f` for using default styling.
+- `'()` for no styling. 
+- a symbol naming a predefined style or color; supported are: `default, bold, dim, italic, underline, blink, swap, strikethrough, default-color, black, maroon, green, olive, navy, purple, teal, silver, grey, red, lime, yellow, blue, fuchsia, aqua`, and `white`.
+- a list _(text-color background-color style ...)_ of up to three elements, where _text-color_ and _background-color_ define the foreground and background color, and the remaining elements are style symbols; supported styles are `bold`, `italic`, `underline`, `dim`, `blink`, `swap`, `strikethrough`, and `default` for the terminal's default style).
+
+_text-color_ can be `#f` (default color), a color name symbol (`default`, `black`, `maroon`, `green`, `olive`, `navy`, `purple`, `teal`, `silver`, `grey`, `red`, `lime`, `yellow`, `blue`, `fuchsia`, `aqua`, or `white`), a hex color string (e.g. `"#F67"` or `"#FF6677"`), a color object as created by library `(lispkit draw)`, or a fixnum between 0 and 255 referring to a color of the extended ANSI 256-color palette. _background-color_ uses the same formats, except that its color name symbols are `default`, `black`, `white`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `light-black`, `light-red`, `light-green`, `light-yellow`, `light-blue`, `light-magenta`, `light-cyan`, and `light-white`.
+
+**(markdown-\>styled-text _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(markdown-\>styled-text _md style_)**  
+**(markdown-\>styled-text _md style codestyle_)**  
+**(markdown-\>styled-text _md style codestyle cblockstyle_)**  
+**(markdown-\>styled-text _md style codestyle cblockstyle colors_)**  
+**(markdown-\>styled-text _md style codestyle cblockstyle colors syntax_)**  
+
+Converts a Markdown document _md_ into a `styled-text` object (see library `(lispkit draw)`), e.g. for rendering it with `draw-styled-text`. _md_ needs to satisfy the _markdown?_ predicate. The arguments _style_, _codestyle_, _cblockstyle_, _colors_, and _syntax_ have the same meaning as for `markdown->html-doc`. Returns `#f` if the styled text object could not be created.
 
 **(markdown-\>sxml _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 

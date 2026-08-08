@@ -183,6 +183,10 @@
 		CCC2336F2B53286800C88C68 /* (lispkit format).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233632B45FA8B00C88C68 /* (lispkit format).md */; };
 		CCC233702B53286800C88C68 /* (lispkit list set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233672B45FBD000C88C68 /* (lispkit list set).md */; };
 		CCC233712B5328A900C88C68 /* (lisppad turtle).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */; };
+		CCC6B5243027657800282F28 /* (lispkit draw chart function).md in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */; };
+		CCC6B5263027664100282F28 /* (lisppad applet).md in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5253027663A00282F28 /* (lisppad applet).md */; };
+		CCC6B5273027694A00282F28 /* (lisppad applet).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC6B5253027663A00282F28 /* (lisppad applet).md */; };
+		CCC6B5283027695A00282F28 /* (lispkit draw chart function).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
@@ -295,6 +299,8 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC6B5283027695A00282F28 /* (lispkit draw chart function).md in Copy Documentation/Libraries */,
+				CCC6B5273027694A00282F28 /* (lisppad applet).md in Copy Documentation/Libraries */,
 				CCE4413D2F356C5100266C57 /* (lispkit draw map).md in Copy Documentation/Libraries */,
 				CCE4413E2F356C5100266C57 /* (lispkit draw web).md in Copy Documentation/Libraries */,
 				CCE4413F2F356C5100266C57 /* (lispkit dynamic).md in Copy Documentation/Libraries */,
@@ -685,6 +691,8 @@
 		CCC233672B45FBD000C88C68 /* (lispkit list set).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list set).md"; sourceTree = "<group>"; };
 		CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit archive tar).md"; sourceTree = "<group>"; };
 		CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad turtle).md"; sourceTree = "<group>"; };
+		CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart function).md"; sourceTree = "<group>"; };
+		CCC6B5253027663A00282F28 /* (lisppad applet).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad applet).md"; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyBrowser.swift; sourceTree = "<group>"; };
@@ -964,6 +972,7 @@
 			isa = PBXGroup;
 			children = (
 				CC8B95CF2608179000830B4F /* (lisppad audio).md */,
+				CCC6B5253027663A00282F28 /* (lisppad applet).md */,
 				CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */,
 				CCBF9E6926C890B400654D60 /* (lisppad location).md */,
 				CC327C35260BF98100BD7E32 /* (lisppad system).md */,
@@ -989,6 +998,7 @@
 				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
 				CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */,
 				CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */,
+				CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */,
 				CCE441312F35602900266C57 /* (lispkit draw map).md */,
 				CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */,
 				CCE4412F2F355FEB00266C57 /* (lispkit draw web).md */,
@@ -1430,11 +1440,13 @@
 				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */,
+				CCC6B5263027664100282F28 /* (lisppad applet).md in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CCE80A372CF0003B008C63A2 /* pdf417.png in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */,
 				CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */,
+				CCC6B5243027657800282F28 /* (lispkit draw chart function).md in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,
