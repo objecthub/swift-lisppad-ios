@@ -4,10 +4,10 @@
 ;;; library, as well as how to use an applet also as a regular
 ;;; Scheme program.
 ;;; 
-;;; This applet takes 4 optional string arguments and 2 file
-;;; arguments. The 4 string arguments are used to provide the
+;;; This applet takes 4 optional string arguments and 2
+;;; attachments. The 4 string arguments are used to provide the
 ;;; following parameters: logo fraction, padding fraction,
-;;; intensity, and radius. The 2 file arguments refer to the
+;;; intensity, and radius. The 2 attachments refer to the
 ;;; base and the logo image. The logo image is optional.
 ;;;
 ;;; It is recommended to install applets in the Applets folder
