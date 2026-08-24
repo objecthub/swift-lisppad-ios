@@ -65,6 +65,14 @@
 		CC7A558F2997D43C0014D600 /* (lispkit graph).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A558E2997D3000014D600 /* (lispkit graph).md */; };
 		CC7A55912997D5700014D600 /* sample-graph.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC7A55902997D4E60014D600 /* sample-graph.png */; };
 		CC7A62BE275D375C009F72E4 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7A62BD275D375C009F72E4 /* Console.swift */; };
+		CC7A9911303D03E7007C7347 /* (lispkit sxml xml).md in Resources */ = {isa = PBXBuildFile; fileRef = CC7A9910303D03DE007C7347 /* (lispkit sxml xml).md */; };
+		CC7A9913303D042C007C7347 /* (lispkit sxml html).md in Resources */ = {isa = PBXBuildFile; fileRef = CC7A9912303D0421007C7347 /* (lispkit sxml html).md */; };
+		CC7A9917303D04D6007C7347 /* (lispkit wt-tree).md in Resources */ = {isa = PBXBuildFile; fileRef = CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */; };
+		CC7A991A303D06F0007C7347 /* (lispkit sxml html).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9912303D0421007C7347 /* (lispkit sxml html).md */; };
+		CC7A991B303D06F0007C7347 /* (lispkit sxml xml).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9910303D03DE007C7347 /* (lispkit sxml xml).md */; };
+		CC7A991C303D06FA007C7347 /* (lispkit wt-tree).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */; };
+		CC7A991D303D0791007C7347 /* (lispkit sxml).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A990E303D0396007C7347 /* (lispkit sxml).md */; };
+		CC7A991E303D0799007C7347 /* (lispkit draw chart).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9914303D047C007C7347 /* (lispkit draw chart).md */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
 		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
 		CC84C25025FE59F000758581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C24F25FE59F000758581 /* Assets.xcassets */; };
@@ -187,6 +195,14 @@
 		CCC6B5263027664100282F28 /* (lisppad applet).md in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5253027663A00282F28 /* (lisppad applet).md */; };
 		CCC6B5273027694A00282F28 /* (lisppad applet).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC6B5253027663A00282F28 /* (lisppad applet).md */; };
 		CCC6B5283027695A00282F28 /* (lispkit draw chart function).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */; };
+		CCC6B52A3027761B00282F28 /* applet-program-model.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5293027761B00282F28 /* applet-program-model.png */; };
+		CCC6B52C3027766500282F28 /* intent-source-selection.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B52B3027766500282F28 /* intent-source-selection.png */; };
+		CCC6B52E3027768000282F28 /* program-intent.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B52D3027768000282F28 /* program-intent.png */; };
+		CCC6B5303027769700282F28 /* other-intents.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B52F3027769700282F28 /* other-intents.png */; };
+		CCC6B531302776DC00282F28 /* applet-program-model.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCC6B5293027761B00282F28 /* applet-program-model.png */; };
+		CCC6B532302776DC00282F28 /* intent-source-selection.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCC6B52B3027766500282F28 /* intent-source-selection.png */; };
+		CCC6B533302776DC00282F28 /* program-intent.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCC6B52D3027768000282F28 /* program-intent.png */; };
+		CCC6B534302776DC00282F28 /* other-intents.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCC6B52F3027769700282F28 /* other-intents.png */; };
 		CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCBF9E6926C890B400654D60 /* (lisppad location).md */; };
 		CCC856382615DC4A0080B96E /* Organizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC856372615DC4A0080B96E /* Organizer.swift */; };
 		CCC8563B2616778D0080B96E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC8563A2616778D0080B96E /* FileManager.swift */; };
@@ -252,6 +268,113 @@
 		CCEA5A16263CA8E000D78C62 /* ComposePhotos.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEA5A14263CA6FC00D78C62 /* ComposePhotos.scm */; };
 		CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A18263DF7F400D78C62 /* UserSettings.swift */; };
 		CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */; };
+		CCECBDDB302B379A00709689 /* LICENSE (highlight js) in Copy SyntaxHighlighting */ = {isa = PBXBuildFile; fileRef = CCECBD05302B36DE00709689 /* LICENSE (highlight js) */; };
+		CCECBDDC302B37A300709689 /* highlight.min.js in Copy SyntaxHighlighting */ = {isa = PBXBuildFile; fileRef = CCECBD03302B36D200709689 /* highlight.min.js */; };
+		CCECBDDE302B37DD00709689 /* a11y-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD07302B36EB00709689 /* a11y-dark.css */; };
+		CCECBDDF302B37DD00709689 /* a11y-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD08302B36EB00709689 /* a11y-light.css */; };
+		CCECBDE0302B37DD00709689 /* agate.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD09302B36EB00709689 /* agate.css */; };
+		CCECBDE1302B37DD00709689 /* an-old-hope.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD0A302B36EB00709689 /* an-old-hope.css */; };
+		CCECBDE2302B37DD00709689 /* androidstudio.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD0B302B36EB00709689 /* androidstudio.css */; };
+		CCECBDE3302B37DD00709689 /* arduino-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD0C302B36EB00709689 /* arduino-light.css */; };
+		CCECBDE4302B37DD00709689 /* arta.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD0D302B36EB00709689 /* arta.css */; };
+		CCECBDE5302B37DD00709689 /* ascetic.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD0E302B36EB00709689 /* ascetic.css */; };
+		CCECBDE6302B37DD00709689 /* atelier-cave-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD0F302B36EB00709689 /* atelier-cave-dark.css */; };
+		CCECBDE7302B37DD00709689 /* atelier-cave-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD10302B36EB00709689 /* atelier-cave-light.css */; };
+		CCECBDE8302B37DD00709689 /* atelier-dune-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD11302B36EB00709689 /* atelier-dune-dark.css */; };
+		CCECBDE9302B37DD00709689 /* atelier-dune-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD12302B36EB00709689 /* atelier-dune-light.css */; };
+		CCECBDEA302B37DD00709689 /* atelier-estuary-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD13302B36EB00709689 /* atelier-estuary-dark.css */; };
+		CCECBDEB302B37DD00709689 /* atelier-estuary-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD14302B36EB00709689 /* atelier-estuary-light.css */; };
+		CCECBDEC302B37DD00709689 /* atelier-forest-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD15302B36EB00709689 /* atelier-forest-dark.css */; };
+		CCECBDED302B37DD00709689 /* atelier-forest-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD16302B36EB00709689 /* atelier-forest-light.css */; };
+		CCECBDEE302B37DD00709689 /* atelier-heath-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD17302B36EB00709689 /* atelier-heath-dark.css */; };
+		CCECBDEF302B37DD00709689 /* atelier-heath-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD18302B36EB00709689 /* atelier-heath-light.css */; };
+		CCECBDF0302B37DD00709689 /* atelier-lakeside-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD19302B36EB00709689 /* atelier-lakeside-dark.css */; };
+		CCECBDF1302B37DD00709689 /* atelier-lakeside-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD1A302B36EB00709689 /* atelier-lakeside-light.css */; };
+		CCECBDF2302B37DD00709689 /* atelier-plateau-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD1B302B36EB00709689 /* atelier-plateau-dark.css */; };
+		CCECBDF3302B37DD00709689 /* atelier-plateau-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD1C302B36EB00709689 /* atelier-plateau-light.css */; };
+		CCECBDF4302B37DD00709689 /* atelier-savanna-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD1D302B36EB00709689 /* atelier-savanna-dark.css */; };
+		CCECBDF5302B37DD00709689 /* atelier-savanna-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD1E302B36EB00709689 /* atelier-savanna-light.css */; };
+		CCECBDF6302B37DD00709689 /* atelier-seaside-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD1F302B36EB00709689 /* atelier-seaside-dark.css */; };
+		CCECBDF7302B37DD00709689 /* atelier-seaside-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD20302B36EB00709689 /* atelier-seaside-light.css */; };
+		CCECBDF8302B37DD00709689 /* atelier-sulphurpool-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD21302B36EB00709689 /* atelier-sulphurpool-dark.css */; };
+		CCECBDF9302B37DD00709689 /* atelier-sulphurpool-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD22302B36EB00709689 /* atelier-sulphurpool-light.css */; };
+		CCECBDFA302B37DD00709689 /* atom-one-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD23302B36EB00709689 /* atom-one-dark.css */; };
+		CCECBDFB302B37DD00709689 /* atom-one-dark-reasonable.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD24302B36EB00709689 /* atom-one-dark-reasonable.css */; };
+		CCECBDFC302B37DD00709689 /* atom-one-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD25302B36EB00709689 /* atom-one-light.css */; };
+		CCECBDFD302B37DD00709689 /* brown-paper.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD26302B36EB00709689 /* brown-paper.css */; };
+		CCECBDFE302B37DD00709689 /* codepen-embed.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD27302B36EB00709689 /* codepen-embed.css */; };
+		CCECBDFF302B37DD00709689 /* color-brewer.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD28302B36EB00709689 /* color-brewer.css */; };
+		CCECBE00302B37DD00709689 /* darcula.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD29302B36EB00709689 /* darcula.css */; };
+		CCECBE01302B37DD00709689 /* dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD2A302B36EB00709689 /* dark.css */; };
+		CCECBE02302B37DD00709689 /* default.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD2B302B36EB00709689 /* default.css */; };
+		CCECBE03302B37DD00709689 /* docco.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD2C302B36EB00709689 /* docco.css */; };
+		CCECBE04302B37DD00709689 /* dracula.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD2D302B36EB00709689 /* dracula.css */; };
+		CCECBE05302B37DD00709689 /* far.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD2E302B36EB00709689 /* far.css */; };
+		CCECBE06302B37DD00709689 /* foundation.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD2F302B36EB00709689 /* foundation.css */; };
+		CCECBE07302B37DD00709689 /* github.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD30302B36EB00709689 /* github.css */; };
+		CCECBE08302B37DD00709689 /* github-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD31302B36EB00709689 /* github-dark.css */; };
+		CCECBE09302B37DD00709689 /* github-gist.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD32302B36EB00709689 /* github-gist.css */; };
+		CCECBE0A302B37DD00709689 /* gml.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD33302B36EB00709689 /* gml.css */; };
+		CCECBE0B302B37DD00709689 /* googlecode.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD34302B36EB00709689 /* googlecode.css */; };
+		CCECBE0C302B37DD00709689 /* gradient-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD35302B36EB00709689 /* gradient-dark.css */; };
+		CCECBE0D302B37DD00709689 /* gradient-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD36302B36EB00709689 /* gradient-light.css */; };
+		CCECBE0E302B37DD00709689 /* grayscale.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD37302B36EB00709689 /* grayscale.css */; };
+		CCECBE0F302B37DD00709689 /* gruvbox-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD38302B36EB00709689 /* gruvbox-dark.css */; };
+		CCECBE10302B37DD00709689 /* gruvbox-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD39302B36EB00709689 /* gruvbox-light.css */; };
+		CCECBE11302B37DD00709689 /* hopscotch.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD3A302B36EB00709689 /* hopscotch.css */; };
+		CCECBE12302B37DD00709689 /* hybrid.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD3B302B36EB00709689 /* hybrid.css */; };
+		CCECBE13302B37DD00709689 /* idea.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD3C302B36EB00709689 /* idea.css */; };
+		CCECBE14302B37DD00709689 /* ir-black.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD3D302B36EB00709689 /* ir-black.css */; };
+		CCECBE15302B37DD00709689 /* isbl-editor-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD3E302B36EB00709689 /* isbl-editor-dark.css */; };
+		CCECBE16302B37DD00709689 /* isbl-editor-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD3F302B36EB00709689 /* isbl-editor-light.css */; };
+		CCECBE17302B37DD00709689 /* kimbie-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD40302B36EB00709689 /* kimbie-dark.css */; };
+		CCECBE18302B37DD00709689 /* kimbie-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD41302B36EB00709689 /* kimbie-light.css */; };
+		CCECBE19302B37DD00709689 /* lightfair.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD42302B36EB00709689 /* lightfair.css */; };
+		CCECBE1A302B37DD00709689 /* lioshi.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD43302B36EB00709689 /* lioshi.css */; };
+		CCECBE1B302B37DD00709689 /* magula.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD44302B36EB00709689 /* magula.css */; };
+		CCECBE1C302B37DD00709689 /* markdownkit.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD45302B36EB00709689 /* markdownkit.css */; };
+		CCECBE1D302B37DD00709689 /* markdownkit-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD46302B36EB00709689 /* markdownkit-dark.css */; };
+		CCECBE1E302B37DD00709689 /* mono-blue.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD47302B36EB00709689 /* mono-blue.css */; };
+		CCECBE1F302B37DD00709689 /* monokai.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD48302B36EB00709689 /* monokai.css */; };
+		CCECBE20302B37DD00709689 /* monokai-sublime.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD49302B36EB00709689 /* monokai-sublime.css */; };
+		CCECBE21302B37DD00709689 /* night-owl.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD4A302B36EB00709689 /* night-owl.css */; };
+		CCECBE22302B37DD00709689 /* nnfx-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD4B302B36EB00709689 /* nnfx-dark.css */; };
+		CCECBE23302B37DD00709689 /* nnfx-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD4C302B36EB00709689 /* nnfx-light.css */; };
+		CCECBE24302B37DD00709689 /* nord.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD4D302B36EB00709689 /* nord.css */; };
+		CCECBE25302B37DD00709689 /* obsidian.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD4E302B36EB00709689 /* obsidian.css */; };
+		CCECBE26302B37DD00709689 /* ocean.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD4F302B36EB00709689 /* ocean.css */; };
+		CCECBE27302B37DD00709689 /* paraiso-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD50302B36EB00709689 /* paraiso-dark.css */; };
+		CCECBE28302B37DD00709689 /* paraiso-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD51302B36EB00709689 /* paraiso-light.css */; };
+		CCECBE29302B37DD00709689 /* pojoaque.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD52302B36EB00709689 /* pojoaque.css */; };
+		CCECBE2A302B37DD00709689 /* purebasic.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD53302B36EB00709689 /* purebasic.css */; };
+		CCECBE2B302B37DD00709689 /* qtcreator_dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD54302B36EB00709689 /* qtcreator_dark.css */; };
+		CCECBE2C302B37DD00709689 /* qtcreator_light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD55302B36EB00709689 /* qtcreator_light.css */; };
+		CCECBE2D302B37DD00709689 /* railscasts.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD56302B36EB00709689 /* railscasts.css */; };
+		CCECBE2E302B37DD00709689 /* rainbow.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD57302B36EB00709689 /* rainbow.css */; };
+		CCECBE2F302B37DD00709689 /* routeros.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD58302B36EB00709689 /* routeros.css */; };
+		CCECBE30302B37DD00709689 /* school-book.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD59302B36EB00709689 /* school-book.css */; };
+		CCECBE31302B37DD00709689 /* shades-of-purple.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD5A302B36EB00709689 /* shades-of-purple.css */; };
+		CCECBE32302B37DD00709689 /* silk-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD5B302B36EB00709689 /* silk-dark.css */; };
+		CCECBE33302B37DD00709689 /* silk-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD5C302B36EB00709689 /* silk-light.css */; };
+		CCECBE34302B37DD00709689 /* snazzy.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD5D302B36EB00709689 /* snazzy.css */; };
+		CCECBE35302B37DD00709689 /* solarized-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD5E302B36EB00709689 /* solarized-dark.css */; };
+		CCECBE36302B37DD00709689 /* solarized-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD5F302B36EB00709689 /* solarized-light.css */; };
+		CCECBE37302B37DD00709689 /* srcery.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD60302B36EB00709689 /* srcery.css */; };
+		CCECBE38302B37DD00709689 /* stackoverflow-dark.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD61302B36EB00709689 /* stackoverflow-dark.css */; };
+		CCECBE39302B37DD00709689 /* stackoverflow-light.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD62302B36EB00709689 /* stackoverflow-light.css */; };
+		CCECBE3A302B37DD00709689 /* sunburst.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD63302B36EB00709689 /* sunburst.css */; };
+		CCECBE3B302B37DD00709689 /* tomorrow.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD64302B36EB00709689 /* tomorrow.css */; };
+		CCECBE3C302B37DD00709689 /* tomorrow-night.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD65302B36EB00709689 /* tomorrow-night.css */; };
+		CCECBE3D302B37DD00709689 /* tomorrow-night-blue.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD66302B36EB00709689 /* tomorrow-night-blue.css */; };
+		CCECBE3E302B37DD00709689 /* tomorrow-night-bright.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD67302B36EB00709689 /* tomorrow-night-bright.css */; };
+		CCECBE3F302B37DD00709689 /* tomorrow-night-eighties.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD68302B36EB00709689 /* tomorrow-night-eighties.css */; };
+		CCECBE40302B37DD00709689 /* vs.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD69302B36EB00709689 /* vs.css */; };
+		CCECBE41302B37DD00709689 /* vs2015.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD6A302B36EB00709689 /* vs2015.css */; };
+		CCECBE42302B37DD00709689 /* vulcan.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD6B302B36EB00709689 /* vulcan.css */; };
+		CCECBE43302B37DD00709689 /* xcode.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD6C302B36EB00709689 /* xcode.css */; };
+		CCECBE44302B37DD00709689 /* xcode-dusk.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD6D302B36EB00709689 /* xcode-dusk.css */; };
+		CCECBE45302B37DD00709689 /* xt256.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD6E302B36EB00709689 /* xt256.css */; };
+		CCECBE46302B37DD00709689 /* zenburn.css in Copy SyntaxHighlighting/Themes */ = {isa = PBXBuildFile; fileRef = CCECBD6F302B36EB00709689 /* zenburn.css */; };
 		CCEEC7B3290DB83700D5BD53 /* DrawMapLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */; };
 		CCEEC7B6290DB93300D5BD53 /* DisplayMap.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */; };
 		CCEF3E2D27CA2D8500FB56EB /* thread-states.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */; };
@@ -299,6 +422,11 @@
 			dstPath = Documentation/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7A991E303D0799007C7347 /* (lispkit draw chart).md in Copy Documentation/Libraries */,
+				CC7A991D303D0791007C7347 /* (lispkit sxml).md in Copy Documentation/Libraries */,
+				CC7A991C303D06FA007C7347 /* (lispkit wt-tree).md in Copy Documentation/Libraries */,
+				CC7A991A303D06F0007C7347 /* (lispkit sxml html).md in Copy Documentation/Libraries */,
+				CC7A991B303D06F0007C7347 /* (lispkit sxml xml).md in Copy Documentation/Libraries */,
 				CCC6B5283027695A00282F28 /* (lispkit draw chart function).md in Copy Documentation/Libraries */,
 				CCC6B5273027694A00282F28 /* (lisppad applet).md in Copy Documentation/Libraries */,
 				CCE4413D2F356C5100266C57 /* (lispkit draw map).md in Copy Documentation/Libraries */,
@@ -494,12 +622,143 @@
 			name = "Copy Documentation/Documents";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCECBDDA302B377800709689 /* Copy SyntaxHighlighting */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = SyntaxHighlighting;
+			dstSubfolderSpec = 7;
+			files = (
+				CCECBDDC302B37A300709689 /* highlight.min.js in Copy SyntaxHighlighting */,
+				CCECBDDB302B379A00709689 /* LICENSE (highlight js) in Copy SyntaxHighlighting */,
+			);
+			name = "Copy SyntaxHighlighting";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCECBDDD302B37B500709689 /* Copy SyntaxHighlighting/Themes */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = SyntaxHighlighting/Themes;
+			dstSubfolderSpec = 7;
+			files = (
+				CCECBDDE302B37DD00709689 /* a11y-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDDF302B37DD00709689 /* a11y-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE0302B37DD00709689 /* agate.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE1302B37DD00709689 /* an-old-hope.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE2302B37DD00709689 /* androidstudio.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE3302B37DD00709689 /* arduino-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE4302B37DD00709689 /* arta.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE5302B37DD00709689 /* ascetic.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE6302B37DD00709689 /* atelier-cave-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE7302B37DD00709689 /* atelier-cave-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE8302B37DD00709689 /* atelier-dune-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDE9302B37DD00709689 /* atelier-dune-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDEA302B37DD00709689 /* atelier-estuary-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDEB302B37DD00709689 /* atelier-estuary-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDEC302B37DD00709689 /* atelier-forest-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDED302B37DD00709689 /* atelier-forest-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDEE302B37DD00709689 /* atelier-heath-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDEF302B37DD00709689 /* atelier-heath-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF0302B37DD00709689 /* atelier-lakeside-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF1302B37DD00709689 /* atelier-lakeside-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF2302B37DD00709689 /* atelier-plateau-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF3302B37DD00709689 /* atelier-plateau-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF4302B37DD00709689 /* atelier-savanna-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF5302B37DD00709689 /* atelier-savanna-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF6302B37DD00709689 /* atelier-seaside-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF7302B37DD00709689 /* atelier-seaside-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF8302B37DD00709689 /* atelier-sulphurpool-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDF9302B37DD00709689 /* atelier-sulphurpool-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDFA302B37DD00709689 /* atom-one-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDFB302B37DD00709689 /* atom-one-dark-reasonable.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDFC302B37DD00709689 /* atom-one-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDFD302B37DD00709689 /* brown-paper.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDFE302B37DD00709689 /* codepen-embed.css in Copy SyntaxHighlighting/Themes */,
+				CCECBDFF302B37DD00709689 /* color-brewer.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE00302B37DD00709689 /* darcula.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE01302B37DD00709689 /* dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE02302B37DD00709689 /* default.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE03302B37DD00709689 /* docco.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE04302B37DD00709689 /* dracula.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE05302B37DD00709689 /* far.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE06302B37DD00709689 /* foundation.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE07302B37DD00709689 /* github.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE08302B37DD00709689 /* github-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE09302B37DD00709689 /* github-gist.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE0A302B37DD00709689 /* gml.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE0B302B37DD00709689 /* googlecode.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE0C302B37DD00709689 /* gradient-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE0D302B37DD00709689 /* gradient-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE0E302B37DD00709689 /* grayscale.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE0F302B37DD00709689 /* gruvbox-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE10302B37DD00709689 /* gruvbox-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE11302B37DD00709689 /* hopscotch.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE12302B37DD00709689 /* hybrid.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE13302B37DD00709689 /* idea.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE14302B37DD00709689 /* ir-black.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE15302B37DD00709689 /* isbl-editor-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE16302B37DD00709689 /* isbl-editor-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE17302B37DD00709689 /* kimbie-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE18302B37DD00709689 /* kimbie-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE19302B37DD00709689 /* lightfair.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE1A302B37DD00709689 /* lioshi.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE1B302B37DD00709689 /* magula.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE1C302B37DD00709689 /* markdownkit.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE1D302B37DD00709689 /* markdownkit-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE1E302B37DD00709689 /* mono-blue.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE1F302B37DD00709689 /* monokai.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE20302B37DD00709689 /* monokai-sublime.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE21302B37DD00709689 /* night-owl.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE22302B37DD00709689 /* nnfx-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE23302B37DD00709689 /* nnfx-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE24302B37DD00709689 /* nord.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE25302B37DD00709689 /* obsidian.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE26302B37DD00709689 /* ocean.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE27302B37DD00709689 /* paraiso-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE28302B37DD00709689 /* paraiso-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE29302B37DD00709689 /* pojoaque.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE2A302B37DD00709689 /* purebasic.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE2B302B37DD00709689 /* qtcreator_dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE2C302B37DD00709689 /* qtcreator_light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE2D302B37DD00709689 /* railscasts.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE2E302B37DD00709689 /* rainbow.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE2F302B37DD00709689 /* routeros.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE30302B37DD00709689 /* school-book.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE31302B37DD00709689 /* shades-of-purple.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE32302B37DD00709689 /* silk-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE33302B37DD00709689 /* silk-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE34302B37DD00709689 /* snazzy.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE35302B37DD00709689 /* solarized-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE36302B37DD00709689 /* solarized-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE37302B37DD00709689 /* srcery.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE38302B37DD00709689 /* stackoverflow-dark.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE39302B37DD00709689 /* stackoverflow-light.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE3A302B37DD00709689 /* sunburst.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE3B302B37DD00709689 /* tomorrow.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE3C302B37DD00709689 /* tomorrow-night.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE3D302B37DD00709689 /* tomorrow-night-blue.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE3E302B37DD00709689 /* tomorrow-night-bright.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE3F302B37DD00709689 /* tomorrow-night-eighties.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE40302B37DD00709689 /* vs.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE41302B37DD00709689 /* vs2015.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE42302B37DD00709689 /* vulcan.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE43302B37DD00709689 /* xcode.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE44302B37DD00709689 /* xcode-dusk.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE45302B37DD00709689 /* xt256.css in Copy SyntaxHighlighting/Themes */,
+				CCECBE46302B37DD00709689 /* zenburn.css in Copy SyntaxHighlighting/Themes */,
+			);
+			name = "Copy SyntaxHighlighting/Themes";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCEF3E2C27CA2D4A00FB56EB /* Copy Documentation/Libraries/images */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = Documentation/Libraries/images;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC6B531302776DC00282F28 /* applet-program-model.png in Copy Documentation/Libraries/images */,
+				CCC6B532302776DC00282F28 /* intent-source-selection.png in Copy Documentation/Libraries/images */,
+				CCC6B533302776DC00282F28 /* program-intent.png in Copy Documentation/Libraries/images */,
+				CCC6B534302776DC00282F28 /* other-intents.png in Copy Documentation/Libraries/images */,
 				CCE80A472CF001A7008C63A2 /* oauth2flow.png in Copy Documentation/Libraries/images */,
 				CCE80A462CF0019C008C63A2 /* pdf417.png in Copy Documentation/Libraries/images */,
 				CCE80A452CF00192008C63A2 /* aztec.png in Copy Documentation/Libraries/images */,
@@ -578,6 +837,11 @@
 		CC7A558E2997D3000014D600 /* (lispkit graph).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit graph).md"; sourceTree = "<group>"; };
 		CC7A55902997D4E60014D600 /* sample-graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sample-graph.png"; sourceTree = "<group>"; };
 		CC7A62BD275D375C009F72E4 /* Console.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Console.swift; sourceTree = "<group>"; };
+		CC7A990E303D0396007C7347 /* (lispkit sxml).md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "(lispkit sxml).md"; sourceTree = "<group>"; };
+		CC7A9910303D03DE007C7347 /* (lispkit sxml xml).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit sxml xml).md"; sourceTree = "<group>"; };
+		CC7A9912303D0421007C7347 /* (lispkit sxml html).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit sxml html).md"; sourceTree = "<group>"; };
+		CC7A9914303D047C007C7347 /* (lispkit draw chart).md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "(lispkit draw chart).md"; sourceTree = "<group>"; };
+		CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit wt-tree).md"; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
 		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
@@ -693,6 +957,10 @@
 		CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad turtle).md"; sourceTree = "<group>"; };
 		CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart function).md"; sourceTree = "<group>"; };
 		CCC6B5253027663A00282F28 /* (lisppad applet).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad applet).md"; sourceTree = "<group>"; };
+		CCC6B5293027761B00282F28 /* applet-program-model.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "applet-program-model.png"; sourceTree = "<group>"; };
+		CCC6B52B3027766500282F28 /* intent-source-selection.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "intent-source-selection.png"; sourceTree = "<group>"; };
+		CCC6B52D3027768000282F28 /* program-intent.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "program-intent.png"; sourceTree = "<group>"; };
+		CCC6B52F3027769700282F28 /* other-intents.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "other-intents.png"; sourceTree = "<group>"; };
 		CCC856372615DC4A0080B96E /* Organizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Organizer.swift; sourceTree = "<group>"; };
 		CCC8563A2616778D0080B96E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		CCC8563C261767660080B96E /* FileHierarchyBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHierarchyBrowser.swift; sourceTree = "<group>"; };
@@ -761,6 +1029,113 @@
 		CCEA5A272643D42300D78C62 /* ScreenShot_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_menu.png; sourceTree = "<group>"; };
 		CCEA5A282643D42300D78C62 /* ScreenShot_prefs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ScreenShot_prefs.png; sourceTree = "<group>"; };
 		CCEA5A302643D62C00D78C62 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
+		CCECBD03302B36D200709689 /* highlight.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = highlight.min.js; sourceTree = "<group>"; };
+		CCECBD05302B36DE00709689 /* LICENSE (highlight js) */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LICENSE (highlight js)"; sourceTree = "<group>"; };
+		CCECBD07302B36EB00709689 /* a11y-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "a11y-dark.css"; sourceTree = "<group>"; };
+		CCECBD08302B36EB00709689 /* a11y-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "a11y-light.css"; sourceTree = "<group>"; };
+		CCECBD09302B36EB00709689 /* agate.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = agate.css; sourceTree = "<group>"; };
+		CCECBD0A302B36EB00709689 /* an-old-hope.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "an-old-hope.css"; sourceTree = "<group>"; };
+		CCECBD0B302B36EB00709689 /* androidstudio.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = androidstudio.css; sourceTree = "<group>"; };
+		CCECBD0C302B36EB00709689 /* arduino-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "arduino-light.css"; sourceTree = "<group>"; };
+		CCECBD0D302B36EB00709689 /* arta.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = arta.css; sourceTree = "<group>"; };
+		CCECBD0E302B36EB00709689 /* ascetic.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = ascetic.css; sourceTree = "<group>"; };
+		CCECBD0F302B36EB00709689 /* atelier-cave-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-cave-dark.css"; sourceTree = "<group>"; };
+		CCECBD10302B36EB00709689 /* atelier-cave-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-cave-light.css"; sourceTree = "<group>"; };
+		CCECBD11302B36EB00709689 /* atelier-dune-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-dune-dark.css"; sourceTree = "<group>"; };
+		CCECBD12302B36EB00709689 /* atelier-dune-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-dune-light.css"; sourceTree = "<group>"; };
+		CCECBD13302B36EB00709689 /* atelier-estuary-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-estuary-dark.css"; sourceTree = "<group>"; };
+		CCECBD14302B36EB00709689 /* atelier-estuary-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-estuary-light.css"; sourceTree = "<group>"; };
+		CCECBD15302B36EB00709689 /* atelier-forest-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-forest-dark.css"; sourceTree = "<group>"; };
+		CCECBD16302B36EB00709689 /* atelier-forest-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-forest-light.css"; sourceTree = "<group>"; };
+		CCECBD17302B36EB00709689 /* atelier-heath-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-heath-dark.css"; sourceTree = "<group>"; };
+		CCECBD18302B36EB00709689 /* atelier-heath-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-heath-light.css"; sourceTree = "<group>"; };
+		CCECBD19302B36EB00709689 /* atelier-lakeside-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-lakeside-dark.css"; sourceTree = "<group>"; };
+		CCECBD1A302B36EB00709689 /* atelier-lakeside-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-lakeside-light.css"; sourceTree = "<group>"; };
+		CCECBD1B302B36EB00709689 /* atelier-plateau-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-plateau-dark.css"; sourceTree = "<group>"; };
+		CCECBD1C302B36EB00709689 /* atelier-plateau-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-plateau-light.css"; sourceTree = "<group>"; };
+		CCECBD1D302B36EB00709689 /* atelier-savanna-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-savanna-dark.css"; sourceTree = "<group>"; };
+		CCECBD1E302B36EB00709689 /* atelier-savanna-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-savanna-light.css"; sourceTree = "<group>"; };
+		CCECBD1F302B36EB00709689 /* atelier-seaside-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-seaside-dark.css"; sourceTree = "<group>"; };
+		CCECBD20302B36EB00709689 /* atelier-seaside-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-seaside-light.css"; sourceTree = "<group>"; };
+		CCECBD21302B36EB00709689 /* atelier-sulphurpool-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-sulphurpool-dark.css"; sourceTree = "<group>"; };
+		CCECBD22302B36EB00709689 /* atelier-sulphurpool-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-sulphurpool-light.css"; sourceTree = "<group>"; };
+		CCECBD23302B36EB00709689 /* atom-one-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atom-one-dark.css"; sourceTree = "<group>"; };
+		CCECBD24302B36EB00709689 /* atom-one-dark-reasonable.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atom-one-dark-reasonable.css"; sourceTree = "<group>"; };
+		CCECBD25302B36EB00709689 /* atom-one-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atom-one-light.css"; sourceTree = "<group>"; };
+		CCECBD26302B36EB00709689 /* brown-paper.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "brown-paper.css"; sourceTree = "<group>"; };
+		CCECBD27302B36EB00709689 /* codepen-embed.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "codepen-embed.css"; sourceTree = "<group>"; };
+		CCECBD28302B36EB00709689 /* color-brewer.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "color-brewer.css"; sourceTree = "<group>"; };
+		CCECBD29302B36EB00709689 /* darcula.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = darcula.css; sourceTree = "<group>"; };
+		CCECBD2A302B36EB00709689 /* dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = dark.css; sourceTree = "<group>"; };
+		CCECBD2B302B36EB00709689 /* default.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = default.css; sourceTree = "<group>"; };
+		CCECBD2C302B36EB00709689 /* docco.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = docco.css; sourceTree = "<group>"; };
+		CCECBD2D302B36EB00709689 /* dracula.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = dracula.css; sourceTree = "<group>"; };
+		CCECBD2E302B36EB00709689 /* far.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = far.css; sourceTree = "<group>"; };
+		CCECBD2F302B36EB00709689 /* foundation.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = foundation.css; sourceTree = "<group>"; };
+		CCECBD30302B36EB00709689 /* github.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = github.css; sourceTree = "<group>"; };
+		CCECBD31302B36EB00709689 /* github-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "github-dark.css"; sourceTree = "<group>"; };
+		CCECBD32302B36EB00709689 /* github-gist.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "github-gist.css"; sourceTree = "<group>"; };
+		CCECBD33302B36EB00709689 /* gml.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = gml.css; sourceTree = "<group>"; };
+		CCECBD34302B36EB00709689 /* googlecode.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = googlecode.css; sourceTree = "<group>"; };
+		CCECBD35302B36EB00709689 /* gradient-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gradient-dark.css"; sourceTree = "<group>"; };
+		CCECBD36302B36EB00709689 /* gradient-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gradient-light.css"; sourceTree = "<group>"; };
+		CCECBD37302B36EB00709689 /* grayscale.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = grayscale.css; sourceTree = "<group>"; };
+		CCECBD38302B36EB00709689 /* gruvbox-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gruvbox-dark.css"; sourceTree = "<group>"; };
+		CCECBD39302B36EB00709689 /* gruvbox-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gruvbox-light.css"; sourceTree = "<group>"; };
+		CCECBD3A302B36EB00709689 /* hopscotch.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = hopscotch.css; sourceTree = "<group>"; };
+		CCECBD3B302B36EB00709689 /* hybrid.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = hybrid.css; sourceTree = "<group>"; };
+		CCECBD3C302B36EB00709689 /* idea.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = idea.css; sourceTree = "<group>"; };
+		CCECBD3D302B36EB00709689 /* ir-black.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "ir-black.css"; sourceTree = "<group>"; };
+		CCECBD3E302B36EB00709689 /* isbl-editor-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "isbl-editor-dark.css"; sourceTree = "<group>"; };
+		CCECBD3F302B36EB00709689 /* isbl-editor-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "isbl-editor-light.css"; sourceTree = "<group>"; };
+		CCECBD40302B36EB00709689 /* kimbie-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "kimbie-dark.css"; sourceTree = "<group>"; };
+		CCECBD41302B36EB00709689 /* kimbie-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "kimbie-light.css"; sourceTree = "<group>"; };
+		CCECBD42302B36EB00709689 /* lightfair.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = lightfair.css; sourceTree = "<group>"; };
+		CCECBD43302B36EB00709689 /* lioshi.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = lioshi.css; sourceTree = "<group>"; };
+		CCECBD44302B36EB00709689 /* magula.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = magula.css; sourceTree = "<group>"; };
+		CCECBD45302B36EB00709689 /* markdownkit.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = markdownkit.css; sourceTree = "<group>"; };
+		CCECBD46302B36EB00709689 /* markdownkit-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "markdownkit-dark.css"; sourceTree = "<group>"; };
+		CCECBD47302B36EB00709689 /* mono-blue.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "mono-blue.css"; sourceTree = "<group>"; };
+		CCECBD48302B36EB00709689 /* monokai.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = monokai.css; sourceTree = "<group>"; };
+		CCECBD49302B36EB00709689 /* monokai-sublime.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "monokai-sublime.css"; sourceTree = "<group>"; };
+		CCECBD4A302B36EB00709689 /* night-owl.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "night-owl.css"; sourceTree = "<group>"; };
+		CCECBD4B302B36EB00709689 /* nnfx-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "nnfx-dark.css"; sourceTree = "<group>"; };
+		CCECBD4C302B36EB00709689 /* nnfx-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "nnfx-light.css"; sourceTree = "<group>"; };
+		CCECBD4D302B36EB00709689 /* nord.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = nord.css; sourceTree = "<group>"; };
+		CCECBD4E302B36EB00709689 /* obsidian.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = obsidian.css; sourceTree = "<group>"; };
+		CCECBD4F302B36EB00709689 /* ocean.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = ocean.css; sourceTree = "<group>"; };
+		CCECBD50302B36EB00709689 /* paraiso-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "paraiso-dark.css"; sourceTree = "<group>"; };
+		CCECBD51302B36EB00709689 /* paraiso-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "paraiso-light.css"; sourceTree = "<group>"; };
+		CCECBD52302B36EB00709689 /* pojoaque.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = pojoaque.css; sourceTree = "<group>"; };
+		CCECBD53302B36EB00709689 /* purebasic.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = purebasic.css; sourceTree = "<group>"; };
+		CCECBD54302B36EB00709689 /* qtcreator_dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = qtcreator_dark.css; sourceTree = "<group>"; };
+		CCECBD55302B36EB00709689 /* qtcreator_light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = qtcreator_light.css; sourceTree = "<group>"; };
+		CCECBD56302B36EB00709689 /* railscasts.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = railscasts.css; sourceTree = "<group>"; };
+		CCECBD57302B36EB00709689 /* rainbow.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = rainbow.css; sourceTree = "<group>"; };
+		CCECBD58302B36EB00709689 /* routeros.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = routeros.css; sourceTree = "<group>"; };
+		CCECBD59302B36EB00709689 /* school-book.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "school-book.css"; sourceTree = "<group>"; };
+		CCECBD5A302B36EB00709689 /* shades-of-purple.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "shades-of-purple.css"; sourceTree = "<group>"; };
+		CCECBD5B302B36EB00709689 /* silk-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "silk-dark.css"; sourceTree = "<group>"; };
+		CCECBD5C302B36EB00709689 /* silk-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "silk-light.css"; sourceTree = "<group>"; };
+		CCECBD5D302B36EB00709689 /* snazzy.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = snazzy.css; sourceTree = "<group>"; };
+		CCECBD5E302B36EB00709689 /* solarized-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "solarized-dark.css"; sourceTree = "<group>"; };
+		CCECBD5F302B36EB00709689 /* solarized-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "solarized-light.css"; sourceTree = "<group>"; };
+		CCECBD60302B36EB00709689 /* srcery.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = srcery.css; sourceTree = "<group>"; };
+		CCECBD61302B36EB00709689 /* stackoverflow-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "stackoverflow-dark.css"; sourceTree = "<group>"; };
+		CCECBD62302B36EB00709689 /* stackoverflow-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "stackoverflow-light.css"; sourceTree = "<group>"; };
+		CCECBD63302B36EB00709689 /* sunburst.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = sunburst.css; sourceTree = "<group>"; };
+		CCECBD64302B36EB00709689 /* tomorrow.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = tomorrow.css; sourceTree = "<group>"; };
+		CCECBD65302B36EB00709689 /* tomorrow-night.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night.css"; sourceTree = "<group>"; };
+		CCECBD66302B36EB00709689 /* tomorrow-night-blue.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night-blue.css"; sourceTree = "<group>"; };
+		CCECBD67302B36EB00709689 /* tomorrow-night-bright.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night-bright.css"; sourceTree = "<group>"; };
+		CCECBD68302B36EB00709689 /* tomorrow-night-eighties.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night-eighties.css"; sourceTree = "<group>"; };
+		CCECBD69302B36EB00709689 /* vs.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = vs.css; sourceTree = "<group>"; };
+		CCECBD6A302B36EB00709689 /* vs2015.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = vs2015.css; sourceTree = "<group>"; };
+		CCECBD6B302B36EB00709689 /* vulcan.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = vulcan.css; sourceTree = "<group>"; };
+		CCECBD6C302B36EB00709689 /* xcode.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xcode.css; sourceTree = "<group>"; };
+		CCECBD6D302B36EB00709689 /* xcode-dusk.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "xcode-dusk.css"; sourceTree = "<group>"; };
+		CCECBD6E302B36EB00709689 /* xt256.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xt256.css; sourceTree = "<group>"; };
+		CCECBD6F302B36EB00709689 /* zenburn.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = zenburn.css; sourceTree = "<group>"; };
 		CCEEC7B2290DB83700D5BD53 /* DrawMapLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawMapLibrary.swift; sourceTree = "<group>"; };
 		CCEEC7B4290DB8C800D5BD53 /* DisplayMap.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMap.scm; sourceTree = "<group>"; };
 		CCEF3E2927CA2BEB00FB56EB /* (lispkit thread).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit thread).md"; sourceTree = "<group>"; };
@@ -954,6 +1329,7 @@
 			children = (
 				CC8B95AA2607FBB400830B4F /* Root */,
 				CC8B952026079F0700830B4F /* Documentation */,
+				CCECBD02302B369100709689 /* SyntaxHighlighting */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -997,6 +1373,7 @@
 				CC8B954F26079FBA00830B4F /* (lispkit disjoint-set).md */,
 				CC8B952B26079FBA00830B4F /* (lispkit draw).md */,
 				CCE80A1A2CEFF321008C63A2 /* (lispkit draw barcode).md */,
+				CC7A9914303D047C007C7347 /* (lispkit draw chart).md */,
 				CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */,
 				CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */,
 				CCE441312F35602900266C57 /* (lispkit draw map).md */,
@@ -1041,6 +1418,9 @@
 				CC8B953026079FBA00830B4F /* (lispkit stream).md */,
 				CC8B954826079FBA00830B4F /* (lispkit string).md */,
 				CCA9E3D228A9283300628DE5 /* (lispkit styled-text).md */,
+				CC7A990E303D0396007C7347 /* (lispkit sxml).md */,
+				CC7A9912303D0421007C7347 /* (lispkit sxml html).md */,
+				CC7A9910303D03DE007C7347 /* (lispkit sxml xml).md */,
 				CC8B953726079FBA00830B4F /* (lispkit system).md */,
 				CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */,
 				CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */,
@@ -1054,6 +1434,7 @@
 				CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */,
 				CC8B953826079FBA00830B4F /* (lispkit vector).md */,
 				CCE441392F3564FE00266C57 /* (lispkit vision).md */,
+				CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */,
 				CCEF3E2B27CA2D1A00FB56EB /* images */,
 			);
 			path = Libraries;
@@ -1283,6 +1664,128 @@
 			path = Documents;
 			sourceTree = "<group>";
 		};
+		CCECBD02302B369100709689 /* SyntaxHighlighting */ = {
+			isa = PBXGroup;
+			children = (
+				CCECBD03302B36D200709689 /* highlight.min.js */,
+				CCECBD05302B36DE00709689 /* LICENSE (highlight js) */,
+				CCECBD70302B36EB00709689 /* Themes */,
+			);
+			path = SyntaxHighlighting;
+			sourceTree = "<group>";
+		};
+		CCECBD70302B36EB00709689 /* Themes */ = {
+			isa = PBXGroup;
+			children = (
+				CCECBD07302B36EB00709689 /* a11y-dark.css */,
+				CCECBD08302B36EB00709689 /* a11y-light.css */,
+				CCECBD09302B36EB00709689 /* agate.css */,
+				CCECBD0A302B36EB00709689 /* an-old-hope.css */,
+				CCECBD0B302B36EB00709689 /* androidstudio.css */,
+				CCECBD0C302B36EB00709689 /* arduino-light.css */,
+				CCECBD0D302B36EB00709689 /* arta.css */,
+				CCECBD0E302B36EB00709689 /* ascetic.css */,
+				CCECBD0F302B36EB00709689 /* atelier-cave-dark.css */,
+				CCECBD10302B36EB00709689 /* atelier-cave-light.css */,
+				CCECBD11302B36EB00709689 /* atelier-dune-dark.css */,
+				CCECBD12302B36EB00709689 /* atelier-dune-light.css */,
+				CCECBD13302B36EB00709689 /* atelier-estuary-dark.css */,
+				CCECBD14302B36EB00709689 /* atelier-estuary-light.css */,
+				CCECBD15302B36EB00709689 /* atelier-forest-dark.css */,
+				CCECBD16302B36EB00709689 /* atelier-forest-light.css */,
+				CCECBD17302B36EB00709689 /* atelier-heath-dark.css */,
+				CCECBD18302B36EB00709689 /* atelier-heath-light.css */,
+				CCECBD19302B36EB00709689 /* atelier-lakeside-dark.css */,
+				CCECBD1A302B36EB00709689 /* atelier-lakeside-light.css */,
+				CCECBD1B302B36EB00709689 /* atelier-plateau-dark.css */,
+				CCECBD1C302B36EB00709689 /* atelier-plateau-light.css */,
+				CCECBD1D302B36EB00709689 /* atelier-savanna-dark.css */,
+				CCECBD1E302B36EB00709689 /* atelier-savanna-light.css */,
+				CCECBD1F302B36EB00709689 /* atelier-seaside-dark.css */,
+				CCECBD20302B36EB00709689 /* atelier-seaside-light.css */,
+				CCECBD21302B36EB00709689 /* atelier-sulphurpool-dark.css */,
+				CCECBD22302B36EB00709689 /* atelier-sulphurpool-light.css */,
+				CCECBD23302B36EB00709689 /* atom-one-dark.css */,
+				CCECBD24302B36EB00709689 /* atom-one-dark-reasonable.css */,
+				CCECBD25302B36EB00709689 /* atom-one-light.css */,
+				CCECBD26302B36EB00709689 /* brown-paper.css */,
+				CCECBD27302B36EB00709689 /* codepen-embed.css */,
+				CCECBD28302B36EB00709689 /* color-brewer.css */,
+				CCECBD29302B36EB00709689 /* darcula.css */,
+				CCECBD2A302B36EB00709689 /* dark.css */,
+				CCECBD2B302B36EB00709689 /* default.css */,
+				CCECBD2C302B36EB00709689 /* docco.css */,
+				CCECBD2D302B36EB00709689 /* dracula.css */,
+				CCECBD2E302B36EB00709689 /* far.css */,
+				CCECBD2F302B36EB00709689 /* foundation.css */,
+				CCECBD30302B36EB00709689 /* github.css */,
+				CCECBD31302B36EB00709689 /* github-dark.css */,
+				CCECBD32302B36EB00709689 /* github-gist.css */,
+				CCECBD33302B36EB00709689 /* gml.css */,
+				CCECBD34302B36EB00709689 /* googlecode.css */,
+				CCECBD35302B36EB00709689 /* gradient-dark.css */,
+				CCECBD36302B36EB00709689 /* gradient-light.css */,
+				CCECBD37302B36EB00709689 /* grayscale.css */,
+				CCECBD38302B36EB00709689 /* gruvbox-dark.css */,
+				CCECBD39302B36EB00709689 /* gruvbox-light.css */,
+				CCECBD3A302B36EB00709689 /* hopscotch.css */,
+				CCECBD3B302B36EB00709689 /* hybrid.css */,
+				CCECBD3C302B36EB00709689 /* idea.css */,
+				CCECBD3D302B36EB00709689 /* ir-black.css */,
+				CCECBD3E302B36EB00709689 /* isbl-editor-dark.css */,
+				CCECBD3F302B36EB00709689 /* isbl-editor-light.css */,
+				CCECBD40302B36EB00709689 /* kimbie-dark.css */,
+				CCECBD41302B36EB00709689 /* kimbie-light.css */,
+				CCECBD42302B36EB00709689 /* lightfair.css */,
+				CCECBD43302B36EB00709689 /* lioshi.css */,
+				CCECBD44302B36EB00709689 /* magula.css */,
+				CCECBD45302B36EB00709689 /* markdownkit.css */,
+				CCECBD46302B36EB00709689 /* markdownkit-dark.css */,
+				CCECBD47302B36EB00709689 /* mono-blue.css */,
+				CCECBD48302B36EB00709689 /* monokai.css */,
+				CCECBD49302B36EB00709689 /* monokai-sublime.css */,
+				CCECBD4A302B36EB00709689 /* night-owl.css */,
+				CCECBD4B302B36EB00709689 /* nnfx-dark.css */,
+				CCECBD4C302B36EB00709689 /* nnfx-light.css */,
+				CCECBD4D302B36EB00709689 /* nord.css */,
+				CCECBD4E302B36EB00709689 /* obsidian.css */,
+				CCECBD4F302B36EB00709689 /* ocean.css */,
+				CCECBD50302B36EB00709689 /* paraiso-dark.css */,
+				CCECBD51302B36EB00709689 /* paraiso-light.css */,
+				CCECBD52302B36EB00709689 /* pojoaque.css */,
+				CCECBD53302B36EB00709689 /* purebasic.css */,
+				CCECBD54302B36EB00709689 /* qtcreator_dark.css */,
+				CCECBD55302B36EB00709689 /* qtcreator_light.css */,
+				CCECBD56302B36EB00709689 /* railscasts.css */,
+				CCECBD57302B36EB00709689 /* rainbow.css */,
+				CCECBD58302B36EB00709689 /* routeros.css */,
+				CCECBD59302B36EB00709689 /* school-book.css */,
+				CCECBD5A302B36EB00709689 /* shades-of-purple.css */,
+				CCECBD5B302B36EB00709689 /* silk-dark.css */,
+				CCECBD5C302B36EB00709689 /* silk-light.css */,
+				CCECBD5D302B36EB00709689 /* snazzy.css */,
+				CCECBD5E302B36EB00709689 /* solarized-dark.css */,
+				CCECBD5F302B36EB00709689 /* solarized-light.css */,
+				CCECBD60302B36EB00709689 /* srcery.css */,
+				CCECBD61302B36EB00709689 /* stackoverflow-dark.css */,
+				CCECBD62302B36EB00709689 /* stackoverflow-light.css */,
+				CCECBD63302B36EB00709689 /* sunburst.css */,
+				CCECBD64302B36EB00709689 /* tomorrow.css */,
+				CCECBD65302B36EB00709689 /* tomorrow-night.css */,
+				CCECBD66302B36EB00709689 /* tomorrow-night-blue.css */,
+				CCECBD67302B36EB00709689 /* tomorrow-night-bright.css */,
+				CCECBD68302B36EB00709689 /* tomorrow-night-eighties.css */,
+				CCECBD69302B36EB00709689 /* vs.css */,
+				CCECBD6A302B36EB00709689 /* vs2015.css */,
+				CCECBD6B302B36EB00709689 /* vulcan.css */,
+				CCECBD6C302B36EB00709689 /* xcode.css */,
+				CCECBD6D302B36EB00709689 /* xcode-dusk.css */,
+				CCECBD6E302B36EB00709689 /* xt256.css */,
+				CCECBD6F302B36EB00709689 /* zenburn.css */,
+			);
+			path = Themes;
+			sourceTree = "<group>";
+		};
 		CCEF3E2B27CA2D1A00FB56EB /* images */ = {
 			isa = PBXGroup;
 			children = (
@@ -1295,6 +1798,10 @@
 				CC7A55902997D4E60014D600 /* sample-graph.png */,
 				CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */,
 				CCA9E3D028A9270500628DE5 /* bar-chart-params.png */,
+				CCC6B5293027761B00282F28 /* applet-program-model.png */,
+				CCC6B52B3027766500282F28 /* intent-source-selection.png */,
+				CCC6B52D3027768000282F28 /* program-intent.png */,
+				CCC6B52F3027769700282F28 /* other-intents.png */,
 			);
 			path = images;
 			sourceTree = "<group>";
@@ -1375,6 +1882,8 @@
 				CC8B95C626080F8B00830B4F /* Copy Root/Assets/Documents */,
 				CC6598D72725856E004C9B89 /* Copy Root/Libraries/lispkit */,
 				CC6598D9272585A8004C9B89 /* Copy Root/Libraries/lisppad */,
+				CCECBDDA302B377800709689 /* Copy SyntaxHighlighting */,
+				CCECBDDD302B37B500709689 /* Copy SyntaxHighlighting/Themes */,
 			);
 			buildRules = (
 			);
@@ -1431,7 +1940,11 @@
 			files = (
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
+				CC7A9911303D03E7007C7347 /* (lispkit sxml xml).md in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
+				CCC6B52C3027766500282F28 /* intent-source-selection.png in Resources */,
+				CCC6B5303027769700282F28 /* other-intents.png in Resources */,
+				CC7A9917303D04D6007C7347 /* (lispkit wt-tree).md in Resources */,
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
 				CCF1AEBC2EA062A300F1D5E6 /* LispPadIcon.icon in Resources */,
 				CCE80A3F2CF00062008C63A2 /* url.png in Resources */,
@@ -1446,9 +1959,12 @@
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */,
 				CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */,
+				CC7A9913303D042C007C7347 /* (lispkit sxml html).md in Resources */,
 				CCC6B5243027657800282F28 /* (lispkit draw chart function).md in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
+				CCC6B52A3027761B00282F28 /* applet-program-model.png in Resources */,
+				CCC6B52E3027768000282F28 /* program-intent.png in Resources */,
 				CC894F0E2CC300BD00896B1D /* Inconsolata-Regular.ttf in Resources */,
 				CC894F0F2CC300C000896B1D /* RobotoMono-Regular.ttf in Resources */,
 				CCE80A392CF0004B008C63A2 /* aztec.png in Resources */,
@@ -1713,7 +2229,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 122;
+				CURRENT_PROJECT_VERSION = 123;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
@@ -1742,7 +2258,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 122;
+				CURRENT_PROJECT_VERSION = 123;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;

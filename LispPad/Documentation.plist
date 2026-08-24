@@ -56,6 +56,8 @@
 		<string>(lispkit draw).md</string>
 		<key>lispkit draw barcode</key>
 		<string>(lispkit draw barcode).md</string>
+		<key>lispkit draw chart</key>
+		<string>(lispkit draw chart).md</string>
 		<key>lispkit draw chart bar</key>
 		<string>(lispkit draw chart bar).md</string>
 		<key>lispkit draw chart function</key>
@@ -144,6 +146,12 @@
 		<string>(lispkit string).md</string>
 		<key>lispkit styled-text</key>
 		<string>(lispkit styled-text).md</string>
+		<key>lispkit sxml</key>
+		<string>(lispkit sxml).md</string>
+		<key>lispkit sxml html</key>
+		<string>(lispkit sxml html).md</string>
+		<key>lispkit sxml xml</key>
+		<string>(lispkit sxml xml).md</string>
 		<key>lispkit system</key>
 		<string>(lispkit system).md</string>
 		<key>lispkit system keychain</key>
@@ -170,6 +178,8 @@
 		<string>(lispkit vector).md</string>
 		<key>lispkit vision</key>
 		<string>(lispkit vision).md</string>
+		<key>lispkit wt-tree</key>
+		<string>(lispkit wt-tree).md</string>
 	</dict>
 	<key>web</key>
 	<dict>

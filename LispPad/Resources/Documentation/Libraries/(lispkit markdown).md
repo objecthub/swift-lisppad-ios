@@ -90,7 +90,7 @@ For instance, `(markdown "# My title\n\nThis is a paragraph.")` returns a markdo
 
 ```scheme
 (markdown "# My title\n\nThis is a paragraph.")
-⟹ #block:(document (#block:(heading 1 (#inline:(text "My title"))) #block:(paragraph (#inline:(text "This is a paragraph.")))))
+⇒  #block:(document (#block:(heading 1 (#inline:(text "My title"))) #block:(paragraph (#inline:(text "This is a paragraph.")))))
 ```
 
 The same document can be created programmatically in the following way:
@@ -100,7 +100,7 @@ The same document can be created programmatically in the following way:
   (list
     (heading 1 (list (text "My title")))
     (paragraph (list (text "This is a paragraph.")))))
-⟹ #block:(document (#block:(heading 1 (#inline:(text "My title"))) #block:(paragraph (#inline:(text "This is a paragraph.")))))
+⇒  #block:(document (#block:(heading 1 (#inline:(text "My title"))) #block:(paragraph (#inline:(text "This is a paragraph.")))))
 ```
 
 ## Processing Markdown documents
@@ -134,7 +134,7 @@ is shown here:
 
 ```scheme
 (top-headings (markdown "# *header* 1\nParagraph.\n# __header__ 2\n## header 3\nThe end."))
-⟹  ("header 1" "header 2")
+⇒  ("header 1" "header 2")
 ```
 
 ## API
@@ -294,3 +294,42 @@ Converts given inline text _text_ into raw text, a string representation ignorin
 **(text-\>string _text_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Converts given inline text _text_ into a string representation which encodes markup in _text_ using Markdown syntax. _text_ needs to satisfy the _markdown-text?_ predicate.
+
+**(syntax-highlighting-theme _name-or-spec_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns the CSS associated with the theme _name-or-spec_. _name-or-spec_ is a string that either refers to the name of the theme, or it is the CSS directly. This makes it possible to use dynamically created CSS code for highlighting purposes.
+
+**(syntax-highlighting-themes)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns a list of syntax highlighting theme names that can be used with procedures supporting syntax highlighting.
+
+```scheme
+(syntax-highlighting-themes)
+⇒ ("zenburn" "xt256" "xcode-dusk" "xcode" "vulcan" "vs2015" "vs"
+   "tomorrow-night-eighties" "tomorrow-night-bright" "tomorrow-night-blue"
+   "tomorrow-night" "tomorrow" "sunburst" "stackoverflow-light"
+   "stackoverflow-dark" "srcery" "solarized-light" "solarized-dark"
+   "snazzy" "silk-light" "silk-dark" "shades-of-purple" "school-book"
+   "routeros" "rainbow" "railscasts" "qtcreator_light" "qtcreator_dark"
+   "purebasic" "pojoaque" "paraiso-light" "paraiso-dark" "ocean"
+   "obsidian" "nord" "nnfx-light" "nnfx-dark" "night-owl"
+   "monokai-sublime" "monokai" "mono-blue" "markdownkit-dark"
+   "markdownkit" "magula" "lioshi" "lightfair" "kimbie-light"
+   "kimbie-dark" "isbl-editor-light" "isbl-editor-dark"
+   "ir-black" "idea" "hybrid" "hopscotch" "gruvbox-light"
+   "gruvbox-dark" "grayscale" "gradient-light" "gradient-dark"
+   "googlecode" "gml" "github-gist" "github-dark" "github"
+   "foundation" "far" "dracula" "docco" "default" "dark" "darcula"
+   "color-brewer" "codepen-embed" "brown-paper" "atom-one-light"
+   "atom-one-dark-reasonable" "atom-one-dark" "atelier-sulphurpool-light"
+   "atelier-sulphurpool-dark" "atelier-seaside-light"
+   "atelier-seaside-dark" "atelier-savanna-light" "atelier-savanna-dark"
+   "atelier-plateau-light" "atelier-plateau-dark"
+   "atelier-lakeside-light" "atelier-lakeside-dark"
+   "atelier-heath-light" "atelier-heath-dark" "atelier-forest-light"
+   "atelier-forest-dark" "atelier-estuary-light" "atelier-estuary-dark"
+   "atelier-dune-light" "atelier-dune-dark" "atelier-cave-light"
+   "atelier-cave-dark" "ascetic" "arta" "arduino-light" "androidstudio"
+   "an-old-hope" "agate" "a11y-light" "a11y-dark")
+```
+

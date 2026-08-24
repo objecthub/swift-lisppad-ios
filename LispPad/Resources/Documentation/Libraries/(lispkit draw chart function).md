@@ -326,18 +326,18 @@ Here is an example showcasing the usage of `draw-function-chart`:
 (draw-function-chart
   (list (function-graph sin "sin(x)" blue)
         (function-graph cos "cos(x)" red))
-  -6.3 6.3                                   ; x range
-  -1.5 1.5                                   ; y range
-  2.0                                        ; x-axis tick step
-  0.5                                        ; y-axis tick step
-  "x"                                        ; x-axis description
-  "y"                                        ; y-axis description
-  (point 50 30)                              ; location
+  -6.3 6.3                      ; x range
+  -1.5 1.5                      ; y range
+  2.0                           ; x-axis tick step
+  0.5                           ; y-axis tick step
+  "x"                           ; x-axis description
+  "y"                           ; y-axis description
+  (point 50 30)                 ; location
   (make-function-chart-config
     'size: (size 500 300)
-    'samples: 200)                           ; chart configuration
-  (make-function-legend-config)              ; legend configuration
-  d)                                         ; target drawing
+    'samples: 200)              ; chart config
+  (make-function-legend-config) ; legend config
+  d)                            ; target drawing
 (save-drawing "functions.pdf" d (size 600 380))
 ```
 
@@ -347,18 +347,18 @@ A single function can also be plotted without a legend:
 (define d (make-drawing))
 (draw-function-chart
   (function-graph (lambda (x) (* x x)) "x²" red)
-  -5.0 5.0                                   ; x range
-  -2.0 25.0                                  ; y range
-  1.0                                        ; x-axis tick step
-  5.0                                        ; y-axis tick step
-  "x"                                        ; x-axis description
-  "f(x)"                                     ; y-axis description
-  (point 10 15)                              ; location
+  -5.0 5.0                    ; x range
+  -2.0 25.0                   ; y range
+  1.0                         ; x-axis tick step
+  5.0                         ; y-axis tick step
+  "x"                         ; x-axis description
+  "f(x)"                      ; y-axis description
+  (point 10 15)               ; location
   (make-function-chart-config
     'box-color: #f
-    'size: (size 400 250))                   ; chart configuration
-  #f                                         ; no legend
-  d)                                         ; target drawing
+    'size: (size 400 250))    ; chart config
+  #f                          ; no legend
+  d)                          ; target drawing
 (save-drawing "parabola.pdf" d (size 420 270))
 ```
 

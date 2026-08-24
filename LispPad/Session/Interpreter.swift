@@ -33,6 +33,8 @@ final class Interpreter: ContextDelegate, ObservableObject {
   static let lispPadLibrariesPath = "Root/Libraries"
   static let lispPadAssetsPath = "Root/Assets"
   static let lispPadExamplePath = "Root/Examples"
+  static let syntaxHighlightingJsPath = "SyntaxHighlighting/highlight.min"
+  static let syntaxHighlightingThemesPath = "SyntaxHighlighting/Themes"
   
   // Custom formatting option
   static let customFormatString = "~S"
@@ -150,6 +152,20 @@ final class Interpreter: ContextDelegate, ObservableObject {
     LibraryRegistry.register(DrawMapLibrary.self)
     LibraryRegistry.register(AppletLibrary.self)
     // Configure libraries
+    if let jsUrl = Bundle.main.resourceURL?
+                              .appendingPathComponent(Interpreter.syntaxHighlightingJsPath)
+                              .appendingPathExtension("js"),
+       let themesUrl = Bundle.main.resourceURL?
+                                  .appendingPathComponent(Interpreter.syntaxHighlightingThemesPath,
+                                                          isDirectory: true) {
+      Swift.print("url = \(jsUrl), themes = \(themesUrl)")
+      if let contents = try? Foundation.FileManager.default.contentsOfDirectory(at: themesUrl, includingPropertiesForKeys: nil) {
+        for content in contents {
+          Swift.print("  - \(content)")
+        }
+      }
+      MarkdownLibrary.configure(highlightJSURL: jsUrl, themeDirectory: themesUrl)
+    }
     HTTPOAuthLibrary.libraryConfig = LispPadOAuthConfig.self
   }
   

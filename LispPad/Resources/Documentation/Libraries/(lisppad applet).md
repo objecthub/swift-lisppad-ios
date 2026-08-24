@@ -8,7 +8,7 @@ Applets are programs that receive two types of inputs, _arguments_ and _attachme
 
 An applet returns an object of type `applet-result` which has the following components: result strings (representing textual results), result attachments, i.e. `applet-attachment` objects (representing binary data), a string representation of the value the last statement of the program evaluates to, a transcript collecting all output to standard out, and a "view" consisting of a sequence of strings and images which are displayed on demand, e.g. after an applet ran as part of a shortcut on iOS or macOS. Applets typically construct an `applet-result` object explicitly and return it as the result of the program.
 
-![applet-program-model](Images/applet-program-model.png)
+![applet-program-model](images/applet-program-model.png)
 
 ## Using applets in Shortcuts
 
@@ -17,13 +17,13 @@ LispPad makes the following 3 intents available in the Shortcuts app:
 
 `Run Program` is used to execute an applet within Shortcuts. `Get Result Attachment` and `Get Result Value` are used to extract individual attachments and result strings from an applet result object. Other components can be accessed directly as "magic variables" from the applet result object.
 
-![intent-source-selection](Images/intent-source-selection.png)
+![intent-source-selection](images/intent-source-selection.png)
 
 All other parameters, especially the ones made available as arguments via `applet-arguments` and as attachements via `applet-attachments` can be configured in the optional section of the `Run Program` intent:
-![program-intent](Images/program-intent.png)
+![program-intent](images/program-intent.png)
 
 The remaining two intents, `Get Result Attachment` and `Get Result Value`, take an applet result as their first parameter followed by an index that identifies the concrete attachment or string to return.
-![other-intents](Images/other-intents.png)
+![other-intents](images/other-intents.png)
 
 ## Execution context
 
@@ -198,8 +198,8 @@ Returns the raw content of applet attachment _attm_ as a bytevector, or `#f` if 
 
 Returns a list of UTI type identifier strings representing the content types in which applet attachment _attm_ can be provided. Returns `#f` on iOS versions earlier than 18.0.
 
-**(applet-attachment->object _attm_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(applet-attachment->object _attm type_)**  
+**(applet-attachment-\>object _attm_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(applet-attachment-\>object _attm type_)**  
 
 Reads applet attachment data of _attm_ and converts it to a native LispKit object based on its content type. If _type_ is provided (a UTI string), it is used instead of the attachment's declared type. Returns `#f` if conversion is not possible or the data cannot be read.
 
@@ -242,4 +242,3 @@ _options_ is a list of alternatives. Each element is either a string (the title 
 - `#f`: cancel button
 
 _style_ controls presentation style. When running as an applet, `#f` selects the classic action-sheet style; any other value selects the modern style (default). When running in the LispPad interpreter, a string _style_ is used as the dialog title; otherwise `"Choose"` is used.
-

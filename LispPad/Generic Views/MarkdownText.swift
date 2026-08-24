@@ -20,6 +20,8 @@
 
 import SwiftUI
 import MarkdownKit
+import class LispKit.MarkdownLibrary
+
 
 struct MarkdownText: View {
   @State private var textSize: CGSize? = nil
@@ -130,6 +132,7 @@ struct MarkdownTextView: UIViewRepresentable {
          codeFontColor: String,
          codeBlockFontColor: String,
          codeBlockBackground: String,
+         syntaxHighlighting: SyntaxHighlightingConfig,
          borderColor: String,
          blockquoteColor: String,
          h1Color: String,
@@ -139,7 +142,8 @@ struct MarkdownTextView: UIViewRepresentable {
          rightPadding: Int,
          maxLayoutWidth: CGFloat) {
       self.rightPadding = rightPadding
-      super.init(fontSize: UserSettings.standard.documentationTextFontSize,
+      super.init(version: .OS26,
+                 fontSize: UserSettings.standard.documentationTextFontSize,
                  fontFamily: MarkdownTextView.textFont,
                  fontColor: fontColor,
                  codeFontSize: UserSettings.standard.documentationCodeFontSize,
@@ -148,6 +152,8 @@ struct MarkdownTextView: UIViewRepresentable {
                  codeBlockFontSize: UserSettings.standard.documentationCodeFontSize,
                  codeBlockFontColor: codeBlockFontColor,
                  codeBlockBackground: codeBlockBackground,
+                 syntaxHighlighting: syntaxHighlighting,
+                 syntaxHighlighter: MarkdownLibrary.syntaxHighlighter,
                  borderColor: borderColor,
                  blockquoteColor: blockquoteColor,
                  h1Color: h1Color,
@@ -158,7 +164,7 @@ struct MarkdownTextView: UIViewRepresentable {
                  imageBaseUrl: Self.localBaseUrl)
     }
     
-    private class DocumentationHtmlGenerator: InternalHtmlGenerator {
+    private class DocumentationHtmlGenerator: OS26HtmlGenerator {
       let rightPadding: Int
       
       public override init(outer: AttributedStringGenerator) {
@@ -272,6 +278,7 @@ struct MarkdownTextView: UIViewRepresentable {
                   codeFontColor: "#ccddff",
                   codeBlockFontColor: "#aaddff",
                   codeBlockBackground: "#333",
+                  syntaxHighlighting: .defaultDark,
                   borderColor: "#333",
                   blockquoteColor: "#fff",
                   h1Color: "#aa1111",
@@ -285,6 +292,7 @@ struct MarkdownTextView: UIViewRepresentable {
                   codeFontColor: "#0000aa",
                   codeBlockFontColor: "#000099",
                   codeBlockBackground: "#eee",
+                  syntaxHighlighting: .default,
                   borderColor: "#eee",
                   blockquoteColor: "#000",
                   h1Color: "#aa1111",
