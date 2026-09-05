@@ -158,12 +158,6 @@ final class Interpreter: ContextDelegate, ObservableObject {
        let themesUrl = Bundle.main.resourceURL?
                                   .appendingPathComponent(Interpreter.syntaxHighlightingThemesPath,
                                                           isDirectory: true) {
-      Swift.print("url = \(jsUrl), themes = \(themesUrl)")
-      if let contents = try? Foundation.FileManager.default.contentsOfDirectory(at: themesUrl, includingPropertiesForKeys: nil) {
-        for content in contents {
-          Swift.print("  - \(content)")
-        }
-      }
       MarkdownLibrary.configure(highlightJSURL: jsUrl, themeDirectory: themesUrl)
     }
     HTTPOAuthLibrary.libraryConfig = LispPadOAuthConfig.self
