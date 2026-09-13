@@ -13,7 +13,7 @@
 		CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
 		CC1896DE266D5AC500D384F6 /* (lispkit archive zip).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */; };
-		CC1896DF266D5FE700D384F6 /* (lisppad system).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC327C35260BF98100BD7E32 /* (lisppad system).md */; };
+		CC1896DF266D5FE700D384F6 /* (lisppad system ios).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC327C35260BF98100BD7E32 /* (lisppad system ios).md */; };
 		CC1CBAE22F87129900D55310 /* DateInputModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE12F87129200D55310 /* DateInputModal.swift */; };
 		CC1CBAE42F878F0E00D55310 /* FlexDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE32F878F0A00D55310 /* FlexDatePicker.swift */; };
 		CC1CBAE72F8A796C00D55310 /* ModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE62F8A796800D55310 /* ModalConfig.swift */; };
@@ -65,9 +65,6 @@
 		CC7A558F2997D43C0014D600 /* (lispkit graph).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A558E2997D3000014D600 /* (lispkit graph).md */; };
 		CC7A55912997D5700014D600 /* sample-graph.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC7A55902997D4E60014D600 /* sample-graph.png */; };
 		CC7A62BE275D375C009F72E4 /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7A62BD275D375C009F72E4 /* Console.swift */; };
-		CC7A9911303D03E7007C7347 /* (lispkit sxml xml).md in Resources */ = {isa = PBXBuildFile; fileRef = CC7A9910303D03DE007C7347 /* (lispkit sxml xml).md */; };
-		CC7A9913303D042C007C7347 /* (lispkit sxml html).md in Resources */ = {isa = PBXBuildFile; fileRef = CC7A9912303D0421007C7347 /* (lispkit sxml html).md */; };
-		CC7A9917303D04D6007C7347 /* (lispkit wt-tree).md in Resources */ = {isa = PBXBuildFile; fileRef = CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */; };
 		CC7A991A303D06F0007C7347 /* (lispkit sxml html).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9912303D0421007C7347 /* (lispkit sxml html).md */; };
 		CC7A991B303D06F0007C7347 /* (lispkit sxml xml).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9910303D03DE007C7347 /* (lispkit sxml xml).md */; };
 		CC7A991C303D06FA007C7347 /* (lispkit wt-tree).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */; };
@@ -191,8 +188,6 @@
 		CCC2336F2B53286800C88C68 /* (lispkit format).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233632B45FA8B00C88C68 /* (lispkit format).md */; };
 		CCC233702B53286800C88C68 /* (lispkit list set).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC233672B45FBD000C88C68 /* (lispkit list set).md */; };
 		CCC233712B5328A900C88C68 /* (lisppad turtle).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */; };
-		CCC6B5243027657800282F28 /* (lispkit draw chart function).md in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */; };
-		CCC6B5263027664100282F28 /* (lisppad applet).md in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5253027663A00282F28 /* (lisppad applet).md */; };
 		CCC6B5273027694A00282F28 /* (lisppad applet).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC6B5253027663A00282F28 /* (lisppad applet).md */; };
 		CCC6B5283027695A00282F28 /* (lispkit draw chart function).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */; };
 		CCC6B52A3027761B00282F28 /* applet-program-model.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6B5293027761B00282F28 /* applet-program-model.png */; };
@@ -253,6 +248,7 @@
 		CCE80A472CF001A7008C63A2 /* oauth2flow.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCE80A402CF00076008C63A2 /* oauth2flow.png */; };
 		CCE853E13056DF69003A8D73 /* system.sld in Copy Root/Libraries/lisppad */ = {isa = PBXBuildFile; fileRef = CCE853E03056DF41003A8D73 /* system.sld */; };
 		CCE853E33056F4A7003A8D73 /* SpeechLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE853E23056F4A0003A8D73 /* SpeechLibrary.swift */; };
+		CCE853E83056F683003A8D73 /* (lisppad speech).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE853E73056F683003A8D73 /* (lisppad speech).md */; };
 		CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E42126219C0000E3DC6A /* PDFViewer.swift */; };
 		CCE8E4242621A31A00E3DC6A /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE8E4232621A31A00E3DC6A /* DocumentView.swift */; };
 		CCE8E4282621A49F00E3DC6A /* lisppad_ref.pdf in Copy Documentation/Documents */ = {isa = PBXBuildFile; fileRef = CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */; };
@@ -450,6 +446,7 @@
 				CCE80A2E2CEFF996008C63A2 /* (lispkit system keychain).md in Copy Documentation/Libraries */,
 				CCE80A2D2CEFF98F008C63A2 /* (lispkit system pasteboard).md in Copy Documentation/Libraries */,
 				CCE80A2C2CEFF984008C63A2 /* (lispkit thread future).md in Copy Documentation/Libraries */,
+				CCE853E83056F683003A8D73 /* (lisppad speech).md in Copy Documentation/Libraries */,
 				CCE80A2B2CEFF977008C63A2 /* (lispkit thread shared-queue).md in Copy Documentation/Libraries */,
 				CCE80A2A2CEFF96F008C63A2 /* (lispkit url).md in Copy Documentation/Libraries */,
 				CCC233712B5328A900C88C68 /* (lisppad turtle).md in Copy Documentation/Libraries */,
@@ -470,7 +467,7 @@
 				CCFA68092765397D009A599C /* (lispkit text-table).md in Copy Documentation/Libraries */,
 				CCFA6807276535E1009A599C /* (lispkit prolog).md in Copy Documentation/Libraries */,
 				CCC7A9D826CC60B300F05361 /* (lisppad location).md in Copy Documentation/Libraries */,
-				CC1896DF266D5FE700D384F6 /* (lisppad system).md in Copy Documentation/Libraries */,
+				CC1896DF266D5FE700D384F6 /* (lisppad system ios).md in Copy Documentation/Libraries */,
 				CC1896DE266D5AC500D384F6 /* (lispkit archive zip).md in Copy Documentation/Libraries */,
 				CC8B95D22608188000830B4F /* (lisppad audio).md in Copy Documentation/Libraries */,
 				CC8B95A92607B59F00830B4F /* (lispkit base).md in Copy Documentation/Libraries */,
@@ -806,7 +803,7 @@
 		CC321E682F6EABF20094C57A /* IntentInterpreter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentInterpreter.swift; sourceTree = "<group>"; };
 		CC321E6A2F6F2CE60094C57A /* EvalResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalResult.swift; sourceTree = "<group>"; };
 		CC321E6C2F7032A60094C57A /* AppletLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppletLibrary.swift; sourceTree = "<group>"; };
-		CC327C35260BF98100BD7E32 /* (lisppad system).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system).md"; sourceTree = "<group>"; };
+		CC327C35260BF98100BD7E32 /* (lisppad system ios).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad system ios).md"; sourceTree = "<group>"; };
 		CC327C39260DE60100BD7E32 /* EnvironmentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentDetailView.swift; sourceTree = "<group>"; };
 		CC327C44260E03FB00BD7E32 /* ResignKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResignKeyboard.swift; sourceTree = "<group>"; };
 		CC327C46260E1D5100BD7E32 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
@@ -1008,6 +1005,7 @@
 		CCE80A402CF00076008C63A2 /* oauth2flow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = oauth2flow.png; sourceTree = "<group>"; };
 		CCE853E03056DF41003A8D73 /* system.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = system.sld; sourceTree = "<group>"; };
 		CCE853E23056F4A0003A8D73 /* SpeechLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechLibrary.swift; sourceTree = "<group>"; };
+		CCE853E73056F683003A8D73 /* (lisppad speech).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lisppad speech).md"; sourceTree = "<group>"; };
 		CCE8E42126219C0000E3DC6A /* PDFViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFViewer.swift; sourceTree = "<group>"; };
 		CCE8E4232621A31A00E3DC6A /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
 		CCE8E4262621A3ED00E3DC6A /* lisppad_ref.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = lisppad_ref.pdf; sourceTree = "<group>"; };
@@ -1354,11 +1352,12 @@
 		CC8B952126079F2400830B4F /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				CC8B95CF2608179000830B4F /* (lisppad audio).md */,
 				CCC6B5253027663A00282F28 /* (lisppad applet).md */,
+				CC8B95CF2608179000830B4F /* (lisppad audio).md */,
 				CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */,
 				CCBF9E6926C890B400654D60 /* (lisppad location).md */,
-				CC327C35260BF98100BD7E32 /* (lisppad system).md */,
+				CCE853E73056F683003A8D73 /* (lisppad speech).md */,
+				CC327C35260BF98100BD7E32 /* (lisppad system ios).md */,
 				CCC2336B2B45FF8900C88C68 /* (lisppad turtle).md */,
 				CCC233692B45FEBF00C88C68 /* (lispkit archive tar).md */,
 				CC1896DC266D5A7A00D384F6 /* (lispkit archive zip).md */,
@@ -1949,11 +1948,9 @@
 			files = (
 				CCE8E436262A437900E3DC6A /* Credits.rtf in Resources */,
 				CC894F102CC300C200896B1D /* SourceCodePro-Regular.ttf in Resources */,
-				CC7A9911303D03E7007C7347 /* (lispkit sxml xml).md in Resources */,
 				CC1DDB5E26A5DDA10049E99D /* KeyboardShortcuts.rtf in Resources */,
 				CCC6B52C3027766500282F28 /* intent-source-selection.png in Resources */,
 				CCC6B5303027769700282F28 /* other-intents.png in Resources */,
-				CC7A9917303D04D6007C7347 /* (lispkit wt-tree).md in Resources */,
 				CC894F0D2CC300BB00896B1D /* FiraCode-Regular.ttf in Resources */,
 				CCF1AEBC2EA062A300F1D5E6 /* LispPadIcon.icon in Resources */,
 				CCE80A3F2CF00062008C63A2 /* url.png in Resources */,
@@ -1962,14 +1959,11 @@
 				CC894F0C2CC300B800896B1D /* JetBrainsMono-Regular.ttf in Resources */,
 				CCEA5A11263ACAA000D78C62 /* IndentationRules.plist in Resources */,
 				CC894F0B2CC300B400896B1D /* JetBrainsMono-Light.ttf in Resources */,
-				CCC6B5263027664100282F28 /* (lisppad applet).md in Resources */,
 				CC8B95D12608186500830B4F /* Documentation.plist in Resources */,
 				CCE80A372CF0003B008C63A2 /* pdf417.png in Resources */,
 				CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */,
 				CCE80A3B2CF00051008C63A2 /* qrcode.png in Resources */,
 				CCE80A3D2CF0005A008C63A2 /* code128.png in Resources */,
-				CC7A9913303D042C007C7347 /* (lispkit sxml html).md in Resources */,
-				CCC6B5243027657800282F28 /* (lispkit draw chart function).md in Resources */,
 				CC894F112CC300C500896B1D /* iosevka-extended.ttf in Resources */,
 				CC84C25025FE59F000758581 /* Assets.xcassets in Resources */,
 				CCC6B52A3027761B00282F28 /* applet-program-model.png in Resources */,
