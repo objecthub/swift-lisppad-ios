@@ -148,6 +148,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     // Register internal libraries
     LibraryRegistry.register(SystemLibrary.self)
     LibraryRegistry.register(AudioLibrary.self)
+    LibraryRegistry.register(SpeechLibrary.self)
     LibraryRegistry.register(LocationLibrary.self)
     LibraryRegistry.register(DrawMapLibrary.self)
     LibraryRegistry.register(AppletLibrary.self)

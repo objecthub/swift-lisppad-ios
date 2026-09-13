@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.1 (2026-09-13)
+
+- Introduced `(lisppad system)` to enable programs across macOS and iOS that use functionality exposed by `(lisppad system macos)` and `(lisppad system ios)`
+- Updated documentation
+
 ## 2.3 (2026-08-25)
 
 - LispPad programs can now be executed as "applets" running both in the app and as an intent within Shortcut flows

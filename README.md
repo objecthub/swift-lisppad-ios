@@ -2,7 +2,7 @@
 ========================
 
 [![Platform: iOS](https://img.shields.io/badge/Platform-iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.5](https://img.shields.io/badge/Language-Swift%205.4-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![Language: Swift 6](https://img.shields.io/badge/Language-Swift%206-green.svg?style=flat)](https://developer.apple.com/swift/)
 [![IDE: Xcode 13](https://img.shields.io/badge/IDE-Xcode%2013-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lisppad/master/LICENSE)
@@ -51,7 +51,7 @@ _LispPad Go_ is a simplified version of the [macOS application _LispPad_](http:/
 
 ## Requirements
 
-- [Xcode 13](https://developer.apple.com/xcode/)
-- [Swift 5.5](https://developer.apple.com/swift/)
+- [Xcode 26](https://developer.apple.com/xcode/)
+- [Swift 6](https://developer.apple.com/swift/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [LispKit](http://github.com/objecthub/swift-lispkit)
