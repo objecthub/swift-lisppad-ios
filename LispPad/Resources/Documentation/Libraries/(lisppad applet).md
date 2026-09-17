@@ -12,8 +12,9 @@ An applet returns an object of type `applet-result` which has the following comp
 
 ## Using applets in Shortcuts
 
-LispPad makes the following 3 intents available in the Shortcuts app: 
-         ![intents-xs](Images/intents-xs.png)
+LispPad makes the following 3 intents available in the Shortcuts app:
+
+![intents-xs](images/intents-xs.png)
 
 `Run Program` is used to execute an applet within Shortcuts. `Get Result Attachment` and `Get Result Value` are used to extract individual attachments and result strings from an applet result object. Other components can be accessed directly as "magic variables" from the applet result object.
 

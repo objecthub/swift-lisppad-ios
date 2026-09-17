@@ -1,8 +1,11 @@
 # Changelog
 
-## 2.3.1 (2026-09-13)
+## 2.3.1 (2026-09-15)
 
 - Introduced `(lisppad system)` to enable programs across macOS and iOS that use functionality exposed by `(lisppad system macos)` and `(lisppad system ios)`
+- New library supporting speech synthesis: `(lisppad speech)`
+- Bugfixes in library `(lispkit date-time)`
+- New sample code: `DrawCalendar.scm`
 - Updated documentation
 
 ## 2.3 (2026-08-25)

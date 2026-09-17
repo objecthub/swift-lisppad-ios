@@ -47,6 +47,7 @@
 		CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */; };
 		CC327C5C2611201100BD7E32 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
 		CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33237E260A8E6900AD3307 /* DocumentationManager.swift */; };
+		CC3C8A9F3059A323000576B5 /* intents-xs.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCB51E993053F59C00543849 /* intents-xs.png */; };
 		CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5157B626DA84AB0056B05B /* FileObserver.swift */; };
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
@@ -757,6 +758,7 @@
 			dstPath = Documentation/Libraries/images;
 			dstSubfolderSpec = 7;
 			files = (
+				CC3C8A9F3059A323000576B5 /* intents-xs.png in Copy Documentation/Libraries/images */,
 				CCC6B531302776DC00282F28 /* applet-program-model.png in Copy Documentation/Libraries/images */,
 				CCC6B532302776DC00282F28 /* intent-source-selection.png in Copy Documentation/Libraries/images */,
 				CCC6B533302776DC00282F28 /* program-intent.png in Copy Documentation/Libraries/images */,
@@ -2237,7 +2239,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 124;
+				CURRENT_PROJECT_VERSION = 125;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
@@ -2266,7 +2268,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 124;
+				CURRENT_PROJECT_VERSION = 125;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
