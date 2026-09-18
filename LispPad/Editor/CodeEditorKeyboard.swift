@@ -174,17 +174,7 @@ final class CodeEditorKeyboard {
     }
   }
   
-  private func iPhoneKeyboard(for textView: CodeEditorTextView) -> UIToolbar {
-    let bar = UIToolbar(frame: CGRect(x: 0, y: 0,
-                                      width: UIScreen.main.bounds.width, height: 35))
-    let appearance = UIToolbarAppearance()
-    appearance.configureWithDefaultBackground()
-    appearance.backgroundColor = UIColor(named: "KeyboardColor")
-    bar.barStyle = .default
-    bar.isTranslucent = false
-    bar.standardAppearance = appearance
-    bar.scrollEdgeAppearance = appearance
-    bar.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
+  private func iPhoneKeyboardItems(for textView: CodeEditorTextView) -> [UIView] {
     let smallestSize = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
     let kbd: KeyboardSize
     if smallestSize >= 400 {
@@ -192,8 +182,7 @@ final class CodeEditorKeyboard {
     } else {
       kbd = .small
     }
-    // Reduce the left margin to minimize gap before first button
-    // bar.layoutMargins = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
+    let items: [UIView]
     if self.editorType == .scheme {
       if self.showingCursorKeys {
         let indent = self.iconButton("increase.indent", tag: .indent, to: textView)
@@ -216,18 +205,17 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      indent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      undent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      comment, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      uncomment, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      cursorLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      cursorRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      cursorUp, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      cursorDown, UIBarButtonItem.flexibleSpace(),
-                      cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
-                     animated: true)
+        items = [self.fixedSpace(),
+                 indent, self.fixedSpace(),
+                 undent, self.fixedSpace(),
+                 comment, self.fixedSpace(),
+                 uncomment, self.fixedSpace(),
+                 cursorLeft, self.fixedSpace(),
+                 cursorRight, self.fixedSpace(),
+                 cursorUp, self.fixedSpace(),
+                 cursorDown, self.flexibleSpace(),
+                 cursorNav, self.fixedSpace(),
+                 close, self.fixedSpace()]
       } else {
         let dash = self.textButton("–", tag: .dash, to: textView)
         let times = self.textButton("*", tag: .times, to: textView)
@@ -251,29 +239,28 @@ final class CodeEditorKeyboard {
                                     inset: false,
                                     tag: .dismissKeyboard,
                                     to: textView)
-        var items: [UIBarButtonItem] = [
-          UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          quote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          parenRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-          equals, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+        var leading: [UIView] = [
+          self.fixedSpace(),
+          dash, self.fixedSpace(),
+          times, self.fixedSpace(),
+          quote, self.fixedSpace(),
+          doubleQuote, self.fixedSpace(),
+          parenLeft, self.fixedSpace(),
+          parenRight, self.fixedSpace(),
+          equals, self.fixedSpace(),
         ]
         if kbd == .large {
-          items.append(hash)
-          items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+          leading.append(hash)
+          leading.append(self.fixedSpace())
         }
         if kbd == .large || kbd == .medium {
-          items.append(exclamation)
-          items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+          leading.append(exclamation)
+          leading.append(self.fixedSpace())
         }
-        bar.setItems(items +
-                     [question, UIBarButtonItem.flexibleSpace(),
-                      cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                      close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
-                     animated: true)
+        items = leading +
+                [question, self.flexibleSpace(),
+                 cursorNav, self.fixedSpace(),
+                 close, self.fixedSpace()]
       }
     } else if self.showingCursorKeys {
       let undo = self.iconButton("arrow.uturn.backward", tag: .undo, to: textView)
@@ -296,18 +283,17 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      bar.setItems([UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    undo, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    redo, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    indent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    undent, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    cursorLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    cursorRight, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    cursorUp, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    cursorDown, UIBarButtonItem.flexibleSpace(),
-                    cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
-                   animated: true)
+      items = [self.fixedSpace(),
+               undo, self.fixedSpace(),
+               redo, self.fixedSpace(),
+               indent, self.fixedSpace(),
+               undent, self.fixedSpace(),
+               cursorLeft, self.fixedSpace(),
+               cursorRight, self.fixedSpace(),
+               cursorUp, self.fixedSpace(),
+               cursorDown, self.flexibleSpace(),
+               cursorNav, self.fixedSpace(),
+               close, self.fixedSpace()]
     } else {
       let hash = self.textButton("#", tag: .hash, to: textView)
       let dash = self.textButton("–", tag: .dash, to: textView)
@@ -331,33 +317,90 @@ final class CodeEditorKeyboard {
                                   inset: false,
                                   tag: .dismissKeyboard,
                                   to: textView)
-      var items: [UIBarButtonItem] = [
-        UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-        hash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-        dash, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-        underscore, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-        times, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-        backquote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-        doubleQuote, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
+      var leading: [UIView] = [
+        self.fixedSpace(),
+        hash, self.fixedSpace(),
+        dash, self.fixedSpace(),
+        underscore, self.fixedSpace(),
+        times, self.fixedSpace(),
+        backquote, self.fixedSpace(),
+        doubleQuote, self.fixedSpace(),
       ]
       if kbd == .large || kbd == .medium {
-        items.append(bracket)
-        items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+        leading.append(bracket)
+        leading.append(self.fixedSpace())
       }
       if kbd == .large {
-        items.append(question)
-        items.append(UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace))
+        leading.append(question)
+        leading.append(self.fixedSpace())
       }
-      bar.setItems(items +
-                   [parenLeft, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    parenRight, UIBarButtonItem.flexibleSpace(),
-                    cursorNav, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace),
-                    close, UIBarButtonItem.fixedSpace(Self.iPhoneButtonSpace)],
-                   animated: true)
+      items = leading +
+              [parenLeft, self.fixedSpace(),
+               parenRight, self.flexibleSpace(),
+               cursorNav, self.fixedSpace(),
+               close, self.fixedSpace()]
     }
-    bar.isUserInteractionEnabled = true
-    bar.sizeToFit()
-    return bar
+    return items
+  }
+
+  private func fixedSpace(_ width: CGFloat = CodeEditorKeyboard.iPhoneButtonSpace) -> UIView {
+    let spacer = UIView()
+    spacer.translatesAutoresizingMaskIntoConstraints = false
+    spacer.widthAnchor.constraint(equalToConstant: width).isActive = true
+    spacer.setContentHuggingPriority(.required, for: .horizontal)
+    spacer.setContentCompressionResistancePriority(.required, for: .horizontal)
+    return spacer
+  }
+
+  private func flexibleSpace() -> UIView {
+    let spacer = UIView()
+    spacer.translatesAutoresizingMaskIntoConstraints = false
+    spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+    spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    return spacer
+  }
+
+  /// The iPhone accessory view is created once per keyboard and reused for every toggle/editor
+  /// type change; swapping in a brand-new `UIInputView` on every update confuses the system's
+  /// self-sizing accessory view transition (iOS 27 briefly reserves the old view's height,
+  /// leaving a visible gap above the new content).
+  private var iPhoneAccessoryView: UIView?
+  private var iPhoneAccessoryStack: UIStackView?
+
+  private func updateIPhoneAccessoryView(for textView: CodeEditorTextView) {
+    let items = self.iPhoneKeyboardItems(for: textView)
+    if let stack = self.iPhoneAccessoryStack {
+      for view in stack.arrangedSubviews {
+        stack.removeArrangedSubview(view)
+        view.removeFromSuperview()
+      }
+      for view in items {
+        stack.addArrangedSubview(view)
+      }
+    } else {
+      let inputView = UIInputView(frame: CGRect(x: 0, y: 0,
+                                                width: UIScreen.main.bounds.width, height: 44),
+                                  inputViewStyle: .keyboard)
+      inputView.allowsSelfSizing = true
+      inputView.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
+      inputView.translatesAutoresizingMaskIntoConstraints = false
+      inputView.isUserInteractionEnabled = true
+      let stack = UIStackView(arrangedSubviews: items)
+      stack.axis = .horizontal
+      stack.alignment = .center
+      stack.distribution = .fill
+      stack.translatesAutoresizingMaskIntoConstraints = false
+      inputView.addSubview(stack)
+      NSLayoutConstraint.activate([
+        stack.leadingAnchor.constraint(equalTo: inputView.leadingAnchor),
+        stack.trailingAnchor.constraint(equalTo: inputView.trailingAnchor),
+        stack.centerYAnchor.constraint(equalTo: inputView.centerYAnchor),
+        inputView.heightAnchor.constraint(equalToConstant: 44)
+      ])
+      self.iPhoneAccessoryView = inputView
+      self.iPhoneAccessoryStack = stack
+    }
+    textView.inputAccessoryView = self.iPhoneAccessoryView
   }
   
   func setup(for textView: CodeEditorTextView) {
@@ -386,7 +429,7 @@ final class CodeEditorKeyboard {
       let currentEditorType = self.currentEditorType(for: textView)
       if textView.inputAccessoryView == nil {
         self.editorType = currentEditorType
-        textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
+        self.updateIPhoneAccessoryView(for: textView)
         textView.reloadInputViews()
         // The following hack makes sure the other views adjust correctly
         /* if textView.isFirstResponder {
@@ -396,7 +439,7 @@ final class CodeEditorKeyboard {
         } */
       } else if currentEditorType != self.editorType {
         self.editorType = currentEditorType
-        textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
+        self.updateIPhoneAccessoryView(for: textView)
         textView.reloadInputViews()
       }
     } else if textView.inputAccessoryView != nil {
@@ -416,14 +459,14 @@ final class CodeEditorKeyboard {
         textView.reloadInputViews()
       }
     } else {
-      textView.inputAccessoryView = self.iPhoneKeyboard(for: textView)
+      self.updateIPhoneAccessoryView(for: textView)
       textView.reloadInputViews()
     }
   }
   
   private func textButton(_ title: String,
                           tag: KeyTag,
-                          to textView: CodeEditorTextView) -> UIBarButtonItem {
+                          to textView: CodeEditorTextView) -> UIButton {
     let button = UIButton(type: .roundedRect)
     button.tag = tag.rawValue
     button.heightAnchor.constraint(equalToConstant: 32).isActive = true
@@ -433,7 +476,7 @@ final class CodeEditorKeyboard {
     button.setTitleColor(UIColor(named: "KeyHighlightColor"), for: .highlighted)
     button.backgroundColor = UIColor(named: "KeyColor")
     button.translatesAutoresizingMaskIntoConstraints = false
-    return self.buttonItem(button, tag: tag, to: textView)
+    return self.styleButton(button, to: textView)
   }
   
   private func iconButton(_ name: String,
@@ -441,7 +484,7 @@ final class CodeEditorKeyboard {
                           dark: Bool = false,
                           inset: Bool = true,
                           tag: KeyTag,
-                          to textView: CodeEditorTextView) -> UIBarButtonItem {
+                          to textView: CodeEditorTextView) -> UIButton {
     let imgConfig = UIImage.SymbolConfiguration(pointSize: 15, weight: .regular, scale: .default)
     let button = UIButton(type: .roundedRect)
     // var config = UIButton.Configuration.plain()
@@ -466,9 +509,9 @@ final class CodeEditorKeyboard {
     button.tintColor = .label
     button.backgroundColor = UIColor(named: dark ? "DarkKeyColor" : "KeyColor")
     button.translatesAutoresizingMaskIntoConstraints = false
-    return self.buttonItem(button, tag: tag, to: textView)
+    return self.styleButton(button, to: textView)
   }
-  
+
   private func ipadButton(_ title: String,
                           tag: KeyTag,
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
@@ -477,7 +520,7 @@ final class CodeEditorKeyboard {
     button.setTitle(title, for: .normal)
     button.setTitleColor(.label, for: .normal)
     button.setTitleColor(UIColor(named: "KeyHighlightColor"), for: .highlighted)
-    button.backgroundColor = UIColor(named: "KeyColor")
+    button.backgroundColor = UIColor(named: "PadKeyColor")
     button.titleLabel?.font = .systemFont(ofSize: 15)
     button.heightAnchor.constraint(equalToConstant: 40).isActive = true
     button.widthAnchor.constraint(equalToConstant: 44).isActive = true
@@ -513,31 +556,26 @@ final class CodeEditorKeyboard {
       }
     }
     button.tintColor = .label
-    button.backgroundColor = UIColor(named: dark ? "DarkKeyColor" : "KeyColor")
+    button.backgroundColor = UIColor(named: dark ? "PadDarkKeyColor" : "PadKeyColor")
     button.translatesAutoresizingMaskIntoConstraints = false
     return self.buttonItem(button, container: true, tag: tag, to: textView)
   }
-  
+
+  private func styleButton(_ button: UIButton, to textView: CodeEditorTextView) -> UIButton {
+    button.layer.borderWidth = 1.0 / UIScreen.main.scale
+    button.layer.cornerRadius = 5
+    button.layer.borderColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1.0).cgColor
+    button.addTarget(textView,
+                     action: #selector(textView.keyboardButtonPressed(_:)),
+                     for: .touchUpInside)
+    return button
+  }
+
   private func buttonItem(_ button: UIButton,
                           container: Bool = false,
                           tag: KeyTag,
                           to textView: CodeEditorTextView) -> UIBarButtonItem {
-    // button.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
-                              // .union(UIView.AutoresizingMask.flexibleHeight)
-                              // .union(UIView.AutoresizingMask.flexibleLeftMargin)
-                              // .union(UIView.AutoresizingMask.flexibleRightMargin)
-                              // .union(UIView.AutoresizingMask.flexibleTopMargin)
-                              // .union(UIView.AutoresizingMask.flexibleBottomMargin)
-    button.layer.borderWidth = 0
-    button.layer.cornerRadius = 5
-    button.layer.borderColor = UIColor.systemGray2.cgColor
-    button.layer.shadowRadius = 0
-    button.layer.shadowColor = UIColor.black.cgColor
-    button.layer.shadowOffset = CGSize(width: 0.0, height: 1.0)
-    button.layer.shadowOpacity = 0.4
-    button.addTarget(textView,
-                     action: #selector(textView.keyboardButtonPressed(_:)),
-                     for: .touchUpInside)
+    _ = self.styleButton(button, to: textView)
     let item: UIBarButtonItem
     if container {
       let container = UIView()

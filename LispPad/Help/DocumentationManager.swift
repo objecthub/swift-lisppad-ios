@@ -206,7 +206,7 @@ final class DocumentationManager: ObservableObject {
   }
 
   private func loadMarkdownFile(_ url: URL, for lib: String) {
-    guard let content = try? String(contentsOf: url) else {
+    guard let content = try? String(contentsOf: url, encoding: .utf8) else {
       return
     }
     let libName = lib.components(separatedBy: " ")
