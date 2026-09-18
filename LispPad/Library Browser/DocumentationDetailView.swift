@@ -150,8 +150,7 @@ struct DocumentationDetailView: View {
               self.docShown = false
             }
           } label: {
-            Image(systemName: "xmark.circle.fill")
-              .foregroundStyle(self.colorScheme == .light ? .white : .black, .gray)
+            Image(systemName: "xmark")
           }
         }
       } else if self.url != nil {

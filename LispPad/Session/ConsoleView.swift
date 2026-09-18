@@ -272,7 +272,7 @@ struct ConsoleView: View {
         Button(role: .destructive) {
           self.state.consoleInput = ""
         } label: {
-          Label("Clear Input", systemImage: "xmark.circle.fill")
+          Label("Clear Input", systemImage: "xmark")
         }
         if self.ready && self.history.count > 0 {
           Section("COMMAND HISTORY") {
@@ -325,7 +325,7 @@ struct ConsoleView: View {
       }
       //.disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
       .padding(.trailing, 3)
-      .offset(y: -4)
+      .offset(y: -3.5)
       ZStack {
         if !self.splitViewMode.isSideBySide || self.state.focused {
           Button(action: {

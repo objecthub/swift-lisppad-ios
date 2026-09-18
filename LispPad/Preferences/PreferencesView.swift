@@ -135,9 +135,11 @@ struct PreferencesView: View {
       .environment(\.horizontalSizeClass, self.currentSizeClass)
       VStack {
         Form {
-          Picker("", selection: self.$modeSelector) {
+          Picker(selection: self.$modeSelector) {
             Text("Light Mode").tag(0)
             Text("Dark Mode").tag(1)
+          } label: {
+            EmptyView()
           }
           .pickerStyle(.segmented)
           .listRowInsets(.init())

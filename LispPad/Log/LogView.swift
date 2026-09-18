@@ -64,6 +64,14 @@ struct LogView: View {
     }
   }
   
+  var filterDialogHeight: CGFloat {
+    if #available(iOS 26.0, *) {
+      return 260
+    } else {
+      return 220
+    }
+  }
+  
   var body: some View {
     ZStack(alignment: .topLeading) {
       ScrollViewReader { scrollViewProxy in
@@ -176,7 +184,7 @@ struct LogView: View {
                           logMessageFilter: self.settings.logMessageFilter,
                           filterMessage: self.settings.logFilterMessages,
                           filterTag: self.settings.logFilterTags)
-            .frame(idealWidth: 250, idealHeight: 220)
+            .frame(idealWidth: 250, idealHeight: self.filterDialogHeight)
             .environmentObject(self.settings)
             .environmentObject(self.sessionLog)
             .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)

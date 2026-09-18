@@ -150,29 +150,14 @@ struct InterpreterView: View {
         Organizer()
           .modifier(self.globals.services)
       case .shareConsole:
-        ZStack {
-          Color(.secondarySystemBackground).ignoresSafeArea()
-          ShareSheet(activityItems: [self.interpreter.console.description as NSString])
-        }
-        .transition(.move(edge: .top))
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.hidden)
+        ShareSheet(activityItems: [self.interpreter.console.description as NSString])
+          .presentationDetents([.medium, .large])
       case .shareImage(let image):
-        ZStack {
-          Color(.secondarySystemBackground).ignoresSafeArea()
-          ShareSheet(activityItems: [image])
-        }
-        .transition(.move(edge: .top))
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.hidden)
+        ShareSheet(activityItems: [image])
+          .presentationDetents([.medium, .large])
       case .shareText(let text):
-        ZStack {
-          Color(.secondarySystemBackground).ignoresSafeArea()
-          ShareSheet(activityItems: [text as NSString])
-        }
-        .transition(.move(edge: .top))
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.hidden)
+        ShareSheet(activityItems: [text as NSString])
+          .presentationDetents([.medium, .large])
       case .showAbout:
         AboutView()
           .modifier(self.globals.services)
@@ -211,14 +196,11 @@ struct InterpreterView: View {
                               _ sheet: Interpreter.ProgrammaticSheetAction) -> some View {
     switch sheet {
       case .share(_, let url, let onDisappear):
-        ZStack {
-          Color(.secondarySystemBackground).ignoresSafeArea()
-          ShareSheet(activityItems: [url as NSURL])
-        }
-        .transition(.move(edge: .top))
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.hidden)
-        .onDisappear(perform: onDisappear)
+        ShareSheet(activityItems: [url as NSURL])
+          .transition(.move(edge: .top))
+          .presentationDetents([.medium, .large])
+          .presentationDragIndicator(.hidden)
+          .onDisappear(perform: onDisappear)
       case .open(_, let title, let directories, let onOpen, let onDisappear):
         Open(title: title, directories: directories) { url, mutable in
           return onOpen(url)

@@ -53,20 +53,37 @@ struct Sheet<Content: View>: View {
 
 public struct ExitButton: View {
   let size: CGFloat
-  
+
   init(size: CGFloat? = nil) {
-    self.size = size ?? 25.0
+    if #available(iOS 26.0, *) {
+      self.size = size ?? 30.0
+    } else {
+      self.size = size ?? 25.0
+    }
   }
-  
+
   public var body: some View {
-    Image(systemName: "xmark.circle.fill")
-      .resizable()
-      .scaledToFit()
-      .frame(height: self.size)
-      .foregroundColor(Color(UIColor.lightGray))
-      .accessibility(label: Text("Close"))
-      .accessibility(hint: Text("Tap to close the sheet"))
-      .accessibility(addTraits: .isButton)
-      .accessibility(removeTraits: .isImage)
+    if #available(iOS 26.0, *) {
+      Image(systemName: "xmark")
+        .font(.system(size: self.size * 0.5, weight: .semibold))
+        .foregroundStyle(.secondary)
+        .frame(width: self.size, height: self.size)
+        .tint(.black)
+        .glassEffect(.regular.interactive(), in: Circle())
+        .accessibility(label: Text("Close"))
+        .accessibility(hint: Text("Tap to close the sheet"))
+        .accessibility(addTraits: .isButton)
+        .accessibility(removeTraits: .isImage)
+    } else {
+      Image(systemName: "xmark.circle.fill")
+        .resizable()
+        .scaledToFit()
+        .frame(height: self.size)
+        .foregroundColor(Color(UIColor.lightGray))
+        .accessibility(label: Text("Close"))
+        .accessibility(hint: Text("Tap to close the sheet"))
+        .accessibility(addTraits: .isButton)
+        .accessibility(removeTraits: .isImage)
+    }
   }
 }

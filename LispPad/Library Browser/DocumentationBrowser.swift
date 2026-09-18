@@ -121,8 +121,7 @@
                       self.state.docShown = false
                     }
                   } label: {
-                    Image(systemName: "xmark.circle.fill")
-                      .foregroundStyle(self.colorScheme == .light ? .white : .black, .gray)
+                    Image(systemName: "xmark")
                   }
                 }
               }
@@ -203,8 +202,7 @@
                         self.state.docShown = false
                       }
                     } label: {
-                      Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(self.colorScheme == .light ? .white : .black, .gray)
+                      Image(systemName: "xmark")
                     }
                   }
                 }
