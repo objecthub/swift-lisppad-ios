@@ -33,6 +33,10 @@ final class iPhoneKeyboard: CodeEditorKeyboard {
 
   static let buttonSpace = CGFloat(5)
 
+  /// How far the accessory bar's glass background extends below the button row, into the
+  /// otherwise-unblurred seam above the system keyboard's own (top-rounded) glass background.
+  static let backgroundBleed = CGFloat(20)
+
   let console: Bool
   var editorType: FileExtensions.EditorType
 
@@ -95,14 +99,28 @@ final class iPhoneKeyboard: CodeEditorKeyboard {
       stack.alignment = .center
       stack.distribution = .fill
       stack.translatesAutoresizingMaskIntoConstraints = false
-      let inputView = UIInputView(frame: CGRect(x: 0, y: 0,
-                                                width: UIScreen.main.bounds.width, height: 44),
+      let inputView = UIInputView(frame: CGRect(x: 0,
+                                                y: 0,
+                                                width: UIScreen.main.bounds.width,
+                                                height: 44),
                                   inputViewStyle: .keyboard)
       inputView.autoresizingMask = UIView.AutoresizingMask.flexibleRightMargin.union(.flexibleWidth)
       inputView.translatesAutoresizingMaskIntoConstraints = false
       inputView.isUserInteractionEnabled = true
+      // Subviews are allowed to paint outside `inputView`'s own bounds so `backgroundView`
+      // below can bleed into the sliver that is otherwise left unblurred between this bar
+      // and the system keyboard's own (top-rounded) glass background underneath it.
+      inputView.clipsToBounds = false
+      let backgroundView = self.accessoryBackgroundView()
+      backgroundView.translatesAutoresizingMaskIntoConstraints = false
+      inputView.addSubview(backgroundView)
       inputView.addSubview(stack)
       NSLayoutConstraint.activate([
+        backgroundView.leadingAnchor.constraint(equalTo: inputView.leadingAnchor),
+        backgroundView.trailingAnchor.constraint(equalTo: inputView.trailingAnchor),
+        backgroundView.topAnchor.constraint(equalTo: inputView.topAnchor),
+        backgroundView.bottomAnchor.constraint(equalTo: inputView.bottomAnchor,
+                                               constant: iPhoneKeyboard.backgroundBleed),
         stack.leadingAnchor.constraint(equalTo: inputView.leadingAnchor),
         stack.trailingAnchor.constraint(equalTo: inputView.trailingAnchor),
         stack.centerYAnchor.constraint(equalTo: inputView.centerYAnchor),
@@ -113,7 +131,17 @@ final class iPhoneKeyboard: CodeEditorKeyboard {
     }
     textView.inputAccessoryView = self.accessoryView
   }
-  
+
+  /// A background matching the system keyboard's own glass material as closely as possible:
+  /// `UIGlassEffect` on iOS 26+, falling back to a comparably translucent blur on older versions.
+  private func accessoryBackgroundView() -> UIVisualEffectView {
+    if #available(iOS 26.0, *) {
+      return UIVisualEffectView(effect: UIGlassEffect(style: .regular))
+    } else {
+      return UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+    }
+  }
+
   private func keyboardItems(for textView: CodeEditorTextView) -> [UIView] {
     let smallestSize = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
     let kbd: KeyboardSize
