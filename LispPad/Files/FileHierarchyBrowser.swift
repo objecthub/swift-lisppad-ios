@@ -268,80 +268,112 @@ struct FileHierarchyBrowser: View {
   func rowContent(_ hierarchy: FileHierarchy) -> some View {
     HStack {
       if self.context.editUrl != nil && self.context.editUrl == hierarchy.url {
-        ZStack {
-          RoundedRectangle(cornerRadius: 8)
-            .fill(Color(UIColor.secondarySystemFill))
-          HStack {
-            Label("", systemImage: hierarchy.systemImage)
-              .foregroundColor(.red)
-              .padding(.trailing, -8)
-            TextField("", text: $context.editName, onCommit: {
-              if !self.context.editName.isEmpty,
-                 let url = self.context.editUrl {
-                UIApplication.shared.endEditing(true)
-                if let doc = self.fileManager.editorDocument,
-                   url.absoluteURL == doc.fileURL {
-                  doc.rename(to: self.context.editName) { newURL in
-                    if newURL != nil {
+        HStack {
+          Label("", systemImage: hierarchy.systemImage)
+            .foregroundColor(.red)
+            .padding(.trailing, -8)
+          TextField("", text: $context.editName, onCommit: {
+            if !self.context.editName.isEmpty,
+               let url = self.context.editUrl {
+              UIApplication.shared.endEditing(true)
+              if let doc = self.fileManager.editorDocument,
+                 url.absoluteURL == doc.fileURL {
+                doc.rename(to: self.context.editName) { newURL in
+                  if newURL != nil {
+                    hierarchy.parent?.reset()
+                  }
+                  self.context.editUrl = nil
+                  self.context.editName = ""
+                }
+              } else {
+                self.fileManager.rename(url, to: self.context.editName) { result in
+                  switch result {
+                    case .success(let newURL):
                       hierarchy.parent?.reset()
-                    }
-                    self.context.editUrl = nil
-                    self.context.editName = ""
+                      if self.context.selectedUrls.contains(url) {
+                        self.context.selectedUrls.remove(url)
+                        self.context.selectedUrls.insert(newURL)
+                        self.refresher.updateView()
+                      }
+                    case .failure(let error):
+                      self.context.errorMessage = .init(title: "Rename Failure",
+                                                        message: error.localizedDescription)
                   }
-                } else {
-                  self.fileManager.rename(url, to: self.context.editName) { result in
-                    switch result {
-                      case .success(let newURL):
-                        hierarchy.parent?.reset()
-                        if self.context.selectedUrls.contains(url) {
-                          self.context.selectedUrls.remove(url)
-                          self.context.selectedUrls.insert(newURL)
-                          self.refresher.updateView()
-                        }
-                      case .failure(let error):
-                        self.context.errorMessage = .init(title: "Rename Failure",
-                                                          message: error.localizedDescription)
-                    }
-                    self.context.editUrl = nil
-                    self.context.editName = ""
-                  }
+                  self.context.editUrl = nil
+                  self.context.editName = ""
                 }
               }
-            })
-            .autocapitalization(.none)
-            .disableAutocorrection(true)
-            .padding(.top, -1.5)
-            Button {
-              self.context.editName = ""
-            } label: {
-              Image(systemName: "xmark.circle.fill")
-                .foregroundColor(.gray)
-                .opacity(self.context.editName.isEmpty ? 0 : 1)
             }
-            .buttonStyle(.borderless)
-            Spacer(minLength: 4)
-            Button(action: {
-              self.context.editUrl = nil
-              self.context.editName = ""
-            }) {
-              Image(systemName: "arrow.uturn.backward.circle.fill")
-                .foregroundColor(.gray)
-            }
-            .buttonStyle(.borderless)
-            .padding(.trailing, 4)
+          })
+          .autocapitalization(.none)
+          .disableAutocorrection(true)
+          .padding(.top, -1.5)
+          Button {
+            self.context.editName = ""
+          } label: {
+            Image(systemName: "xmark.circle.fill")
+              .foregroundColor(.gray)
+              .opacity(self.context.editName.isEmpty ? 0 : 1)
           }
+          .buttonStyle(.borderless)
+          Spacer(minLength: 4)
+          Button(action: {
+            self.context.editUrl = nil
+            self.context.editName = ""
+          }) {
+            Image(systemName: "arrow.uturn.backward.circle.fill")
+              .foregroundColor(.gray)
+          }
+          .buttonStyle(.borderless)
+          .padding(.trailing, 4)
         }
+        .background(
+          RoundedRectangle(cornerRadius: 8)
+            .fill(Color(UIColor.secondarySystemFill))
+            .padding(.init(top: -9, leading: -8, bottom: -9, trailing: -2))
+        )
       } else {
         if (hierarchy.type == .file) && !self.options.contains(.files) ||
             (hierarchy.type == .directory) && !self.options.contains(.directories) ||
             self.onSelection == nil ||
             self.context.editUrl != nil {
           self.attachMenu(hierarchy) {
-            ZStack {
+            HStack {
+              Label {
+                Text(hierarchy.name)
+                  .foregroundColor(.primary)
+              } icon: {
+                Image(systemName: hierarchy.systemImage)
+                  .foregroundColor(self.isSelectedContainer(hierarchy) ? .green : .primary)
+              }
+              Spacer()
+              if hierarchy.type == .file {
+                Button {
+                  self.previewUrl = hierarchy.url
+                } label: {
+                  Image(systemName: "eye")
+                    .foregroundColor(.gray)
+                }
+                .buttonStyle(.borderless)
+                .padding(.trailing, -4)
+              }
+            }
+            .background {
               if self.isSelected(hierarchy) {
                 RoundedRectangle(cornerRadius: 8)
                   .fill(Color(UIColor.tertiarySystemFill))
+                  .padding(.init(top: -9, leading: -8, bottom: -9, trailing: -2))
               }
+            }
+          }
+        } else {
+          self.attachMenu(hierarchy) {
+            Button {
+              if let action = self.onSelection,
+                 let url = hierarchy.url {
+                action(url)
+              }
+            } label: {
               HStack {
                 Label {
                   Text(hierarchy.name)
@@ -362,40 +394,11 @@ struct FileHierarchyBrowser: View {
                   .padding(.trailing, -4)
                 }
               }
-            }
-          }
-        } else {
-          self.attachMenu(hierarchy) {
-            Button {
-              if let action = self.onSelection,
-                 let url = hierarchy.url {
-                action(url)
-              }
-            } label: {
-              ZStack {
+              .background {
                 if self.isSelected(hierarchy) {
                   RoundedRectangle(cornerRadius: 8)
                     .fill(Color(UIColor.tertiarySystemFill))
-                }
-                HStack {
-                  Label {
-                    Text(hierarchy.name)
-                      .foregroundColor(.primary)
-                  } icon: {
-                    Image(systemName: hierarchy.systemImage)
-                      .foregroundColor(self.isSelectedContainer(hierarchy) ? .green : .primary)
-                  }
-                  Spacer()
-                  if hierarchy.type == .file {
-                    Button {
-                      self.previewUrl = hierarchy.url
-                    } label: {
-                      Image(systemName: "eye")
-                        .foregroundColor(.gray)
-                    }
-                    .buttonStyle(.borderless)
-                    .padding(.trailing, -4)
-                  }
+                    .padding(.init(top: -9, leading: -8, bottom: -9, trailing: -2))
                 }
               }
             }
@@ -404,7 +407,7 @@ struct FileHierarchyBrowser: View {
       }
     }
   }
-  
+
   var body: some View {
     List(self.roots,
          children: \.children,

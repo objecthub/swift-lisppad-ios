@@ -60,9 +60,9 @@ public struct ImageButton: View {
     self.systemName = systemName
     self.legacyName = legacyName ?? systemName
     if #available(iOS 26.0, *) {
-      self.size = size ?? 40.0
+      self.size = size ?? 36.0
     } else {
-      self.size = size ?? 25.0
+      self.size = size ?? 24.0
     }
   }
   
