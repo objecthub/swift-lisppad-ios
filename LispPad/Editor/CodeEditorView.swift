@@ -756,7 +756,7 @@ struct CodeEditorView: View {
                 Label("Lines", systemImage: "text.redaction")
               }
             } label: {
-              Image(systemName: "ellipsis.circle")
+              Image(systemName: "ellipsis")
                 .font(LispPadUI.toolbarFont)
             }
           }

@@ -94,7 +94,6 @@ struct DocumentationDetailView: View {
     .toolbar {
       if self.url != nil {
         ToolbarItemGroup(placement: .topBarLeading) {
-          Spacer()
           HStack(alignment: .center, spacing: 0) {
             Button(action: {
               self.controller.goBack = true
@@ -151,6 +150,7 @@ struct DocumentationDetailView: View {
             }
           } label: {
             Image(systemName: "xmark")
+              .font(LispPadUI.toolbarFont)
           }
         }
       } else if self.url != nil {

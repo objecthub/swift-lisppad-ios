@@ -55,7 +55,7 @@ struct Organizer: View {
                 .font(.body)
               } header: {
                 Text("Usage")
-                  .padding(.top, 20)
+                  .padding(.top, 30)
               }
               Section {
                 FileHierarchyBrowser(self.fileManager.userRootDirectories,

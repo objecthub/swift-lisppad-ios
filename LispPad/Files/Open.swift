@@ -72,7 +72,7 @@ struct Open: View {
                 .font(.body)
             } header: {
               Text("Usage")
-                .padding(.top, 44)
+                .padding(.top, 60)
             }
             Section {
               FileHierarchyBrowser(self.fileManager.userRootDirectories,
@@ -117,7 +117,7 @@ struct Open: View {
                 self.showFileImporter = true
                 self.searchAndImport = true
               } label: {
-                Text("Browse")
+                ImageButton(systemName: "doc.text.magnifyingglass")
               }
               Spacer()
               Text(self.title).bold()
@@ -125,14 +125,14 @@ struct Open: View {
               Button {
                 self.dismiss()
               } label: {
-                Text("Cancel").bold()
+                ImageButton(systemName: "xmark", legacyName: "xmark.circle")
               }
             }
             .font(.system(size: 17))
             .padding(.horizontal)
-            .padding(.vertical, 12)
+            .padding(.top, 16)
+            .padding(.bottom, 10)
             .background(Color(.secondarySystemBackground).opacity(0.85))
-            // Divider()
           }
         }
         .transition(.move(edge: .top))

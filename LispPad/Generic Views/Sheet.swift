@@ -51,12 +51,43 @@ struct Sheet<Content: View>: View {
   }
 }
 
+public struct ImageButton: View {
+  let systemName: String
+  let legacyName: String
+  let size: CGFloat
+
+  init(systemName: String = "checkmark", legacyName: String? = nil, size: CGFloat? = nil) {
+    self.systemName = systemName
+    self.legacyName = legacyName ?? systemName
+    if #available(iOS 26.0, *) {
+      self.size = size ?? 40.0
+    } else {
+      self.size = size ?? 25.0
+    }
+  }
+  
+  public var body: some View {
+    if #available(iOS 26.0, *) {
+      Image(systemName: self.systemName)
+        .font(.system(size: self.size * 0.5, weight: .regular))
+        .foregroundStyle(.primary)
+        .frame(width: self.size, height: self.size)
+        .glassEffect(.regular.interactive(), in: Circle())
+    } else {
+      Image(systemName: self.legacyName)
+        .font(.system(size: self.size, weight: .light))
+        .foregroundStyle(.primary)
+        .frame(height: self.size)
+    }
+  }
+}
+
 public struct ExitButton: View {
   let size: CGFloat
 
   init(size: CGFloat? = nil) {
     if #available(iOS 26.0, *) {
-      self.size = size ?? 30.0
+      self.size = size ?? 32.0
     } else {
       self.size = size ?? 25.0
     }

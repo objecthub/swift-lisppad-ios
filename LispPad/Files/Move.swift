@@ -164,10 +164,10 @@ struct Move: View {
               self.urlToMove = nil
             }
           } label: {
-            Text("Cancel")
+            ImageButton(systemName: "xmark", legacyName: "xmark.circle")
           }
           Button(action: self.tapSave) {
-            Text("Save").bold()
+            ImageButton(systemName: "checkmark", legacyName: "checkmark.circle")
           }
           .disabled(self.folder == nil || self.fileName.isEmpty)
         }
