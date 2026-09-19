@@ -157,7 +157,7 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
     self.defineAction = defineAction
     self.returnAction = returnAction
     self.customReturn = customReturn
-    self.keyboard = CodeEditorKeyboard(console: console, editorType: editorType)
+    self.keyboard = makeCodeEditorKeyboard(console: console, editorType: editorType)
     super.init(frame: frame, textContainer: tc)
     lm.textView = self
     self.backgroundColor = .clear
@@ -249,53 +249,53 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
 
   @objc func keyboardButtonPressed(_ sender: UIButton) {
     switch sender.tag {
-      case CodeEditorKeyboard.KeyTag.toggleKeyboard.rawValue:
+      case KeyTag.toggleKeyboard.rawValue:
         self.keyboard.toggleKeyboard(for: self)
-      case CodeEditorKeyboard.KeyTag.dash.rawValue:
+      case KeyTag.dash.rawValue:
         self.insertText("-")
-      case CodeEditorKeyboard.KeyTag.times.rawValue:
+      case KeyTag.times.rawValue:
         self.insertText("*")
-      case CodeEditorKeyboard.KeyTag.quote.rawValue:
+      case KeyTag.quote.rawValue:
         self.insertText("'")
-      case CodeEditorKeyboard.KeyTag.doubleQuote.rawValue:
+      case KeyTag.doubleQuote.rawValue:
         self.insertText("\"")
-      case CodeEditorKeyboard.KeyTag.parenLeft.rawValue:
+      case KeyTag.parenLeft.rawValue:
         self.insertText("(")
-      case CodeEditorKeyboard.KeyTag.parenRight.rawValue:
+      case KeyTag.parenRight.rawValue:
         self.insertText(")")
-      case CodeEditorKeyboard.KeyTag.equals.rawValue:
+      case KeyTag.equals.rawValue:
         self.insertText("=")
-      case CodeEditorKeyboard.KeyTag.exclamation.rawValue:
+      case KeyTag.exclamation.rawValue:
         self.insertText("!")
-      case CodeEditorKeyboard.KeyTag.question.rawValue:
+      case KeyTag.question.rawValue:
         self.insertText("?")
-      case CodeEditorKeyboard.KeyTag.bracket.rawValue:
+      case KeyTag.bracket.rawValue:
         self.insertText(">")
-      case CodeEditorKeyboard.KeyTag.hash.rawValue:
+      case KeyTag.hash.rawValue:
         self.insertText("#")
-      case CodeEditorKeyboard.KeyTag.backquote.rawValue:
+      case KeyTag.backquote.rawValue:
         self.insertText("`")
-      case CodeEditorKeyboard.KeyTag.underscore.rawValue:
+      case KeyTag.underscore.rawValue:
         self.insertText("_")
-      case CodeEditorKeyboard.KeyTag.indent.rawValue:
+      case KeyTag.indent.rawValue:
         self.indent()
-      case CodeEditorKeyboard.KeyTag.undent.rawValue:
+      case KeyTag.undent.rawValue:
         self.outdent()
-      case CodeEditorKeyboard.KeyTag.comment.rawValue:
+      case KeyTag.comment.rawValue:
         self.comment()
-      case CodeEditorKeyboard.KeyTag.uncomment.rawValue:
+      case KeyTag.uncomment.rawValue:
         self.uncomment()
-      case CodeEditorKeyboard.KeyTag.cursorLeft.rawValue:
+      case KeyTag.cursorLeft.rawValue:
         self.moveCursor(direction: .left)
-      case CodeEditorKeyboard.KeyTag.cursorRight.rawValue:
+      case KeyTag.cursorRight.rawValue:
         self.moveCursor(direction: .right)
-      case CodeEditorKeyboard.KeyTag.cursorUp.rawValue:
+      case KeyTag.cursorUp.rawValue:
         self.moveCursor(direction: .up)
-      case CodeEditorKeyboard.KeyTag.cursorDown.rawValue:
+      case KeyTag.cursorDown.rawValue:
         self.moveCursor(direction: .down)
-      case CodeEditorKeyboard.KeyTag.undo.rawValue:
+      case KeyTag.undo.rawValue:
         self.undoManager?.undo()
-      case CodeEditorKeyboard.KeyTag.redo.rawValue:
+      case KeyTag.redo.rawValue:
         self.undoManager?.redo()
       default:
         self.resignFirstResponder()

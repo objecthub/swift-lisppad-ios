@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30D7B1A59EEB4D308E4F4429 /* iPhoneKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE2E6C57AF54D77B3462436 /* iPhoneKeyboard.swift */; };
 		CC02EA062CBBC7D200ABFC6F /* LispPadOAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */; };
 		CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */; };
 		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
@@ -390,6 +391,7 @@
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */; };
 		CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5CA2605F50B00E29F99 /* RichText.swift */; };
+		EDD6B00D9ED9405B96A4DF25 /* iPadKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -779,6 +781,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4DE2E6C57AF54D77B3462436 /* iPhoneKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPhoneKeyboard.swift; sourceTree = "<group>"; };
 		CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadOAuthConfig.swift; sourceTree = "<group>"; };
 		CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = OAuthDemo.scm; sourceTree = "<group>"; };
 		CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObliqueProjection.scm; sourceTree = "<group>"; };
@@ -1168,6 +1171,7 @@
 		CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentManager.swift; sourceTree = "<group>"; };
 		CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		CCFBC5CA2605F50B00E29F99 /* RichText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichText.swift; sourceTree = "<group>"; };
+		E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadKeyboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1275,6 +1279,7 @@
 				CCBEA78B2EAD0C73005AD4A3 /* Library Browser */,
 				CCFBC5BA25FE8E0A00E29F99 /* Editor */,
 				CCC85639261677560080B96E /* Files */,
+				CCDD3310305ECAF1003E5384 /* Keyboard */,
 				CCC8565E261D09190080B96E /* Preferences */,
 				CC1CBAE52F8A787D00D55310 /* Modals */,
 				CCC85642261989710080B96E /* Help */,
@@ -1668,6 +1673,16 @@
 			path = Preferences;
 			sourceTree = "<group>";
 		};
+		CCDD3310305ECAF1003E5384 /* Keyboard */ = {
+			isa = PBXGroup;
+			children = (
+				CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */,
+				E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */,
+				4DE2E6C57AF54D77B3462436 /* iPhoneKeyboard.swift */,
+			);
+			path = Keyboard;
+			sourceTree = "<group>";
+		};
 		CCE8E4252621A38C00E3DC6A /* Documents */ = {
 			isa = PBXGroup;
 			children = (
@@ -1842,7 +1857,6 @@
 				CC327C502610A3C800BD7E32 /* CodeEditorView.swift */,
 				CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */,
 				CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */,
-				CC890A53267E79F200FA8BAA /* CodeEditorKeyboard.swift */,
 				CC890A57267E8CD000FA8BAA /* EditorTextViewDelegate.swift */,
 				CCC85655261A17560080B96E /* CodeEditorTextViewDelegate.swift */,
 				CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */,
@@ -2033,6 +2047,8 @@
 				CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */,
 				CC972CDF2F80851F0053156E /* ChoiceModal.swift in Sources */,
 				CC890A54267E79F200FA8BAA /* CodeEditorKeyboard.swift in Sources */,
+				EDD6B00D9ED9405B96A4DF25 /* iPadKeyboard.swift in Sources */,
+				30D7B1A59EEB4D308E4F4429 /* iPhoneKeyboard.swift in Sources */,
 				CCE8E4302623CC6E00E3DC6A /* NamedRef.swift in Sources */,
 				CC8B95BA2607FFDA00830B4F /* AudioLibrary.swift in Sources */,
 				CC327C4D260FBD0800BD7E32 /* HistoryManager.swift in Sources */,
@@ -2239,7 +2255,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 125;
+				CURRENT_PROJECT_VERSION = 126;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
@@ -2249,7 +2265,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3.1;
+				MARKETING_VERSION = 2.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -2268,7 +2284,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 125;
+				CURRENT_PROJECT_VERSION = 126;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
@@ -2278,7 +2294,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3.1;
+				MARKETING_VERSION = 2.3.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
