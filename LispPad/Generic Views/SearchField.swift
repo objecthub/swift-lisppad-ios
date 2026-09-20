@@ -158,8 +158,10 @@ struct SearchField: View {
                   }
                 } label: {
                   Label(title: { Text(entry.description) },
-                        icon: { Image(systemName: entry.searchOnly ? "magnifyingglass"
-                                      : "repeat") })
+                        icon: { Image(systemName:
+                                        entry.searchOnly
+                                        ? "magnifyingglass"
+                                        : "arrow.trianglehead.2.counterclockwise.rotate.90") })
                 }
               }
             }
@@ -212,7 +214,7 @@ struct SearchField: View {
 
   private var replaceFieldRow: some View {
     HStack {
-      Image(systemName: "pencil")
+      Image(systemName: "arrow.trianglehead.2.counterclockwise.rotate.90")
       TextField("Replace", text: $replaceText, onEditingChanged: { isEditing in
         self.showSearchField = true
       }, onCommit: {
