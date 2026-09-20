@@ -91,6 +91,8 @@ struct SearchField: View {
         .frame(width: width, height: self.buttonRowHeight)
     } else {
       Image(systemName: legacyName ?? systemName)
+        .font(.body)
+        .frame(width: width, height: self.buttonRowHeight)
     }
   }
 
