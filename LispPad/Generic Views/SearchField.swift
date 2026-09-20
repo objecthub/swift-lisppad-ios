@@ -43,10 +43,38 @@ struct SearchField: View {
   let replace: (String, String, ((Bool) -> Void)?) -> Void
   let replaceAll: (String, String) -> Void
 
-  /// The shared height of every Liquid Glass surface in this view (the search/replace
-  /// text fields as well as the icon button pairs), so they all line up like segments
-  /// of one continuous control, the way Liquid Glass toolbars do.
+  /// The height of the combined search/replace text field rows.
   private let controlHeight: CGFloat = 36
+
+  /// The height of each icon button row (search nav pair, replace action group) when
+  /// both are stacked on top of each other, 4pt shorter than `controlHeight` so that,
+  /// together with the 8pt gap between them, their combined height still lines up with
+  /// `combinedFieldBox`. Only used while the replace field is visible; with a single
+  /// button row, it uses the full `controlHeight` instead, matching the single field row.
+  private let buttonGroupHeight: CGFloat = 32
+
+  /// The height of an icon button row for the current mode: `buttonGroupHeight` once
+  /// the two button groups are stacked (replace mode), `controlHeight` otherwise.
+  private var buttonRowHeight: CGFloat {
+    self.replaceMode ? self.buttonGroupHeight : self.controlHeight
+  }
+
+  /// The default width of an icon inside a button group, and the horizontal padding
+  /// applied on each side of a button within a group. Used both to lay out the icons
+  /// themselves and to work out how wide a differently-sized group's icons need to be
+  /// to match another group's total width (see `searchNavIconWidth`).
+  private static let iconWidth: CGFloat = 30
+  private static let iconPadding: CGFloat = 4
+
+  /// The width to use for each of the two search navigation icons. Once the replace
+  /// action group (three icons) is visible, the search navigation pair (two icons)
+  /// is widened so both glass pills span the same total width, matching Liquid
+  /// Glass's habit of aligning grouped controls; otherwise it's the default width.
+  private var searchNavIconWidth: CGFloat {
+    guard self.replaceMode else { return Self.iconWidth }
+    let replaceGroupWidth = 3 * (Self.iconWidth + 2 * Self.iconPadding)
+    return replaceGroupWidth / 2 - 2 * Self.iconPadding
+  }
 
   /// A glyph sized to sit inside a shared Liquid Glass capsule (see `glassGroup`) on
   /// iOS 26+, falling back to a plain, unsized glyph on older versions. `legacyName`
@@ -56,11 +84,11 @@ struct SearchField: View {
   @ViewBuilder
   private func pairIcon(_ systemName: String,
                          legacyName: String? = nil,
-                         width: CGFloat = 30) -> some View {
+                         width: CGFloat = Self.iconWidth) -> some View {
     if #available(iOS 26.0, *) {
       Image(systemName: systemName)
         .font(.system(size: 14, weight: .semibold))
-        .frame(width: width, height: self.controlHeight)
+        .frame(width: width, height: self.buttonRowHeight)
     } else {
       Image(systemName: legacyName ?? systemName)
     }
@@ -82,25 +110,6 @@ struct SearchField: View {
         content()
       }
       .padding(.leading, 8)
-    }
-  }
-
-  /// Wraps the content of a search/replace text field row with a Liquid Glass
-  /// capsule on iOS 26+, falling back to the former flat, filled rounded rectangle.
-  @ViewBuilder
-  private func glassCapsule<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-    if #available(iOS 26.0, *) {
-      content()
-        .padding(.horizontal, 6)
-        .frame(height: self.controlHeight)
-        .foregroundColor(.secondary)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-    } else {
-      content()
-        .padding(EdgeInsets(top: 6, leading: 6, bottom: 6, trailing: 6))
-        .foregroundColor(.secondary)
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
     }
   }
 
@@ -161,41 +170,101 @@ struct SearchField: View {
     }
   }
 
-  private var searchCapsule: some View {
-    self.glassCapsule {
-      HStack {
-        self.searchIcon
-        TextField("Search", text: $searchText, onEditingChanged: { isEditing in
-          self.showSearchField = true
-        }, onCommit: {
-          if !self.searchText.isEmpty {
-            let term = self.searchText
-            let repl = self.replaceText
-            self.histManager.rememberSearch(
-              SearchHistoryEntry(searchText: term,
-                                 replaceText: self.replaceMode ? repl : nil))
-            let more = self.search(term, .first)
-            withAnimation(.default) {
-              self.lastSearchText = term
-              self.lastReplaceText = repl
-              self.showNext = more
-            }
-          }
-        })
-        .keyboardType(.default)
-        .disableAutocorrection(true)
-        .autocapitalization(.none)
-        .foregroundColor(.primary)
-        Button(action: {
+  private var searchFieldRow: some View {
+    HStack {
+      self.searchIcon
+      TextField("Search", text: $searchText, onEditingChanged: { isEditing in
+        self.showSearchField = true
+      }, onCommit: {
+        if !self.searchText.isEmpty {
+          let term = self.searchText
+          let repl = self.replaceText
+          self.histManager.rememberSearch(
+            SearchHistoryEntry(searchText: term,
+                               replaceText: self.replaceMode ? repl : nil))
+          let more = self.search(term, .first)
           withAnimation(.default) {
-            self.searchText = ""
-            self.lastSearchText = ""
-            self.showNext = false
+            self.lastSearchText = term
+            self.lastReplaceText = repl
+            self.showNext = more
           }
-        }) {
-          Image(systemName: "xmark.circle.fill")
-            .opacity(self.searchText == "" ? 0 : 1)
         }
+      })
+      .keyboardType(.default)
+      .disableAutocorrection(true)
+      .autocapitalization(.none)
+      .foregroundColor(.primary)
+      Button(action: {
+        withAnimation(.default) {
+          self.searchText = ""
+          self.lastSearchText = ""
+          self.showNext = false
+        }
+      }) {
+        Image(systemName: "xmark.circle.fill")
+          .opacity(self.searchText == "" ? 0 : 1)
+      }
+    }
+    .frame(height: self.controlHeight)
+  }
+
+  private var replaceFieldRow: some View {
+    HStack {
+      Image(systemName: "pencil")
+      TextField("Replace", text: $replaceText, onEditingChanged: { isEditing in
+        self.showSearchField = true
+      }, onCommit: {
+        if !self.searchText.isEmpty {
+          let term = self.searchText
+          let repl = self.replaceText
+          self.histManager.rememberSearch(
+            SearchHistoryEntry(searchText: term,
+                               replaceText: self.replaceMode ? repl : nil))
+          let more = self.search(term, .first)
+          withAnimation(.default) {
+            self.lastSearchText = term
+            self.lastReplaceText = repl
+            self.showNext = more
+          }
+        }
+      })
+      .disableAutocorrection(true)
+      .autocapitalization(.none)
+      .foregroundColor(.primary)
+      Button(action: {
+        withAnimation(.default) {
+          self.replaceText = ""
+          self.showNext = false
+        }
+      }) {
+        Image(systemName: "xmark.circle.fill")
+          .opacity(self.replaceText == "" ? 0 : 1)
+      }
+    }
+    .frame(height: self.controlHeight)
+  }
+
+  /// Combines the search field, and (once replace mode is active) the replace field
+  /// right below it, into a single box of matching width with a thin divider between
+  /// the two rows — a Liquid Glass capsule on iOS 26+, falling back to the former
+  /// flat, filled rounded rectangle.
+  private var combinedFieldBox: some View {
+    let rows = VStack(alignment: .leading, spacing: 0) {
+      self.searchFieldRow
+      if self.replaceMode {
+        Divider()
+        self.replaceFieldRow
+      }
+    }
+    .padding(.horizontal, 6)
+    .foregroundColor(.secondary)
+    return Group {
+      if #available(iOS 26.0, *) {
+        rows.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+      } else {
+        rows
+          .background(Color(.secondarySystemBackground))
+          .cornerRadius(12)
       }
     }
   }
@@ -216,9 +285,9 @@ struct SearchField: View {
         }
       }
     }, label: {
-      self.pairIcon("chevron.backward")
+      self.pairIcon("chevron.backward", width: self.searchNavIconWidth)
     })
-    .padding(.horizontal, 4)
+    .padding(.horizontal, Self.iconPadding)
     .keyCommand("g", modifiers: [.command, .shift], title: "Find previous")
     .disabled(self.searchText.isEmpty)
   }
@@ -239,9 +308,9 @@ struct SearchField: View {
         }
       }
     }, label: {
-      self.pairIcon("chevron.forward")
+      self.pairIcon("chevron.forward", width: self.searchNavIconWidth)
     })
-    .padding(.horizontal, 4)
+    .padding(.horizontal, Self.iconPadding)
     .keyCommand("g", modifiers: .command, title: "Find next")
     .disabled(self.searchText.isEmpty)
   }
@@ -250,43 +319,6 @@ struct SearchField: View {
     self.glassGroup {
       self.searchBackwardButton
       self.searchForwardButton
-    }
-  }
-
-  private var replaceCapsule: some View {
-    self.glassCapsule {
-      HStack {
-        Image(systemName: "pencil")
-        TextField("Replace", text: $replaceText, onEditingChanged: { isEditing in
-          self.showSearchField = true
-        }, onCommit: {
-          if !self.searchText.isEmpty {
-            let term = self.searchText
-            let repl = self.replaceText
-            self.histManager.rememberSearch(
-              SearchHistoryEntry(searchText: term,
-                                 replaceText: self.replaceMode ? repl : nil))
-            let more = self.search(term, .first)
-            withAnimation(.default) {
-              self.lastSearchText = term
-              self.lastReplaceText = repl
-              self.showNext = more
-            }
-          }
-        })
-        .disableAutocorrection(true)
-        .autocapitalization(.none)
-        .foregroundColor(.primary)
-        Button(action: {
-          withAnimation(.default) {
-            self.replaceText = ""
-            self.showNext = false
-          }
-        }) {
-          Image(systemName: "xmark.circle.fill")
-            .opacity(self.replaceText == "" ? 0 : 1)
-        }
-      }
     }
   }
 
@@ -301,7 +333,7 @@ struct SearchField: View {
     }, label: {
       self.pairIcon("repeat.1")
     })
-    .padding(.horizontal, 4)
+    .padding(.horizontal, Self.iconPadding)
     .disabled(self.searchText.isEmpty ||
                 self.searchText != self.lastSearchText ||
                 self.replaceText != self.lastReplaceText)
@@ -328,7 +360,7 @@ struct SearchField: View {
           }
         }
     }
-    .padding(.horizontal, 4)
+    .padding(.horizontal, Self.iconPadding)
     .disabled(!showNext ||
                 self.searchText.isEmpty ||
                 self.searchText != self.lastSearchText ||
@@ -346,7 +378,7 @@ struct SearchField: View {
     }, label: {
       self.pairIcon("repeat.badge.xmark", legacyName: "repeat.circle")
     })
-    .padding(.horizontal, 4)
+    .padding(.horizontal, Self.iconPadding)
     .disabled(self.searchText.isEmpty)
   }
 
@@ -358,62 +390,69 @@ struct SearchField: View {
     }
   }
 
-  var body: some View {
-    VStack(alignment: .leading, spacing: 0.0) {
-      HStack {
-        self.searchCapsule
+  /// The controls to the right of `combinedFieldBox`: the search navigation pair
+  /// pinned to the top, and (once replace mode is active) the replace action group
+  /// pinned to the bottom, 8pt apart. The exit button sits alongside both, vertically
+  /// centered across their combined height.
+  private var trailingControls: some View {
+    HStack(alignment: .center, spacing: 0) {
+      VStack(alignment: .leading, spacing: 8) {
         self.searchNavButtons
-        Spacer(minLength: 8)
-        Button("Cancel") {
-          UIApplication.shared.endEditing(true)
-          withAnimation(.default) {
-            self.showSearchField = false
-            self.showNext = false
-          }
-        }
-        .padding(.leading, 4)
-        .padding(.trailing, 0)
-      }
-      .padding(EdgeInsets(top: 8, leading: 8,
-                          bottom: self.replaceMode ? 6 : 8, trailing: 8))
-      // .animation(.default)
-      if self.replaceMode {
-        HStack {
-          self.replaceCapsule
-          Button(action: {
-            self.replace(self.searchText, self.replaceText) { more in
-              DispatchQueue.main.async {
-                withAnimation(.default) {
-                  self.showNext = more
+          .frame(height: self.buttonRowHeight)
+        if self.replaceMode {
+          HStack(spacing: 0) {
+            Button(action: {
+              self.replace(self.searchText, self.replaceText) { more in
+                DispatchQueue.main.async {
+                  withAnimation(.default) {
+                    self.showNext = more
+                  }
                 }
               }
+            }) {
+              EmptyView()
             }
-          }) {
-            EmptyView()
-          }
-          .keyCommand("y", modifiers: .command, title: "Replace and find next")
-          .disabled(!showNext ||
-                      self.searchText.isEmpty ||
-                      self.searchText != self.lastSearchText ||
-                      self.replaceText != self.lastReplaceText)
-          Button(action: {
-            self.replaceAll(self.searchText, self.replaceText)
-            withAnimation(.default) {
-              self.lastSearchText = ""
-              self.lastReplaceText = ""
-              self.showNext = false
+            .keyCommand("y", modifiers: .command, title: "Replace and find next")
+            .disabled(!showNext ||
+                        self.searchText.isEmpty ||
+                        self.searchText != self.lastSearchText ||
+                        self.replaceText != self.lastReplaceText)
+            Button(action: {
+              self.replaceAll(self.searchText, self.replaceText)
+              withAnimation(.default) {
+                self.lastSearchText = ""
+                self.lastReplaceText = ""
+                self.showNext = false
+              }
+            }) {
+              EmptyView()
             }
-          }) {
-            EmptyView()
+            .keyCommand("y", modifiers: [.command, .shift], title: "Replace all")
+            .disabled(self.searchText.isEmpty)
+            self.replaceButtons
           }
-          .keyCommand("y", modifiers: [.command, .shift], title: "Replace all")
-          .disabled(self.searchText.isEmpty)
-          self.replaceButtons
+          .frame(height: self.buttonGroupHeight)
         }
-        .padding(EdgeInsets(top: 0, leading: 8, bottom: 8, trailing: 8))
-        // .animation(.default)
       }
+      Button {
+        UIApplication.shared.endEditing(true)
+        withAnimation(.default) {
+          self.showSearchField = false
+          self.showNext = false
+        }
+      } label: {
+        ExitButton()
+      }
+      .padding(.leading, 12)
     }
+  }
+
+  var body: some View {
+    HStack(alignment: .top, spacing: 0) {
+      self.combinedFieldBox
+      self.trailingControls
+    }
+    .padding(8)
     .onDisappear {
       self.histManager.saveSearchHistory()
     }
