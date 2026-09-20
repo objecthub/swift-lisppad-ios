@@ -82,14 +82,51 @@ public struct ImageButton: View {
   }
 }
 
-public struct ExitButton: View {
+public struct ResetButton: View {
   let size: CGFloat
 
-  init(size: CGFloat? = nil) {
+  init(size: CGFloat? = nil, legacySize: CGFloat? = nil) {
     if #available(iOS 26.0, *) {
       self.size = size ?? 32.0
     } else {
-      self.size = size ?? 25.0
+      self.size = legacySize ?? size ?? 25.0
+    }
+  }
+
+  public var body: some View {
+    if #available(iOS 26.0, *) {
+      Image(systemName: "arrow.counterclockwise")
+        .font(.system(size: self.size * 0.5, weight: .semibold))
+        .foregroundStyle(.secondary)
+        .frame(width: self.size, height: self.size)
+        .tint(.black)
+        .glassEffect(.regular.interactive(), in: Circle())
+        .accessibility(label: Text("Reset"))
+        .accessibility(hint: Text("Tap to reset the values."))
+        .accessibility(addTraits: .isButton)
+        .accessibility(removeTraits: .isImage)
+    } else {
+      Image(systemName: "arrow.counterclockwise.circle.fill")
+        .resizable()
+        .scaledToFit()
+        .frame(height: self.size)
+        .foregroundColor(Color(UIColor.lightGray))
+        .accessibility(label: Text("Reset"))
+        .accessibility(hint: Text("Tap to reset the values."))
+        .accessibility(addTraits: .isButton)
+        .accessibility(removeTraits: .isImage)
+    }
+  }
+}
+
+public struct ExitButton: View {
+  let size: CGFloat
+
+  init(size: CGFloat? = nil, legacySize: CGFloat? = nil) {
+    if #available(iOS 26.0, *) {
+      self.size = size ?? 32.0
+    } else {
+      self.size = legacySize ?? size ?? 25.0
     }
   }
 

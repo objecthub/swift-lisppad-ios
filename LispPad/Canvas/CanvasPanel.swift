@@ -49,14 +49,6 @@ struct CanvasPanel: View {
     }
   }
   
-  var canvasDialogHeight: CGFloat {
-    if #available(iOS 26.0, *) {
-      return 204
-    } else {
-      return 172
-    }
-  }
-  
   var body: some View {
     ZStack(alignment: .topLeading) {
       Color(.secondarySystemBackground)
@@ -136,7 +128,7 @@ struct CanvasPanel: View {
                 self.interpreter.canvas.scale = scale
                 self.interpreter.objectWillChange.send()
               }
-              .frame(idealWidth: 220, idealHeight: self.canvasDialogHeight)
+              .frame(idealWidth: 220)
               .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
             }
           }

@@ -55,66 +55,67 @@ struct CanvasSizeEditor: View {
     formatter.locale = Locale.current
     return formatter
   }()
-  
+
+  private var rowSeparator: some View {
+    Rectangle()
+      .fill(Color(UIColor.separator))
+      .frame(height: 1 / UIScreen.main.scale)
+  }
+
   var body: some View {
-    List {
-      TextField("Canvas Name", text: self.$name, prompt: Text("Canvas Name"))
-        .font(LispPadUI.definitionsFont)
-        .autocapitalization(.none)
-        .disableAutocorrection(true)
-        .frame(height: 21)
-        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-      HStack(alignment: .center, spacing: 8) {
-        Text("Size:").font(LispPadUI.definitionsFont)
-        Spacer()
-        TextField("Width", value: self.$width, formatter: formatter)
-          .font(LispPadUI.definitionsFont)
-          .multilineTextAlignment(.trailing)
-          .frame(idealWidth: 30, maxWidth: 50)
-          .keyboardType(.decimalPad)
-        Text("⨉").font(LispPadUI.definitionsFont)
-        TextField("Height", value: self.$height, formatter: formatter)
-          .font(LispPadUI.definitionsFont)
-          .multilineTextAlignment(.trailing)
-          .frame(idealWidth: 30, maxWidth: 50)
-          .keyboardType(.decimalPad)
-      }
-      .frame(height: 21)
-      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-      HStack(alignment: .center, spacing: 8) {
-        Text("Scale:").font(LispPadUI.definitionsFont)
-        Spacer()
-        TextField("Scale", value: self.$scale, formatter: formatter)
-          .font(LispPadUI.definitionsFont)
-          .multilineTextAlignment(.trailing)
-          .keyboardType(.decimalPad)
-      }
-      .frame(height: 21)
-      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-      HStack(alignment: .center, spacing: 8) {
-        Button("Reset", role: .destructive) {
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(alignment: .center, spacing: 0) {
+        Button(role: .destructive) {
           self.name = self.initialName
           self.width = self.initialWidth
           self.height = self.initialHeight
           self.scale = self.initialScale
+        } label: {
+          ResetButton(size: 26, legacySize: 20)
         }
-        .font(LispPadUI.definitionsFont)
-        .buttonStyle(.borderless)
         Spacer()
-        Button("Cancel", role: .destructive) {
+        Button(role: .destructive) {
           self.cancelled = true
           self.dismiss()
+        } label: {
+          ExitButton(size: 26, legacySize: 20)
         }
-        .font(LispPadUI.definitionsFont)
-        .buttonStyle(.borderless)
       }
-      .frame(height: 21)
-      .listRowBackground(Color(UIColor.systemGroupedBackground))
-      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+      .padding(.init(top: 10, leading: 14, bottom: 8, trailing: 14))
+      self.rowSeparator
+      TextField("Canvas Name", text: self.$name, prompt: Text("Canvas Name"))
+        .autocapitalization(.none)
+        .disableAutocorrection(true)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+      self.rowSeparator.padding(.leading, 8)
+      HStack(alignment: .center, spacing: 8) {
+        Text("Size:")
+        Spacer()
+        TextField("Width", value: self.$width, formatter: formatter)
+          .multilineTextAlignment(.trailing)
+          .frame(idealWidth: 30, maxWidth: 50)
+          .keyboardType(.decimalPad)
+        Text("⨉")
+        TextField("Height", value: self.$height, formatter: formatter)
+          .multilineTextAlignment(.trailing)
+          .frame(idealWidth: 30, maxWidth: 50)
+          .keyboardType(.decimalPad)
+      }
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
+      self.rowSeparator.padding(.leading, 8)
+      HStack(alignment: .center, spacing: 8) {
+        Text("Scale:")
+        Spacer()
+        TextField("Factor", value: self.$scale, formatter: formatter)
+          .multilineTextAlignment(.trailing)
+          .keyboardType(.decimalPad)
+      }
+      .padding(.init(top: 8, leading: 16, bottom: 18, trailing: 16))
     }
-    .listStyle(.plain)
-    .scrollDisabled(true)
-    .environment(\.defaultMinListRowHeight, 21)
+    .font(.body)
+    .fixedSize(horizontal: false, vertical: true)
     .onAppear {
       self.cancelled = false
     }
@@ -151,6 +152,5 @@ struct CanvasSizeEditor: View {
         self.update(self.name, CGSize(width: self.width, height: self.height), self.scale)
       }
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }
