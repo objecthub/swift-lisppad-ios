@@ -454,6 +454,7 @@ struct InterpreterView: View {
                 .foregroundColor(self.state.focused && self.splitViewMode.isSideBySide
                                    ? Color.green : Color(LispPadUI.menuIndicatorColor))
             }
+            .padding(.trailing, -2)
           }
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {

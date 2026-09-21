@@ -175,26 +175,13 @@ struct SideBySideNavigator: View {
             self.mode.toggle()
           }
         }) {
-          if self.leftSide {
-            ZStack {
-              Image(systemName: "rectangle.fill.on.rectangle.fill")
-                .foregroundColor(.primary)
-                .font(LispPadUI.toolbarSwitchFont)
-              Image(systemName: "pencil")
-                .foregroundColor(SideBySideNavigator.lightColor)
-                .font(.system(size: 10, weight: .bold))
-                .offset(x: 3, y: 1.6)
-            }
+          if #available(iOS 26.0, *) {
+            // Liquid Glass toolbar spacing scales with each button's declared layout size,
+            // not its ink, so the wider two-rectangle glyph otherwise reserves a bigger box
+            // than the plain single-glyph icons beside it and the gap after it looks larger.
+            self.switchIcon.padding(.horizontal, -2)
           } else {
-            ZStack {
-              Image(systemName: "rectangle.fill.on.rectangle.fill")
-                .foregroundColor(.primary)
-                .font(LispPadUI.toolbarSwitchFont)
-              Image(systemName: "terminal")
-                .foregroundColor(SideBySideNavigator.lightColor)
-                .font(.system(size: 15.5, weight: .regular))
-                .offset(x: 2.2, y: 1.5)
-            }
+            self.switchIcon
           }
         }
         if self.allowSplit {
@@ -208,6 +195,31 @@ struct SideBySideNavigator: View {
               .font(LispPadUI.toolbarSwitchFont)
           }
         }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var switchIcon: some View {
+    if self.leftSide {
+      ZStack {
+        Image(systemName: "rectangle.fill.on.rectangle.fill")
+          .foregroundColor(.primary)
+          .font(LispPadUI.toolbarSwitchFont)
+        Image(systemName: "pencil")
+          .foregroundColor(SideBySideNavigator.lightColor)
+          .font(.system(size: 10, weight: .bold))
+          .offset(x: 3, y: 1.6)
+      }
+    } else {
+      ZStack {
+        Image(systemName: "rectangle.fill.on.rectangle.fill")
+          .foregroundColor(.primary)
+          .font(LispPadUI.toolbarSwitchFont)
+        Image(systemName: "terminal")
+          .foregroundColor(SideBySideNavigator.lightColor)
+          .font(.system(size: 15.5, weight: .regular))
+          .offset(x: 2.2, y: 1.5)
       }
     }
   }

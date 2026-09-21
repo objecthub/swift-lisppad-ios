@@ -477,6 +477,7 @@ struct CodeEditorView: View {
                 .foregroundColor(self.editorFocused && self.splitViewMode.isSideBySide
                                  ? Color.green : Color(LispPadUI.menuIndicatorColor))
             }
+            .padding(.trailing, -2)
             .onLongPressGesture(
               minimumDuration: 0.2,
               maximumDistance: .infinity,
