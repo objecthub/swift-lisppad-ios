@@ -37,7 +37,9 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var update: ((CodeEditorTextView) -> Void)?
   @Binding var editorType: FileExtensions.EditorType
   @ObservedObject var keyboardObserver: KeyboardObserver
-  
+
+  let searchTerm: String
+  let searchCaseSensitive: Bool
   let defineAction: ((Block) -> Void)?
   
   public func makeCoordinator() -> Coordinator {
@@ -122,6 +124,7 @@ struct CodeEditor: UIViewRepresentable {
     textView.keyboard.setup(for: textView)
     if self.fileManager.requireEditorUpdate() {
       textView.text = self.text
+      textView.refreshSearchHighlights()
       textView.selectedRange = NSRange(location: 0, length: 0)
       DispatchQueue.main.async {
         textView.becomeFirstResponder()
@@ -137,6 +140,7 @@ struct CodeEditor: UIViewRepresentable {
     if textView.highlightCurrentLine != self.settings.highlightCurrentLine {
       textView.highlightCurrentLine = self.settings.highlightCurrentLine
     }
+    textView.setSearchHighlight(term: self.searchTerm, caseSensitive: self.searchCaseSensitive)
     if self.editorType != textView.textStorageDelegate.editorType {
       textView.textStorageDelegate.editorType = self.editorType
       textView.textStorageDelegate.highlight(textView.textStorage)
@@ -151,6 +155,7 @@ struct CodeEditor: UIViewRepresentable {
         } else {
           textView.text = self.text
         }
+        textView.refreshSearchHighlights()
       }
       if UIDevice.current.userInterfaceIdiom == .pad {
         DispatchQueue.main.async {
@@ -187,6 +192,7 @@ struct CodeEditor: UIViewRepresentable {
       }
     } else if self.forceUpdate {
       textView.text = self.text
+      textView.refreshSearchHighlights()
       DispatchQueue.main.async {
         self.forceUpdate = false
       }

@@ -89,6 +89,130 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
     }
   }
 
+  /// All character ranges of the current search term that should be highlighted.
+  private var internalSearchHighlightRanges: [NSRange] = []
+
+  var searchHighlightRanges: [NSRange] {
+    get {
+      return self.internalSearchHighlightRanges
+    }
+    set(newVal) {
+      if self.internalSearchHighlightRanges != newVal {
+        let lm = self.layoutManager as! CodeEditorLayoutManager
+        lm.searchHighlightRanges = newVal
+        self.internalSearchHighlightRanges = newVal
+        self.setNeedsDisplay()
+      }
+    }
+  }
+
+  /// The search term currently being highlighted (empty means no highlighting).
+  private(set) var searchTerm: String = ""
+
+  /// Whether `searchTerm` matching is case-sensitive.
+  private(set) var searchCaseSensitive: Bool = true
+
+  /// Pending debounced recompute, either from live typing in the search field or from
+  /// a document edit (see `debounceRecompute(after:)`).
+  private var searchHighlightWorkItem: DispatchWorkItem? = nil
+
+  /// Debounce delay for live edits to the search term. Short enough to feel responsive,
+  /// but long enough that fast typing settles into a single clean recompute + redraw
+  /// instead of many overlapping ones. Without this, each keystroke synchronously
+  /// recomputed and redrew immediately -- and since `drawBackground` gets invoked once
+  /// per visible tile rather than once per view, a keystroke landing in between two of
+  /// those tile redraws could leave part of the screen showing the previous search
+  /// term's highlights and the rest showing the new term's, all in the same frame.
+  private static let liveTypingDebounce: TimeInterval = 0.2
+
+  /// Debounce delay for recomputing after a document edit (see `textViewDidChange`).
+  private static let documentEditDebounce: TimeInterval = 0.4
+
+  /// Cancels any pending recompute and schedules a new one, so a later call always
+  /// supersedes an earlier one instead of them racing to apply their results out of order.
+  private func debounceRecompute(after delay: TimeInterval) {
+    self.searchHighlightWorkItem?.cancel()
+    let workItem = DispatchWorkItem { [weak self] in
+      self?.recomputeSearchHighlights()
+    }
+    self.searchHighlightWorkItem = workItem
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
+  }
+
+  /// Updates the search term/case-sensitivity used for live match highlighting and
+  /// schedules a debounced recompute if either changed (see `liveTypingDebounce`).
+  /// Clearing the term (search field closed, or its text cleared) is handled outside
+  /// the debounce and applied immediately -- turning highlighting off should never
+  /// wait, and leaving a pending clear in flight risks it being superseded/lost by a
+  /// later, unrelated call before it fires, leaving stale highlights visible once the
+  /// user scrolls to a part of the document that hadn't been redrawn since.
+  func setSearchHighlight(term: String, caseSensitive: Bool) {
+    guard self.searchTerm != term || self.searchCaseSensitive != caseSensitive else {
+      return
+    }
+    self.searchTerm = term
+    self.searchCaseSensitive = caseSensitive
+    if term.isEmpty {
+      self.searchHighlightWorkItem?.cancel()
+      self.searchHighlightWorkItem = nil
+      self.recomputeSearchHighlights()
+    } else {
+      self.debounceRecompute(after: Self.liveTypingDebounce)
+    }
+  }
+
+  /// Schedules a debounced recompute of the search highlights after a document edit
+  /// (see `documentEditDebounce`).
+  func scheduleSearchHighlightRecompute() {
+    guard !self.searchTerm.isEmpty else {
+      return
+    }
+    self.debounceRecompute(after: Self.documentEditDebounce)
+  }
+
+  /// Forces an immediate recompute of search highlights against the current text,
+  /// cancelling any pending debounced recompute, regardless of whether `searchTerm`
+  /// itself changed. Call this right after the text view's text has been replaced
+  /// wholesale (e.g. switching documents, or a programmatic replace-all) -- the
+  /// character offsets of any previously computed ranges are no longer valid for the
+  /// new text, and neither `setSearchHighlight(term:caseSensitive:)` (guarded on the
+  /// term actually changing) nor the edit-driven debounce (which only fires for
+  /// interactive typing, not programmatic text replacement) would otherwise refresh them.
+  func refreshSearchHighlights() {
+    self.searchHighlightWorkItem?.cancel()
+    self.searchHighlightWorkItem = nil
+    self.recomputeSearchHighlights()
+  }
+
+  private func recomputeSearchHighlights() {
+    self.searchHighlightRanges = self.searchTerm.isEmpty ? [] :
+      Self.matchRanges(in: self.text, of: self.searchTerm, caseSensitive: self.searchCaseSensitive)
+  }
+
+  private static func matchRanges(in text: String, of term: String, caseSensitive: Bool) -> [NSRange] {
+    guard !term.isEmpty else {
+      return []
+    }
+    let ns = text as NSString
+    let options: NSString.CompareOptions = caseSensitive ? [.diacriticInsensitive]
+                                                          : [.diacriticInsensitive, .caseInsensitive]
+    var ranges: [NSRange] = []
+    var searchRange = NSRange(location: 0, length: ns.length)
+    while searchRange.length > 0 {
+      let found = ns.range(of: term, options: options, range: searchRange, locale: nil)
+      guard found.location != NSNotFound else {
+        break
+      }
+      ranges.append(found)
+      let next = found.location + max(found.length, 1)
+      guard next < ns.length else {
+        break
+      }
+      searchRange = NSRange(location: next, length: ns.length - next)
+    }
+    return ranges
+  }
+
   var codingFont: UIFont {
     get {
       let lm = self.layoutManager as! CodeEditorLayoutManager

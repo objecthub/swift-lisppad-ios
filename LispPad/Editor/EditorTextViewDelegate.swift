@@ -69,6 +69,7 @@ class EditorTextViewDelegate: NSObject, UITextViewDelegate {
       return
     }
     self.lastSelectedRange = textView.selectedRange
+    (textView as? CodeEditorTextView)?.scheduleSearchHighlightRecompute()
     DispatchQueue.main.async {
       self.text = textView.text ?? ""
       self.selectedRange = textView.selectedRange

@@ -325,6 +325,8 @@ struct CodeEditorView: View {
                    update: $updateEditor,
                    editorType: $editorType,
                    keyboardObserver: self.keyboardObserver,
+                   searchTerm: self.showSearchField ? self.searchText : "",
+                   searchCaseSensitive: self.caseSensitiveSearch,
                    defineAction: { block in
                     self.showCard = true
                     self.cardContent.block = block

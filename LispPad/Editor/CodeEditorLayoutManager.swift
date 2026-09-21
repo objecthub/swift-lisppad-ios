@@ -27,10 +27,13 @@ class CodeEditorLayoutManager: NSLayoutManager {
 
   static let lineHighlightColor = UIColor(named: "LineHighlightColor") ??
                                     UIColor(red: 0.95, green: 0.95, blue: 0.85, alpha: 0.8)
-  
+  static let searchHighlightColor = UIColor(named: "SearchHighlightColor") ??
+                                      UIColor.systemYellow.withAlphaComponent(0.4)
+
   let console: Bool
   var showLineNumbers = UserSettings.standard.showLineNumbers
   var highlightCurrentLine = UserSettings.standard.highlightCurrentLine
+  var searchHighlightRanges: [NSRange] = []
   var codingFont = UIFont.systemFont(ofSize: 10.0)
   var codingTextColor = UIColor.secondaryLabel
   var lastLineLoc = 0
@@ -124,7 +127,7 @@ class CodeEditorLayoutManager: NSLayoutManager {
     // Draw line numbers. The background for line number gutter is drawn by the
     // CodeEditorTextView class.
     guard !self.console,
-          self.showLineNumbers || self.highlightCurrentLine,
+          self.showLineNumbers || self.highlightCurrentLine || !self.searchHighlightRanges.isEmpty,
           let textStorage = self.textStorage,
           let context = UIGraphicsGetCurrentContext() else {
       super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
@@ -206,6 +209,42 @@ class CodeEditorLayoutManager: NSLayoutManager {
                          width: rect.size.width - 2,
                          height: rect.size.height + 2)
       context.fill(lrect)
+    }
+    if !self.searchHighlightRanges.isEmpty {
+      // Accumulate every match's rounded rect into one path and fill it once at the
+      // end, rather than round-tripping through addPath/fillPath per match -- CGContext
+      // clears the current path on each fillPath() call, so this isn't about avoiding
+      // redundant repaints, just avoiding the per-call overhead of many small fills.
+      let highlightPath = CGMutablePath()
+      for charRange in self.searchHighlightRanges {
+        guard NSMaxRange(charRange) <= textStorage.length else {
+          continue
+        }
+        let matchGlyphRange = self.glyphRange(forCharacterRange: charRange, actualCharacterRange: nil)
+        let visibleGlyphRange = NSIntersectionRange(matchGlyphRange, glyphsToShow)
+        guard visibleGlyphRange.length > 0 else {
+          continue
+        }
+        // Match against each line fragment it overlaps (usually just one), the same way
+        // the line-number gutter and current-line highlight above locate their rects, so
+        // that the highlight always lines up with the text regardless of line wrapping.
+        self.enumerateLineFragments(forGlyphRange: visibleGlyphRange) {
+          _, _, fragTextContainer, fragGlyphRange, _ in
+            let rectGlyphRange = NSIntersectionRange(fragGlyphRange, visibleGlyphRange)
+            guard rectGlyphRange.length > 0 else {
+              return
+            }
+            let rect = self.boundingRect(forGlyphRange: rectGlyphRange, in: fragTextContainer)
+              .offsetBy(dx: origin.x, dy: origin.y)
+              .insetBy(dx: -2, dy: -2)
+            highlightPath.addRoundedRect(in: rect, cornerWidth: 6, cornerHeight: 6)
+        }
+      }
+      if !highlightPath.isEmpty {
+        context.setFillColor(Self.searchHighlightColor.cgColor)
+        context.addPath(highlightPath)
+        context.fillPath()
+      }
     }
     context.restoreGState()
     super.drawBackground(forGlyphRange: glyphsToShow, at: origin)

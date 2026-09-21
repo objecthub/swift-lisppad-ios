@@ -707,7 +707,7 @@ final class UserSettings: ObservableObject {
                                                      red: 1.0, green: 1.0, blue: 1.0)
     self.docuIdentDarkColor = UserDefaults.standard.color(forKey: Self.docuIdentDarkColorKey,
                                                           alternateKey: Self.docuIdentColorKey,
-                                                          red: 0.2, green: 0.2, blue: 1.0)
+                                                          red: 0.4, green: 0.7, blue: 1.0)
     self.parensDarkColor = UserDefaults.standard.color(forKey: Self.parensDarkColorKey,
                                                        alternateKey: Self.parensColorKey,
                                                        red: 0.6, green: 0.35, blue: 0.2)
@@ -716,7 +716,7 @@ final class UserSettings: ObservableObject {
                                                          red: 0.0, green: 0.6, blue: 0.0)
     self.commentsDarkColor = UserDefaults.standard.color(forKey: Self.commentsDarkColorKey,
                                                          alternateKey: Self.commentsColorKey,
-                                                         red: 1.0, green: 0.1, blue: 0.1)
+                                                         red: 1.0, green: 0.55, blue: 0.45)
     self.headerDarkColor = UserDefaults.standard.color(forKey: Self.headerDarkColorKey,
                                                        alternateKey: Self.headerColorKey,
                                                        red: 0.0, green: 0.0, blue: 0.9)
