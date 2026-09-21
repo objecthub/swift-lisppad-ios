@@ -69,13 +69,13 @@ public struct ImageButton: View {
   public var body: some View {
     if #available(iOS 26.0, *) {
       Image(systemName: self.systemName)
-        .font(.system(size: self.size * 0.5, weight: .regular))
+        .font(.system(size: self.size * 0.5, weight: .semibold))
         .foregroundStyle(.primary)
         .frame(width: self.size, height: self.size)
         .glassEffect(.regular.interactive(), in: Circle())
     } else {
       Image(systemName: self.legacyName)
-        .font(.system(size: self.size, weight: .light))
+        .font(.system(size: self.size, weight: .regular))
         .foregroundStyle(.primary)
         .frame(height: self.size)
     }

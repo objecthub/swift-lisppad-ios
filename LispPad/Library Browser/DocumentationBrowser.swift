@@ -92,7 +92,7 @@
                     }
                   } label: {
                     Image(systemName: "chevron.right")
-                      .font(LispPadUI.toolbarFont)
+                      .font(LispPadUI.toolbarIconFont)
                   }
                   .disabled(self.state.selectedLib == nil)
                 }
@@ -123,7 +123,7 @@
                     }
                   } label: {
                     Image(systemName: "xmark")
-                      .font(LispPadUI.toolbarFont)
+                      .font(LispPadUI.toolbarIconFont)
                   }
                 }
               }
@@ -164,7 +164,7 @@
                     }
                   } label: {
                     Image(systemName: "chevron.left")
-                      .font(LispPadUI.toolbarFont)
+                      .font(LispPadUI.toolbarIconFont)
                   }
                   .padding(.init(top: 0, leading: -2, bottom: 0, trailing: 0))
                 }
@@ -206,7 +206,7 @@
                       }
                     } label: {
                       Image(systemName: "xmark")
-                        .font(LispPadUI.toolbarFont)
+                        .font(LispPadUI.toolbarIconFont)
                     }
                   }
                 }

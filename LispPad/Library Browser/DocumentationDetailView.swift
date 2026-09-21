@@ -99,14 +99,14 @@ struct DocumentationDetailView: View {
               self.controller.goBack = true
             }) {
               Image(systemName: "chevron.left")
-                .font(LispPadUI.toolbarFont)
+                .font(LispPadUI.toolbarIconFont)
             }
             .disabled(!self.controller.canGoBack)
             Button(action: {
               self.controller.goForward = true
             }) {
               Image(systemName: "chevron.right")
-                .font(LispPadUI.toolbarFont)
+                .font(LispPadUI.toolbarIconFont)
             }
             .disabled(!self.controller.canGoForward)
           }
@@ -150,7 +150,7 @@ struct DocumentationDetailView: View {
             }
           } label: {
             Image(systemName: "xmark")
-              .font(LispPadUI.toolbarFont)
+              .font(LispPadUI.toolbarIconFont)
           }
         }
       } else if self.url != nil {

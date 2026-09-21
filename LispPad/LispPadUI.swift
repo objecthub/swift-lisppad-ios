@@ -50,6 +50,11 @@ struct LispPadUI {
     return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
   }()
   
+  // Toolbar font for icons
+  static let toolbarIconFont: SwiftUI.Font = {
+    return .system(size: LispPadUI.toolbarItemSize, weight: .semibold)
+  }()
+  
   // Toolbar item font for switch items
   static let toolbarSwitchFont: SwiftUI.Font = {
     return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
