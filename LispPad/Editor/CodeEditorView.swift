@@ -131,8 +131,6 @@ struct CodeEditorView: View {
   @State var showFileNotFoundAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
   @State var editorType: FileExtensions.EditorType = .scheme
-  @State var codeType: CodeAnalyzer.CodeType? = nil
-  @State var sizeString: String? = nil
   @State var menuIsOpen: Bool = false
   @State var showStructure: Bool = false
   @State var definitionCache: CodeAnalyzer.Definitions? = nil
@@ -449,48 +447,46 @@ struct CodeEditorView: View {
           }
         }
         ToolbarItemGroup(placement: .principal) {
-          Menu {
-            CentralMenuContent(
+          HStack(alignment: .center, spacing: 4) {
+            if geometry.size.width >= 380 {
+              Text(self.fileManager.editorDocumentInfo.title)
+                .font(geometry.size.width < 540 ? LispPadUI.fileNameFont
+                      : LispPadUI.largeFileNameFont)
+                .bold()
+                .foregroundColor(.primary)
+                .truncationMode(.middle)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: geometry.size.width - 290)
+            }
+            Text(Image(systemName: "chevron.down.circle.fill"))
+              .font(.caption)
+              .bold()
+              .foregroundColor(self.editorFocused && self.splitViewMode.isSideBySide
+                               ? Color.green : Color(LispPadUI.menuIndicatorColor))
+          }
+          .padding(.trailing, -2)
+          // The label above stays purely decorative and reactive as before; the actual
+          // tap-to-open-menu interaction is provided by this invisible overlay, which uses
+          // a native UIKit menu so its content can be computed on demand (see
+          // CentralMenuButton's documentation for why this isn't possible with a plain
+          // SwiftUI `Menu` on this platform).
+          .accessibilityHidden(true)
+          .background(
+            CentralMenuButton(
               showModal: $showModal,
               notSavedAlertAction: $notSavedAlertAction,
               editorType: $editorType,
-              codeType: $codeType,
-              sizeString: $sizeString,
               dismissCard: self.dismissCard)
-          } label: {
-            HStack(alignment: .center, spacing: 4) {
-              if geometry.size.width >= 380 {
-                Text(self.fileManager.editorDocumentInfo.title)
-                  .font(geometry.size.width < 540 ? LispPadUI.fileNameFont
-                        : LispPadUI.largeFileNameFont)
-                  .bold()
-                  .foregroundColor(.primary)
-                  .truncationMode(.middle)
-                  .multilineTextAlignment(.center)
-                  .lineLimit(2)
-                  .fixedSize(horizontal: false, vertical: true)
-                  .frame(maxWidth: geometry.size.width - 290)
-              }
-              Text(Image(systemName: "chevron.down.circle.fill"))
-                .font(.caption)
-                .bold()
-                .foregroundColor(self.editorFocused && self.splitViewMode.isSideBySide
-                                 ? Color.green : Color(LispPadUI.menuIndicatorColor))
-            }
-            .padding(.trailing, -2)
-            .onLongPressGesture(
-              minimumDuration: 0.2,
-              maximumDistance: .infinity,
-              pressing: { isPressing in
-                self.codeType = self.settings.foldersOnICloud || self.settings.foldersOnDevice
-                              ? CodeAnalyzer.codeType(doc: self.fileManager.editorDocument,
-                                                      context: self.interpreter.context)
-                              : nil
-                self.sizeString = self.fileManager.editorDocument?.sizeString
-              },
-              perform: {}
-            )
-          }
+            // `.background()` normally sizes this to match the label above exactly, but for a
+            // long file name that wraps to 2 lines, that computed size does not reliably cover
+            // the full, actually-rendered label -- the wrapped second line ends up untappable
+            // (only the (fixed-size) chevron still responds). Giving the button its own
+            // generous, fixed-size frame here -- rather than trying to precisely track the
+            // label's dynamic size -- sidesteps that mismatch entirely.
+            .frame(width: geometry.size.width - 200, height: 60)
+          )
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {

@@ -96,12 +96,13 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   }
   
   var sizeString: String {
-    // let size = try? self.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
-    let size = self.text.count
-    if size < 100000 {
+    // let size = try? self.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize
+    // let size = self.text.count
+    let size = self.text.utf8.count
+    if size < 10000 {
       return "\(size) B"
     } else {
-      return "\(size / 1000) KB"
+      return "\(String(format: "%.2f", Double(size) / 1024.0)) KB"
     }
   }
   
