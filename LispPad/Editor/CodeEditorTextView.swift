@@ -102,9 +102,15 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
         lm.searchHighlightRanges = newVal
         self.internalSearchHighlightRanges = newVal
         self.setNeedsDisplay()
+        self.searchMatchCountChanged?(newVal.count)
       }
     }
   }
+
+  /// Invoked whenever the number of active search highlight matches changes, including
+  /// transitions to/from zero (e.g. the search term being cleared or having no matches),
+  /// so observers (the match count overlay) can stay in sync without polling.
+  var searchMatchCountChanged: ((Int) -> Void)?
 
   /// The search term currently being highlighted (empty means no highlighting).
   private(set) var searchTerm: String = ""

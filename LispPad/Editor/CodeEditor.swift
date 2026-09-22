@@ -36,6 +36,7 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var forceUpdate: Bool
   @Binding var update: ((CodeEditorTextView) -> Void)?
   @Binding var editorType: FileExtensions.EditorType
+  @Binding var searchMatchCount: Int
   @ObservedObject var keyboardObserver: KeyboardObserver
 
   let searchTerm: String
@@ -83,6 +84,15 @@ struct CodeEditor: UIViewRepresentable {
     textView.becomeFirstResponder()
     textView.text = self.text
     textView.selectedRange = self.selectedRange
+    // Deferred to the next run loop turn (like the `forceUpdate`/`position` resets
+    // below) since this closure can also fire synchronously from `updateUIView`
+    // (e.g. `setSearchHighlight` clearing the term), and mutating a `@Binding` while
+    // SwiftUI is still in the middle of that view update is undefined behavior.
+    textView.searchMatchCountChanged = { count in
+      DispatchQueue.main.async {
+        self.searchMatchCount = count
+      }
+    }
     DispatchQueue.main.async {
       if let doc = self.fileManager.editorDocument {
         textView.becomeFirstResponder()

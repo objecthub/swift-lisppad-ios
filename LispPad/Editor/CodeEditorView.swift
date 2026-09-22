@@ -136,6 +136,7 @@ struct CodeEditorView: View {
   @State var definitionCache: CodeAnalyzer.Definitions? = nil
   @State var structureCache: DocStructureView.DocStructure? = nil
   @State var cursorSelectedRange: NSRange = NSRange(location: 0, length: 0)
+  @State var searchMatchCount: Int = 0
   
   var keyboardShortcuts: some View {
     ZStack {
@@ -326,6 +327,7 @@ struct CodeEditorView: View {
                    forceUpdate: $forceEditorUpdate,
                    update: $updateEditor,
                    editorType: $editorType,
+                   searchMatchCount: $searchMatchCount,
                    keyboardObserver: self.keyboardObserver,
                    searchTerm: self.showSearchField ? self.searchText : "",
                    searchCaseSensitive: self.caseSensitiveSearch,
@@ -341,6 +343,13 @@ struct CodeEditorView: View {
                                     selectedRange: self.cursorSelectedRange)
                 .padding(.trailing, 8)
                 .padding(.bottom, 4)
+            }
+          }
+          .overlay(alignment: .topTrailing) {
+            if self.searchMatchCount > 0 {
+              SearchMatchCountOverlay(matchCount: self.searchMatchCount)
+                .padding(.trailing, 8)
+                .padding(.top, 4)
             }
           }
           .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
