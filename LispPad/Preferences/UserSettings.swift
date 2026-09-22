@@ -60,6 +60,7 @@ final class UserSettings: ObservableObject {
   private static let showLineNumbersKey = "Editor.showLineNumbers"
   private static let highlightMatchingParenKey = "Editor.highlightMatchingParen"
   private static let highlightCurrentLineKey = "Editor.highlightCurrentLine"
+  private static let showCursorLocationKey = "Editor.showCursorLocation"
   private static let extendedKeyboardKey = "Editor.extendedKeyboard"
   private static let rememberLastEditedFileKey = "Editor.rememberLastEditedFile"  
   private static let maxRecentFilesKey = "Editor.maxRecentFiles"
@@ -315,6 +316,12 @@ final class UserSettings: ObservableObject {
   @Published var highlightCurrentLine: Bool {
     didSet {
       UserDefaults.standard.set(self.highlightCurrentLine, forKey: Self.highlightCurrentLineKey)
+    }
+  }
+
+  @Published var showCursorLocation: Bool {
+    didSet {
+      UserDefaults.standard.set(self.showCursorLocation, forKey: Self.showCursorLocationKey)
     }
   }
   
@@ -670,6 +677,8 @@ final class UserSettings: ObservableObject {
                                                                   Self.highlightMatchingParenKey)
     self.highlightCurrentLine = UserDefaults.standard.boolean(forKey: Self.highlightCurrentLineKey,
                                                               false)
+    self.showCursorLocation = UserDefaults.standard.boolean(forKey: Self.showCursorLocationKey,
+                                                             false)
     self.extendedKeyboard = UserDefaults.standard.boolean(forKey: Self.extendedKeyboardKey)
     self.rememberLastEditedFile = UserDefaults.standard.boolean(forKey:
                                                                   Self.rememberLastEditedFileKey)
@@ -707,13 +716,13 @@ final class UserSettings: ObservableObject {
                                                      red: 1.0, green: 1.0, blue: 1.0)
     self.docuIdentDarkColor = UserDefaults.standard.color(forKey: Self.docuIdentDarkColorKey,
                                                           alternateKey: Self.docuIdentColorKey,
-                                                          red: 0.4, green: 0.7, blue: 1.0)
+                                                          red: 0.5, green: 0.8, blue: 1.0)
     self.parensDarkColor = UserDefaults.standard.color(forKey: Self.parensDarkColorKey,
                                                        alternateKey: Self.parensColorKey,
-                                                       red: 0.6, green: 0.35, blue: 0.2)
+                                                       red: 0.85, green: 0.75, blue: 0.45)
     self.literalsDarkColor = UserDefaults.standard.color(forKey: Self.literalsDarkColorKey,
                                                          alternateKey: Self.literalsColorKey,
-                                                         red: 0.0, green: 0.6, blue: 0.0)
+                                                         red: 0.7, green: 0.8, blue: 0.3)
     self.commentsDarkColor = UserDefaults.standard.color(forKey: Self.commentsDarkColorKey,
                                                          alternateKey: Self.commentsColorKey,
                                                          red: 1.0, green: 0.55, blue: 0.45)
@@ -725,13 +734,13 @@ final class UserSettings: ObservableObject {
                                                           red: 0.2, green: 0.4, blue: 1.0)
     self.emphasisDarkColor = UserDefaults.standard.color(forKey: Self.emphasisDarkColorKey,
                                                          alternateKey: Self.emphasisColorKey,
-                                                         red: 0.0, green: 0.55, blue: 0.0)
+                                                         red: 0.2, green: 0.9, blue: 0.2)
     self.bulletsDarkColor = UserDefaults.standard.color(forKey: Self.bulletsDarkColorKey,
                                                         alternateKey: Self.bulletsColorKey,
                                                         red: 0.8, green: 0.4, blue: 0.8)
     self.blockquoteDarkColor = UserDefaults.standard.color(forKey: Self.blockquoteDarkColorKey,
                                                            alternateKey: Self.blockquoteColorKey,
-                                                           red: 0.7, green: 0.3, blue: 0.5)
+                                                           red: 0.8, green: 0.4, blue: 0.6)
     self.codeDarkColor = UserDefaults.standard.color(forKey: Self.codeDarkColorKey,
                                                      alternateKey: Self.codeColorKey,
                                                      UIColor.gray)

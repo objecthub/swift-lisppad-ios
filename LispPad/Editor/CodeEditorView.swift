@@ -135,6 +135,7 @@ struct CodeEditorView: View {
   @State var showStructure: Bool = false
   @State var definitionCache: CodeAnalyzer.Definitions? = nil
   @State var structureCache: DocStructureView.DocStructure? = nil
+  @State var cursorSelectedRange: NSRange = NSRange(location: 0, length: 0)
   
   var keyboardShortcuts: some View {
     ZStack {
@@ -314,9 +315,12 @@ struct CodeEditorView: View {
                    selectedRange: .init(
                                     get: { self.fileManager.editorDocument?.selectedRange ??
                                              NSRange(location: 0, length: 0) },
-                                    set: { if let doc = self.fileManager.editorDocument {
-                                             doc.selectedRange = $0
-                                         }}),
+                                    set: {
+                                      if let doc = self.fileManager.editorDocument {
+                                        doc.selectedRange = $0
+                                      }
+                                      self.cursorSelectedRange = $0
+                                    }),
                    focused: $editorFocused,
                    position: $editorPosition,
                    forceUpdate: $forceEditorUpdate,
@@ -331,6 +335,14 @@ struct CodeEditorView: View {
                    })
           .multilineTextAlignment(.leading)
           .ignoresSafeArea(edges: .bottom)
+          .overlay(alignment: .bottomTrailing) {
+            if self.settings.showCursorLocation {
+              CursorLocationOverlay(text: self.fileManager.editorDocument?.text ?? "",
+                                    selectedRange: self.cursorSelectedRange)
+                .padding(.trailing, 8)
+                .padding(.bottom, 4)
+            }
+          }
           .slideOverCard(isPresented: $showCard, onDismiss: { self.cardContent.block = nil }) {
             OptionalScrollView {
               MutableMarkdownText(self.cardContent, rightPadding: 26)
@@ -458,7 +470,7 @@ struct CodeEditorView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: geometry.size.width - 290)
+                .frame(maxWidth: max(geometry.size.width - 290, 20))
             }
             Text(Image(systemName: "chevron.down.circle.fill"))
               .font(.caption)
@@ -485,7 +497,7 @@ struct CodeEditorView: View {
             // (only the (fixed-size) chevron still responds). Giving the button its own
             // generous, fixed-size frame here -- rather than trying to precisely track the
             // label's dynamic size -- sidesteps that mismatch entirely.
-            .frame(width: geometry.size.width - 200, height: 60)
+            .frame(width: max(geometry.size.width - 200, 20), height: 60)
           )
         }
         ToolbarItemGroup(placement: .navigationBarTrailing) {

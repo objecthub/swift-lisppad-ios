@@ -116,6 +116,7 @@ struct PreferencesView: View {
           Toggle("Show line numbers", isOn: $settings.showLineNumbers)
           Toggle("Highlight current line", isOn: $settings.highlightCurrentLine)
           Toggle("Highlight matching parenthesis", isOn: $settings.highlightMatchingParen)
+          Toggle("Show cursor location", isOn: $settings.showCursorLocation)
           Toggle("Extended keyboard", isOn: $settings.extendedKeyboard)
         }
         Section(header: Text("Scheme Mode")) {
