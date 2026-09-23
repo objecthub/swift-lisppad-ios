@@ -217,9 +217,18 @@ struct CodeEditor: UIViewRepresentable {
                                                   from: textView.window)
       let bottomInset = keyboardViewEndFrame.height > 25.0 ?
         (keyboardViewEndFrame.height - (textView.window?.safeAreaInsets.bottom ?? 25.0)) : 0.0
-      textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
-      textView.scrollIndicatorInsets = textView.contentInset
-      textView.scrollRangeToVisible(self.extend(textView.selectedRange, in: textView))
+      // Only adjust the insets and scroll the selection into view if the keyboard
+      // changed; `updateUIView` gets invoked for many unrelated state changes (e.g.
+      // clearing the search term), and the editor must not jump back to the cursor
+      // for those if the user scrolled elsewhere.
+      if textView.contentInset.bottom < bottomInset {
+        textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+        textView.scrollIndicatorInsets = textView.contentInset
+        textView.scrollRangeToVisible(self.extend(textView.selectedRange, in: textView))
+      } else {
+        textView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+        textView.scrollIndicatorInsets = textView.contentInset
+      }
     }
   }
   

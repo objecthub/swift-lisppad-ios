@@ -99,8 +99,21 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
     set(newVal) {
       if self.internalSearchHighlightRanges != newVal {
         let lm = self.layoutManager as! CodeEditorLayoutManager
+        let oldVal = self.internalSearchHighlightRanges
         lm.searchHighlightRanges = newVal
         self.internalSearchHighlightRanges = newVal
+        // The text (and the search highlights drawn in its background) is rendered into
+        // tiles which get cached, also for parts of the document that are currently not
+        // visible. `setNeedsDisplay` only affects the text view itself, but not those
+        // tiles, so without invalidating the display of both the old and the new match
+        // ranges explicitly, stale highlights would reappear when scrolling.
+        let length = self.textStorage.length
+        for range in oldVal + newVal {
+          let range = NSIntersectionRange(range, NSRange(location: 0, length: length))
+          if range.length > 0 {
+            lm.invalidateDisplay(forCharacterRange: range)
+          }
+        }
         self.setNeedsDisplay()
         self.searchMatchCountChanged?(newVal.count)
       }
