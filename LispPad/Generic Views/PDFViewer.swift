@@ -150,11 +150,27 @@ struct PDFViewer: UIViewRepresentable {
         return
       }
       self.currentMatch = index
-      for (i, match) in self.matches.enumerated() {
-        match.color = i == index ? Controller.currentHighlightColor : Controller.highlightColor
-      }
-      pdfView.highlightedSelections = self.matches
+      self.updateHighlights()
       pdfView.go(to: self.matches[index])
+    }
+    
+    /// Highlights all matches, using a different color for the current match. `PDFView`
+    /// doesn't redraw if `highlightedSelections` is set to the same selection objects
+    /// again (even if their colors changed), so fresh copies are passed in every time.
+    private func updateHighlights() {
+      guard let pdfView = self.pdfView else {
+        return
+      }
+      var highlights: [PDFSelection] = []
+      highlights.reserveCapacity(self.matches.count)
+      for (i, match) in self.matches.enumerated() {
+        let highlight = match.copy() as? PDFSelection ?? match
+        highlight.color = i == self.currentMatch ? Controller.currentHighlightColor
+                                                 : Controller.highlightColor
+        highlights.append(highlight)
+      }
+      pdfView.highlightedSelections = nil
+      pdfView.highlightedSelections = highlights
     }
     
     private func pageIndex(of selection: PDFSelection) -> Int? {
@@ -172,7 +188,6 @@ struct PDFViewer: UIViewRepresentable {
         guard self.searchTerm != nil else {
           return
         }
-        instance.color = Controller.highlightColor
         self.matches.append(instance)
         if self.currentMatch == nil,
            let index = self.pageIndex(of: instance),
@@ -191,7 +206,7 @@ struct PDFViewer: UIViewRepresentable {
           return
         }
         self.searching = false
-        self.pdfView?.highlightedSelections = self.matches
+        self.updateHighlights()
         if self.currentMatch == nil && !self.matches.isEmpty {
           self.select(match: 0)
         }
