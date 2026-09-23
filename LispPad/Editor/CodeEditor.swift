@@ -39,8 +39,7 @@ struct CodeEditor: UIViewRepresentable {
   @Binding var searchMatchCount: Int
   @ObservedObject var keyboardObserver: KeyboardObserver
 
-  let searchTerm: String
-  let searchCaseSensitive: Bool
+  let searchPattern: SearchPattern
   let defineAction: ((Block) -> Void)?
   
   public func makeCoordinator() -> Coordinator {
@@ -150,7 +149,7 @@ struct CodeEditor: UIViewRepresentable {
     if textView.highlightCurrentLine != self.settings.highlightCurrentLine {
       textView.highlightCurrentLine = self.settings.highlightCurrentLine
     }
-    textView.setSearchHighlight(term: self.searchTerm, caseSensitive: self.searchCaseSensitive)
+    textView.setSearchHighlight(pattern: self.searchPattern)
     if self.editorType != textView.textStorageDelegate.editorType {
       textView.textStorageDelegate.editorType = self.editorType
       textView.textStorageDelegate.highlight(textView.textStorage)

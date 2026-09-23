@@ -112,11 +112,15 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
   /// so observers (the match count overlay) can stay in sync without polling.
   var searchMatchCountChanged: ((Int) -> Void)?
 
-  /// The search term currently being highlighted (empty means no highlighting).
-  private(set) var searchTerm: String = ""
+  /// The search pattern currently being highlighted (an empty term means no highlighting).
+  private(set) var searchPattern = SearchPattern(term: "",
+                                                 caseSensitive: true,
+                                                 regularExpression: false)
 
-  /// Whether `searchTerm` matching is case-sensitive.
-  private(set) var searchCaseSensitive: Bool = true
+  /// The search term currently being highlighted (empty means no highlighting).
+  var searchTerm: String {
+    return self.searchPattern.term
+  }
 
   /// Pending debounced recompute, either from live typing in the search field or from
   /// a document edit (see `debounceRecompute(after:)`).
@@ -152,13 +156,12 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
   /// wait, and leaving a pending clear in flight risks it being superseded/lost by a
   /// later, unrelated call before it fires, leaving stale highlights visible once the
   /// user scrolls to a part of the document that hadn't been redrawn since.
-  func setSearchHighlight(term: String, caseSensitive: Bool) {
-    guard self.searchTerm != term || self.searchCaseSensitive != caseSensitive else {
+  func setSearchHighlight(pattern: SearchPattern) {
+    guard self.searchPattern != pattern else {
       return
     }
-    self.searchTerm = term
-    self.searchCaseSensitive = caseSensitive
-    if term.isEmpty {
+    self.searchPattern = pattern
+    if pattern.term.isEmpty {
       self.searchHighlightWorkItem?.cancel()
       self.searchHighlightWorkItem = nil
       self.recomputeSearchHighlights()
@@ -181,7 +184,7 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
   /// itself changed. Call this right after the text view's text has been replaced
   /// wholesale (e.g. switching documents, or a programmatic replace-all) -- the
   /// character offsets of any previously computed ranges are no longer valid for the
-  /// new text, and neither `setSearchHighlight(term:caseSensitive:)` (guarded on the
+  /// new text, and neither `setSearchHighlight(pattern:)` (guarded on the
   /// term actually changing) nor the edit-driven debounce (which only fires for
   /// interactive typing, not programmatic text replacement) would otherwise refresh them.
   func refreshSearchHighlights() {
@@ -191,32 +194,7 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
   }
 
   private func recomputeSearchHighlights() {
-    self.searchHighlightRanges = self.searchTerm.isEmpty ? [] :
-      Self.matchRanges(in: self.text, of: self.searchTerm, caseSensitive: self.searchCaseSensitive)
-  }
-
-  private static func matchRanges(in text: String, of term: String, caseSensitive: Bool) -> [NSRange] {
-    guard !term.isEmpty else {
-      return []
-    }
-    let ns = text as NSString
-    let options: NSString.CompareOptions = caseSensitive ? [.diacriticInsensitive]
-                                                          : [.diacriticInsensitive, .caseInsensitive]
-    var ranges: [NSRange] = []
-    var searchRange = NSRange(location: 0, length: ns.length)
-    while searchRange.length > 0 {
-      let found = ns.range(of: term, options: options, range: searchRange, locale: nil)
-      guard found.location != NSNotFound else {
-        break
-      }
-      ranges.append(found)
-      let next = found.location + max(found.length, 1)
-      guard next < ns.length else {
-        break
-      }
-      searchRange = NSRange(location: next, length: ns.length - next)
-    }
-    return ranges
+    self.searchHighlightRanges = self.searchPattern.matchRanges(in: self.text as NSString)
   }
 
   var codingFont: UIFont {

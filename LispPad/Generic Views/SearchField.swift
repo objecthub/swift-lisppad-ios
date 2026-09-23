@@ -39,6 +39,7 @@ struct SearchField: View {
   @Binding var showSearchField: Bool
   @Binding var replaceMode: Bool
   @Binding var caseSensitive: Bool
+  @Binding var regularExpression: Bool
   let search: (String, Direction) -> Bool
   let replace: (String, String, ((Bool) -> Void)?) -> Void
   let replaceAll: (String, String) -> Void
@@ -135,10 +136,20 @@ struct SearchField: View {
                                         self.lastReplaceText = ""
                                       }
                                     })) {
-            Label("Replace", systemImage: "repeat")
+            Label("Replace", systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90")
           }
           Toggle(isOn: self.$caseSensitive) {
             Label("Case Sensitive", systemImage: "textformat")
+          }
+          Toggle(isOn: Binding(get: { self.regularExpression },
+                               set: { v in withAnimation {
+                                        self.regularExpression = v
+                                        self.showNext = false
+                                        self.lastSearchText = ""
+                                        self.lastReplaceText = ""
+                                      }
+                                    })) {
+            Label("Regular Expression", systemImage: "curlybraces")
           }
           if !self.histManager.searchHistory.isEmpty {
             Section("SEARCH HISTORY") {
@@ -146,6 +157,7 @@ struct SearchField: View {
                 Button {
                   withAnimation {
                     self.searchText = entry.searchText
+                    self.regularExpression = entry.regularExpression ?? false
                     if let replaceText = entry.replaceText {
                       self.replaceText = replaceText
                       self.replaceMode = true
@@ -174,6 +186,22 @@ struct SearchField: View {
     }
   }
 
+  /// Returns true if the search text is meant to be a regular expression, but it is
+  /// not a valid one.
+  private var isInvalidRegex: Bool {
+    return SearchPattern(term: self.searchText,
+                         caseSensitive: self.caseSensitive,
+                         regularExpression: self.regularExpression).isInvalid
+  }
+
+  /// Creates a new search history entry for the current search and replace text.
+  private func historyEntry(_ term: String, _ repl: String) -> SearchHistoryEntry {
+    return SearchHistoryEntry(searchText: term,
+                              replaceText: self.replaceMode ? repl : nil,
+                              regularExpression: self.regularExpression,
+                              caseSensitive: self.caseSensitive)
+  }
+
   private var searchFieldRow: some View {
     HStack {
       self.searchIcon
@@ -183,9 +211,7 @@ struct SearchField: View {
         if !self.searchText.isEmpty {
           let term = self.searchText
           let repl = self.replaceText
-          self.histManager.rememberSearch(
-            SearchHistoryEntry(searchText: term,
-                               replaceText: self.replaceMode ? repl : nil))
+          self.histManager.rememberSearch(self.historyEntry(term, repl))
           let more = self.search(term, .first)
           withAnimation(.default) {
             self.lastSearchText = term
@@ -197,7 +223,7 @@ struct SearchField: View {
       .keyboardType(.default)
       .disableAutocorrection(true)
       .autocapitalization(.none)
-      .foregroundColor(.primary)
+      .foregroundColor(self.isInvalidRegex ? .red : .primary)
       Button(action: {
         withAnimation(.default) {
           self.searchText = ""
@@ -221,9 +247,7 @@ struct SearchField: View {
         if !self.searchText.isEmpty {
           let term = self.searchText
           let repl = self.replaceText
-          self.histManager.rememberSearch(
-            SearchHistoryEntry(searchText: term,
-                               replaceText: self.replaceMode ? repl : nil))
+          self.histManager.rememberSearch(self.historyEntry(term, repl))
           let more = self.search(term, .first)
           withAnimation(.default) {
             self.lastSearchText = term
@@ -278,9 +302,7 @@ struct SearchField: View {
       if !self.searchText.isEmpty {
         let term = self.searchText
         let repl = self.replaceText
-        self.histManager.rememberSearch(
-          SearchHistoryEntry(searchText: term,
-                             replaceText: self.replaceMode ? repl : nil))
+        self.histManager.rememberSearch(self.historyEntry(term, repl))
         let more = self.search(term, .backward)
         withAnimation(.default) {
           self.lastSearchText = term
@@ -301,9 +323,7 @@ struct SearchField: View {
       if !self.searchText.isEmpty {
         let term = self.searchText
         let repl = self.replaceText
-        self.histManager.rememberSearch(
-          SearchHistoryEntry(searchText: term,
-                             replaceText: self.replaceMode ? repl : nil))
+        self.histManager.rememberSearch(self.historyEntry(term, repl))
         let more = self.search(self.searchText, .forward)
         withAnimation(.default) {
           self.lastSearchText = term

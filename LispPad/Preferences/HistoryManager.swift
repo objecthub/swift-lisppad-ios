@@ -426,17 +426,39 @@ final class HistoryManager: ObservableObject {
   }
 }
 
-struct SearchHistoryEntry: Hashable, Codable, CustomStringConvertible {
+struct SearchHistoryEntry: Equatable, Hashable, Codable, CustomStringConvertible {
   let searchText: String
   let replaceText: String?
+  var regularExpression: Bool? = nil
+  var caseSensitive: Bool? = nil
   
   var searchOnly: Bool {
     return self.replaceText == nil
   }
   
+  var isRegEx: Bool {
+    return self.regularExpression ?? false
+  }
+  
+  var isCaseSensitive: Bool {
+    return self.caseSensitive ?? true
+  }
+  
   var description: String {
     if let replaceText = self.replaceText {
-      return "\(self.searchText) ▶︎ \(replaceText)"
+      if self.isCaseSensitive {
+        if self.isRegEx {
+          return "\(self.searchText) → \(replaceText)"
+        } else {
+          return "\(self.searchText) ▶︎ \(replaceText)"
+        }
+      } else {
+        if self.isRegEx {
+          return "\(self.searchText) ⇒ \(replaceText)"
+        } else {
+          return "\(self.searchText) ▷ \(replaceText)"
+        }
+      }
     } else {
       return self.searchText
     }

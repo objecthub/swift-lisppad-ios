@@ -120,11 +120,7 @@ struct CodeEditorView: View {
   @StateObject var keyboardObserver = KeyboardObserver()
   @StateObject var cardContent = MutableBlock()
   @State var showCard: Bool = false
-  @State var searchText: String = ""
-  @State var replaceText: String = ""
   @State var showSearchField: Bool = false
-  @State var replaceModeSearch: Bool = false
-  @State var caseSensitiveSearch: Bool = true
   @State var showSheet: SheetAction? = nil
   @State var showModal: SheetAction? = nil
   @State var showAbortAlert = false
@@ -210,9 +206,9 @@ struct CodeEditorView: View {
         self.dismissCard()
         if !self.showSearchField {
           self.showSearchField = true
-          self.replaceModeSearch = true
+          self.settings.searchReplaceMode = true
         } else {
-          self.replaceModeSearch.toggle()
+          self.settings.searchReplaceMode.toggle()
         }
       }) {
         EmptyView()
@@ -232,32 +228,29 @@ struct CodeEditorView: View {
         self.keyboardShortcuts
         if self.showSearchField {
           VStack(alignment: .leading, spacing: 0) {
-            SearchField(searchText: $searchText,
-                        replaceText: $replaceText,
+            SearchField(searchText: $settings.searchText,
+                        replaceText: $settings.replaceText,
                         showSearchField: $showSearchField,
-                        replaceMode: $replaceModeSearch,
-                        caseSensitive: $caseSensitiveSearch,
+                        replaceMode: $settings.searchReplaceMode,
+                        caseSensitive: $settings.searchCaseSensitive,
+                        regularExpression: $settings.searchRegularExpression,
                         search: { str, direction in
                           self.dismissCard()
                           if let doc = self.fileManager.editorDocument {
+                            let pattern = self.searchPattern(str)
                             let text = NSString(string: doc.text)
                             let pos = direction == .first ? 0 : doc.selectedRange.location +
                                                                 (doc.selectedRange.length > 0 ? 1 : 0)
                             let result = direction == .backward
-                              ? text.range(of: str,
-                                           options:
-                                             self.caseSensitiveSearch
-                                               ? [.diacriticInsensitive, .backwards]
-                                               : [.diacriticInsensitive, .backwards, .caseInsensitive],
-                                           range: NSRange(location: 0, length: pos),
-                                           locale: nil)
-                              : text.range(of: str,
-                                           options: self.caseSensitiveSearch
-                                                      ? [.diacriticInsensitive]
-                                                      : [.diacriticInsensitive, .caseInsensitive],
-                                           range: NSRange(location: pos, length: text.length - pos),
-                                           locale: nil)
-                            if result.location != NSNotFound {
+                              ? pattern.find(in: text,
+                                             range: NSRange(location: 0,
+                                                            length: pattern.regularExpression
+                                                                      ? doc.selectedRange.location
+                                                                      : pos),
+                                             backwards: true)
+                              : pattern.find(in: text,
+                                             range: NSRange(location: pos, length: text.length - pos))
+                            if let result {
                               self.editorPosition = result
                               return true
                             } else {
@@ -270,36 +263,38 @@ struct CodeEditorView: View {
                         replace: { str, repl, cont in
                           self.dismissCard()
                           self.updateEditor = { textView in
+                            let pattern = self.searchPattern(str)
                             let formerRange = textView.selectedRange
+                            var replLength = 0
                             if formerRange.length > 0 {
+                              let replacement = pattern.replacement(for: formerRange,
+                                                                    in: textView.text as NSString,
+                                                                    with: repl)
+                              replLength = NSString(string: replacement).length
                               if let range = textView.selectedTextRange {
-                                textView.replace(range, withText: repl)
+                                textView.replace(range, withText: replacement)
                               } else {
                                 textView.textStorage.replaceCharacters(in: textView.selectedRange,
-                                                                       with: repl)
+                                                                       with: replacement)
                               }
                             }
                             if let cont = cont {
-                              let pos = formerRange.location + (formerRange.length > 0 ? 1 : 0)
+                              let pos = formerRange.location + replLength
                               let text = textView.text as NSString
-                              let result = text.range(
-                                             of: str,
-                                             options: self.caseSensitiveSearch
-                                                        ? [.diacriticInsensitive]
-                                                        : [.diacriticInsensitive, .caseInsensitive],
-                                             range: NSRange(location: pos, length: text.length - pos),
-                                             locale: nil)
-                              if result.location != NSNotFound {
+                              if pos <= text.length,
+                                 let result = pattern.find(in: text,
+                                                           range: NSRange(location: pos,
+                                                                          length: text.length - pos)) {
                                 self.editorPosition = result
                                 cont(true)
                               } else {
                                 self.editorPosition = NSRange(location: formerRange.location,
-                                                              length: NSString(string: repl).length)
+                                                              length: replLength)
                                 cont(false)
                               }
                             } else {
                               self.editorPosition = NSRange(location: formerRange.location,
-                                                            length: NSString(string: repl).length)
+                                                            length: replLength)
                             }
                           }
                         },
@@ -329,8 +324,8 @@ struct CodeEditorView: View {
                    editorType: $editorType,
                    searchMatchCount: $searchMatchCount,
                    keyboardObserver: self.keyboardObserver,
-                   searchTerm: self.showSearchField ? self.searchText : "",
-                   searchCaseSensitive: self.caseSensitiveSearch,
+                   searchPattern: self.searchPattern(self.showSearchField
+                                                       ? self.settings.searchText : ""),
                    defineAction: { block in
                     self.showCard = true
                     self.cardContent.block = block
@@ -479,7 +474,7 @@ struct CodeEditorView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: max(geometry.size.width - 290, 20))
+                // .frame(maxWidth: max(geometry.size.width - 290, 20))
             }
             Text(Image(systemName: "chevron.down.circle.fill"))
               .font(.caption)
@@ -516,23 +511,23 @@ struct CodeEditorView: View {
               Button {
                 self.dismissCard()
                 withAnimation(.default) {
-                  self.replaceModeSearch = false
+                  self.settings.searchReplaceMode = false
                   self.showSearchField = true
                 }
               } label: {
                 Label("Search", systemImage: "magnifyingglass")
               }
-              .disabled(self.showSearchField && !self.replaceModeSearch)
+              .disabled(self.showSearchField && !self.settings.searchReplaceMode)
               Button {
                 self.dismissCard()
                 withAnimation(.default) {
-                  self.replaceModeSearch = true
+                  self.settings.searchReplaceMode = true
                   self.showSearchField = true
                 }
               } label: {
                 Label("Search/Replace", systemImage: "repeat")
               }
-              .disabled(self.showSearchField && self.replaceModeSearch)
+              .disabled(self.showSearchField && self.settings.searchReplaceMode)
             } label: {
               Image(systemName: "magnifyingglass")
                 .font(LispPadUI.toolbarFont)
@@ -547,14 +542,14 @@ struct CodeEditorView: View {
             Button {
               self.dismissCard()
               if self.showSearchField {
-                if self.replaceModeSearch {
+                if self.settings.searchReplaceMode {
                   withAnimation(.default) {
                     self.showSearchField = false
                   }
-                  self.replaceModeSearch = false
+                  self.settings.searchReplaceMode = false
                 } else {
                   withAnimation(.default) {
-                    self.replaceModeSearch = true
+                    self.settings.searchReplaceMode = true
                   }
                 }
               } else {
@@ -996,34 +991,38 @@ struct CodeEditorView: View {
     }
   }
   
+  private func searchPattern(_ str: String) -> SearchPattern {
+    return SearchPattern(term: str,
+                         caseSensitive: self.settings.searchCaseSensitive,
+                         regularExpression: self.settings.searchRegularExpression)
+  }
+  
   private func replaceAll(_ str: String, _ repl: String) -> Alert {
-    return Alert(title: Text("Replace all"),
-                 message: Text("Replace all occurences of \"\(str)\" in the remaining document?"),
-                 primaryButton: .default(Text("No")),
-                 secondaryButton: .destructive(Text("Yes"), action: {
-                  self.updateEditor = { textView in
-                    if let txt = textView.text,
-                       let textRange = textView.selectedTextRange {
-                      let range = textView.selectedRange
-                      let text = NSMutableString(string: txt)
-                      text.replaceOccurrences(
-                        of: str,
-                        with: repl, 
-                        options: self.caseSensitiveSearch
-                                   ? [.diacriticInsensitive]
-                                   : [.diacriticInsensitive, .caseInsensitive], 
-                        range: NSRange(location: range.location,
-                                       length: text.length - range.location))
-                      if let replRange = textView.textRange(from: textRange.start,
-                                                            to: textView.endOfDocument) {
-                        textView.replace(replRange,
-                                         withText: text.substring(from: range.location))
-                        textView.selectedRange = NSRange(location: textView.textStorage.length,
-                                                         length: 0)
-                      }
-                    }
-                  }
-                 }))
+    let pattern = self.searchPattern(str)
+    return Alert(
+      title: Text("Replace all"),
+      message:
+        Text(pattern.regularExpression
+             ? "Replace all matches of regular expression \"\(str)\" in the remaining document?"
+             : "Replace all occurences of \"\(str)\" in the remaining document?"),
+      primaryButton: .default(Text("No")),
+      secondaryButton: .destructive(Text("Yes"), action: {
+        self.updateEditor = { textView in
+          if let txt = textView.text,
+             let textRange = textView.selectedTextRange {
+            let range = textView.selectedRange
+            let text = NSMutableString(string: txt)
+            pattern.replaceAll(in: text, from: range.location, with: repl)
+            if let replRange = textView.textRange(from: textRange.start,
+                                                  to: textView.endOfDocument) {
+              textView.replace(replRange,
+                               withText: text.substring(from: range.location))
+              textView.selectedRange = NSRange(location: textView.textStorage.length,
+                                               length: 0)
+            }
+          }
+        }
+       }))
   }
   
   private func couldNotSave() -> Alert {

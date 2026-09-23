@@ -61,6 +61,11 @@ final class UserSettings: ObservableObject {
   private static let highlightMatchingParenKey = "Editor.highlightMatchingParen"
   private static let highlightCurrentLineKey = "Editor.highlightCurrentLine"
   private static let showCursorLocationKey = "Editor.showCursorLocation"
+  private static let searchTextKey = "Editor.searchText"
+  private static let replaceTextKey = "Editor.replaceText"
+  private static let searchReplaceModeKey = "Editor.searchReplaceMode"
+  private static let searchCaseSensitiveKey = "Editor.searchCaseSensitive"
+  private static let searchRegularExpressionKey = "Editor.searchRegularExpression"
   private static let extendedKeyboardKey = "Editor.extendedKeyboard"
   private static let rememberLastEditedFileKey = "Editor.rememberLastEditedFile"  
   private static let maxRecentFilesKey = "Editor.maxRecentFiles"
@@ -322,6 +327,37 @@ final class UserSettings: ObservableObject {
   @Published var showCursorLocation: Bool {
     didSet {
       UserDefaults.standard.set(self.showCursorLocation, forKey: Self.showCursorLocationKey)
+    }
+  }
+  
+  @Published var searchText: String {
+    didSet {
+      UserDefaults.standard.set(self.searchText, forKey: Self.searchTextKey)
+    }
+  }
+  
+  @Published var replaceText: String {
+    didSet {
+      UserDefaults.standard.set(self.replaceText, forKey: Self.replaceTextKey)
+    }
+  }
+  
+  @Published var searchReplaceMode: Bool {
+    didSet {
+      UserDefaults.standard.set(self.searchReplaceMode, forKey: Self.searchReplaceModeKey)
+    }
+  }
+  
+  @Published var searchCaseSensitive: Bool {
+    didSet {
+      UserDefaults.standard.set(self.searchCaseSensitive, forKey: Self.searchCaseSensitiveKey)
+    }
+  }
+  
+  @Published var searchRegularExpression: Bool {
+    didSet {
+      UserDefaults.standard.set(self.searchRegularExpression,
+                                forKey: Self.searchRegularExpressionKey)
     }
   }
   
@@ -679,6 +715,14 @@ final class UserSettings: ObservableObject {
                                                               false)
     self.showCursorLocation = UserDefaults.standard.boolean(forKey: Self.showCursorLocationKey,
                                                              false)
+    self.searchText = UserDefaults.standard.str(forKey: Self.searchTextKey, "")
+    self.replaceText = UserDefaults.standard.str(forKey: Self.replaceTextKey, "")
+    self.searchReplaceMode = UserDefaults.standard.boolean(forKey: Self.searchReplaceModeKey,
+                                                           false)
+    self.searchCaseSensitive = UserDefaults.standard.boolean(forKey: Self.searchCaseSensitiveKey,
+                                                             true)
+    self.searchRegularExpression = UserDefaults.standard.boolean(
+      forKey: Self.searchRegularExpressionKey, false)
     self.extendedKeyboard = UserDefaults.standard.boolean(forKey: Self.extendedKeyboardKey)
     self.rememberLastEditedFile = UserDefaults.standard.boolean(forKey:
                                                                   Self.rememberLastEditedFileKey)
