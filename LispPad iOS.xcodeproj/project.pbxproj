@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		30D7B1A59EEB4D308E4F4429 /* iPhoneKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE2E6C57AF54D77B3462436 /* iPhoneKeyboard.swift */; };
+		5EA9C0DE1A2B3C4D5E6F7A81 /* SearchPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA9C0DE1A2B3C4D5E6F7A80 /* SearchPattern.swift */; };
+		BBE53BE5348048EA0D9544AB /* SearchMatchCountOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B434FBE98D07CA72E52772 /* SearchMatchCountOverlay.swift */; };
 		CC02EA062CBBC7D200ABFC6F /* LispPadOAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */; };
 		CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */; };
 		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
@@ -42,10 +44,7 @@
 		CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C4A260E818500BD7E32 /* MarkdownText.swift */; };
 		CC327C4D260FBD0800BD7E32 /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */; };
 		CC327C512610A3C800BD7E32 /* CodeEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C502610A3C800BD7E32 /* CodeEditorView.swift */; };
-		EC130AD426D390D8F0D7D4B1 /* CursorLocationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */; };
-		BBE53BE5348048EA0D9544AB /* SearchMatchCountOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B434FBE98D07CA72E52772 /* SearchMatchCountOverlay.swift */; };
 		CC327C552610B60400BD7E32 /* CodeEditorTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */; };
-		5EA9C0DE1A2B3C4D5E6F7A81 /* SearchPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA9C0DE1A2B3C4D5E6F7A80 /* SearchPattern.swift */; };
 		CC327C572610B87200BD7E32 /* CodeEditorLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */; };
 		CC327C582610CF4D00BD7E32 /* CodeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */; };
 		CC327C5A26111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */; };
@@ -394,6 +393,7 @@
 		CCFBC5BE260543D100E29F99 /* EnvironmentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5BD260543D100E29F99 /* EnvironmentManager.swift */; };
 		CCFBC5C226054D6C00E29F99 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */; };
 		CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5CA2605F50B00E29F99 /* RichText.swift */; };
+		EC130AD426D390D8F0D7D4B1 /* CursorLocationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */; };
 		EDD6B00D9ED9405B96A4DF25 /* iPadKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */; };
 /* End PBXBuildFile section */
 
@@ -785,6 +785,9 @@
 
 /* Begin PBXFileReference section */
 		4DE2E6C57AF54D77B3462436 /* iPhoneKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPhoneKeyboard.swift; sourceTree = "<group>"; };
+		5EA9C0DE1A2B3C4D5E6F7A80 /* SearchPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPattern.swift; sourceTree = "<group>"; };
+		C5B434FBE98D07CA72E52772 /* SearchMatchCountOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchMatchCountOverlay.swift; sourceTree = "<group>"; };
+		C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocationOverlay.swift; sourceTree = "<group>"; };
 		CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadOAuthConfig.swift; sourceTree = "<group>"; };
 		CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = OAuthDemo.scm; sourceTree = "<group>"; };
 		CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObliqueProjection.scm; sourceTree = "<group>"; };
@@ -821,10 +824,7 @@
 		CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
 		CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditor.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		CC327C502610A3C800BD7E32 /* CodeEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorView.swift; sourceTree = "<group>"; };
-		C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocationOverlay.swift; sourceTree = "<group>"; };
-		C5B434FBE98D07CA72E52772 /* SearchMatchCountOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchMatchCountOverlay.swift; sourceTree = "<group>"; };
 		CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextView.swift; sourceTree = "<group>"; };
-		5EA9C0DE1A2B3C4D5E6F7A80 /* SearchPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPattern.swift; sourceTree = "<group>"; };
 		CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorLayoutManager.swift; sourceTree = "<group>"; };
 		CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextStorageDelegate.swift; sourceTree = "<group>"; };
 		CC327C5B2611201100BD7E32 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };

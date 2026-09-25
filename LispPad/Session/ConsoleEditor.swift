@@ -36,7 +36,7 @@ struct ConsoleEditor: UIViewRepresentable {
   @Binding var calculatedHeight: CGFloat
   @Binding var update: ((CodeEditorTextView) -> Void)?
   @ObservedObject var keyboardObserver: KeyboardObserver
-  
+  let allowsHitTesting: Bool
   let defineAction: ((Block) -> Void)?
   let returnAction: (() -> Void)?
   let customReturn: () -> Bool
@@ -66,6 +66,7 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.isEditable = true
     textView.isSelectable = true
     textView.isUserInteractionEnabled = true
+    textView.allowsHitTesting = self.allowsHitTesting
     textView.contentInsetAdjustmentBehavior = .automatic
     textView.keyboardDismissMode = // UIDevice.current.userInterfaceIdiom == .pad ? .none :
                                    .interactive
@@ -94,6 +95,9 @@ struct ConsoleEditor: UIViewRepresentable {
 
   public func updateUIView(_ textView: CodeEditorTextView, context: Context) {
     textView.keyboard.setup(for: textView)
+    if textView.allowsHitTesting != self.allowsHitTesting {
+      textView.allowsHitTesting = self.allowsHitTesting
+    }
     if textView.font != self.settings.inputFont {
       textView.font = self.settings.inputFont
     }

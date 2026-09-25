@@ -32,6 +32,8 @@ struct ConsoleView: View {
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
   @State var dynamicHeight: CGFloat = 100
+  @State var buttonDiameter: CGFloat? = nil
+  @State var executeMenuPresented: Bool = false
   @State var inputBuffer: String? = nil
   @State var inputHistoryIndex: Int = -1
   @State var minSeverityFilter = Severity.debug
@@ -230,13 +232,32 @@ struct ConsoleView: View {
   }
   
   var control: some View {
-    HStack(alignment: .bottom, spacing: 0) {
+    Group {
+      if #available(iOS 26.0, *) {
+        GlassEffectContainer(spacing: 8) {
+          self.controlContent
+        }
+      } else {
+        self.controlContent
+      }
+    }
+    .padding(6)
+  }
+
+  private var controlContent: some View {
+    HStack(alignment: .bottom, spacing: 8) {
       ConsoleEditor(text: self.$state.consoleInput,
                     selectedRange: self.$state.consoleInputRange,
                     focused: self.$state.focused,
                     calculatedHeight: self.$dynamicHeight,
                     update: self.$updateConsole,
                     keyboardObserver: self.keyboardObserver,
+                    // While the submit button's long-press menu is open, its bottom-most
+                    // item sits right above this field. Without this, a tap there can be
+                    // stolen by the console text view (which grabs touches to place the
+                    // cursor/become first responder) instead of registering as a menu
+                    // selection.
+                    allowsHitTesting: !self.executeMenuPresented,
                     defineAction: { block in
                       self.showCard = true
                       self.cardContent.block = block
@@ -255,7 +276,6 @@ struct ConsoleView: View {
                     })
         .multilineTextAlignment(.leading)
         .frame(minHeight: self.dynamicHeight, maxHeight: self.dynamicHeight)
-        .padding(.leading, 3)
         .onAppear {
           // THIS IS A HUGE HACK (to work around a SwiftUI navigation bug)
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -268,68 +288,182 @@ struct ConsoleView: View {
             }
           }
         }
-      Menu {
-        Button(role: .destructive) {
-          self.state.consoleInput = ""
-        } label: {
-          Label("Clear Input", systemImage: "xmark")
+        .modifier(ConsoleInputBarChrome())
+        .onChange(of: self.dynamicHeight) { oldValue, newValue in
+          // Captured once, from the field's first genuine (single-line) layout pass, and
+          // never touched again, so the button's size stays fixed even as the field grows
+          // for multi-line input. The very first reported height can transiently be 0
+          // before layout settles, so that spurious value is ignored.
+          if self.buttonDiameter == nil && newValue > 1 {
+            self.buttonDiameter = newValue
+          }
         }
-        if self.ready && self.history.count > 0 {
-          Section("COMMAND HISTORY") {
-            ForEach(self.history, id: \.self) { entry in
-              Button(entry) {
+      // A plain Menu's presentation lifecycle (onAppear/onDisappear on its content) is not
+      // reliably reported on iOS 26, which made `executeMenuPresented` -- and therefore the
+      // console field's `allowsHitTesting` -- flicker or stick. Driving a `.popover` off an
+      // explicit @State we set/clear ourselves (on long-press, on each row's own action, and
+      // implicitly on outside-tap dismissal via the isPresented binding) is fully
+      // deterministic instead.
+      Image(systemName: self.executeButtonIcon)
+        .font(.system(size: 18, weight: .semibold))
+        .foregroundStyle(.white)
+        .blendMode(.overlay)
+        .frame(width: self.buttonDiameter ?? 44, height: self.buttonDiameter ?? 44)
+        .modifier(ConsoleButtonChrome(tint: self.executeButtonTint))
+        .contentShape(Circle())
+        .onTapGesture {
+          guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
+            return
+          }
+          self.inputBuffer = nil
+          self.inputHistoryIndex = -1
+          self.action()
+        }
+        .onLongPressGesture(minimumDuration: 0.3) {
+          self.executeMenuPresented = true
+        }
+        .popover(isPresented: self.$executeMenuPresented) {
+          self.executeMenuContents
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+  }
+
+  // Content of the submit button's long-press popover: recent command history followed
+  // by a destructive "Clear Input" row, matching the layout the system Menu used to
+  // produce. Each row clears `executeMenuPresented` itself after acting.
+  private var executeMenuContents: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      if self.ready && self.history.count > 0 {
+        Text("COMMAND HISTORY")
+          .font(.caption)
+          .foregroundColor(.secondary)
+          .padding(.horizontal, 24)
+          .padding(.top, 12)
+          .padding(.bottom, 6)
+        Divider()
+        ScrollView {
+          LazyVStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(self.history.enumerated()), id: \.offset) { index, entry in
+              Button {
                 self.state.consoleInput = entry
                 self.state.consoleInputRange = NSRange(location: (entry as NSString).length,
                                                        length: 0)
+                self.executeMenuPresented = false
+              } label: {
+                Text(entry)
+                  .font(.system(.footnote, design: .monospaced))
+                  .lineLimit(2)
+                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .padding(.horizontal, 12)
+                  .padding(.vertical, 6)
+                  .contentShape(Rectangle())
+              }
+              .buttonStyle(.plain)
+              if index < self.history.count - 1 {
+                Divider()
+                  .foregroundStyle(Color.primary.opacity(0.1))
+                  .padding(.leading, 8)
               }
             }
           }
         }
-      } label: {
-        if !self.ready && self.readingStatus == .accept {
-          if self.state.consoleInput.isEmpty {
-            Image(systemName: "questionmark.circle.fill")
-              .resizable()
-              .scaledToFit()
-              .frame(height: 24.5)
-              //.foregroundColor(.init(.sRGB, red: 0.8, green: 0.5, blue: 0.5, opacity: 1.0))
-              .foregroundColor(.red)
-          } else {
-            Image(systemName: "arrow.forward.circle.fill")
-              .resizable()
-              .scaledToFit()
-              .frame(height: 24.5)
-              .foregroundColor(.red)
-          }
-        } else if self.state.consoleInput.isEmpty {
-          Image(systemName: "pencil.circle.fill")
-            .resizable()
-            .scaledToFit()
-            .frame(height: 24.5)
-            .disabled(true)
-        } else {
-          Image(systemName: "arrow.up.circle.fill")
-            .resizable()
-            .scaledToFit()
-            .frame(height: 24.5)
-            .disabled(!self.ready)
-            //.foregroundColor(self.ready ? .accentColor : Color(LispPadUI.menuIndicatorColor))
-        }
-      } primaryAction: {
-        guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
-          return
-        }
-        self.inputBuffer = nil
-        self.inputHistoryIndex = -1
-        self.action()
+        .frame(maxWidth: 320, maxHeight: 320)
+        Divider()
+          .padding(.vertical, 4)
       }
-      //.disabled(self.state.consoleInput.isEmpty || (!self.ready && self.readingStatus != .accept))
-      .padding(.trailing, 3)
-      .offset(y: -3.5)
+      Button(role: .destructive) {
+        self.state.consoleInput = ""
+        self.executeMenuPresented = false
+      } label: {
+        HStack {
+          Text("CLEAR INPUT")
+            .font(.caption)
+          Spacer()
+          Image(systemName: "xmark")
+            .font(.caption)
+        }
+      }
+      .padding(.horizontal, 24)
+      .padding(.top, 6)
+      .padding(.bottom, 12)
+    }
+    .frame(width: 280)
+  }
+
+  // Which icon the execute button shows, based on interpreter/reading state.
+  private var executeButtonIcon: String {
+    if !self.ready && self.readingStatus == .accept {
+      return self.state.consoleInput.isEmpty ? "questionmark" : "arrow.forward"
+    } else if self.state.consoleInput.isEmpty {
+      return "pencil"
+    } else {
+      return "arrow.up"
+    }
+  }
+
+  // The execute button's tint, matching the same state distinctions the icon used to convey
+  // via color alone (red for input requests, muted while there is nothing to submit).
+  private var executeButtonTint: Color {
+    if !self.ready && self.readingStatus == .accept {
+      return .red
+    } else if self.state.consoleInput.isEmpty {
+      return Color(.systemGray3)
+    } else {
+      return .accentColor
+    }
+  }
+
+  // Styles the console input field. On iOS 26+ it gets a Liquid Glass rounded rectangle,
+  // matching the look of a system search field; on earlier versions it falls back to a
+  // plain rounded box.
+  private struct ConsoleInputBarChrome: ViewModifier {
+    func body(content: Content) -> some View {
+      if #available(iOS 26.0, *) {
+        content
+          .padding(.horizontal, 6)
+          .glassEffect(.regular.interactive(),
+                       in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+          .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+              .strokeBorder(Color.primary.opacity(0.6), lineWidth: 0.75)
+          )
+      } else {
+        content
+          .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.gray, lineWidth: 0.7)
+                        .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                      .fill(Color(.systemBackground))))
+      }
+    }
+  }
+
+  // Styles the submit/menu button as a standalone, fully tinted Liquid Glass button on
+  // iOS 26+, matching other round system glass buttons; falls back to a plain filled
+  // circular button.
+  private struct ConsoleButtonChrome: ViewModifier {
+    let tint: Color
+
+    func body(content: Content) -> some View {
+      if #available(iOS 26.0, *) {
+        content
+          .glassEffect(.regular.tint(self.tint).interactive(), in: Circle())
+      } else {
+        content
+          .background(Circle().fill(self.tint))
+      }
+    }
+  }
+
+  // Invisible buttons that only exist to register keyboard shortcuts. They have no
+  // visual presence, so they don't need to live inside the bottom bar.
+  var keyCommandButtons: some View {
+    Group {
       ZStack {
         if !self.splitViewMode.isSideBySide || self.state.focused {
           Button(action: {
-            guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
+            guard !self.state.consoleInput.isEmpty,
+                  self.ready || self.readingStatus == .accept else {
               return
             }
             self.inputBuffer = nil
@@ -441,14 +575,9 @@ struct ConsoleView: View {
         .keyCommand("s", modifiers: .command, title: "Switch to editor")
       }
     }
-    .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
-                  .stroke(Color.gray, lineWidth: 0.7)
-                  .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color(.systemBackground))))
-    .padding(6)
-    .background(Color("NavigationBarColor").ignoresSafeArea())
+    .frame(width: 0, height: 0)
   }
-  
+
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       TabView(selection: self.$state.consoleTab) {
@@ -510,10 +639,10 @@ struct ConsoleView: View {
         }
       }
       //.resignKeyboardOnDragGesture(enable: UIDevice.current.userInterfaceIdiom != .pad)
-      Divider()
-        .ignoresSafeArea(.container, edges: [.leading, .trailing])
+      self.keyCommandButtons
+    }
+    .safeAreaInset(edge: .bottom, spacing: 0) {
       self.control
-        .transition(.identity)
     }
   }
   

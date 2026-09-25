@@ -250,6 +250,21 @@ class CodeEditorTextView: UITextView, UIEditMenuInteractionDelegate {
     }
   }
 
+  /// When false, this view (and its subviews) is excluded from hit-testing, so touches
+  /// within its bounds pass through to whatever else is presented above it -- e.g. a
+  /// `Menu` popup anchored to an adjacent button whose bottom-most item can otherwise
+  /// overlap this text view, which would win the touch and place the cursor instead of
+  /// the menu item registering. SwiftUI's own `.allowsHitTesting(_:)` modifier does not
+  /// propagate into a `UIViewRepresentable`'s wrapped UIKit view, hence this override.
+  var allowsHitTesting: Bool = true
+
+  override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    guard self.allowsHitTesting else {
+      return nil
+    }
+    return super.hitTest(point, with: event)
+  }
+
   init(frame: CGRect,
        console: Bool,
        editorType: FileExtensions.EditorType,
