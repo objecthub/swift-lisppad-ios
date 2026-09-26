@@ -26,6 +26,9 @@ struct CanvasPanel: View {
   @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var interpreter: Interpreter
   @AppStorage("Canvas.includeResults") var includeResults: Bool = true
+  
+  let bottomInset: CGFloat
+  let width: CGFloat
   @State var showSizeEditor: Bool = false
   @ObservedObject var state: InterpreterState
   @Binding var showModal: InterpreterView.SheetAction?
@@ -60,10 +63,15 @@ struct CanvasPanel: View {
         } else {
           Spacer()
         }
+      }
+      .ignoresSafeArea(.all, edges: .bottom)
+      VStack(alignment: .leading, spacing: 0) {
+        Spacer()
         if self.includeResults {
           CanvasConsole(console: self.interpreter.console)
             .transition(.move(edge: .top))
         }
+        Color.clear.frame(height: self.bottomInset)
       }
       VStack(alignment: .leading, spacing: 0) {
         Divider()
@@ -75,31 +83,28 @@ struct CanvasPanel: View {
             .fontWeight(.semibold)
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
-          GeometryReader { geometry in
-            Menu {
-              Picker("", selection:
-                           Binding(get: { self.interpreter.canvas },
-                                   set: { c in self.interpreter.canvas = c })) {
-                ForEach(self.interpreter.canvases) { canvas in
-                  Text("\(canvas.name) (\(canvas.id))").tag(canvas)
-                }
+          Menu {
+            Picker("", selection:
+                         Binding(get: { self.interpreter.canvas },
+                                 set: { c in self.interpreter.canvas = c })) {
+              ForEach(self.interpreter.canvases) { canvas in
+                Text("\(canvas.name) (\(canvas.id))").tag(canvas)
               }
-            } label: {
-              HStack(alignment: .center, spacing: 4) {
-                Text(self.interpreter.canvas.name)
-                  .lineLimit(1)
-                  .allowsTightening(true)
-                if self.interpreter.canvases.count > 1 {
-                  Image(systemName: "chevron.up.chevron.down")
-                }
-              }
-              .font(.footnote)
             }
-            .fixedSize(horizontal: false, vertical: false)
-            .frame(maxWidth: geometry.size.width, maxHeight: 25, alignment: .leading)
-            .disabled(self.interpreter.canvases.isEmpty)
+          } label: {
+            HStack(alignment: .center, spacing: 4) {
+              Text(self.interpreter.canvas.name)
+                .lineLimit(1)
+                .allowsTightening(true)
+              if self.interpreter.canvases.count > 1 {
+                Image(systemName: "chevron.up.chevron.down")
+              }
+            }
+            .font(.footnote)
           }
-          .frame(maxHeight: 25, alignment: .center)
+          .fixedSize(horizontal: false, vertical: false)
+          .frame(maxWidth: self.width, maxHeight: 25, alignment: .leading)
+          .disabled(self.interpreter.canvases.isEmpty)
           Spacer(minLength: 0)
           if self.interpreter.canvas != .empty {
             Button {

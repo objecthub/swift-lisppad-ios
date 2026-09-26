@@ -21,23 +21,25 @@
 import SwiftUI
 
 struct CanvasConsole: View {
-  private static let insets = EdgeInsets(top: 6, leading: 2, bottom: 6, trailing: 2)
   @EnvironmentObject var settings: UserSettings
   @ObservedObject var console: Console
   
   var body: some View {
     if let entry = console.content.last, entry.isResult {
-      VStack(alignment: .center, spacing: 0) {
+      VStack(alignment: .leading, spacing: 0.0) {
         Divider()
+          .ignoresSafeArea(.container, edges: [.leading, .trailing])
         ConsoleOutputView(entry: entry.textOutput,
                           font: self.settings.consoleFont,
                           graphicsBackground: self.settings.consoleGraphicsBackgroundColor,
                           width: 0)
         .allowsTightening(true)
         .lineLimit(8)
-        .padding(CanvasConsole.insets)
-        .background(Color(.tertiarySystemBackground).opacity(0.85))
-        .animation(.snappy, value: console.content.last)
+        .padding(.vertical, 8)
+        .background(Color(.tertiarySystemBackground).opacity(0.85)
+                      .ignoresSafeArea(.container, edges: [.leading, .trailing]))
+        Divider()
+          .ignoresSafeArea(.container, edges: [.leading, .trailing])
       }
     }
   }

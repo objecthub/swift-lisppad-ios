@@ -88,6 +88,7 @@ struct CanvasView: View {
         self.background = nil
       }
     }
+    .scrollDismissesKeyboard(.interactively)
   }
   
   func render(size: CGSize, state: CanvasConfig.State) {

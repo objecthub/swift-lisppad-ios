@@ -580,53 +580,56 @@ struct ConsoleView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      TabView(selection: self.$state.consoleTab) {
-        LogView(font: self.font,
-                input: self.$state.consoleInput,
-                showSheet: self.$showSheet,
-                showModal: self.$showModal)
-        .tag(0)
-        GeometryReader { geo in
-          ZStack(alignment: .bottomTrailing) {
+      GeometryReader { geo in
+        TabView(selection: self.$state.consoleTab) {
+          LogView(font: self.font,
+                  bottomInset: geo.safeAreaInsets.bottom,
+                  input: self.$state.consoleInput,
+                  showSheet: self.$showSheet,
+                  showModal: self.$showModal)
+          .offset(y: 17)
+          .tag(0)
+          VStack(alignment: .leading, spacing: 0) {
             ScrollView(.vertical, showsIndicators: true) {
               ScrollViewReader { scrollViewProxy in
                 LazyVStack(alignment: .leading, spacing: 0) {
                   ForEach(self.console.content, id: \.id) { entry in
                     self.consoleRow(entry, width: geo.size.width)
                   }
+                  // Color.clear.frame(height: geo.safeAreaInsets.bottom + 4)
+                  //   .id("consoleBottomSentinel")
+                  Color.clear.frame(height: 4)
+                    .id("consoleBottomSentinel")
                 }
                 .onChange(of: self.console.content) { oldValue, newValue in
-                  if let id = self.console.lastOutputId {
-                    withAnimation {
-                      scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
-                    }
-                  }
+                  self.scrollToLastOutput(scrollViewProxy)
                 }
                 .onChange(of: self.contentBatch) { oldValue, newValue in
-                  if let id = self.console.lastOutputId {
-                    withAnimation {
-                      scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
-                    }
-                  }
+                  self.scrollToLastOutput(scrollViewProxy)
                 }
                 .onChange(of: self.state.consoleInput) { oldValue, newValue in
-                  if let id = self.console.lastOutputId {
-                    withAnimation {
-                      scrollViewProxy.scrollTo(id, anchor: .bottomTrailing)
-                    }
-                  }
+                  self.scrollToLastOutput(scrollViewProxy)
                 }
               }
             }
+            .contentMargins(.bottom, geo.safeAreaInsets.bottom, for: .scrollIndicators)
+            .contentMargins(.bottom, geo.safeAreaInsets.bottom, for: .scrollContent)
             .scrollDismissesKeyboard(.interactively)
           }
+          .offset(y: 17)
+          .tag(1)
+          CanvasPanel(bottomInset: geo.safeAreaInsets.bottom,
+                      width: geo.size.width,
+                      state: self.state,
+                      showModal: self.$showModal)
+            .offset(y: 17)
+            .tag(2)
         }
-        .tag(1)
-        CanvasPanel(state: self.state, showModal: self.$showModal)
-        .tag(2)
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
+        // .padding(.bottom, -17)
+        .ignoresSafeArea(.all, edges: .bottom)
       }
-      .tabViewStyle(.page(indexDisplayMode: .never))
-      .indexViewStyle(.page(backgroundDisplayMode: .interactive))
       .slideOverCard(isPresented: self.$showCard, onDismiss: {
         self.cardContent.block = nil
        }) {
@@ -646,6 +649,21 @@ struct ConsoleView: View {
     }
   }
   
+  // Scrolls the console output to its very end. Targets the dedicated
+  // "consoleBottomSentinel" spacer at the tail of the LazyVStack rather than the last
+  // content row's own id: anchoring `scrollTo` directly to a content row (e.g. with
+  // `.bottomTrailing`) consistently undershot by a few hundred points once the ScrollView
+  // started ignoring the bottom safe area, regardless of animation/timing -- scrolling to
+  // a plain trailing marker instead reaches the true end reliably.
+  private func scrollToLastOutput(_ proxy: ScrollViewProxy) {
+    guard self.console.lastOutputId != nil else {
+      return
+    }
+    withAnimation {
+      proxy.scrollTo("consoleBottomSentinel", anchor: .bottomTrailing)
+    }
+  }
+
   private func selectExpression() {
     if let range = TextFormatter.selectEnclosingExpr(string: self.state.consoleInput as NSString,
                                                      selectedRange: self.state.consoleInputRange,

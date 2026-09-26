@@ -25,6 +25,7 @@ struct LogView: View {
   static let tagFont = Font.system(size: 9.0, weight: .regular, design: .monospaced)
   static let iconFont = Font.system(size: 20).weight(.light)
   let font: Font
+  let bottomInset: CGFloat
   
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var sessionLog: SessionLog
@@ -66,86 +67,90 @@ struct LogView: View {
   
   var body: some View {
     ZStack(alignment: .topLeading) {
-      ScrollViewReader { scrollViewProxy in
+      VStack {
         ScrollView(.vertical, showsIndicators: true) {
-          Spacer(minLength: 35)
-          LazyVStack(alignment: .leading, spacing: 0) {
-            ForEach(self.sessionLog.filteredLogEntries, id: \.id) { entry in
-              HStack(alignment: .center, spacing: 8.0) {
-                if self.showTags {
-                  VStack(alignment: .leading, spacing: 0.0) {
-                    if self.showTime {
+          ScrollViewReader { scrollViewProxy in
+            Spacer(minLength: 35)
+            LazyVStack(alignment: .leading, spacing: 0) {
+              ForEach(self.sessionLog.filteredLogEntries, id: \.id) { entry in
+                HStack(alignment: .center, spacing: 8.0) {
+                  if self.showTags {
+                    VStack(alignment: .leading, spacing: 0.0) {
+                      if self.showTime {
+                        Text(entry.timeString)
+                          .font(Self.timeFont)
+                          .foregroundColor(self.color(severity: entry.severity))
+                          .fixedSize(horizontal: false, vertical: false)
+                      }
+                      if self.showTags && !entry.tag.isEmpty {
+                        Text(entry.tag)
+                          .font(Self.tagFont)
+                          .foregroundColor(self.color(severity: entry.severity))
+                          .frame(maxWidth: 69, maxHeight: 10, alignment: .leading)
+                      }
+                      Spacer(minLength: 0)
+                    }
+                    .frame(maxWidth: 70, alignment: .leading)
+                    .padding(.top, 1)
+                  } else if self.showTime {
+                    VStack(alignment: .leading, spacing: 0.0) {
                       Text(entry.timeString)
                         .font(Self.timeFont)
                         .foregroundColor(self.color(severity: entry.severity))
                         .fixedSize(horizontal: false, vertical: false)
+                        .frame(maxWidth: 50, alignment: .leading)
+                      Spacer(minLength: 0)
                     }
-                    if self.showTags && !entry.tag.isEmpty {
-                      Text(entry.tag)
-                        .font(Self.tagFont)
+                    .padding(.top, 1)
+                  } else {
+                    VStack(alignment: .leading, spacing: 0.0) {
+                      Text("•")
+                        .font(self.font)
                         .foregroundColor(self.color(severity: entry.severity))
-                        .frame(maxWidth: 69, maxHeight: 10, alignment: .leading)
+                      Spacer(minLength: 0)
                     }
-                    Spacer(minLength: 0)
+                    .padding(.top, 1)
                   }
-                  .frame(maxWidth: 70, alignment: .leading)
-                  .padding(.top, 1)
-                } else if self.showTime {
-                  VStack(alignment: .leading, spacing: 0.0) {
-                    Text(entry.timeString)
-                      .font(Self.timeFont)
-                      .foregroundColor(self.color(severity: entry.severity))
-                      .fixedSize(horizontal: false, vertical: false)
-                      .frame(maxWidth: 50, alignment: .leading)
-                    Spacer(minLength: 0)
-                  }
-                  .padding(.top, 1)
-                } else {
-                  VStack(alignment: .leading, spacing: 0.0) {
-                    Text("•")
-                      .font(self.font)
-                      .foregroundColor(self.color(severity: entry.severity))
-                    Spacer(minLength: 0)
-                  }
-                  .padding(.top, 1)
+                  Text(entry.message)
+                    .font(self.font)
                 }
-                Text(entry.message)
-                  .font(self.font)
-              }
-              .contextMenu {
-                Button {
-                  UIPasteboard.general.string = entry.message
-                } label: {
-                  Label("Copy Message", systemImage: "doc.on.clipboard")
-                }
-                if entry.message.count <= 800 {
+                .contextMenu {
                   Button {
-                    self.input = entry.message
+                    UIPasteboard.general.string = entry.message
                   } label: {
-                    Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
+                    Label("Copy Message", systemImage: "doc.on.clipboard")
                   }
+                  if entry.message.count <= 800 {
+                    Button {
+                      self.input = entry.message
+                    } label: {
+                      Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
+                    }
+                  }
+                  Divider()
+                  ShareLink("Share Message…", item: entry.message)
                 }
-                Divider()
-                ShareLink("Share Message…", item: entry.message)
+                .padding(.leading, 6)
+                .padding(.vertical, 1)
               }
-              .padding(.leading, 6)
-              .padding(.vertical, 1)
+              Color.clear.frame(height: 2)
+                .id("logBottomSentinel")
             }
-          }
-          .onChange(of: self.sessionLog.filteredLogEntries.count) {
-            if self.sessionLog.filteredLogEntries.count > 0 {
-              withAnimation {
-                scrollViewProxy.scrollTo(
-                  self.sessionLog.filteredLogEntries[
-                    self.sessionLog.filteredLogEntries.endIndex - 1].id,
-                  anchor: .bottomTrailing)
+            .onChange(of: self.sessionLog.filteredLogEntries.count) {
+              if self.sessionLog.filteredLogEntries.count > 0 {
+                withAnimation {
+                  scrollViewProxy.scrollTo("logBottomSentinel", anchor: .bottomTrailing)
+                }
               }
             }
           }
         }
+        .contentMargins(.bottom, self.bottomInset, for: .scrollIndicators)
+        .contentMargins(.bottom, self.bottomInset, for: .scrollContent)
+        .scrollDismissesKeyboard(.interactively)
       }
       .background(Color(.secondarySystemBackground)
-                    .ignoresSafeArea(.container, edges: [.leading, .trailing]))
+        .ignoresSafeArea(.container, edges: [.leading, .trailing]))
       VStack(alignment: .leading, spacing: 0) {
         Divider().offset(x: 0.0, y: -1.0)
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
@@ -224,6 +229,7 @@ struct LogView: View {
           .ignoresSafeArea(.container, edges: [.leading, .trailing])
       }
     }
+    .ignoresSafeArea(.all, edges: .bottom)
     .transition(.move(edge: .bottom))
   }
 }
