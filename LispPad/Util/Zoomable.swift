@@ -37,8 +37,15 @@ struct ZoomableModifier: ViewModifier {
   
   @State private var transform: CGAffineTransform = .identity
   @State private var contentSize: CGSize = .zero
+  @State private var gestureAnchor: UnitPoint = .center
   @Binding var scale: CGFloat
-  
+  // Called right after a pinch gesture bakes its scale into `scale`, with the pinch's
+  // anchor (as a fraction of the content's bounds *before* this gesture) and the scale
+  // multiplier that was just applied. Callers use this to keep the pinched point stationary
+  // on screen, e.g. by adjusting an enclosing ScrollView's scroll position -- this modifier
+  // only resizes the content, it doesn't own any scroll position itself.
+  var onZoomEnd: ((_ anchor: UnitPoint, _ multiplier: CGFloat) -> Void)? = nil
+
   func body(content: Content) -> some View {
     content
       .background(alignment: .topLeading) {
@@ -47,16 +54,20 @@ struct ZoomableModifier: ViewModifier {
             .onAppear {
               contentSize = proxy.size
             }
+            .onChange(of: proxy.size) { _, newSize in
+              contentSize = newSize
+            }
         }
       }
       .scaleEffect(x: transform.scaleX, y: transform.scaleY, anchor: .zero)
       .offset(x: transform.tx, y: transform.ty)
       .gesture(magnificationGesture)
   }
-  
+
   private var magnificationGesture: some Gesture {
     MagnifyGesture(minimumScaleDelta: 0)
       .onChanged { value in
+        gestureAnchor = value.startAnchor
         withAnimation(.interactiveSpring) {
           transform = .anchoredScale(scale: value.magnification,
                                      anchor: CGPoint(x: value.startAnchor.x * contentSize.width,
@@ -84,10 +95,23 @@ struct ZoomableModifier: ViewModifier {
   
   private func onEndGesture() {
     let newTransform = limitTransform(transform)
-    withAnimation(.snappy(duration: 0.1)) {
+    let multiplier = newTransform.scaleX
+    let anchor = gestureAnchor
+    // At this instant the live transform's effective size (contentSize * transform.scaleX)
+    // and the about-to-be-baked frame size (contentSize * multiplier) are the same value
+    // (barring min/max clamping), so swapping from transform-scaling to a resized frame
+    // should be visually seamless. Animating this swap -- even with matching curves -- desyncs
+    // in practice, because the frame resize (driven by the `scale` binding, which round-trips
+    // through the observed `CanvasConfig`) and the transform reset (local @State) land in
+    // different render passes, producing a visible snap-then-resize. Disabling animation for
+    // this transition keeps both changes atomic instead.
+    var transaction = Transaction()
+    transaction.disablesAnimations = true
+    withTransaction(transaction) {
       transform = .identity
-      scale = newTransform.scaleX * scale
+      scale = multiplier * scale
     }
+    onZoomEnd?(anchor, multiplier)
   }
   
   private func limitTransform(_ transform: CGAffineTransform) -> CGAffineTransform {
@@ -123,10 +147,12 @@ extension View {
   @ViewBuilder
   public func zoomable(minZoomScale: CGFloat = 1,
                        maxZoomScale: CGFloat = 10,
-                       scale: Binding<CGFloat>) -> some View {
+                       scale: Binding<CGFloat>,
+                       onZoomEnd: ((_ anchor: UnitPoint, _ multiplier: CGFloat) -> Void)? = nil) -> some View {
     modifier(ZoomableModifier(minZoomScale: minZoomScale / scale.wrappedValue,
                               maxZoomScale: maxZoomScale / scale.wrappedValue,
-                              scale: scale))
+                              scale: scale,
+                              onZoomEnd: onZoomEnd))
   }
 }
 

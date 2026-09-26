@@ -154,7 +154,7 @@ struct CanvasPanel: View {
               .fixedSize(horizontal: true, vertical: false)
             Button {
               let x = self.interpreter.canvas.zoom
-              self.interpreter.canvas.zoom = self.round(x + (x <= 2.8 ? 0.2 : 0.0))
+              self.interpreter.canvas.zoom = self.round(x + (x <= 4.8 ? 0.2 : 0.0))
               self.interpreter.objectWillChange.send()
             } label: {
               Image(systemName: "plus.magnifyingglass")

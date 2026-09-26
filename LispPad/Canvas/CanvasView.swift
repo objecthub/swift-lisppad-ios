@@ -22,7 +22,7 @@ import SwiftUI
 
 struct CanvasView: View {
   private let minZoom: CGFloat = 0.4
-  private let maxZoom: CGFloat = 3.0
+  private let maxZoom: CGFloat = 5.0
   private let topClearance: CGFloat = 24
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
@@ -31,6 +31,8 @@ struct CanvasView: View {
   @State var renderTask: Task<Void, Never>? = nil
   @State var drawingId: UInt = .max
   @State var drawingInstr: Int = -1
+  @State var scrollOffset: CGPoint = .zero
+  @State var scrollPosition: ScrollPosition = ScrollPosition()
   let bottomInset: CGFloat
   @ObservedObject var canvas: CanvasConfig
   private let processor = RenderProcessor()
@@ -76,7 +78,28 @@ struct CanvasView: View {
           }
         }
         .frame(width: self.canvas.width, height: self.canvas.height, alignment: .center)
-        .zoomable(minZoomScale: self.minZoom, maxZoomScale: self.maxZoom, scale: $canvas.zoom)
+        .zoomable(minZoomScale: self.minZoom,
+                  maxZoomScale: self.maxZoom,
+                  scale: $canvas.zoom) { anchor, multiplier in
+          // Keep the pinched point stationary on screen: derive the pre-gesture content
+          // size from the size that `scale` (already updated by this point) implies, then
+          // shift the scroll offset by the anchor's share of the size delta. Without this,
+          // baking the gesture's scale into the frame leaves the scroll offset untouched,
+          // so the view snaps back to whatever it showed before the pinch started.
+          let newWidth = self.canvas.width
+          let newHeight = self.canvas.height
+          let oldWidth = newWidth / multiplier
+          let oldHeight = newHeight / multiplier
+          let newScrollX = max(0, anchor.x * (newWidth - oldWidth) + self.scrollOffset.x)
+          let newScrollY = max(0, anchor.y * (newHeight - oldHeight) + self.scrollOffset.y)
+          // Matches the un-animated frame resize in `zoomable` -- animating just the scroll
+          // position while the size change is instant would desync the two again.
+          var transaction = Transaction()
+          transaction.disablesAnimations = true
+          withTransaction(transaction) {
+            self.scrollPosition = ScrollPosition(x: newScrollX, y: newScrollY)
+          }
+        }
         .frame(minWidth: outer.size.width,
                minHeight: max(0, outer.size.height - self.topClearance - self.bottomInset),
                alignment: .center)
@@ -98,6 +121,10 @@ struct CanvasView: View {
         }
       }
       .scrollDismissesKeyboard(.interactively)
+      .scrollPosition(self.$scrollPosition)
+      .onScrollGeometryChange(for: CGPoint.self, of: { $0.contentOffset }) { _, newOffset in
+        self.scrollOffset = newOffset
+      }
     }
   }
   
