@@ -299,9 +299,15 @@ struct InterpreterView: View {
               Menu {
                 Picker("", selection: Binding(get: { self.state.consoleTab },
                                               set: { newValue in
-                                                     withAnimation {
-                                                       self.state.consoleTab = newValue
-                                                     }
+                                                     // No `withAnimation` here: as of iOS 27, wrapping
+                                                     // this assignment in an explicit animation makes
+                                                     // the paged TabView below (in ConsoleView) lose
+                                                     // its own page transition -- `consoleTab` still
+                                                     // updates (the checkmark above moves), but the
+                                                     // visible page never follows. The TabView's
+                                                     // implicit transition still applies without the
+                                                     // extra one from here.
+                                                     self.state.consoleTab = newValue
                                                    })) {
                   Label("Log", systemImage: "list.bullet.rectangle.portrait").tag(0)
                   Label("Console", systemImage: "terminal").tag(1)
