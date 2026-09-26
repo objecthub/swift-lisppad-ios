@@ -58,7 +58,7 @@ struct CanvasPanel: View {
         .ignoresSafeArea(.container, edges: [.leading, .trailing])
       VStack(alignment: .leading, spacing: 0) {
         if self.interpreter.canvas != .empty {
-          CanvasView(canvas: self.interpreter.canvas)
+          CanvasView(bottomInset: self.bottomInset, canvas: self.interpreter.canvas)
             .transition(.slide)
         } else {
           Spacer()

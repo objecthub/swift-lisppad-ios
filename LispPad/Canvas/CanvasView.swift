@@ -23,6 +23,7 @@ import SwiftUI
 struct CanvasView: View {
   private let minZoom: CGFloat = 0.4
   private let maxZoom: CGFloat = 3.0
+  private let topClearance: CGFloat = 24
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var interpreter: Interpreter
   @State var background: Color? = nil
@@ -30,65 +31,74 @@ struct CanvasView: View {
   @State var renderTask: Task<Void, Never>? = nil
   @State var drawingId: UInt = .max
   @State var drawingInstr: Int = -1
+  let bottomInset: CGFloat
   @ObservedObject var canvas: CanvasConfig
   private let processor = RenderProcessor()
   
   var body: some View {
-    ScrollView([.horizontal, .vertical], showsIndicators: true) {
-      Spacer(minLength: 32)
-      ZStack(alignment: .center) {
-        self.background ?? self.settings.consoleGraphicsBackgroundColor
-        GeometryReader { proxy in
-          ZStack {
-            if let image {
-              image
+    GeometryReader { outer in
+      ScrollView([.horizontal, .vertical], showsIndicators: true) {
+        Color.clear
+          .frame(height: self.topClearance)
+        ZStack(alignment: .center) {
+          self.background ?? self.settings.consoleGraphicsBackgroundColor
+          GeometryReader { proxy in
+            ZStack {
+              if let image {
+                image
+              }
+            }
+            .onChange(of: self.canvas.state) { _, state in
+              if state.drawingId == self.drawingId && state.drawingInstr != self.drawingInstr {
+                self.drawingInstr = state.drawingInstr
+              } else {
+                self.drawingId = state.drawingId
+                self.drawingInstr = state.drawingInstr
+                self.image = nil
+              }
+              self.render(size: proxy.size, state: state)
+              self.interpreter.objectWillChange.send()
+            }
+            .onAppear {
+              if self.image == nil {
+                self.drawingId = self.canvas.state.drawingId
+                self.drawingInstr = self.canvas.state.drawingInstr
+                self.render(size: proxy.size, state: self.canvas.state)
+              }
             }
           }
-          .onChange(of: self.canvas.state) { _, state in
-            if state.drawingId == self.drawingId && state.drawingInstr != self.drawingInstr {
-              self.drawingInstr = state.drawingInstr
+          .onTapGesture(count: 2) {
+            if self.canvas.zoom == 1.0 {
+              self.canvas.zoom = self.maxZoom
             } else {
-              self.drawingId = state.drawingId
-              self.drawingInstr = state.drawingInstr
-              self.image = nil
-            }
-            self.render(size: proxy.size, state: state)
-            self.interpreter.objectWillChange.send()
-          }
-          .onAppear {
-            if self.image == nil {
-              self.drawingId = self.canvas.state.drawingId
-              self.drawingInstr = self.canvas.state.drawingInstr
-              self.render(size: proxy.size, state: self.canvas.state)
+              self.canvas.zoom = 1.0
             }
           }
         }
-        .onTapGesture(count: 2) {
-          if self.canvas.zoom == 1.0 {
-            self.canvas.zoom = self.maxZoom
-          } else {
-            self.canvas.zoom = 1.0
-          }
+        .frame(width: self.canvas.width, height: self.canvas.height, alignment: .center)
+        .zoomable(minZoomScale: self.minZoom, maxZoomScale: self.maxZoom, scale: $canvas.zoom)
+        .frame(minWidth: outer.size.width,
+               minHeight: max(0, outer.size.height - self.topClearance - self.bottomInset),
+               alignment: .center)
+        Color.clear
+          .frame(height: max(0, self.bottomInset - 6))
+      }
+      .onChange(of: self.canvas.background) { _, col in
+        if let background = col {
+          self.background = Color(background)
+        } else {
+          self.background = nil
         }
       }
-      .frame(width: self.canvas.width, height: self.canvas.height, alignment: .center)
-      .zoomable(minZoomScale: self.minZoom, maxZoomScale: self.maxZoom, scale: $canvas.zoom)
-    }
-    .onChange(of: self.canvas.background) { _, col in
-      if let background = col {
-        self.background = Color(background)
-      } else {
-        self.background = nil
+      .onAppear {
+        if let background = self.canvas.background {
+          self.background = Color(background)
+        } else {
+          self.background = nil
+        }
       }
+      .scrollDismissesKeyboard(.interactively)
     }
-    .onAppear {
-      if let background = self.canvas.background {
-        self.background = Color(background)
-      } else {
-        self.background = nil
-      }
-    }
-    .scrollDismissesKeyboard(.interactively)
   }
   
   func render(size: CGSize, state: CanvasConfig.State) {
