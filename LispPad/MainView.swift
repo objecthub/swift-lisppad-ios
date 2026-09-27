@@ -25,27 +25,35 @@ import SwiftUI
 ///
 struct MainView: View {
   
+  /// Insights into the container LispPad is running in
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  
   /// The registry of all global services and the interpreter
-  @EnvironmentObject var globals: LispPadGlobals
-  @EnvironmentObject var interpreter: Interpreter
+  @EnvironmentObject private var globals: LispPadGlobals
+  @EnvironmentObject private var interpreter: Interpreter
   
   /// URL of a file to load
   @Binding var urlToOpen: URL?
   
   // UserDefault keys
-  static let splitViewModeKey = "SplitView.mode"
-  static let splitViewWidthFractionKey = "SplitView.widthFraction"
+  private static let splitViewModeKey = "SplitView.mode"
+  private static let singleViewModeKey = "SingleView.mode"
+  private static let splitViewWidthFractionKey = "SplitView.widthFraction"
   
   /// A few UI-related global constants
-  static let allowSplit = UIDevice.current.userInterfaceIdiom == .pad
-  static let disableVerticalToolbar = false
+  static let forceAllowSplit = UIDevice.current.userInterfaceIdiom == .pad
+  static let disableVerticalToolbar = true
   
   /// The current split view mode of the application. This state is persisted between
   /// application runs.
   @State private var splitViewMode: SideBySideMode = {
-    let mode = SideBySideMode(rawValue:
-                 UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? .normal
-    if MainView.allowSplit {
+    let mode = MainView.forceAllowSplit
+             ? (SideBySideMode(rawValue:
+                 UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? .normal)
+             : (SideBySideMode(rawValue:
+                 UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal)
+    if MainView.forceAllowSplit {
       return mode
     } else {
       switch mode {
@@ -92,11 +100,13 @@ struct MainView: View {
   /// changes to the view tree do not result in documentation browser state getting reset.
   @StateObject private var documentationBrowserState = DocumentationBrowserState()
   
+  @State var containerGeometry: ContainerGeometry = .zero
+  @State var allowSplit: Bool = MainView.forceAllowSplit
   @State var showAlert: Bool = false
   @State var datePickerValue: FlexDatePicker.Value = .single(nil)
   @State var choiceValue: String = ""
   @State var textValue: String = ""
-
+  
   /// View definition
   var body: some View {
     SideBySide(
@@ -111,7 +121,7 @@ struct MainView: View {
               .transition(.move(edge: .leading))
           } else {
             NavigationStack(path: self.$interpreterPath) {
-              InterpreterView(allowSplit: MainView.allowSplit,
+              InterpreterView(allowSplit: self.allowSplit,
                               path: self.$interpreterPath,
                               splitViewMode: self.$splitViewMode,
                               masterWidthFraction: self.$masterWidthFraction,
@@ -129,7 +139,7 @@ struct MainView: View {
       },
       right: {
         NavigationStack(path: self.$editorPath) {
-          CodeEditorView(allowSplit: MainView.allowSplit,
+          CodeEditorView(allowSplit: self.allowSplit,
                          path: self.$editorPath,
                          splitViewMode: self.$splitViewMode,
                          masterWidthFraction: self.$masterWidthFraction,
@@ -145,7 +155,19 @@ struct MainView: View {
       }
     )
     .ignoresSafeArea()
-    //.frame(maxWidth: .infinity, maxHeight: .infinity)
+    .environment(\.containerGeometry, self.containerGeometry)
+    .onGeometryChange(for: CGSize.self) { proxy in
+      proxy.size
+    } action: { newSize in
+      self.containerGeometry = self.containerGeometry.update(newSize)
+      self.updateAllowSplit()
+    }
+    .onGeometryChange(for: EdgeInsets.self) { proxy in
+      proxy.safeAreaInsets
+    } action: { newInsets in
+      self.containerGeometry = self.containerGeometry.update(newInsets)
+      self.updateAllowSplit()
+    }
     .plainFullScreenCover(isPresented: $showAlert) {
       self.alertView
     }
@@ -164,12 +186,94 @@ struct MainView: View {
           self.datePickerValue = config.initial
       }
     }
+    .onChange(of: self.allowSplit) { _, new in
+      var transaction = Transaction(animation: .none)
+      transaction.disablesAnimations = true
+      if new {
+        // Transition from split not allowed to allowed
+        if UserSettings.standard.linkRotationFoldingChanges {
+          let target = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey:
+                                                  MainView.splitViewModeKey)) ?? self.splitViewMode
+          switch target {
+            case .normal, .swapped:
+              withTransaction(transaction) {
+                self.splitViewMode = target
+              }
+            case .leftOnLeft, .rightOnRight:
+              UserDefaults.standard.set(self.splitViewMode.rawValue,
+                                        forKey: MainView.splitViewModeKey)
+            case .leftOnRight, .rightOnLeft:
+              switch self.splitViewMode {
+                case .leftOnLeft:
+                  withTransaction(transaction) {
+                    self.splitViewMode = .leftOnRight
+                  }
+                case .rightOnRight:
+                  withTransaction(transaction) {
+                    self.splitViewMode = .rightOnLeft
+                  }
+                default:
+                  break
+              }
+              UserDefaults.standard.set(self.splitViewMode.rawValue,
+                                        forKey: MainView.splitViewModeKey)
+          }
+        } else {
+          withTransaction(transaction) {
+            self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? self.splitViewMode
+          }
+        }
+      } else {
+        // Transition from split allowed to not allowed
+        if UserSettings.standard.linkRotationFoldingChanges {
+          if self.splitViewMode.isSideBySide {
+            withTransaction(transaction) {
+              self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal
+            }
+          } else {
+            switch self.splitViewMode {
+              case .normal, .swapped:
+                withTransaction(transaction) {
+                  self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal
+                }
+              case .leftOnLeft, .rightOnRight:
+                UserDefaults.standard.set(self.splitViewMode.rawValue,
+                                          forKey: MainView.singleViewModeKey)
+              case .leftOnRight:
+                withTransaction(transaction) {
+                  self.splitViewMode = .leftOnLeft
+                }
+                UserDefaults.standard.set(self.splitViewMode.rawValue,
+                                          forKey: MainView.singleViewModeKey)
+              case .rightOnLeft:
+                withTransaction(transaction) {
+                  self.splitViewMode = .rightOnRight
+                }
+                UserDefaults.standard.set(self.splitViewMode.rawValue,
+                                          forKey: MainView.singleViewModeKey)
+            }
+          }
+        } else {
+          withTransaction(transaction) {
+            self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal
+          }
+        }
+      }
+    }
     .onChange(of: self.splitViewMode) { _, mode in
-      UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+      if self.allowSplit {
+        UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+      } else {
+        UserDefaults.standard.set(mode.rawValue, forKey: MainView.singleViewModeKey)
+      }
     }
     .onChange(of: self.masterWidthFraction) { _, fraction in
       UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
     }
+  }
+  
+  private func updateAllowSplit() {
+    self.allowSplit = MainView.forceAllowSplit || (self.horizontalSizeClass == .regular && self.containerGeometry.containerSize.width > 800)
   }
   
   @ViewBuilder
@@ -239,6 +343,36 @@ struct MainView: View {
         .environment(\.timeZone, alert.timezone)
     }
   }
+}
+
+public struct ContainerGeometry: Equatable {
+  public let size: CGSize
+  public let safeAreaInsets: EdgeInsets
+  
+  public var containerSize: CGSize {
+    return CGSize(width: self.size.width + self.safeAreaInsets.leading + self.safeAreaInsets.trailing,
+                  height: self.size.height + self.safeAreaInsets.top + self.safeAreaInsets.bottom)
+  }
+  
+  public var isEmpty: Bool {
+    return self.size.width == 0.0 && self.size.height == 0.0
+  }
+  
+  public func update(_ size: CGSize) -> ContainerGeometry {
+    return .init(size: size, safeAreaInsets: self.safeAreaInsets)
+  }
+  
+  public func update(_ insets: EdgeInsets) -> ContainerGeometry {
+    return .init(size: self.size, safeAreaInsets: insets)
+  }
+  
+  public static let zero: ContainerGeometry =
+      ContainerGeometry(size: .zero,
+                        safeAreaInsets: .init(top: 0, leading: 0, bottom: 0, trailing: 0))
+}
+
+extension EnvironmentValues {
+  @Entry var containerGeometry: ContainerGeometry = .zero
 }
 
 /// Helper ViewModifier to conditionally apply toolbarVerticalBehavior on iOS 27.1+

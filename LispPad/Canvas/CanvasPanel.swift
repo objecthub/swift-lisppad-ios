@@ -167,7 +167,7 @@ struct CanvasPanel: View {
           Menu {
             Button {
               withAnimation {
-                self.interpreter.newCanvas(width: 390, height: 600)
+                self.interpreter.newCanvas(width: 390, height: 550)
               }
             } label: {
               Label("New Canvas", systemImage: "plus.rectangle")

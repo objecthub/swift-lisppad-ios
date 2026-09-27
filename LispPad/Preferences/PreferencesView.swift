@@ -236,6 +236,7 @@ struct PreferencesView: View {
             Text("Dark").tag(Appearance.dark)
           }
           .defaultPickerStyle()
+          Toggle("Rotation/folding prevents navigation", isOn: $settings.linkRotationFoldingChanges)
           Toggle("Disable extended hardware keyboard", isOn: $settings.disableExtendedKeyboard)
         }
         Section(header: Text("Fonts")) {

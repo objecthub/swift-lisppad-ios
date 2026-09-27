@@ -97,6 +97,7 @@ final class UserSettings: ObservableObject {
   private static let blockquoteDarkColorKey = "Editor.blockquoteDarkColor"
   private static let codeDarkColorKey = "Editor.codeDarkColor"
   private static let codingFontKey = "General.codingFont"
+  private static let linkRotationFoldingChangesKey = "General.linkRotationFoldingChanges"
   private static let disableExtendedKeyboardKey = "Keyboard.disableExtendedKeyboard"
   private static let maxStackSizeKey = "Interpreter.maxStackSize"
   private static let maxCallTraceKey = "Interpreter.maxCallTrace"
@@ -572,6 +573,13 @@ final class UserSettings: ObservableObject {
     }
   }
   
+  @Published var linkRotationFoldingChanges: Bool {
+    didSet {
+      UserDefaults.standard.set(self.linkRotationFoldingChanges,
+                                forKey: Self.linkRotationFoldingChangesKey)
+    }
+  }
+  
   @Published var disableExtendedKeyboard: Bool {
     didSet {
       UserDefaults.standard.set(self.disableExtendedKeyboard,
@@ -789,6 +797,8 @@ final class UserSettings: ObservableObject {
                                                      alternateKey: Self.codeColorKey,
                                                      UIColor.gray)
     self.codingFont = UserDefaults.standard.str(forKey: Self.codingFontKey, "System")
+    self.linkRotationFoldingChanges = UserDefaults.standard.boolean(forKey:
+                                                              Self.linkRotationFoldingChangesKey)
     self.disableExtendedKeyboard = UserDefaults.standard.boolean(forKey:
                                                                  Self.disableExtendedKeyboardKey)
     self.maxStackSize = UserDefaults.standard.int(forKey: Self.maxStackSizeKey, 10000)
