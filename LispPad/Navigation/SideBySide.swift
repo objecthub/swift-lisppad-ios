@@ -179,7 +179,9 @@ struct SideBySideNavigator: View {
             // Liquid Glass toolbar spacing scales with each button's declared layout size,
             // not its ink, so the wider two-rectangle glyph otherwise reserves a bigger box
             // than the plain single-glyph icons beside it and the gap after it looks larger.
-            self.switchIcon.padding(.horizontal, -2)
+            self.switchIcon
+              .padding(.leading, -2)
+              .padding(.trailing, -3)
           } else {
             self.switchIcon
           }

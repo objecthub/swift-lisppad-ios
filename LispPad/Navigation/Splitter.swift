@@ -94,19 +94,3 @@ public struct Splitter: View {
   }
 }
 
-struct Splitter_Previews: PreviewProvider {
-  static var previews: some View {
-    Splitter(orientation: .constant(.horizontal))
-    Splitter(orientation: .constant(.horizontal),
-             color: .red,
-             inset: 2,
-             width: 8,
-             invisibleWidth: 30)
-    Splitter(orientation: .constant(.vertical))
-    Splitter(orientation: .constant(.vertical),
-             color: .red,
-             inset: 2,
-             width: 8,
-             invisibleWidth: 30)
-  }
-}

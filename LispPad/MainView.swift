@@ -36,15 +36,16 @@ struct MainView: View {
   static let splitViewModeKey = "SplitView.mode"
   static let splitViewWidthFractionKey = "SplitView.widthFraction"
   
-  /// Is this executing on an iPad?
-  static let splitView = UIDevice.current.userInterfaceIdiom == .pad
+  /// A few UI-related global constants
+  static let allowSplit = UIDevice.current.userInterfaceIdiom == .pad
+  static let disableVerticalToolbar = false
   
   /// The current split view mode of the application. This state is persisted between
   /// application runs.
   @State private var splitViewMode: SideBySideMode = {
     let mode = SideBySideMode(rawValue:
                  UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? .normal
-    if MainView.splitView {
+    if MainView.allowSplit {
       return mode
     } else {
       switch mode {
@@ -98,77 +99,76 @@ struct MainView: View {
 
   /// View definition
   var body: some View {
-    ZStack {
-      Color("NavigationBarColor").ignoresSafeArea()
-      SideBySide(
-        mode: self.$splitViewMode,
-        fraction: self.$masterWidthFraction,
-        visibleThickness: 0.5,
-        left: {
-          ZStack {
-            if self.documentationBrowserState.docShown {
-              DocumentationBrowser(state: self.documentationBrowserState)
-                .modifier(self.globals.services)
-                .transition(.move(edge: .leading))
-            } else {
-              NavigationStack(path: self.$interpreterPath) {
-                InterpreterView(splitView: MainView.splitView,
-                                path: self.$interpreterPath,
-                                splitViewMode: self.$splitViewMode,
-                                masterWidthFraction: self.$masterWidthFraction,
-                                urlToOpen: self.$urlToOpen,
-                                updateEditor: self.$updateEditor,
-                                updateConsole: self.$updateConsole,
-                                docShown: $documentationBrowserState.docShown,
-                                state: self.interpreterState)
-              }
+    SideBySide(
+      mode: self.$splitViewMode,
+      fraction: self.$masterWidthFraction,
+      visibleThickness: 0.5,
+      left: {
+        ZStack {
+          if self.documentationBrowserState.docShown {
+            DocumentationBrowser(state: self.documentationBrowserState)
               .modifier(self.globals.services)
+              .transition(.move(edge: .leading))
+          } else {
+            NavigationStack(path: self.$interpreterPath) {
+              InterpreterView(allowSplit: MainView.allowSplit,
+                              path: self.$interpreterPath,
+                              splitViewMode: self.$splitViewMode,
+                              masterWidthFraction: self.$masterWidthFraction,
+                              urlToOpen: self.$urlToOpen,
+                              updateEditor: self.$updateEditor,
+                              updateConsole: self.$updateConsole,
+                              docShown: $documentationBrowserState.docShown,
+                              state: self.interpreterState)
             }
+            .modifier(self.globals.services)
+            .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           }
-          .clipShape(.rect) // Without this, NavigationSplitView will extend beyond its borders
-        },
-        right: {
-          NavigationStack(path: self.$editorPath) {
-            CodeEditorView(splitView: MainView.splitView,
-                           path: self.$editorPath,
-                           splitViewMode: self.$splitViewMode,
-                           masterWidthFraction: self.$masterWidthFraction,
-                           urlToOpen: self.$urlToOpen,
-                           editorPosition: self.$editorPosition,
-                           editorFocused: self.$editorFocused,
-                           forceEditorUpdate: self.$forceEditorUpdate,
-                           updateEditor: self.$updateEditor,
-                           updateConsole: self.$updateConsole)
-          }
-          .modifier(self.globals.services)
         }
-      )
-      .ignoresSafeArea()
-      //.frame(maxWidth: .infinity, maxHeight: .infinity)
-      .plainFullScreenCover(isPresented: $showAlert) {
-        self.alertView
-      }
-      .onChange(of: self.interpreter.alertConfig) { oldValue, newValue in
-        switch newValue {
-          case .none:
-            break
-          case .textInput(let config):
-            self.showAlert = true
-            self.textValue = config.initial
-          case .choice(let config):
-            self.showAlert = true
-            self.choiceValue = config.selected ?? config.options.first ?? ""
-          case .datePickerAlert(let config):
-            self.showAlert = true
-            self.datePickerValue = config.initial
+        .clipShape(.rect) // Without this, NavigationSplitView will extend beyond its borders
+      },
+      right: {
+        NavigationStack(path: self.$editorPath) {
+          CodeEditorView(allowSplit: MainView.allowSplit,
+                         path: self.$editorPath,
+                         splitViewMode: self.$splitViewMode,
+                         masterWidthFraction: self.$masterWidthFraction,
+                         urlToOpen: self.$urlToOpen,
+                         editorPosition: self.$editorPosition,
+                         editorFocused: self.$editorFocused,
+                         forceEditorUpdate: self.$forceEditorUpdate,
+                         updateEditor: self.$updateEditor,
+                         updateConsole: self.$updateConsole)
         }
+        .modifier(self.globals.services)
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
       }
-      .onChange(of: self.splitViewMode) { _, mode in
-        UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+    )
+    .ignoresSafeArea()
+    //.frame(maxWidth: .infinity, maxHeight: .infinity)
+    .plainFullScreenCover(isPresented: $showAlert) {
+      self.alertView
+    }
+    .onChange(of: self.interpreter.alertConfig) { oldValue, newValue in
+      switch newValue {
+        case .none:
+          break
+        case .textInput(let config):
+          self.showAlert = true
+          self.textValue = config.initial
+        case .choice(let config):
+          self.showAlert = true
+          self.choiceValue = config.selected ?? config.options.first ?? ""
+        case .datePickerAlert(let config):
+          self.showAlert = true
+          self.datePickerValue = config.initial
       }
-      .onChange(of: self.masterWidthFraction) { _, fraction in
-        UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
-      }
+    }
+    .onChange(of: self.splitViewMode) { _, mode in
+      UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+    }
+    .onChange(of: self.masterWidthFraction) { _, fraction in
+      UserDefaults.standard.set(fraction, forKey: MainView.splitViewWidthFractionKey)
     }
   }
   
@@ -237,6 +237,23 @@ struct MainView: View {
           }
         )
         .environment(\.timeZone, alert.timezone)
+    }
+  }
+}
+
+/// Helper ViewModifier to conditionally apply toolbarVerticalBehavior on iOS 27.1+
+private struct ToolbarVerticalBehaviorModifier: ViewModifier {
+  let disallow: Bool
+  
+  func body(content: Content) -> some View {
+    if self.disallow {
+      if #available(iOS 27.1, *) {
+        content.toolbarVerticalBehavior(.disabled)
+      } else {
+        content
+      }
+    } else {
+      content
     }
   }
 }

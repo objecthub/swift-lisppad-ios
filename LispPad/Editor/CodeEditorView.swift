@@ -105,7 +105,7 @@ struct CodeEditorView: View {
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
 
-  let splitView: Bool
+  let allowSplit: Bool
 
   @Binding var path: NavigationPath
   @Binding var splitViewMode: SideBySideMode
@@ -377,7 +377,7 @@ struct CodeEditorView: View {
         ToolbarItemGroup(placement: .navigationBarLeading) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
             SideBySideNavigator(leftSide: false,
-                                allowSplit: self.splitView,
+                                allowSplit: self.allowSplit,
                                 mode: self.$splitViewMode,
                                 fraction: self.$masterWidthFraction)
             Menu {

@@ -101,7 +101,7 @@ struct InterpreterView: View {
   @EnvironmentObject var settings: UserSettings
   
   // Parameters
-  let splitView: Bool
+  let allowSplit: Bool
   
   // External state
   @Binding var path: NavigationPath
@@ -292,7 +292,7 @@ struct InterpreterView: View {
         ToolbarItemGroup(placement: .navigationBarLeading) {
           HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
             SideBySideNavigator(leftSide: true,
-                                allowSplit: self.splitView,
+                                allowSplit: self.allowSplit,
                                 mode: self.$splitViewMode,
                                 fraction: self.$masterWidthFraction)
             if self.interpreter.isReady {
