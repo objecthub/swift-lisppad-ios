@@ -25,6 +25,8 @@ struct LogView: View {
   static let tagFont = Font.system(size: 9.0, weight: .regular, design: .monospaced)
   static let iconFont = Font.system(size: 20).weight(.light)
   let font: Font
+  let state: InterpreterState
+  let buttonDiameter: CGFloat
   let bottomInset: CGFloat
   
   @EnvironmentObject var settings: UserSettings
@@ -32,6 +34,8 @@ struct LogView: View {
   @AppStorage("Log.logShowTime") var showTime: Bool = true
   @AppStorage("Log.logShowTags") var showTags: Bool = false
   @State var showLogFilterPopOver: Bool = false
+  @State var sentinelVisible: Bool = true
+  @State var scrollToBottomRequest: Int = 0
   @Binding var input: String
   @Binding var showSheet: InterpreterView.SheetAction?
   @Binding var showModal: InterpreterView.SheetAction?
@@ -65,89 +69,128 @@ struct LogView: View {
     }
   }
   
+  private func scrollToEnd(_ proxy: ScrollViewProxy) {
+    withAnimation {
+      proxy.scrollTo("logBottomSentinel", anchor: .bottomTrailing)
+    }
+  }
+
   var body: some View {
     ZStack(alignment: .topLeading) {
       VStack {
         ScrollView(.vertical, showsIndicators: true) {
           ScrollViewReader { scrollViewProxy in
             Spacer(minLength: 35)
-            LazyVStack(alignment: .leading, spacing: 0) {
-              ForEach(self.sessionLog.filteredLogEntries, id: \.id) { entry in
-                HStack(alignment: .center, spacing: 8.0) {
-                  if self.showTags {
-                    VStack(alignment: .leading, spacing: 0.0) {
-                      if self.showTime {
+            // The sentinel lives outside of the lazy stack, so that it always exists and
+            // reliably reports whether the end of the log is visible.
+            VStack(alignment: .leading, spacing: 0) {
+              LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(self.sessionLog.filteredLogEntries, id: \.id) { entry in
+                  HStack(alignment: .center, spacing: 8.0) {
+                    if self.showTags {
+                      VStack(alignment: .leading, spacing: 0.0) {
+                        if self.showTime {
+                          Text(entry.timeString)
+                            .font(Self.timeFont)
+                            .foregroundColor(self.color(severity: entry.severity))
+                            .fixedSize(horizontal: false, vertical: false)
+                        }
+                        if self.showTags && !entry.tag.isEmpty {
+                          Text(entry.tag)
+                            .font(Self.tagFont)
+                            .foregroundColor(self.color(severity: entry.severity))
+                            .frame(maxWidth: 69, maxHeight: 10, alignment: .leading)
+                        }
+                        Spacer(minLength: 0)
+                      }
+                      .frame(maxWidth: 70, alignment: .leading)
+                      .padding(.top, 1)
+                    } else if self.showTime {
+                      VStack(alignment: .leading, spacing: 0.0) {
                         Text(entry.timeString)
                           .font(Self.timeFont)
                           .foregroundColor(self.color(severity: entry.severity))
                           .fixedSize(horizontal: false, vertical: false)
+                          .frame(maxWidth: 50, alignment: .leading)
+                        Spacer(minLength: 0)
                       }
-                      if self.showTags && !entry.tag.isEmpty {
-                        Text(entry.tag)
-                          .font(Self.tagFont)
+                      .padding(.top, 1)
+                    } else {
+                      VStack(alignment: .leading, spacing: 0.0) {
+                        Text("•")
+                          .font(self.font)
                           .foregroundColor(self.color(severity: entry.severity))
-                          .frame(maxWidth: 69, maxHeight: 10, alignment: .leading)
+                        Spacer(minLength: 0)
                       }
-                      Spacer(minLength: 0)
+                      .padding(.top, 1)
                     }
-                    .frame(maxWidth: 70, alignment: .leading)
-                    .padding(.top, 1)
-                  } else if self.showTime {
-                    VStack(alignment: .leading, spacing: 0.0) {
-                      Text(entry.timeString)
-                        .font(Self.timeFont)
-                        .foregroundColor(self.color(severity: entry.severity))
-                        .fixedSize(horizontal: false, vertical: false)
-                        .frame(maxWidth: 50, alignment: .leading)
-                      Spacer(minLength: 0)
-                    }
-                    .padding(.top, 1)
-                  } else {
-                    VStack(alignment: .leading, spacing: 0.0) {
-                      Text("•")
-                        .font(self.font)
-                        .foregroundColor(self.color(severity: entry.severity))
-                      Spacer(minLength: 0)
-                    }
-                    .padding(.top, 1)
+                    Text(entry.message)
+                      .font(self.font)
                   }
-                  Text(entry.message)
-                    .font(self.font)
-                }
-                .contextMenu {
-                  Button {
-                    UIPasteboard.general.string = entry.message
-                  } label: {
-                    Label("Copy Message", systemImage: "doc.on.clipboard")
-                  }
-                  if entry.message.count <= 800 {
+                  .contextMenu {
                     Button {
-                      self.input = entry.message
+                      UIPasteboard.general.string = entry.message
                     } label: {
-                      Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
+                      Label("Copy Message", systemImage: "doc.on.clipboard")
                     }
+                    if entry.message.count <= 800 {
+                      Button {
+                        self.input = entry.message
+                      } label: {
+                        Label("Copy to Input", systemImage: "dock.arrow.down.rectangle")
+                      }
+                    }
+                    Divider()
+                    ShareLink("Share Message…", item: entry.message)
                   }
-                  Divider()
-                  ShareLink("Share Message…", item: entry.message)
+                  .padding(.leading, 6)
+                  .padding(.vertical, 1)
                 }
-                .padding(.leading, 6)
-                .padding(.vertical, 1)
               }
-              Color.clear.frame(height: 2)
-                .id("logBottomSentinel")
+            Color.clear.frame(height: 2)
+              .id("logBottomSentinel")
+              .onScrollVisibilityChange(threshold: 0.01) { visible in
+                self.sentinelVisible = visible
+                // Only the user scrolling away stops following the log; the end moving out
+                // of view because new entries got appended must not.
+                if visible {
+                  self.state.logFollowsOutput = true
+                } else if self.state.logUserScrolling {
+                  self.state.logFollowsOutput = false
+                }
+              }
             }
             .onChange(of: self.sessionLog.filteredLogEntries.count) {
-              if self.sessionLog.filteredLogEntries.count > 0 {
-                withAnimation {
-                  scrollViewProxy.scrollTo("logBottomSentinel", anchor: .bottomTrailing)
-                }
+              if self.sessionLog.filteredLogEntries.count > 0 && self.state.logFollowsOutput {
+                self.scrollToEnd(scrollViewProxy)
               }
+            }
+            .onChange(of: self.scrollToBottomRequest) {
+              self.scrollToEnd(scrollViewProxy)
             }
           }
         }
         .contentMargins(.bottom, self.bottomInset, for: .scrollIndicators)
         .contentMargins(.bottom, self.bottomInset, for: .scrollContent)
         .scrollDismissesKeyboard(.interactively)
+        .onScrollPhaseChange { _, phase in
+          switch phase {
+            case .tracking, .interacting, .decelerating:
+              self.state.logUserScrolling = true
+            default:
+              self.state.logUserScrolling = false
+          }
+        }
+        .rememberScrollPosition(in: self.state,
+                                y: \.logScrollY,
+                                atBottom: \.logAtBottom)
+        .overlay(alignment: .bottomTrailing) {
+          ScrollToBottomButton(visible: !self.sentinelVisible,
+                               diameter: self.buttonDiameter,
+                               bottomInset: self.bottomInset) {
+            self.scrollToBottomRequest += 1
+          }
+        }
       }
       .background(Color(.secondarySystemBackground)
         .ignoresSafeArea(.container, edges: [.leading, .trailing]))

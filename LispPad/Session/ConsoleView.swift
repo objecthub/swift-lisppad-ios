@@ -32,6 +32,8 @@ struct ConsoleView: View {
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
   @State var dynamicHeight: CGFloat = 100
+  @State var sentinelVisible: Bool = true
+  @State var scrollToBottomRequest: Int = 0
   @State var buttonDiameter: CGFloat? = nil
   @State var executeMenuPresented: Bool = false
   @State var inputBuffer: String? = nil
@@ -583,6 +585,8 @@ struct ConsoleView: View {
       GeometryReader { geo in
         TabView(selection: self.$state.consoleTab) {
           LogView(font: self.font,
+                  state: self.state,
+                  buttonDiameter: self.buttonDiameter ?? 44,
                   bottomInset: geo.safeAreaInsets.bottom,
                   input: self.$state.consoleInput,
                   showSheet: self.$showSheet,
@@ -592,22 +596,41 @@ struct ConsoleView: View {
           VStack(alignment: .leading, spacing: 0) {
             ScrollView(.vertical, showsIndicators: true) {
               ScrollViewReader { scrollViewProxy in
-                LazyVStack(alignment: .leading, spacing: 0) {
-                  ForEach(self.console.content, id: \.id) { entry in
-                    self.consoleRow(entry, width: geo.size.width)
+                // The sentinel lives outside of the lazy stack, so that it always exists and
+                // reliably reports whether the end of the console output is visible.
+                VStack(alignment: .leading, spacing: 0) {
+                  LazyVStack(alignment: .leading, spacing: 0) {
+                    ForEach(self.console.content, id: \.id) { entry in
+                      self.consoleRow(entry, width: geo.size.width)
+                    }
                   }
-                  // Color.clear.frame(height: geo.safeAreaInsets.bottom + 4)
-                  //   .id("consoleBottomSentinel")
                   Color.clear.frame(height: 4)
                     .id("consoleBottomSentinel")
+                    .onScrollVisibilityChange(threshold: 0.01) { visible in
+                      self.sentinelVisible = visible
+                      // Only the user scrolling away stops following the output; the end
+                      // moving out of view because new output got appended must not.
+                      if visible {
+                        self.state.consoleFollowsOutput = true
+                      } else if self.state.consoleUserScrolling {
+                        self.state.consoleFollowsOutput = false
+                      }
+                    }
                 }
                 .onChange(of: self.console.content) { oldValue, newValue in
-                  self.scrollToLastOutput(scrollViewProxy)
+                  if self.state.consoleFollowsOutput {
+                    self.scrollToLastOutput(scrollViewProxy)
+                  }
                 }
                 .onChange(of: self.contentBatch) { oldValue, newValue in
-                  self.scrollToLastOutput(scrollViewProxy)
+                  if self.state.consoleFollowsOutput {
+                    self.scrollToLastOutput(scrollViewProxy)
+                  }
                 }
                 .onChange(of: self.state.consoleInput) { oldValue, newValue in
+                  self.scrollToLastOutput(scrollViewProxy)
+                }
+                .onChange(of: self.scrollToBottomRequest) { oldValue, newValue in
                   self.scrollToLastOutput(scrollViewProxy)
                 }
               }
@@ -615,6 +638,24 @@ struct ConsoleView: View {
             .contentMargins(.bottom, geo.safeAreaInsets.bottom, for: .scrollIndicators)
             .contentMargins(.bottom, geo.safeAreaInsets.bottom, for: .scrollContent)
             .scrollDismissesKeyboard(.interactively)
+            .onScrollPhaseChange { _, phase in
+              switch phase {
+                case .tracking, .interacting, .decelerating:
+                  self.state.consoleUserScrolling = true
+                default:
+                  self.state.consoleUserScrolling = false
+              }
+            }
+            .rememberScrollPosition(in: self.state,
+                                    y: \.consoleScrollY,
+                                    atBottom: \.consoleAtBottom)
+          }
+          .overlay(alignment: .bottomTrailing) {
+            ScrollToBottomButton(visible: !self.sentinelVisible,
+                                 diameter: self.buttonDiameter ?? 44,
+                                 bottomInset: geo.safeAreaInsets.bottom) {
+              self.scrollToBottomRequest += 1
+            }
           }
           .offset(y: 17)
           .tag(1)
@@ -703,5 +744,59 @@ struct ConsoleView: View {
     // } else {
     //  self.showSheet = action
     // }
+  }
+}
+
+/// Round button shown on top of a scroll view, in its bottom trailing corner, whenever the
+/// end of the scroll view's content is not visible. The button appears only if the end stays
+/// out of view for a moment, so that it doesn't flash up during auto-scrolling or transitions.
+struct ScrollToBottomButton: View {
+  static let showDelay: Duration = .milliseconds(500)
+
+  let visible: Bool
+  let diameter: CGFloat
+  let bottomInset: CGFloat
+  let action: () -> Void
+  @State private var shown = false
+
+  var body: some View {
+    Button(action: self.action) {
+      Image(systemName: "chevron.down")
+        .font(.system(size: 16, weight: .semibold))
+        .frame(width: self.diameter, height: self.diameter)
+        .contentShape(Circle())
+    }
+    .buttonStyle(.plain)
+    .modifier(GlassCircle())
+    .accessibilityLabel("Scroll to bottom")
+    .padding(.trailing, 6)  // same as the submit button (see `control`)
+    .padding(.bottom, self.bottomInset + 8)
+    .opacity(self.shown ? 0.6 : 0)
+    .allowsHitTesting(self.shown)
+    .animation(.easeInOut(duration: 0.25), value: self.shown)
+    .task(id: self.visible) {
+      if self.visible {
+        // Cancelled (and restarted) whenever `visible` changes
+        try? await Task.sleep(for: Self.showDelay)
+        if !Task.isCancelled {
+          self.shown = true
+        }
+      } else {
+        self.shown = false
+      }
+    }
+  }
+}
+
+/// Liquid Glass circle background on iOS 26+, translucent material before that.
+private struct GlassCircle: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content.glassEffect(.regular.interactive(), in: .circle)
+    } else {
+      content
+        .background(.ultraThinMaterial, in: Circle())
+        .overlay(Circle().strokeBorder(Color.primary.opacity(0.1)))
+    }
   }
 }
