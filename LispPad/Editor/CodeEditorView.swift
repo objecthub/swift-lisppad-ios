@@ -104,6 +104,8 @@ struct CodeEditorView: View {
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
   @EnvironmentObject var settings: UserSettings
+  
+  @SwiftUI.Environment(\.containerGeometry) private var containerGeometry
 
   let allowSplit: Bool
 
@@ -126,6 +128,7 @@ struct CodeEditorView: View {
   @State var showAbortAlert = false
   @State var showFileNotFoundAlert = false
   @State var notSavedAlertAction: NotSavedAlertAction? = nil
+  @State var centralMenuTrigger: Int = 0
   @State var editorType: FileExtensions.EditorType = .scheme
   @State var menuIsOpen: Bool = false
   @State var showStructure: Bool = false
@@ -374,407 +377,14 @@ struct CodeEditorView: View {
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarBackButtonHidden(true)
       .toolbar {
-        ToolbarItemGroup(placement: .navigationBarLeading) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
-            SideBySideNavigator(leftSide: false,
-                                allowSplit: self.allowSplit,
-                                mode: self.$splitViewMode,
-                                fraction: self.$masterWidthFraction)
-            Menu {
-              Button {
-                self.dismissCard()
-                if (self.fileManager.editorDocumentInfo.new) &&
-                   !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-                  self.notSavedAlertAction = .newFile
-                } else {
-                  self.fileManager.newEditorDocument { success in
-                    self.forceEditorUpdate = true
-                  }
-                }
-              } label: {
-                Label("New", systemImage: "square.and.pencil")
-              }
-              Button {
-                self.dismissCard()
-                self.histManager.verifyFileLists()
-                if (self.fileManager.editorDocumentInfo.new) &&
-                   !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-                  self.notSavedAlertAction = .editFile
-                } else {
-                  self.showModal = .editFile
-                }
-              } label: {
-                Label("Open…", systemImage: "tray.and.arrow.up")
-              }
-              Button {
-                self.dismissCard()
-                self.fileManager.editorDocument?.saveFile { success in
-                  self.showModal = .saveFile
-                }
-              } label: {
-                Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
-                      systemImage: "tray.and.arrow.down")
-              }
-              Button {
-                self.dismissCard()
-                self.histManager.verifyFileLists()
-                self.showModal = .organizeFiles
-              } label: {
-                Label("Organize…", systemImage: "doc.text.magnifyingglass")
-              }
-              if !self.histManager.recentlyEdited.isEmpty {
-                Section("RECENT FILES") {
-                  ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-                    if let url = purl.url {
-                      Button(action: {
-                        self.dismissCard()
-                        if purl.fileExists {
-                          self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
-                        } else {
-                          self.histManager.verifyRecentFiles()
-                          self.showFileNotFoundAlert = true
-                        }
-                      }) {
-                        Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
-                      }
-                    }
-                  }
-                }
-              }
-            } label: {
-              Image(systemName: "doc")
-                .font(LispPadUI.toolbarFont)
-            }
-            .alert(isPresented: $showFileNotFoundAlert, content: self.fileNotFoundAlert)
-            if self.interpreter.isReady {
-              Button(action: self.runInterpreter) {
-                Image(systemName: self.editorType == .scheme ? "play" : "play.display")
-                  .font(LispPadUI.toolbarFont)
-              }
-              .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
-            } else {
-              Button(action: self.stopInterpreter) {
-                Image(systemName: "stop.circle")
-                  .foregroundColor(Color.red)
-                  .font(LispPadUI.toolbarFont)
-              }
-              .alert(isPresented: $showAbortAlert, content: self.abortAlert)
-            }
-          }
-        }
-        ToolbarItemGroup(placement: .principal) {
-          HStack(alignment: .center, spacing: 4) {
-            if geometry.size.width >= 380 {
-              Text(self.fileManager.editorDocumentInfo.title)
-                .font(geometry.size.width < 540 ? LispPadUI.fileNameFont
-                      : LispPadUI.largeFileNameFont)
-                .bold()
-                .foregroundColor(.primary)
-                .truncationMode(.middle)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
-                // .frame(maxWidth: max(geometry.size.width - 290, 20))
-            }
-            Text(Image(systemName: "chevron.down.circle.fill"))
-              .font(.caption)
-              .bold()
-              .foregroundColor(self.editorFocused && self.splitViewMode.isSideBySide
-                               ? Color.green : Color(LispPadUI.menuIndicatorColor))
-          }
-          .padding(.trailing, -2)
-          // The label above stays purely decorative and reactive as before; the actual
-          // tap-to-open-menu interaction is provided by this invisible overlay, which uses
-          // a native UIKit menu so its content can be computed on demand (see
-          // CentralMenuButton's documentation for why this isn't possible with a plain
-          // SwiftUI `Menu` on this platform).
-          .accessibilityHidden(true)
-          .background(
-            CentralMenuButton(
-              showModal: $showModal,
-              notSavedAlertAction: $notSavedAlertAction,
-              editorType: $editorType,
-              dismissCard: self.dismissCard)
-            // `.background()` normally sizes this to match the label above exactly, but for a
-            // long file name that wraps to 2 lines, that computed size does not reliably cover
-            // the full, actually-rendered label -- the wrapped second line ends up untappable
-            // (only the (fixed-size) chevron still responds). Giving the button its own
-            // generous, fixed-size frame here -- rather than trying to precisely track the
-            // label's dynamic size -- sidesteps that mismatch entirely.
-            .frame(width: max(geometry.size.width - 200, 20), height: 60)
-          )
-        }
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            /*
-            Menu {
-              Button {
-                self.dismissCard()
-                withAnimation(.default) {
-                  self.settings.searchReplaceMode = false
-                  self.showSearchField = true
-                }
-              } label: {
-                Label("Search", systemImage: "magnifyingglass")
-              }
-              .disabled(self.showSearchField && !self.settings.searchReplaceMode)
-              Button {
-                self.dismissCard()
-                withAnimation(.default) {
-                  self.settings.searchReplaceMode = true
-                  self.showSearchField = true
-                }
-              } label: {
-                Label("Search/Replace", systemImage: "repeat")
-              }
-              .disabled(self.showSearchField && self.settings.searchReplaceMode)
-            } label: {
-              Image(systemName: "magnifyingglass")
-                .font(LispPadUI.toolbarFont)
-            } primaryAction: {
-              self.dismissCard()
-              withAnimation(.default) {
-                self.showSearchField = true
-              }
-            }
-            .foregroundColor(self.showSearchField ? .gray : .accentColor)
-            */
-            Button {
-              self.dismissCard()
-              if self.showSearchField {
-                if self.settings.searchReplaceMode {
-                  withAnimation(.default) {
-                    self.showSearchField = false
-                  }
-                  self.settings.searchReplaceMode = false
-                } else {
-                  withAnimation(.default) {
-                    self.settings.searchReplaceMode = true
-                  }
-                }
-              } else {
-                withAnimation(.default) {
-                  self.showSearchField = true
-                }
-              }
-            } label: {
-              Image(systemName: "magnifyingglass")
-                .font(LispPadUI.toolbarFont)
-            }
-            Button {
-              if let doc = self.fileManager.editorDocument {
-                if doc.info.editorType == .scheme,
-                   let defs = CodeAnalyzer.parseDefinitions(doc.text),
-                   !defs.isEmpty {
-                  self.definitionCache = defs
-                  self.showStructure = true
-                } else if doc.info.editorType == .markdown,
-                          let structure = DocStructureView.parseDocStructure(doc.text),
-                          !structure.isEmpty {
-                  self.structureCache = structure
-                  self.showStructure = true
-                }
-              }
-            } label: {
-              Image(systemName: self.editorType == .scheme ? "f.cursive" : "list.bullet.indent")
-                .font(LispPadUI.toolbarFont)
-            }
-            .disabled(self.editorType != .scheme && self.editorType != .markdown)
-            .popover(isPresented: self.$showStructure) {
-              if let doc = self.fileManager.editorDocument {
-                if doc.info.editorType == .scheme,
-                   let defs = self.definitionCache ?? CodeAnalyzer.parseDefinitions(doc.text) {
-                  List {
-                    if defs.values.count > 0 {
-                      Section {
-                        ForEach(defs.values, id: \.1) { tuple in
-                          Button {
-                            self.editorPosition = NSRange(location: tuple.1, length: 0)
-                            self.showStructure = false
-                          } label: {
-                            Text(tuple.0).font(LispPadUI.definitionsFont)
-                          }
-                        }
-                      } header: {
-                        Text("VALUES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-                      }
-                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-                      .listRowSeparator(.visible)
-                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-                    }
-                    if defs.syntax.count > 0 {
-                      Section {
-                        ForEach(defs.syntax, id: \.1) { tuple in
-                          Button {
-                            self.editorPosition = NSRange(location: tuple.1, length: 0)
-                            self.showStructure = false
-                          } label: {
-                            Text(tuple.0).font(LispPadUI.definitionsFont)
-                          }
-                        }
-                      } header: {
-                        Text("SYNTAX").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-                      }
-                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-                      .listRowSeparator(.visible)
-                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-                    }
-                    if defs.records.count > 0 {
-                      Section {
-                        ForEach(defs.records, id: \.1) { tuple in
-                          Button {
-                            self.editorPosition = NSRange(location: tuple.1, length: 0)
-                            self.showStructure = false
-                          } label: {
-                            Text(tuple.0).font(LispPadUI.definitionsFont)
-                          }
-                        }
-                      } header: {
-                        Text("RECORDS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-                      }
-                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-                      .listRowSeparator(.visible)
-                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-                    }
-                    if defs.types.count > 0 {
-                      Section {
-                        ForEach(defs.types, id: \.1) { tuple in
-                          Button {
-                            self.editorPosition = NSRange(location: tuple.1, length: 0)
-                            self.showStructure = false
-                          } label: {
-                            Text(tuple.0).font(LispPadUI.definitionsFont)
-                          }
-                        }
-                      } header: {
-                        Text("TYPES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-                      }
-                      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-                      .listRowSeparator(.visible)
-                      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-                    }
-                  }
-                  .listStyle(.plain)
-                  .environment(\.defaultMinListRowHeight, 10)
-                  .frame(idealWidth: 300,
-                         idealHeight: popoverHeight(categories: [
-                          defs.values.count,
-                          defs.syntax.count,
-                          defs.records.count,
-                          defs.types.count
-                         ]))
-                  .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
-                  .onDisappear {
-                    self.definitionCache = nil
-                    self.structureCache = nil
-                  }
-                } else if doc.info.editorType == .markdown,
-                          let structure = DocStructureView.parseDocStructure(doc.text) {
-                  List {
-                    if structure.headers.count > 0 {
-                      Section {
-                        ForEach(structure.headers) { header in
-                          Button {
-                            self.editorPosition = header.range
-                            self.showStructure = false
-                          } label: {
-                            HStack {
-                              Image(systemName: self.image(for: header.level))
-                                .font(LispPadUI.definitionsFont)
-                                .foregroundStyle(Color.gray)
-                              Spacer().frame(minWidth: 12.0, maxWidth: CGFloat(header.level) * 12.0)
-                              Text(header.title)
-                                .fixedSize()
-                                .font(LispPadUI.definitionsFont)
-                            }
-                          }
-                        }
-                        .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-                        .listRowSeparator(.visible)
-                        .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-                      } header: {
-                        Text("HEADERS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-                      }
-                    }
-                  }
-                  .listStyle(.plain)
-                  .environment(\.defaultMinListRowHeight, 10)
-                  .frame(idealWidth: 300,
-                         idealHeight: popoverHeight(headers: 1, items: structure.headers.count))
-                  .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
-                  .onDisappear {
-                    self.definitionCache = nil
-                    self.structureCache = nil
-                  }
-                }
-              }
-            }
-            Menu {
-              ControlGroup {
-                Button {
-                  self.dismissCard()
-                  self.updateEditor = { textView in
-                    textView.undoManager?.undo()
-                  }
-                } label: {
-                  Label("Undo", systemImage: "arrow.uturn.backward")
-                }
-                Button {
-                  self.dismissCard()
-                  self.updateEditor = { textView in
-                    textView.undoManager?.redo()
-                  }
-                } label: {
-                  Label("Redo", systemImage: "arrow.uturn.forward")
-                }
-                Button {
-                  self.selectExpression()
-                } label: {
-                  Label("Select", systemImage: "parentheses")
-                }
-              }
-              Group {
-                Button(action: self.autoIndentEditor) {
-                  Label("Auto Indent", systemImage: "text.badge.checkmark")
-                }
-                .disabled(self.editorType != .scheme)
-                Button(action: self.indentEditor) {
-                  Label("Increase Indent", systemImage: "increase.indent")
-                }
-                Button(action: self.outdentEditor) {
-                  Label("Decrease Indent", systemImage: "decrease.indent")
-                }
-              }
-              Divider()
-              Group {
-                Button(action: self.commentEditor) {
-                  Label("Comment", systemImage: "text.bubble")
-                }
-                .disabled(self.editorType != .scheme)
-                Button(action: self.uncommentEditor) {
-                  Label("Uncomment", systemImage: "bubble.left")
-                }
-                .disabled(self.editorType != .scheme)
-              }
-              Divider()
-              Menu {
-                Button(action: self.selectLines) {
-                  Label("Select", systemImage: "selection.pin.in.out")
-                }
-                Button(action: self.duplicateLines) {
-                  Label("Duplicate", systemImage: "plus.circle")
-                }
-                Button(action: self.deleteLines) {
-                  Label("Delete", systemImage: "minus.circle")
-                }
-              } label: {
-                Label("Lines", systemImage: "text.redaction")
-              }
-            } label: {
-              Image(systemName: "ellipsis")
-                .font(LispPadUI.toolbarFont)
-            }
-          }
+        let mode = self.containerGeometry.navigationBarMode(interpreter: false,
+                                                            splitViewMode: self.splitViewMode,
+                                                            masterWidthFraction: self.masterWidthFraction)
+        switch mode {
+          case .minimal, .compact:
+            self.minimalToolbar
+          case .full:
+            self.fullToolbar
         }
       }
       .sheet(item: $showModal, content: self.sheetView)
@@ -863,6 +473,487 @@ struct CodeEditorView: View {
         self.histManager.saveSearchHistory()
         self.histManager.saveFilesHistory()
         self.histManager.saveFavorites()
+      }
+    }
+  }
+  
+  @ToolbarContentBuilder
+  private func leadingToolbarItemGroup(currentFile: Bool) -> some ToolbarContent {
+    ToolbarItemGroup(placement: .navigationBarLeading) {
+      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
+        SideBySideNavigator(leftSide: false,
+                            allowSplit: self.allowSplit,
+                            focused: self.editorFocused,
+                            mode: self.$splitViewMode,
+                            fraction: self.$masterWidthFraction)
+        Menu {
+          if currentFile {
+            Group {
+              Button {
+                self.centralMenuTrigger &+= 1
+              } label: {
+                Label(self.fileManager.editorDocumentInfo.title, systemImage: "doc.text")
+              }
+              Divider()
+            }
+          }
+          Button {
+            self.dismissCard()
+            if (self.fileManager.editorDocumentInfo.new) &&
+               !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+              self.notSavedAlertAction = .newFile
+            } else {
+              self.fileManager.newEditorDocument { success in
+                self.forceEditorUpdate = true
+              }
+            }
+          } label: {
+            Label("New", systemImage: "square.and.pencil")
+          }
+          Button {
+            self.dismissCard()
+            self.histManager.verifyFileLists()
+            if (self.fileManager.editorDocumentInfo.new) &&
+               !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+              self.notSavedAlertAction = .editFile
+            } else {
+              self.showModal = .editFile
+            }
+          } label: {
+            Label("Open…", systemImage: "tray.and.arrow.up")
+          }
+          Button {
+            self.dismissCard()
+            self.fileManager.editorDocument?.saveFile { success in
+              self.showModal = .saveFile
+            }
+          } label: {
+            Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
+                  systemImage: "tray.and.arrow.down")
+          }
+          Button {
+            self.dismissCard()
+            self.histManager.verifyFileLists()
+            self.showModal = .organizeFiles
+          } label: {
+            Label("Organize…", systemImage: "doc.text.magnifyingglass")
+          }
+          if !self.histManager.recentlyEdited.isEmpty {
+            Section("RECENT FILES") {
+              ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                if let url = purl.url {
+                  Button(action: {
+                    self.dismissCard()
+                    if purl.fileExists {
+                      self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
+                    } else {
+                      self.histManager.verifyRecentFiles()
+                      self.showFileNotFoundAlert = true
+                    }
+                  }) {
+                    Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+                  }
+                }
+              }
+            }
+          }
+        } label: {
+          Image(systemName: "doc")
+            .font(LispPadUI.toolbarFont)
+        }
+        .alert(isPresented: $showFileNotFoundAlert, content: self.fileNotFoundAlert)
+        if self.interpreter.isReady {
+          Button(action: self.runInterpreter) {
+            Image(systemName: self.editorType == .scheme ? "play" : "play.display")
+              .font(LispPadUI.toolbarFont)
+          }
+          .disabled((self.editorType != .scheme) && (self.editorType != .markdown))
+        } else {
+          Button(action: self.stopInterpreter) {
+            Image(systemName: "stop.circle")
+              .foregroundColor(Color.red)
+              .font(LispPadUI.toolbarFont)
+          }
+          .alert(isPresented: $showAbortAlert, content: self.abortAlert)
+        }
+      }
+      // Invisible anchor from which the central menu pops up. It lives on the toolbar group
+      // itself rather than on the "doc" menu's label, since that label is torn down while
+      // the menu is dismissing.
+      .background(
+        CentralMenuButton(showModal: $showModal,
+                          notSavedAlertAction: $notSavedAlertAction,
+                          editorType: $editorType,
+                          presentTrigger: self.centralMenuTrigger,
+                          anchorOnly: true,
+                          dismissCard: self.dismissCard))
+    }
+  }
+  
+  @ViewBuilder
+  private var docStructureButton: some View {
+    Button {
+      if let doc = self.fileManager.editorDocument {
+        if doc.info.editorType == .scheme,
+           let defs = CodeAnalyzer.parseDefinitions(doc.text),
+           !defs.isEmpty {
+          self.definitionCache = defs
+          self.showStructure = true
+        } else if doc.info.editorType == .markdown,
+                  let structure = DocStructureView.parseDocStructure(doc.text),
+                  !structure.isEmpty {
+          self.structureCache = structure
+          self.showStructure = true
+        }
+      }
+    } label: {
+      Image(systemName: self.editorType == .scheme ? "f.cursive" : "list.bullet.indent")
+        .font(LispPadUI.toolbarFont)
+    }
+    .disabled(self.editorType != .scheme && self.editorType != .markdown)
+    .popover(isPresented: self.$showStructure) {
+      if let doc = self.fileManager.editorDocument {
+        if doc.info.editorType == .scheme,
+           let defs = self.definitionCache ?? CodeAnalyzer.parseDefinitions(doc.text) {
+          List {
+            if defs.values.count > 0 {
+              Section {
+                ForEach(defs.values, id: \.1) { tuple in
+                  Button {
+                    self.editorPosition = NSRange(location: tuple.1, length: 0)
+                    self.showStructure = false
+                  } label: {
+                    Text(tuple.0).font(LispPadUI.definitionsFont)
+                  }
+                }
+              } header: {
+                Text("VALUES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+              }
+              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+              .listRowSeparator(.visible)
+              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+            }
+            if defs.syntax.count > 0 {
+              Section {
+                ForEach(defs.syntax, id: \.1) { tuple in
+                  Button {
+                    self.editorPosition = NSRange(location: tuple.1, length: 0)
+                    self.showStructure = false
+                  } label: {
+                    Text(tuple.0).font(LispPadUI.definitionsFont)
+                  }
+                }
+              } header: {
+                Text("SYNTAX").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+              }
+              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+              .listRowSeparator(.visible)
+              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+            }
+            if defs.records.count > 0 {
+              Section {
+                ForEach(defs.records, id: \.1) { tuple in
+                  Button {
+                    self.editorPosition = NSRange(location: tuple.1, length: 0)
+                    self.showStructure = false
+                  } label: {
+                    Text(tuple.0).font(LispPadUI.definitionsFont)
+                  }
+                }
+              } header: {
+                Text("RECORDS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+              }
+              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+              .listRowSeparator(.visible)
+              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+            }
+            if defs.types.count > 0 {
+              Section {
+                ForEach(defs.types, id: \.1) { tuple in
+                  Button {
+                    self.editorPosition = NSRange(location: tuple.1, length: 0)
+                    self.showStructure = false
+                  } label: {
+                    Text(tuple.0).font(LispPadUI.definitionsFont)
+                  }
+                }
+              } header: {
+                Text("TYPES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+              }
+              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+              .listRowSeparator(.visible)
+              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+            }
+          }
+          .listStyle(.plain)
+          .environment(\.defaultMinListRowHeight, 10)
+          .frame(idealWidth: 300,
+                 idealHeight: popoverHeight(categories: [
+                  defs.values.count,
+                  defs.syntax.count,
+                  defs.records.count,
+                  defs.types.count
+                 ]))
+          .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
+          .onDisappear {
+            self.definitionCache = nil
+            self.structureCache = nil
+          }
+        } else if doc.info.editorType == .markdown,
+                  let structure = DocStructureView.parseDocStructure(doc.text) {
+          List {
+            if structure.headers.count > 0 {
+              Section {
+                ForEach(structure.headers) { header in
+                  Button {
+                    self.editorPosition = header.range
+                    self.showStructure = false
+                  } label: {
+                    HStack {
+                      Image(systemName: self.image(for: header.level))
+                        .font(LispPadUI.definitionsFont)
+                        .foregroundStyle(Color.gray)
+                      Spacer().frame(minWidth: 12.0, maxWidth: CGFloat(header.level) * 12.0)
+                      Text(header.title)
+                        .fixedSize()
+                        .font(LispPadUI.definitionsFont)
+                    }
+                  }
+                }
+                .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+                .listRowSeparator(.visible)
+                .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+              } header: {
+                Text("HEADERS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
+              }
+            }
+          }
+          .listStyle(.plain)
+          .environment(\.defaultMinListRowHeight, 10)
+          .frame(idealWidth: 300,
+                 idealHeight: popoverHeight(headers: 1, items: structure.headers.count))
+          .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
+          .onDisappear {
+            self.definitionCache = nil
+            self.structureCache = nil
+          }
+        }
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private func overflowMenu(search: Bool) -> some View {
+    Menu {
+      ControlGroup {
+        Button {
+          self.dismissCard()
+          self.updateEditor = { textView in
+            textView.undoManager?.undo()
+          }
+        } label: {
+          Label("Undo", systemImage: "arrow.uturn.backward")
+        }
+        Button {
+          self.dismissCard()
+          self.updateEditor = { textView in
+            textView.undoManager?.redo()
+          }
+        } label: {
+          Label("Redo", systemImage: "arrow.uturn.forward")
+        }
+        Button {
+          self.selectExpression()
+        } label: {
+          Label("Select", systemImage: "parentheses")
+        }
+      }
+      if search {
+        Group {
+          Button {
+            self.dismissCard()
+            if self.showSearchField {
+              if self.settings.searchReplaceMode {
+                withAnimation(.default) {
+                  self.showSearchField = false
+                }
+                self.settings.searchReplaceMode = false
+              } else {
+                withAnimation(.default) {
+                  self.settings.searchReplaceMode = true
+                }
+              }
+            } else {
+              withAnimation(.default) {
+                self.showSearchField = true
+              }
+            }
+          } label: {
+            Label("Search", systemImage: "magnifyingglass")
+          }
+          Divider()
+        }
+      }
+      Group {
+        Button(action: self.autoIndentEditor) {
+          Label("Auto Indent", systemImage: "text.badge.checkmark")
+        }
+        .disabled(self.editorType != .scheme)
+        Button(action: self.indentEditor) {
+          Label("Increase Indent", systemImage: "increase.indent")
+        }
+        Button(action: self.outdentEditor) {
+          Label("Decrease Indent", systemImage: "decrease.indent")
+        }
+      }
+      Divider()
+      Group {
+        Button(action: self.commentEditor) {
+          Label("Comment", systemImage: "text.bubble")
+        }
+        .disabled(self.editorType != .scheme)
+        Button(action: self.uncommentEditor) {
+          Label("Uncomment", systemImage: "bubble.left")
+        }
+        .disabled(self.editorType != .scheme)
+      }
+      Divider()
+      Menu {
+        Button(action: self.selectLines) {
+          Label("Select", systemImage: "selection.pin.in.out")
+        }
+        Button(action: self.duplicateLines) {
+          Label("Duplicate", systemImage: "plus.circle")
+        }
+        Button(action: self.deleteLines) {
+          Label("Delete", systemImage: "minus.circle")
+        }
+      } label: {
+        Label("Lines", systemImage: "text.redaction")
+      }
+    } label: {
+      Image(systemName: "ellipsis")
+        .font(LispPadUI.toolbarFont)
+    }
+  }
+  
+  @ToolbarContentBuilder
+  private var fullToolbar: some ToolbarContent {
+    self.leadingToolbarItemGroup(currentFile: false)
+    ToolbarItemGroup(placement: .principal) {
+      HStack(alignment: .center, spacing: 4) {
+        if self.containerGeometry.navigationBarWidth(
+              interpreter: false,
+              splitViewMode: self.splitViewMode,
+              masterWidthFraction: self.masterWidthFraction) >= 320.0  {
+          Text(self.fileManager.editorDocumentInfo.title)
+            .font(LispPadUI.fileNameFont)
+            .bold()
+            .foregroundColor(.primary)
+            .truncationMode(.middle)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+            // .frame(maxWidth: max(geometry.size.width - 290, 20))
+        }
+        Text(Image(systemName: "chevron.down.circle.fill"))
+          .font(.caption)
+          .bold()
+          .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+      }
+      .padding(.trailing, -2)
+      // The label above stays purely decorative and reactive as before; the actual
+      // tap-to-open-menu interaction is provided by this invisible overlay, which uses
+      // a native UIKit menu so its content can be computed on demand (see
+      // CentralMenuButton's documentation for why this isn't possible with a plain
+      // SwiftUI `Menu` on this platform).
+      .accessibilityHidden(true)
+      .background(
+        CentralMenuButton(
+          showModal: $showModal,
+          notSavedAlertAction: $notSavedAlertAction,
+          editorType: $editorType,
+          centerMenu: true,
+          dismissCard: self.dismissCard)
+        // `.background()` normally sizes this to match the label above exactly, but for a
+        // long file name that wraps to 2 lines, that computed size does not reliably cover
+        // the full, actually-rendered label -- the wrapped second line ends up untappable
+        // (only the (fixed-size) chevron still responds). Giving the button its own
+        // generous, fixed-size frame here -- rather than trying to precisely track the
+        // label's dynamic size -- sidesteps that mismatch entirely.
+        .frame(width: max(self.containerGeometry.size.width - 200, 20), height: 60)
+      )
+    }
+    ToolbarItemGroup(placement: .navigationBarTrailing) {
+      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+        /*
+        Menu {
+          Button {
+            self.dismissCard()
+            withAnimation(.default) {
+              self.settings.searchReplaceMode = false
+              self.showSearchField = true
+            }
+          } label: {
+            Label("Search", systemImage: "magnifyingglass")
+          }
+          .disabled(self.showSearchField && !self.settings.searchReplaceMode)
+          Button {
+            self.dismissCard()
+            withAnimation(.default) {
+              self.settings.searchReplaceMode = true
+              self.showSearchField = true
+            }
+          } label: {
+            Label("Search/Replace", systemImage: "repeat")
+          }
+          .disabled(self.showSearchField && self.settings.searchReplaceMode)
+        } label: {
+          Image(systemName: "magnifyingglass")
+            .font(LispPadUI.toolbarFont)
+        } primaryAction: {
+          self.dismissCard()
+          withAnimation(.default) {
+            self.showSearchField = true
+          }
+        }
+        .foregroundColor(self.showSearchField ? .gray : .accentColor)
+        */
+        Button {
+          self.dismissCard()
+          if self.showSearchField {
+            if self.settings.searchReplaceMode {
+              withAnimation(.default) {
+                self.showSearchField = false
+              }
+              self.settings.searchReplaceMode = false
+            } else {
+              withAnimation(.default) {
+                self.settings.searchReplaceMode = true
+              }
+            }
+          } else {
+            withAnimation(.default) {
+              self.showSearchField = true
+            }
+          }
+        } label: {
+          Image(systemName: "magnifyingglass")
+            .font(LispPadUI.toolbarFont)
+        }
+        self.docStructureButton
+        self.overflowMenu(search: false)
+      }
+    }
+  }
+  
+  @ToolbarContentBuilder
+  private var minimalToolbar: some ToolbarContent {
+    self.leadingToolbarItemGroup(currentFile: true)
+    ToolbarItemGroup(placement: .navigationBarTrailing) {
+      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+        self.docStructureButton
+        self.overflowMenu(search: true)
       }
     }
   }

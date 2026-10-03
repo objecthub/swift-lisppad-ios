@@ -216,6 +216,7 @@ struct PDFViewer: UIViewRepresentable {
   
   let document: PDFDocument?
   let viewSize: CGSize
+  let safeAreaInsets: EdgeInsets
   var controller: Controller? = nil
   var showsPageLabel: Bool = true
   
@@ -280,7 +281,10 @@ struct PDFViewer: UIViewRepresentable {
         }
       }
       // Add new label
-      let pageLabel = UILabel(frame: CGRect(x: 0, y: 4, width: self.viewSize.width, height: 20))
+      let pageLabel = UILabel(frame: CGRect(x: 0,
+                                            y: self.safeAreaInsets.top + 4,
+                                            width: self.viewSize.width,
+                                            height: 20))
       pageLabel.font = UIFont.systemFont(ofSize: 14.0)
       pageLabel.textAlignment = .center
       pageLabel.isHidden = !self.showsPageLabel

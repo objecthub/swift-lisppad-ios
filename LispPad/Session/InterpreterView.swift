@@ -100,6 +100,8 @@ struct InterpreterView: View {
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var settings: UserSettings
   
+  @SwiftUI.Environment(\.containerGeometry) private var containerGeometry
+  
   // Parameters
   let allowSplit: Bool
   
@@ -289,210 +291,14 @@ struct InterpreterView: View {
       }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItemGroup(placement: .navigationBarLeading) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            SideBySideNavigator(leftSide: true,
-                                allowSplit: self.allowSplit,
-                                mode: self.$splitViewMode,
-                                fraction: self.$masterWidthFraction)
-            if self.interpreter.isReady {
-              Menu {
-                Picker("", selection: Binding(get: { self.state.consoleTab },
-                                              set: { newValue in
-                                                     // No `withAnimation` here: as of iOS 27, wrapping
-                                                     // this assignment in an explicit animation makes
-                                                     // the paged TabView below (in ConsoleView) lose
-                                                     // its own page transition -- `consoleTab` still
-                                                     // updates (the checkmark above moves), but the
-                                                     // visible page never follows. The TabView's
-                                                     // implicit transition still applies without the
-                                                     // extra one from here.
-                                                     self.state.consoleTab = newValue
-                                                   })) {
-                  Label("Log", systemImage: "list.bullet.rectangle.portrait").tag(0)
-                  Label("Console", systemImage: "terminal").tag(1)
-                  Label("Canvas", systemImage: "photo.stack").tag(2)
-                }
-                Button {
-                  self.showModal = .shareConsole
-                } label: {
-                  Label("Share Console…", systemImage: "square.and.arrow.up")
-                }
-                .disabled(self.interpreter.console.isEmpty)
-                Button(role: .destructive) {
-                  self.interpreter.console.reset()
-                } label: {
-                  Label("Clear Console", systemImage: "trash")
-                }
-                .disabled(self.interpreter.console.isEmpty)
-                Button(role: .destructive) {
-                  self.showResetActionSheet = true
-                } label: {
-                  Label("Reset Interpreter…", systemImage: "arrow.triangle.2.circlepath")
-                }
-                Divider()
-                Button {
-                  self.histManager.verifyFileLists()
-                  self.showModal = .organizeFiles
-                } label: {
-                  Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
-                }
-              } label: {
-                Image(systemName: "terminal")
-                  .font(LispPadUI.toolbarFont)
-              }
-            } else {
-              Button(action: {
-                self.alertAction = .abortEvaluation
-              }) {
-                Image(systemName: "stop.circle")
-                  .foregroundColor(Color.red)
-                  .font(LispPadUI.toolbarFont)
-              }
-            }
-            Menu {
-              Button {
-                self.histManager.verifyFileLists()
-                self.showModal = .loadFile
-              } label: {
-                Label("Load…", systemImage: "arrow.down.document")
-              }
-              Button {
-                let message = self.fileManager.editorDocumentInfo.new ?
-                  "<execute editor buffer>" :
-                  "<execute \"\(self.fileManager.editorDocumentInfo.title)\">"
-                if UserSettings.standard.logCommands {
-                  SessionLog.standard.addLogEntry(severity: .info,
-                                                  tag: "repl/load",
-                                                  message: message)
-                }
-                self.interpreter.console.append(output: .command(message))
-                self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
-                                          url: self.fileManager.editorDocument?.fileURL)
-              } label: {
-                Label(self.fileManager.editorDocumentInfo.new ?
-                        "Load Buffer" : "Load “\(self.fileManager.editorDocumentInfo.title)“",
-                        systemImage: "menubar.arrow.down.rectangle") // "pencil"
-              }
-              .disabled(self.fileManager.editorDocumentInfo.editorType != .scheme)
-              if self.interpreter.isReady && !self.histManager.recentlyEdited.isEmpty {
-                // Divider()
-                Section("LOAD RECENT FILE") {
-                  ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
-                    if let url = purl.url {
-                      Button(action: { self.execute(url) }) {
-                        Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
-                      }
-                    }
-                  }
-                }
-              }
-            } label: {
-              Image(systemName: "plus")
-                .font(LispPadUI.toolbarFont)
-            }
-            .disabled(!self.interpreter.isReady)
-          }
-          .actionSheet(isPresented: self.$showResetActionSheet) {
-            ActionSheet(title: Text("Reset"),
-                        message: Text("Clear console and reset interpreter?"),
-                        buttons: [.destructive(Text("Reset interpreter"), action: {
-              _ = self.interpreter.reset()
-            }),
-                                  .destructive(Text("Reset console & interpreter"), action: {
-                                    self.interpreter.console.reset()
-                                    _ = self.interpreter.reset()
-                                  }),
-                                  .cancel()])
-          }
-        }
-        ToolbarItemGroup(placement: .principal) {
-          Menu {
-            Button {
-              self.showModal = .showAbout
-            } label: {
-              Label("About…", systemImage: "questionmark.circle")
-            }
-            Divider()
-            Button {
-              if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
-                UIApplication.shared.open(url)
-              }
-            } label: {
-              Label("Manual…", systemImage: "book")
-            }
-            Button {
-              self.showModal = .showShortcuts
-            } label: {
-              Label("Keyboard Shortcuts…", systemImage: "keyboard")
-            }
-            Button {
-              if let url = self.docManager.r7rsSpec.url {
-                self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
-              }
-            } label: {
-              Label("Language Spec…", systemImage: "doc.richtext")
-            }
-            Button {
-              if let url = self.docManager.lispPadRef.url {
-                self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
-              }
-            } label: {
-              Label("Library Reference…", systemImage: "doc.richtext")
-            }
-          } label: {
-            /* Let's not display a logo here for now.
-             Image("SmallLogo")
-             .resizable()
-             .scaledToFit()
-             .frame(width: 28.0,height: 28.0)
-             .padding(.bottom, -3) */
-            HStack(alignment: .center, spacing: 4) {
-              if geometry.size.width >= 380 {
-                Text("LispPad")
-                  .font(.body)
-                  .bold()
-                  .foregroundColor(.primary)
-              }
-              Text(Image(systemName: "chevron.down.circle.fill"))
-                .font(.caption)
-                .bold()
-                .foregroundColor(self.state.focused && self.splitViewMode.isSideBySide
-                                   ? Color.green : Color(LispPadUI.menuIndicatorColor))
-            }
-            .padding(.trailing, -2)
-          }
-        }
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-          HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-            // THIS IS A HUGE HACK (to work around a SwiftUI navigation bug)
-            Button {
-              UIApplication.shared.endEditing(true)
-              self.state.shouldFocus = self.state.focused
-              self.path.append(NavigationTargets.settings)
-            } label: {
-              Image(systemName: "gearshape")
-                .font(LispPadUI.toolbarFont)
-            }
-            Button {
-              UIApplication.shared.endEditing(true)
-              self.state.shouldFocus = self.state.focused
-              self.path.append(NavigationTargets.environmentBrowser)
-            } label: {
-              Image(systemName: "square.stack.3d.up")
-                .font(LispPadUI.toolbarFont)
-            }
-            .disabled(!self.docManager.initialized)
-            Button {
-              withAnimation(.default) {
-                self.docShown = true
-              }
-            } label: {
-              Image(systemName: "book")
-                .font(LispPadUI.toolbarFont)
-            }
-            .disabled(!self.docManager.initialized)
-          }
+        let mode = self.containerGeometry.navigationBarMode(interpreter: true,
+                                                            splitViewMode: self.splitViewMode,
+                                                            masterWidthFraction: self.masterWidthFraction)
+        switch mode {
+          case .minimal, .compact:
+            self.minimalToolbar
+          case .full:
+            self.fullToolbar
         }
       }
       .navigationDestination(for: NavigationTargets.self) { target in
@@ -638,6 +444,296 @@ struct InterpreterView: View {
             self.urlToOpen = nil
           }
         }
+      }
+    }
+  }
+  
+  @ToolbarContentBuilder
+  private func leadingToolbarItemGroup(env: Bool) -> some ToolbarContent {
+    ToolbarItemGroup(placement: .navigationBarLeading) {
+      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+        SideBySideNavigator(leftSide: true,
+                            allowSplit: self.allowSplit,
+                            focused: self.state.focused,
+                            mode: self.$splitViewMode,
+                            fraction: self.$masterWidthFraction)
+        if self.interpreter.isReady {
+          Menu {
+            if env {
+              Group {
+                Button {
+                  // UIApplication.shared.endEditing(true)
+                  self.state.shouldFocus = self.state.focused
+                  self.path.append(NavigationTargets.environmentBrowser)
+                } label: {
+                  Label("Environment", systemImage: "square.stack.3d.up")
+                }
+                .disabled(!self.docManager.initialized)
+                Divider()
+              }
+            }
+            Picker("", selection: Binding(get: { self.state.consoleTab },
+                                          set: { newValue in
+                                                 // No `withAnimation` here: as of iOS 27, wrapping
+                                                 // this assignment in an explicit animation makes
+                                                 // the paged TabView below (in ConsoleView) lose
+                                                 // its own page transition -- `consoleTab` still
+                                                 // updates (the checkmark above moves), but the
+                                                 // visible page never follows. The TabView's
+                                                 // implicit transition still applies without the
+                                                 // extra one from here.
+                                                 self.state.consoleTab = newValue
+                                               })) {
+              Label("Log", systemImage: "list.bullet.rectangle.portrait").tag(0)
+              Label("Console", systemImage: "terminal").tag(1)
+              Label("Canvas", systemImage: "photo.stack").tag(2)
+            }
+            Button {
+              self.showModal = .shareConsole
+            } label: {
+              Label("Share Console…", systemImage: "square.and.arrow.up")
+            }
+            .disabled(self.interpreter.console.isEmpty)
+            Button(role: .destructive) {
+              self.interpreter.console.reset()
+            } label: {
+              Label("Clear Console", systemImage: "trash")
+            }
+            .disabled(self.interpreter.console.isEmpty)
+            Button(role: .destructive) {
+              self.showResetActionSheet = true
+            } label: {
+              Label("Reset Interpreter…", systemImage: "arrow.triangle.2.circlepath")
+            }
+            Divider()
+            Button {
+              self.histManager.verifyFileLists()
+              self.showModal = .organizeFiles
+            } label: {
+              Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
+            }
+          } label: {
+            Image(systemName: "terminal")
+              .font(LispPadUI.toolbarFont)
+          }
+        } else {
+          Button(action: {
+            self.alertAction = .abortEvaluation
+          }) {
+            Image(systemName: "stop.circle")
+              .foregroundColor(Color.red)
+              .font(LispPadUI.toolbarFont)
+          }
+        }
+        Menu {
+          Button {
+            self.histManager.verifyFileLists()
+            self.showModal = .loadFile
+          } label: {
+            Label("Load…", systemImage: "arrow.down.document")
+          }
+          Button {
+            let message = self.fileManager.editorDocumentInfo.new ?
+              "<execute editor buffer>" :
+              "<execute \"\(self.fileManager.editorDocumentInfo.title)\">"
+            if UserSettings.standard.logCommands {
+              SessionLog.standard.addLogEntry(severity: .info,
+                                              tag: "repl/load",
+                                              message: message)
+            }
+            self.interpreter.console.append(output: .command(message))
+            self.interpreter.evaluate(self.fileManager.editorDocument?.text ?? "",
+                                      url: self.fileManager.editorDocument?.fileURL)
+          } label: {
+            Label(self.fileManager.editorDocumentInfo.new ?
+                    "Load Buffer" : "Load “\(self.fileManager.editorDocumentInfo.title)“",
+                    systemImage: "menubar.arrow.down.rectangle") // "pencil"
+          }
+          .disabled(self.fileManager.editorDocumentInfo.editorType != .scheme)
+          if self.interpreter.isReady && !self.histManager.recentlyEdited.isEmpty {
+            // Divider()
+            Section("LOAD RECENT FILE") {
+              ForEach(self.histManager.recentlyEdited, id: \.self) { purl in
+                if let url = purl.url {
+                  Button(action: { self.execute(url) }) {
+                    Label(url.lastPathComponent, systemImage: purl.base?.imageName ?? "folder")
+                  }
+                }
+              }
+            }
+          }
+        } label: {
+          Image(systemName: "plus")
+            .font(LispPadUI.toolbarFont)
+        }
+        .disabled(!self.interpreter.isReady)
+      }
+      .actionSheet(isPresented: self.$showResetActionSheet) {
+        ActionSheet(title: Text("Reset"),
+                    message: Text("Clear console and reset interpreter?"),
+                    buttons: [.destructive(Text("Reset interpreter"), action: {
+          _ = self.interpreter.reset()
+        }),
+                              .destructive(Text("Reset console & interpreter"), action: {
+                                self.interpreter.console.reset()
+                                _ = self.interpreter.reset()
+                              }),
+                              .cancel()])
+      }
+    }
+  }
+  
+  @ToolbarContentBuilder
+  private var fullToolbar: some ToolbarContent {
+    self.leadingToolbarItemGroup(env: false)
+    ToolbarItemGroup(placement: .principal) {
+      Menu {
+        Button {
+          self.showModal = .showAbout
+        } label: {
+          Label("About…", systemImage: "questionmark.circle")
+        }
+        Divider()
+        Button {
+          if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
+            UIApplication.shared.open(url)
+          }
+        } label: {
+          Label("Manual…", systemImage: "book.closed")
+        }
+        Button {
+          self.showModal = .showShortcuts
+        } label: {
+          Label("Keyboard Shortcuts…", systemImage: "keyboard")
+        }
+        Button {
+          if let url = self.docManager.r7rsSpec.url {
+            self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+          }
+        } label: {
+          Label("Language Spec…", systemImage: "doc.richtext")
+        }
+        Button {
+          if let url = self.docManager.lispPadRef.url {
+            self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+          }
+        } label: {
+          Label("Library Reference…", systemImage: "doc.richtext")
+        }
+      } label: {
+        /* Let's not display a logo here for now.
+         Image("SmallLogo")
+         .resizable()
+         .scaledToFit()
+         .frame(width: 28.0,height: 28.0)
+         .padding(.bottom, -3) */
+        HStack(alignment: .center, spacing: 4) {
+          if self.containerGeometry.navigationBarWidth(
+                interpreter: true,
+                splitViewMode: self.splitViewMode,
+                masterWidthFraction: self.masterWidthFraction) >= 360.0  {
+            Text("LispPad")
+              .font(.body)
+              .bold()
+              .foregroundColor(.primary)
+          }
+          Text(Image(systemName: "chevron.down.circle.fill"))
+            .font(.caption)
+            .bold()
+            .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+        }
+        .padding(.trailing, -2)
+      }
+    }
+    ToolbarItemGroup(placement: .navigationBarTrailing) {
+      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+        // THIS IS A HUGE HACK (to work around a SwiftUI navigation bug)
+        Button {
+          // UIApplication.shared.endEditing(true)
+          self.state.shouldFocus = self.state.focused
+          self.path.append(NavigationTargets.settings)
+        } label: {
+          Image(systemName: "gearshape")
+            .font(LispPadUI.toolbarFont)
+        }
+        Button {
+          // UIApplication.shared.endEditing(true)
+          self.state.shouldFocus = self.state.focused
+          self.path.append(NavigationTargets.environmentBrowser)
+        } label: {
+          Image(systemName: "square.stack.3d.up")
+            .font(LispPadUI.toolbarFont)
+        }
+        .disabled(!self.docManager.initialized)
+        Button {
+          withAnimation(.default) {
+            UIApplication.shared.endEditing(true)
+            self.docShown = true
+          }
+        } label: {
+          Image(systemName: "book")
+            .font(LispPadUI.toolbarFont)
+        }
+        .disabled(!self.docManager.initialized)
+      }
+    }
+  }
+  
+  @ToolbarContentBuilder
+  private var minimalToolbar: some ToolbarContent {
+    self.leadingToolbarItemGroup(env: true)
+    ToolbarItemGroup(placement: .navigationBarTrailing) {
+      Menu {
+        Button {
+          // UIApplication.shared.endEditing(true)
+          self.state.shouldFocus = self.state.focused
+          self.path.append(NavigationTargets.settings)
+        } label: {
+          Label("Settings", systemImage: "gearshape")
+        }
+        Button {
+          withAnimation(.default) {
+            UIApplication.shared.endEditing(true)
+            self.docShown = true
+          }
+        } label: {
+          Label("Libraries", systemImage: "book")
+        }
+        .disabled(!self.docManager.initialized)
+        Divider()
+        Button {
+          self.showModal = .showAbout
+        } label: {
+          Label("About…", systemImage: "questionmark.circle")
+        }
+        Button {
+          if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
+            UIApplication.shared.open(url)
+          }
+        } label: {
+          Label("Manual…", systemImage: "book.closed")
+        }
+        Button {
+          self.showModal = .showShortcuts
+        } label: {
+          Label("Keyboard Shortcuts…", systemImage: "keyboard")
+        }
+        Button {
+          if let url = self.docManager.r7rsSpec.url {
+            self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+          }
+        } label: {
+          Label("Language Spec…", systemImage: "doc.richtext")
+        }
+        Button {
+          if let url = self.docManager.lispPadRef.url {
+            self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+          }
+        } label: {
+          Label("Library Reference…", systemImage: "doc.richtext")
+        }
+      } label: {
+        Image(systemName: "ellipsis")
       }
     }
   }

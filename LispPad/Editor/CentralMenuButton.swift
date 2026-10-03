@@ -34,6 +34,18 @@ import UIKit
 /// the semantics needed here. `buildMenuElements()` below therefore reads live state directly
 /// (current document, settings, favorites) rather than anything precomputed or debounced.
 struct CentralMenuButton: UIViewRepresentable {
+  private final class MenuButton: UIButton {
+    var anchorOnly = false
+    var centerMenu = false
+    override func menuAttachmentPoint(for configuration: UIContextMenuConfiguration) -> CGPoint {
+      self.centerMenu ? CGPoint(x: self.bounds.midX, y: self.bounds.maxY)
+                      : super.menuAttachmentPoint(for: configuration)
+    }
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+      self.anchorOnly ? nil : super.hitTest(point, with: event)
+    }
+  }
+
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
   @EnvironmentObject var interpreter: Interpreter
@@ -43,6 +55,20 @@ struct CentralMenuButton: UIViewRepresentable {
   @Binding var notSavedAlertAction: CodeEditorView.NotSavedAlertAction?
   @Binding var editorType: FileExtensions.EditorType
 
+  /// Whenever this value changes (after the initial layout), the menu is presented
+  /// programmatically, anchored at this button. This allows the menu to be opened from, e.g.,
+  /// an item of another (SwiftUI) menu, in which case this view is used as an invisible anchor.
+  var presentTrigger: Int = 0
+
+  /// If true, the button ignores touches and is only ever opened via `presentTrigger`.
+  /// (SwiftUI's `allowsHitTesting(false)` can't be used for this since it also disables the
+  /// underlying control, which then refuses to present its menu.)
+  var anchorOnly: Bool = false
+
+  /// If true, the menu is attached at the horizontal center of the button (instead of the
+  /// system default), e.g. for a button that overlays a centered title.
+  var centerMenu: Bool = false
+
   let dismissCard: () -> Void
 
   func makeCoordinator() -> Coordinator {
@@ -50,7 +76,9 @@ struct CentralMenuButton: UIViewRepresentable {
   }
 
   func makeUIView(context: Context) -> UIButton {
-    let button = UIButton(type: .custom)
+    let button = MenuButton(type: .custom)
+    button.anchorOnly = self.anchorOnly
+    button.centerMenu = self.centerMenu
     button.backgroundColor = .clear
     button.showsMenuAsPrimaryAction = true
     button.menu = UIMenu(children: [
@@ -64,6 +92,18 @@ struct CentralMenuButton: UIViewRepresentable {
 
   func updateUIView(_ uiView: UIButton, context: Context) {
     context.coordinator.parent = self
+    (uiView as? MenuButton)?.anchorOnly = self.anchorOnly
+    (uiView as? MenuButton)?.centerMenu = self.centerMenu
+    if context.coordinator.lastTrigger != self.presentTrigger {
+      context.coordinator.lastTrigger = self.presentTrigger
+      // Wait until the SwiftUI menu that triggered this has finished dismissing.
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak uiView] in
+        // (`.menuActionTriggered` only reports that a menu is about to show; it doesn't open one.)
+        if #available(iOS 17.4, *) {
+          uiView?.performPrimaryAction()
+        }
+      }
+    }
     // The accessibility label is read directly by VoiceOver (not lazily, unlike the menu
     // content above), so it does need to be kept current here; the underlying SwiftUI label
     // is marked `.accessibilityHidden(true)` so VoiceOver only ever sees this one element.
@@ -74,9 +114,12 @@ struct CentralMenuButton: UIViewRepresentable {
   final class Coordinator {
     var parent: CentralMenuButton
     weak var button: UIButton?
+    var lastTrigger: Int
+
 
     init(parent: CentralMenuButton) {
       self.parent = parent
+      self.lastTrigger = parent.presentTrigger
     }
 
     // MARK: - Menu construction (invoked fresh by UIKit each time the menu opens)

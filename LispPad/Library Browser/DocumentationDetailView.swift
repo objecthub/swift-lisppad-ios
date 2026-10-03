@@ -94,7 +94,7 @@ struct DocumentationDetailView: View {
     .toolbar {
       if self.url != nil {
         ToolbarItemGroup(placement: .topBarLeading) {
-          HStack(alignment: .center, spacing: 0) {
+          HStack(alignment: .center, spacing: 10) {
             Button(action: {
               self.controller.goBack = true
             }) {
@@ -110,48 +110,52 @@ struct DocumentationDetailView: View {
             }
             .disabled(!self.controller.canGoForward)
           }
+          .padding(.horizontal, 6)
         }
       }
       if self.sizeClass == .compact ||
           (self.columnVisibility != .doubleColumn &&
            self.columnVisibility != .all) {
         ToolbarItemGroup(placement: .topBarTrailing) {
-          if self.url != nil {
-            Menu {
-              Button("50%") {
-                self.controller.zoom = 0.5
+          HStack(alignment: .center, spacing: 8) {
+            if self.url != nil {
+              Menu {
+                Button("50%") {
+                  self.controller.zoom = 0.5
+                }
+                Button("75%") {
+                  self.controller.zoom = 0.75
+                }
+                Button("100%") {
+                  self.controller.zoom = 1.0
+                }
+                Button("125%") {
+                  self.controller.zoom = 1.25
+                }
+                Button("150%") {
+                  self.controller.zoom = 1.5
+                }
+                Button("175%") {
+                  self.controller.zoom = 1.75
+                }
+                Button("200%") {
+                  self.controller.zoom = 2.0
+                }
+              } label: {
+                Text("\(Int(self.controller.zoom * 100.0))%")
+                  .font(LispPadUI.toolbarFont)
               }
-              Button("75%") {
-                self.controller.zoom = 0.75
-              }
-              Button("100%") {
-                self.controller.zoom = 1.0
-              }
-              Button("125%") {
-                self.controller.zoom = 1.25
-              }
-              Button("150%") {
-                self.controller.zoom = 1.5
-              }
-              Button("175%") {
-                self.controller.zoom = 1.75
-              }
-              Button("200%") {
-                self.controller.zoom = 2.0
+            }
+            Button {
+              withAnimation {
+                self.docShown = false
               }
             } label: {
-              Text("\(Int(self.controller.zoom * 100.0))%")
-                .font(LispPadUI.toolbarFont)
+              Image(systemName: "xmark")
+                .font(LispPadUI.toolbarIconFont)
             }
           }
-          Button {
-            withAnimation {
-              self.docShown = false
-            }
-          } label: {
-            Image(systemName: "xmark")
-              .font(LispPadUI.toolbarIconFont)
-          }
+          .padding(.trailing, 4)
         }
       } else if self.url != nil {
         ToolbarItemGroup(placement: .topBarTrailing) {

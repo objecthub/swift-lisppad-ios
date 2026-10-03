@@ -43,11 +43,13 @@ struct DocumentView: View {
         VStack {
           PDFViewer(document: self.document,
                     viewSize: geometry.size,
+                    safeAreaInsets: geometry.safeAreaInsets,
                     controller: self.controller,
                     showsPageLabel: !self.showSearch)
               .navigationTitle(self.title)
               .navigationBarHidden(false)
         }
+        .ignoresSafeArea()
       }
       .overlay(alignment: .topLeading) {
         HStack(spacing: 12) {
@@ -62,6 +64,7 @@ struct DocumentView: View {
         .padding(.trailing, self.showSearch ? 48 : 0)
       }
     }
+    .ignoresSafeArea(.all, edges: .bottom)
   }
   
   @ViewBuilder
@@ -126,7 +129,6 @@ struct DocumentView: View {
           } else {
             self.controller.search(self.searchText)
           }
-          self.searchFieldFocused = true
         }
       self.searchStatus
       if !self.searchText.isEmpty {
@@ -148,6 +150,7 @@ struct DocumentView: View {
     .modifier(CapsuleBackground())
     HStack(spacing: 0) {
       Button {
+        self.searchFieldFocused = false
         self.controller.previousMatch()
       } label: {
         Image(systemName: "chevron.up")
@@ -158,6 +161,7 @@ struct DocumentView: View {
       .keyboardShortcut("g", modifiers: [.command, .shift])
       .accessibility(label: Text("Previous Match"))
       Button {
+        self.searchFieldFocused = false
         self.controller.nextMatch()
       } label: {
         Image(systemName: "chevron.down")

@@ -180,7 +180,7 @@
                     HStack(alignment: .center, spacing: 3) {
                       if geometry.size.width >= 280 {
                         Text(self.state.selectedLib?.name ?? "Identifiers")
-                          .font((self.state.selectedLib?.name ?? "Identifiers").count >= 20
+                          .font((self.state.selectedLib?.name ?? "Identifiers").count >= 15
                                   ? LispPadUI.fileNameFont
                                   : LispPadUI.largeFileNameFont)
                           .bold()
@@ -199,15 +199,13 @@
                   }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                  HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-                    Button {
-                      withAnimation {
-                        self.state.docShown = false
-                      }
-                    } label: {
-                      Image(systemName: "xmark")
-                        .font(LispPadUI.toolbarIconFont)
+                  Button {
+                    withAnimation {
+                      self.state.docShown = false
                     }
+                  } label: {
+                    Image(systemName: "xmark")
+                      .font(LispPadUI.toolbarIconFont)
                   }
                 }
               }
@@ -221,7 +219,7 @@
                                   selectedIdent: $state.selectedIdent,
                                   docShown: $state.docShown)
           .navigationTitle((self.state.selectedIdent?.isEmpty ?? true)
-                             ? (self.state.selectedLib?.name ?? "Documentation")
+                             ? (self.state.selectedLib?.name ?? "Libraries")
                              : (self.state.selectedIdent ?? self.state.selectedLib?.name ?? "Documentation"))
           .navigationBarTitleDisplayMode(.inline)
           .navigationSplitViewColumnWidth(min: 280, ideal: 500, max: 900)

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,10 @@
 		BBE53BE5348048EA0D9544AB /* SearchMatchCountOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B434FBE98D07CA72E52772 /* SearchMatchCountOverlay.swift */; };
 		CC02EA062CBBC7D200ABFC6F /* LispPadOAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */; };
 		CC02EA092CBBFA3E00ABFC6F /* OAuthDemo.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */; };
+		CC0AD5BD306FBC1800B58056 /* LispKit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; };
+		CC0AD5BE306FBC1800B58056 /* LispKit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC84C26725FE77BF00758581 /* LispKit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC0AD5C1306FBC5800B58056 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CC0AD5C0306FBC5800B58056 /* Atomics */; };
+		CC0AD5C53070FA8C00B58056 /* ContainerGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0AD5C43070FA8C00B58056 /* ContainerGeometry.swift */; };
 		CC0E57CA268FC36900693DD2 /* ObliqueProjection.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */; };
 		CC0E57CD268FC90A00693DD2 /* DisplayMaze.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */; };
 		CC1896DB266D013C00D384F6 /* DisplayTrees.scm in Copy Root/Examples */ = {isa = PBXBuildFile; fileRef = CC1896D9266D010400D384F6 /* DisplayTrees.scm */; };
@@ -20,7 +24,7 @@
 		CC1CBAE22F87129900D55310 /* DateInputModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE12F87129200D55310 /* DateInputModal.swift */; };
 		CC1CBAE42F878F0E00D55310 /* FlexDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE32F878F0A00D55310 /* FlexDatePicker.swift */; };
 		CC1CBAE72F8A796C00D55310 /* ModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE62F8A796800D55310 /* ModalConfig.swift */; };
-		CC1CBAE92F90579600D55310 /* CentralMenuContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */; };
+		CC1CBAE92F90579600D55310 /* CentralMenuButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAE82F90578300D55310 /* CentralMenuButton.swift */; };
 		CC1CBAEB2F9230CD00D55310 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAEA2F9230C800D55310 /* Error.swift */; };
 		CC1CBAF22F93B87700D55310 /* GetResultAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAF12F93B86200D55310 /* GetResultAttachment.swift */; };
 		CC1CBAF42F9423D200D55310 /* GetResultValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1CBAF32F9423C700D55310 /* GetResultValue.swift */; };
@@ -397,7 +401,28 @@
 		EDD6B00D9ED9405B96A4DF25 /* iPadKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		CC0AD5B8306FB2A400B58056 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC84C23E25FE59EE00758581 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CC84C24525FE59EE00758581;
+			remoteInfo = LispPad;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
+		CC0AD5BF306FBC1800B58056 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CC0AD5BE306FBC1800B58056 /* LispKit.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC6598D72725856E004C9B89 /* Copy Root/Libraries/lispkit */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -790,6 +815,8 @@
 		C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorLocationOverlay.swift; sourceTree = "<group>"; };
 		CC02EA052CBBC7D200ABFC6F /* LispPadOAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadOAuthConfig.swift; sourceTree = "<group>"; };
 		CC02EA072CBBF96800ABFC6F /* OAuthDemo.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = OAuthDemo.scm; sourceTree = "<group>"; };
+		CC0AD5B4306FB2A400B58056 /* LispPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LispPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC0AD5C43070FA8C00B58056 /* ContainerGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerGeometry.swift; sourceTree = "<group>"; };
 		CC0E57C8268FC1A300693DD2 /* ObliqueProjection.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ObliqueProjection.scm; sourceTree = "<group>"; };
 		CC0E57CB268FC73E00693DD2 /* DisplayMaze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayMaze.scm; sourceTree = "<group>"; };
 		CC1896D9266D010400D384F6 /* DisplayTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DisplayTrees.scm; sourceTree = "<group>"; };
@@ -797,7 +824,7 @@
 		CC1CBAE12F87129200D55310 /* DateInputModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputModal.swift; sourceTree = "<group>"; };
 		CC1CBAE32F878F0A00D55310 /* FlexDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexDatePicker.swift; sourceTree = "<group>"; };
 		CC1CBAE62F8A796800D55310 /* ModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalConfig.swift; sourceTree = "<group>"; };
-		CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralMenuContent.swift; sourceTree = "<group>"; };
+		CC1CBAE82F90578300D55310 /* CentralMenuButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CentralMenuButton.swift; sourceTree = "<group>"; };
 		CC1CBAEA2F9230C800D55310 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		CC1CBAEC2F92D4BA00D55310 /* ImposeLogo.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImposeLogo.scm; sourceTree = "<group>"; };
 		CC1CBAF12F93B86200D55310 /* GetResultAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetResultAttachment.swift; sourceTree = "<group>"; };
@@ -1180,7 +1207,20 @@
 		E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadKeyboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		CC0AD5B5306FB2A400B58056 /* LispPadTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LispPadTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		CC0AD5B1306FB2A400B58056 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0AD5BD306FBC1800B58056 /* LispKit.xcframework in Frameworks */,
+				CC0AD5C1306FBC5800B58056 /* Atomics in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC84C24325FE59EE00758581 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1258,6 +1298,7 @@
 				CC84C26C25FE784800758581 /* Makefile */,
 				CCC8564E2619F67A0080B96E /* Assets */,
 				CC84C24825FE59EE00758581 /* LispPad */,
+				CC0AD5B5306FB2A400B58056 /* LispPadTests */,
 				CC84C24725FE59EE00758581 /* Products */,
 				CC84C26625FE77BF00758581 /* Frameworks */,
 			);
@@ -1267,6 +1308,7 @@
 			isa = PBXGroup;
 			children = (
 				CC84C24625FE59EE00758581 /* LispPad.app */,
+				CC0AD5B4306FB2A400B58056 /* LispPadTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1278,6 +1320,7 @@
 				CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */,
 				CC302E5026FE93F900835745 /* LispPadUI.swift */,
 				CC55DD7B2646B4C4001AAD10 /* MainView.swift */,
+				CC0AD5C43070FA8C00B58056 /* ContainerGeometry.swift */,
 				CCA5F56E2AF38B940009A97E /* Navigation */,
 				CC84C27525FE7B1100758581 /* Session */,
 				CCA3C68C2B0018CD00C0BDE6 /* Canvas */,
@@ -1869,7 +1912,7 @@
 				CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */,
 				CC327C562610B87200BD7E32 /* CodeEditorLayoutManager.swift */,
 				CCE8E431262975E900E3DC6A /* CodeEditorTextTokenizer.swift */,
-				CC1CBAE82F90578300D55310 /* CentralMenuContent.swift */,
+				CC1CBAE82F90578300D55310 /* CentralMenuButton.swift */,
 				CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */,
 				CCC8565A261BADAD0080B96E /* CodeAnalyzer.swift */,
 				CC55DD8126492307001AAD10 /* DocStructureView.swift */,
@@ -1900,6 +1943,31 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		CC0AD5B3306FB2A400B58056 /* LispPadTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC0AD5BC306FB2A400B58056 /* Build configuration list for PBXNativeTarget "LispPadTests" */;
+			buildPhases = (
+				CC0AD5B0306FB2A400B58056 /* Sources */,
+				CC0AD5B1306FB2A400B58056 /* Frameworks */,
+				CC0AD5B2306FB2A400B58056 /* Resources */,
+				CC0AD5BF306FBC1800B58056 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC0AD5B9306FB2A400B58056 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CC0AD5B5306FB2A400B58056 /* LispPadTests */,
+			);
+			name = LispPadTests;
+			packageProductDependencies = (
+				CC0AD5C0306FBC5800B58056 /* Atomics */,
+			);
+			productName = LispPadTests;
+			productReference = CC0AD5B4306FB2A400B58056 /* LispPadTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		CC84C24525FE59EE00758581 /* LispPad */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CC84C25725FE59F000758581 /* Build configuration list for PBXNativeTarget "LispPad" */;
@@ -1941,9 +2009,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1240;
+				LastSwiftUpdateCheck = 2720;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
+					CC0AD5B3306FB2A400B58056 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = CC84C24525FE59EE00758581;
+					};
 					CC84C24525FE59EE00758581 = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -1966,11 +2038,19 @@
 			projectRoot = "";
 			targets = (
 				CC84C24525FE59EE00758581 /* LispPad */,
+				CC0AD5B3306FB2A400B58056 /* LispPadTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		CC0AD5B2306FB2A400B58056 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC84C24425FE59EE00758581 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2006,6 +2086,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		CC0AD5B0306FB2A400B58056 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC84C24225FE59EE00758581 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2034,6 +2121,7 @@
 				CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */,
 				CC972CDD2F807CDB0053156E /* PlainFullScreenCover.swift in Sources */,
 				CCA3C6922B014D4700C0BDE6 /* CanvasPanel.swift in Sources */,
+				CC0AD5C53070FA8C00B58056 /* ContainerGeometry.swift in Sources */,
 				CCEA5A13263B6E2500D78C62 /* FileExtensions.swift in Sources */,
 				CCC8565D261CE5710080B96E /* TextDocument.swift in Sources */,
 				CCEA5A0F263AC5DA00D78C62 /* TextFormatter.swift in Sources */,
@@ -2111,7 +2199,7 @@
 				CCDE104F27066FEF00F950FF /* OptionalScrollView.swift in Sources */,
 				CCE853E33056F4A7003A8D73 /* SpeechLibrary.swift in Sources */,
 				CCC85656261A17560080B96E /* CodeEditorTextViewDelegate.swift in Sources */,
-				CC1CBAE92F90579600D55310 /* CentralMenuContent.swift in Sources */,
+				CC1CBAE92F90579600D55310 /* CentralMenuButton.swift in Sources */,
 				CCA5F5742AF38BD00009A97E /* Splitter.swift in Sources */,
 				CC84C27025FE78E100758581 /* ConsoleOutput.swift in Sources */,
 				CC321E692F6EABF70094C57A /* IntentInterpreter.swift in Sources */,
@@ -2133,7 +2221,82 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		CC0AD5B9306FB2A400B58056 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CC84C24525FE59EE00758581 /* LispPad */;
+			targetProxy = CC0AD5B8306FB2A400B58056 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		CC0AD5BA306FB2A400B58056 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C72Z63N8M5;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				SWIFT_INCLUDE_PATHS = "";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LispPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LispPad";
+			};
+			name = Debug;
+		};
+		CC0AD5BB306FB2A400B58056 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C72Z63N8M5;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPadTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				SWIFT_INCLUDE_PATHS = "";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LispPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LispPad";
+			};
+			name = Release;
+		};
 		CC84C25525FE59F000758581 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2321,6 +2484,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		CC0AD5BC306FB2A400B58056 /* Build configuration list for PBXNativeTarget "LispPadTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0AD5BA306FB2A400B58056 /* Debug */,
+				CC0AD5BB306FB2A400B58056 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CC84C24125FE59EE00758581 /* Build configuration list for PBXProject "LispPad iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2353,6 +2525,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CC0AD5C0306FBC5800B58056 /* Atomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCAC0F06278F9B3B00E5B6F8 /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = Atomics;
+		};
 		CCAC0F07278F9B3B00E5B6F8 /* Atomics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CCAC0F06278F9B3B00E5B6F8 /* XCRemoteSwiftPackageReference "swift-atomics" */;

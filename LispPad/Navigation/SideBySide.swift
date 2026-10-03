@@ -116,6 +116,7 @@ struct SideBySideNavigator: View {
   
   let leftSide: Bool
   let allowSplit: Bool
+  let focused: Bool
   @Binding var mode: SideBySideMode
   @Binding var fraction: CGFloat
   
@@ -125,8 +126,8 @@ struct SideBySideNavigator: View {
         ControlGroup {
           Button(action: {
             withAnimation {
-              self.fraction = self.mode.isSwapped ? (self.leftSide ? 0.65 : 0.35)
-                                                  : (self.leftSide ? 0.35 : 0.65)
+              self.fraction = self.mode.isSwapped ? (self.leftSide ? 0.62 : 0.38)
+                                                  : (self.leftSide ? 0.38 : 0.62)
             }
           }) {
             Label("Small", systemImage: "s.circle")
@@ -140,8 +141,8 @@ struct SideBySideNavigator: View {
           }
           Button(action: {
             withAnimation {
-              self.fraction = self.mode.isSwapped ? (self.leftSide ? 0.35 : 0.65)
-                                                  : (self.leftSide ? 0.65 : 0.35)
+              self.fraction = self.mode.isSwapped ? (self.leftSide ? 0.38 : 0.62)
+                                                  : (self.leftSide ? 0.62 : 0.38)
             }
           }) {
             Label("Large", systemImage: "l.circle")
@@ -162,8 +163,8 @@ struct SideBySideNavigator: View {
           Label("Close", systemImage: "square.slash")
         }
       } label: {
-        Image(systemName: "arrow.left.and.right.square")
-          .foregroundColor(.primary)
+        Image(systemName: "arrow.left.and.right.square.fill")
+          .foregroundColor(self.focused ? .green : .primary)
           .font(LispPadUI.toolbarSwitchFont)          
       } primaryAction: {
         self.mode.expand(left: self.leftSide)

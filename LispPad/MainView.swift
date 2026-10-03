@@ -118,6 +118,7 @@ struct MainView: View {
           if self.documentationBrowserState.docShown {
             DocumentationBrowser(state: self.documentationBrowserState)
               .modifier(self.globals.services)
+              .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
               .transition(.move(edge: .leading))
           } else {
             NavigationStack(path: self.$interpreterPath) {
@@ -156,16 +157,27 @@ struct MainView: View {
     )
     .ignoresSafeArea()
     .environment(\.containerGeometry, self.containerGeometry)
-    .onGeometryChange(for: CGSize.self) { proxy in
-      proxy.size
-    } action: { newSize in
-      self.containerGeometry = self.containerGeometry.update(newSize)
-      self.updateAllowSplit()
-    }
-    .onGeometryChange(for: EdgeInsets.self) { proxy in
-      proxy.safeAreaInsets
-    } action: { newInsets in
-      self.containerGeometry = self.containerGeometry.update(newInsets)
+    .onGeometryChange(for: ContainerGeometry.self) { proxy in
+      var regions: [CGRect] = []
+      if #available(anyAppleOS 27.1, *) {
+        let reserved = proxy.reservedRegions(kind: .occlusion, options: [])
+        for region in reserved {
+          let frame = region.frame
+          // The reserved rect is the frame minus its margins.
+          /* let reserved = CGRect(
+            x: frame.minX + region.margins.leading,
+            y: frame.minY + region.margins.top,
+            width: max(frame.width - region.margins.leading - region.margins.trailing, 0),
+            height: max(frame.height - region.margins.top - region.margins.bottom, 0)
+          ) */
+          regions.append(frame)
+        }
+      }
+      return ContainerGeometry(size: proxy.size,
+                               safeAreaInsets: proxy.safeAreaInsets,
+                               reserved: regions)
+    } action: { newGeometry in
+      self.containerGeometry = newGeometry
       self.updateAllowSplit()
     }
     .plainFullScreenCover(isPresented: $showAlert) {
@@ -273,7 +285,11 @@ struct MainView: View {
   }
   
   private func updateAllowSplit() {
-    self.allowSplit = MainView.forceAllowSplit || (self.horizontalSizeClass == .regular && self.containerGeometry.containerSize.width > 800)
+    let size = self.containerGeometry.containerSize
+    self.allowSplit =
+         (MainView.forceAllowSplit && size.width >= 750 && size.height >= 750)
+      || (self.horizontalSizeClass == .regular && size.width >= 900)
+      || (size.width >= 1000)
   }
   
   @ViewBuilder
@@ -343,36 +359,6 @@ struct MainView: View {
         .environment(\.timeZone, alert.timezone)
     }
   }
-}
-
-public struct ContainerGeometry: Equatable {
-  public let size: CGSize
-  public let safeAreaInsets: EdgeInsets
-  
-  public var containerSize: CGSize {
-    return CGSize(width: self.size.width + self.safeAreaInsets.leading + self.safeAreaInsets.trailing,
-                  height: self.size.height + self.safeAreaInsets.top + self.safeAreaInsets.bottom)
-  }
-  
-  public var isEmpty: Bool {
-    return self.size.width == 0.0 && self.size.height == 0.0
-  }
-  
-  public func update(_ size: CGSize) -> ContainerGeometry {
-    return .init(size: size, safeAreaInsets: self.safeAreaInsets)
-  }
-  
-  public func update(_ insets: EdgeInsets) -> ContainerGeometry {
-    return .init(size: self.size, safeAreaInsets: insets)
-  }
-  
-  public static let zero: ContainerGeometry =
-      ContainerGeometry(size: .zero,
-                        safeAreaInsets: .init(top: 0, leading: 0, bottom: 0, trailing: 0))
-}
-
-extension EnvironmentValues {
-  @Entry var containerGeometry: ContainerGeometry = .zero
 }
 
 /// Helper ViewModifier to conditionally apply toolbarVerticalBehavior on iOS 27.1+
