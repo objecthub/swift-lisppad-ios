@@ -24,6 +24,9 @@ struct LogView: View {
   static let timeFont = Font.system(size: 10.0, weight: .semibold, design: .monospaced)
   static let tagFont = Font.system(size: 9.0, weight: .regular, design: .monospaced)
   static let iconFont = Font.system(size: 20).weight(.light)
+  /// Height of the pinned header; the scroll content and the scroll indicators start below it.
+  static let headerHeight: CGFloat = 35
+
   let font: Font
   let state: InterpreterState
   let buttonDiameter: CGFloat
@@ -80,7 +83,7 @@ struct LogView: View {
       VStack {
         ScrollView(.vertical, showsIndicators: true) {
           ScrollViewReader { scrollViewProxy in
-            Spacer(minLength: 35)
+            Spacer(minLength: Self.headerHeight)
             // The sentinel lives outside of the lazy stack, so that it always exists and
             // reliably reports whether the end of the log is visible.
             VStack(alignment: .leading, spacing: 0) {
@@ -170,6 +173,7 @@ struct LogView: View {
             }
           }
         }
+        .contentMargins(.top, Self.headerHeight - 4, for: .scrollIndicators)
         .contentMargins(.bottom, self.bottomInset, for: .scrollIndicators)
         .contentMargins(.bottom, self.bottomInset, for: .scrollContent)
         .scrollDismissesKeyboard(.interactively)

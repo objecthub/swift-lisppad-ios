@@ -43,6 +43,9 @@ struct ConsoleView: View {
   @State var filterMessage = true
   @State var filterTag = true
   @State var redraw = false
+  @State var containerTop: CGFloat = 0
+  @State var visiblePageTop: CGFloat? = nil
+  @State var pageShift: CGFloat = 0
   @StateObject var keyboardObserver = KeyboardObserver()
   
   let font: Font
@@ -580,6 +583,27 @@ struct ConsoleView: View {
     .frame(width: 0, height: 0)
   }
 
+  /// The pages of the `TabView` extend below the bottom safe area, which makes the `TabView`
+  /// position them relative to a taller frame. The resulting vertical shift depends on the
+  /// orientation and the device and is the same for all pages. It is determined by measuring how
+  /// far the currently visible page sits from the top of the container. Pages that are not
+  /// visible are not reliably updated by the system (e.g. after a rotation), so only the
+  /// visible one is measured. The measured top already includes the current shift, so
+  /// correcting by the remaining distance converges after a single step instead of oscillating.
+  private func measured(page: Int, top: CGFloat) {
+    if self.state.consoleTab == page {
+      self.visiblePageTop = top
+      self.alignPages(top: top)
+    }
+  }
+
+  private func alignPages(top: CGFloat) {
+    let delta = self.containerTop - top
+    if abs(delta) > 0.5 {
+      self.pageShift += delta
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       GeometryReader { geo in
@@ -591,7 +615,10 @@ struct ConsoleView: View {
                   input: self.$state.consoleInput,
                   showSheet: self.$showSheet,
                   showModal: self.$showModal)
-          .offset(y: 17)
+          .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: {
+            self.measured(page: 0, top: $0)
+          }
+          .offset(y: self.pageShift)
           .tag(0)
           VStack(alignment: .leading, spacing: 0) {
             ScrollView(.vertical, showsIndicators: true) {
@@ -657,19 +684,32 @@ struct ConsoleView: View {
               self.scrollToBottomRequest += 1
             }
           }
-          .offset(y: 17)
+          .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: {
+            self.measured(page: 1, top: $0)
+          }
+          .offset(y: self.pageShift)
           .tag(1)
           CanvasPanel(bottomInset: geo.safeAreaInsets.bottom,
                       width: geo.size.width,
                       state: self.state,
                       showModal: self.$showModal)
-            .offset(y: 17)
+            .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: {
+              self.measured(page: 2, top: $0)
+            }
+            .offset(y: self.pageShift)
             .tag(2)
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .indexViewStyle(.page(backgroundDisplayMode: .interactive))
         // .padding(.bottom, -17)
         .ignoresSafeArea(.all, edges: .bottom)
+      }
+      .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: {
+        self.containerTop = $0
+        // Moving the pages triggers a new measurement, which refines this alignment if needed.
+        if let top = self.visiblePageTop {
+          self.alignPages(top: top)
+        }
       }
       .slideOverCard(isPresented: self.$showCard, onDismiss: {
         self.cardContent.block = nil

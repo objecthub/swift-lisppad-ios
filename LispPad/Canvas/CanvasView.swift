@@ -120,6 +120,8 @@ struct CanvasView: View {
           self.background = nil
         }
       }
+      .contentMargins(.top, self.topClearance, for: .scrollIndicators)
+      .contentMargins(.bottom, self.bottomInset, for: .scrollIndicators)
       .scrollDismissesKeyboard(.interactively)
       .scrollPosition(self.$scrollPosition)
       .onScrollGeometryChange(for: CGPoint.self, of: { $0.contentOffset }) { _, newOffset in
