@@ -116,7 +116,9 @@ struct MainView: View {
       left: {
         ZStack {
           if self.documentationBrowserState.docShown {
-            DocumentationBrowser(state: self.documentationBrowserState)
+            DocumentationBrowser(state: self.documentationBrowserState,
+                                 splitViewMode: self.splitViewMode,
+                                 masterWidthFraction: self.masterWidthFraction)
               .modifier(self.globals.services)
               .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
               .transition(.move(edge: .leading))

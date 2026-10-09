@@ -27,7 +27,50 @@
     @EnvironmentObject var interpreter: Interpreter
     @EnvironmentObject var docManager: DocumentationManager
     
+    @Environment(\.containerGeometry) private var containerGeometry
+    
     @ObservedObject var state: DocumentationBrowserState
+    
+    /// The current split view mode and master width fraction of the main view; both are needed to
+    /// determine how much room the navigation bar offers for the toolbar title.
+    let splitViewMode: SideBySideMode
+    let masterWidthFraction: CGFloat
+    
+    /// Horizontal space taken up in the navigation bar by the leading and trailing toolbar buttons
+    /// (including their margins) plus some slack. Whatever is left is available for the title.
+    private static let toolbarButtonsWidth: CGFloat = 140
+    
+    /// Upper bound for the width of the library name in the navigation bar.
+    private static let maxLibraryTitleWidth: CGFloat = 200
+    
+    /// Lower bound for the width of the library name in the navigation bar.
+    private static let minLibraryTitleWidth: CGFloat = 60
+    
+    /// Minimum width of the browser pane at which the sidebar and detail columns are shown side by
+    /// side (balanced style). Below this width, the sidebar fills the whole pane.
+    private static let splitLayoutMinWidth: CGFloat = 580
+    
+    /// Minimum, ideal and maximum width of the sidebar column in the split layout.
+    private static let sidebarMinWidth: CGFloat = 280
+    private static let sidebarIdealWidth: CGFloat = 310
+    private static let sidebarMaxWidth: CGFloat = 380
+    
+    /// Returns the maximum width of the library name shown in the principal toolbar item of the
+    /// identifier list. Names that do not fit into this width wrap into two lines.
+    private func libraryTitleMaxWidth(paneWidth: CGFloat) -> CGFloat {
+      var barWidth = self.containerGeometry.navigationBarWidth(
+                         interpreter: true,
+                         splitViewMode: self.splitViewMode,
+                         masterWidthFraction: self.masterWidthFraction)
+      if paneWidth >= DocumentationBrowser.splitLayoutMinWidth {
+        // With the balanced split view style, the navigation bar is only as wide as the sidebar
+        // column (see `navigationSplitViewColumnWidth` below).
+        barWidth = min(barWidth, DocumentationBrowser.sidebarIdealWidth)
+      }
+      return max(min(barWidth - DocumentationBrowser.toolbarButtonsWidth,
+                     DocumentationBrowser.maxLibraryTitleWidth),
+                 DocumentationBrowser.minLibraryTitleWidth)
+    }
     
     var body: some View {
       GeometryReader { geometry in
@@ -195,7 +238,7 @@
                         .bold()
                         .foregroundStyle(.tint)
                     }
-                    .frame(maxWidth: 180)
+                    .frame(maxWidth: self.libraryTitleMaxWidth(paneWidth: geometry.size.width))
                   }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -212,7 +255,9 @@
               .transition(.move(edge: .trailing))
             }
           }
-          .navigationSplitViewColumnWidth(min: 280, ideal: 310, max: 380)
+          .navigationSplitViewColumnWidth(min: DocumentationBrowser.sidebarMinWidth,
+                                          ideal: DocumentationBrowser.sidebarIdealWidth,
+                                          max: DocumentationBrowser.sidebarMaxWidth)
         } detail: {
           DocumentationDetailView(columnVisibility: $state.columnVisibility,
                                   selectedLib: $state.selectedLib,
@@ -224,7 +269,7 @@
           .navigationBarTitleDisplayMode(.inline)
           .navigationSplitViewColumnWidth(min: 280, ideal: 500, max: 900)
         }
-        if geometry.size.width < 580 {
+        if geometry.size.width < DocumentationBrowser.splitLayoutMinWidth {
           view
             .navigationSplitViewStyle(.prominentDetail)
             .tint(Color.green)
