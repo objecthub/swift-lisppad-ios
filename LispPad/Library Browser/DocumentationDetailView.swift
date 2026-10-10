@@ -32,10 +32,50 @@ struct DocumentationDetailView: View {
   @Binding var selectedLib: LibraryManager.LibraryProxy?
   @Binding var selectedIdent: String?
   @Binding var docShown: Bool
+  
+  /// The title of the detail column and the width of the navigation bar it is shown in.
+  let title: String
+  let barWidth: CGFloat
+  
   @StateObject var controller = WebViewController()
   @State var block: Block? = nil
   @State var url: URL? = nil
   @State var toggle: Bool = true
+  
+  /// Horizontal space taken up in the navigation bar by the back/forward buttons for web content.
+  private static let webNavigationButtonsWidth: CGFloat = 80
+  
+  /// Horizontal space taken up in the navigation bar by the zoom menu for web content.
+  private static let zoomMenuWidth: CGFloat = 60
+  
+  /// Upper bound for the width of the title in the navigation bar.
+  private static let maxTitleWidth: CGFloat = 320
+  
+  /// Lower bound for the width of the title in the navigation bar. If less space is available,
+  /// the default title of the navigation bar, which doesn't wrap, is shown instead.
+  private static let minTitleWidth: CGFloat = 80
+  
+  /// Returns true if the detail column is shown on its own (i.e. there is no sidebar column next
+  /// to it). In this case, the navigation bar has a button for getting back to the sidebar column
+  /// and a button for closing the documentation browser.
+  private var isStandalone: Bool {
+    return self.sizeClass == .compact ||
+           (self.columnVisibility != .doubleColumn && self.columnVisibility != .all)
+  }
+  
+  /// Returns the maximum width of the title in the navigation bar, which is the width that is
+  /// left after subtracting the space needed for the toolbar buttons. Titles that do not fit into
+  /// this width wrap into two lines.
+  private var titleMaxWidth: CGFloat {
+    let hasWeb = self.url != nil
+    let leading = (self.isStandalone ? LispPadUI.toolbarButtonWidth : 0) +
+                  (hasWeb ? DocumentationDetailView.webNavigationButtonsWidth : 0)
+    let trailing = (self.isStandalone ? LispPadUI.toolbarButtonWidth : 0) +
+                   (hasWeb ? DocumentationDetailView.zoomMenuWidth : 0)
+    // The title is centered in the navigation bar; so the busier side limits both sides.
+    return min(self.barWidth - 2 * max(leading, trailing) - LispPadUI.toolbarTitleSlack,
+               DocumentationDetailView.maxTitleWidth)
+  }
   
   var body: some View {
     ZStack {
@@ -92,6 +132,19 @@ struct DocumentationDetailView: View {
       }
     }
     .toolbar {
+      if self.titleMaxWidth >= DocumentationDetailView.minTitleWidth {
+        ToolbarItem(placement: .principal) {
+          Text(self.title)
+            .font(LispPadUI.toolbarTitleFont(for: self.title))
+            .bold()
+            .foregroundColor(.primary)
+            .truncationMode(.middle)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: self.titleMaxWidth)
+        }
+      }
       if self.url != nil {
         ToolbarItemGroup(placement: .topBarLeading) {
           HStack(alignment: .center, spacing: 10) {
@@ -113,9 +166,7 @@ struct DocumentationDetailView: View {
           .padding(.horizontal, 6)
         }
       }
-      if self.sizeClass == .compact ||
-          (self.columnVisibility != .doubleColumn &&
-           self.columnVisibility != .all) {
+      if self.isStandalone {
         ToolbarItemGroup(placement: .topBarTrailing) {
           HStack(alignment: .center, spacing: 8) {
             if self.url != nil {

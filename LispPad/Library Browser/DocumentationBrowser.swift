@@ -38,7 +38,8 @@
     
     /// Horizontal space taken up in the navigation bar by the leading and trailing toolbar buttons
     /// (including their margins) plus some slack. Whatever is left is available for the title.
-    private static let toolbarButtonsWidth: CGFloat = 140
+    private static let toolbarButtonsWidth: CGFloat =
+        2 * LispPadUI.toolbarButtonWidth + LispPadUI.toolbarTitleSlack
     
     /// Upper bound for the width of the library name in the navigation bar.
     private static let maxLibraryTitleWidth: CGFloat = 200
@@ -55,13 +56,40 @@
     private static let sidebarIdealWidth: CGFloat = 310
     private static let sidebarMaxWidth: CGFloat = 380
     
+    /// The width of the navigation bar across the whole browser pane, not counting the areas that
+    /// are reserved by the system (e.g. for a camera cutout).
+    private var paneNavigationBarWidth: CGFloat {
+      return self.containerGeometry.navigationBarWidth(
+                 interpreter: true,
+                 splitViewMode: self.splitViewMode,
+                 masterWidthFraction: self.masterWidthFraction)
+    }
+    
+    /// The title of the detail column: the selected identifier or, if there is none, the selected
+    /// library.
+    private var detailTitle: String {
+      if self.state.selectedIdent?.isEmpty ?? true {
+        return self.state.selectedLib?.name ?? "Libraries"
+      } else {
+        return self.state.selectedIdent ?? self.state.selectedLib?.name ?? "Documentation"
+      }
+    }
+    
+    /// Returns the width of the navigation bar of the detail column. In the split layout, the
+    /// detail column shares the pane with the sidebar column, unless the latter is hidden.
+    private func detailNavigationBarWidth(paneWidth: CGFloat) -> CGFloat {
+      var barWidth = self.paneNavigationBarWidth
+      if paneWidth >= DocumentationBrowser.splitLayoutMinWidth &&
+         (self.state.columnVisibility == .doubleColumn || self.state.columnVisibility == .all) {
+        barWidth -= DocumentationBrowser.sidebarIdealWidth
+      }
+      return barWidth
+    }
+    
     /// Returns the maximum width of the library name shown in the principal toolbar item of the
     /// identifier list. Names that do not fit into this width wrap into two lines.
     private func libraryTitleMaxWidth(paneWidth: CGFloat) -> CGFloat {
-      var barWidth = self.containerGeometry.navigationBarWidth(
-                         interpreter: true,
-                         splitViewMode: self.splitViewMode,
-                         masterWidthFraction: self.masterWidthFraction)
+      var barWidth = self.paneNavigationBarWidth
       if paneWidth >= DocumentationBrowser.splitLayoutMinWidth {
         // With the balanced split view style, the navigation bar is only as wide as the sidebar
         // column (see `navigationSplitViewColumnWidth` below).
@@ -223,9 +251,8 @@
                     HStack(alignment: .center, spacing: 3) {
                       if geometry.size.width >= 280 {
                         Text(self.state.selectedLib?.name ?? "Identifiers")
-                          .font((self.state.selectedLib?.name ?? "Identifiers").count >= 15
-                                  ? LispPadUI.fileNameFont
-                                  : LispPadUI.largeFileNameFont)
+                          .font(LispPadUI.toolbarTitleFont(
+                                  for: self.state.selectedLib?.name ?? "Identifiers"))
                           .bold()
                           .foregroundColor(.primary)
                           .truncationMode(.middle)
@@ -262,10 +289,11 @@
           DocumentationDetailView(columnVisibility: $state.columnVisibility,
                                   selectedLib: $state.selectedLib,
                                   selectedIdent: $state.selectedIdent,
-                                  docShown: $state.docShown)
-          .navigationTitle((self.state.selectedIdent?.isEmpty ?? true)
-                             ? (self.state.selectedLib?.name ?? "Libraries")
-                             : (self.state.selectedIdent ?? self.state.selectedLib?.name ?? "Documentation"))
+                                  docShown: $state.docShown,
+                                  title: self.detailTitle,
+                                  barWidth: self.detailNavigationBarWidth(
+                                              paneWidth: geometry.size.width))
+          .navigationTitle(self.detailTitle)
           .navigationBarTitleDisplayMode(.inline)
           .navigationSplitViewColumnWidth(min: 280, ideal: 500, max: 900)
         }

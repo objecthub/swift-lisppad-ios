@@ -80,6 +80,22 @@ struct LispPadUI {
     return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
   }()
   
+  // Number of characters from which a title in the toolbar is shown in the small font
+  static let longToolbarTitleLength: Int = 15
+  
+  // Font for titles in the toolbar; long titles are shown in a smaller font
+  static func toolbarTitleFont(for title: String) -> SwiftUI.Font {
+    return title.count >= LispPadUI.longToolbarTitleLength
+        ? LispPadUI.fileNameFont
+        : LispPadUI.largeFileNameFont
+  }
+  
+  // Horizontal space taken up in the navigation bar by a single toolbar button, including margins
+  static let toolbarButtonWidth: CGFloat = 66
+  
+  // Horizontal space kept free around a title in the navigation bar
+  static let toolbarTitleSlack: CGFloat = 8
+  
   static func configure() {
     let coloredAppearance = UINavigationBarAppearance()
     coloredAppearance.configureWithOpaqueBackground()
