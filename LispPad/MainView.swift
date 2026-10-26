@@ -45,27 +45,25 @@ struct MainView: View {
   static let forceAllowSplit = UIDevice.current.userInterfaceIdiom == .pad
   static let disableVerticalToolbar = true
   
+  /// The mode last used while splitting was allowed. Defaults to a split view. Note that
+  /// `UserDefaults.integer(forKey:)` can't be used here since it returns `0` (i.e. `.normal`)
+  /// for keys that are not set.
+  private static var persistedSplitMode: SideBySideMode {
+    return SideBySideMode(rawValue: UserDefaults.standard.int(
+      forKey: MainView.splitViewModeKey, SideBySideMode.normal.rawValue)) ?? .normal
+  }
+  
+  /// The mode last used while splitting was not allowed. This is never a split view, even if
+  /// the persisted value is.
+  private static var persistedSingleMode: SideBySideMode {
+    return (SideBySideMode(rawValue: UserDefaults.standard.int(
+      forKey: MainView.singleViewModeKey, SideBySideMode.leftOnLeft.rawValue)) ?? .leftOnLeft).unsplit
+  }
+  
   /// The current split view mode of the application. This state is persisted between
   /// application runs.
-  @State private var splitViewMode: SideBySideMode = {
-    let mode = MainView.forceAllowSplit
-             ? (SideBySideMode(rawValue:
-                 UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? .normal)
-             : (SideBySideMode(rawValue:
-                 UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal)
-    if MainView.forceAllowSplit {
-      return mode
-    } else {
-      switch mode {
-        case .normal, .leftOnRight, .leftOnLeft:
-          return .leftOnLeft
-        case .swapped:
-          return .rightOnLeft
-        case .rightOnRight, .rightOnLeft:
-          return .rightOnRight
-      }
-    }
-  }()
+  @State private var splitViewMode: SideBySideMode =
+    MainView.forceAllowSplit ? MainView.persistedSplitMode : MainView.persistedSingleMode
   
   /// The current master width fraction (i.e. the width of the left-most view in a split
   /// view environment). This state is persisted between application runs.
@@ -206,8 +204,7 @@ struct MainView: View {
       if new {
         // Transition from split not allowed to allowed
         if UserSettings.standard.linkRotationFoldingChanges {
-          let target = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey:
-                                                  MainView.splitViewModeKey)) ?? self.splitViewMode
+          let target = MainView.persistedSplitMode
           switch target {
             case .normal, .swapped:
               withTransaction(transaction) {
@@ -222,54 +219,50 @@ struct MainView: View {
                   withTransaction(transaction) {
                     self.splitViewMode = .leftOnRight
                   }
+                  UserDefaults.standard.set(SideBySideMode.leftOnRight.rawValue,
+                                            forKey: MainView.splitViewModeKey)
                 case .rightOnRight:
                   withTransaction(transaction) {
                     self.splitViewMode = .rightOnLeft
                   }
+                  UserDefaults.standard.set(SideBySideMode.rightOnLeft.rawValue,
+                                            forKey: MainView.splitViewModeKey)
                 default:
                   break
               }
-              UserDefaults.standard.set(self.splitViewMode.rawValue,
-                                        forKey: MainView.splitViewModeKey)
           }
         } else {
           withTransaction(transaction) {
-            self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.splitViewModeKey)) ?? self.splitViewMode
+            self.splitViewMode = MainView.persistedSplitMode
           }
         }
       } else {
         // Transition from split allowed to not allowed
         if UserSettings.standard.linkRotationFoldingChanges {
-          if self.splitViewMode.isSideBySide {
-            withTransaction(transaction) {
-              self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal
-            }
-          } else {
-            switch self.splitViewMode {
-              case .normal, .swapped:
-                withTransaction(transaction) {
-                  self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal
-                }
-              case .leftOnLeft, .rightOnRight:
-                UserDefaults.standard.set(self.splitViewMode.rawValue,
-                                          forKey: MainView.singleViewModeKey)
-              case .leftOnRight:
-                withTransaction(transaction) {
-                  self.splitViewMode = .leftOnLeft
-                }
-                UserDefaults.standard.set(self.splitViewMode.rawValue,
-                                          forKey: MainView.singleViewModeKey)
-              case .rightOnLeft:
-                withTransaction(transaction) {
-                  self.splitViewMode = .rightOnRight
-                }
-                UserDefaults.standard.set(self.splitViewMode.rawValue,
-                                          forKey: MainView.singleViewModeKey)
-            }
+          switch self.splitViewMode {
+            case .normal, .swapped:
+              withTransaction(transaction) {
+                self.splitViewMode = MainView.persistedSingleMode
+              }
+            case .leftOnLeft, .rightOnRight:
+              UserDefaults.standard.set(self.splitViewMode.rawValue,
+                                        forKey: MainView.singleViewModeKey)
+            case .leftOnRight:
+              withTransaction(transaction) {
+                self.splitViewMode = .leftOnLeft
+              }
+              UserDefaults.standard.set(SideBySideMode.leftOnLeft.rawValue,
+                                        forKey: MainView.singleViewModeKey)
+            case .rightOnLeft:
+              withTransaction(transaction) {
+                self.splitViewMode = .rightOnRight
+              }
+              UserDefaults.standard.set(SideBySideMode.rightOnRight.rawValue,
+                                        forKey: MainView.singleViewModeKey)
           }
         } else {
           withTransaction(transaction) {
-            self.splitViewMode = SideBySideMode(rawValue: UserDefaults.standard.integer(forKey: MainView.singleViewModeKey)) ?? .normal
+            self.splitViewMode = MainView.persistedSingleMode
           }
         }
       }
@@ -277,6 +270,15 @@ struct MainView: View {
     .onChange(of: self.splitViewMode) { _, mode in
       if self.allowSplit {
         UserDefaults.standard.set(mode.rawValue, forKey: MainView.splitViewModeKey)
+      } else if mode.isSideBySide {
+        // A split view is never shown if splitting is not allowed (e.g. on a folded device).
+        // This is the last line of defense against any code path that gets this wrong; the
+        // change is applied without animation and persisted by the next invocation.
+        var transaction = Transaction(animation: .none)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+          self.splitViewMode = mode.unsplit
+        }
       } else {
         UserDefaults.standard.set(mode.rawValue, forKey: MainView.singleViewModeKey)
       }

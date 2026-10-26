@@ -99,6 +99,19 @@ enum SideBySideMode: Int {
     }
   }
   
+  /// The mode to use when only one side can be shown (e.g. on a folded device). Maps every
+  /// mode to one of `leftOnLeft` and `rightOnRight`; these never swap the sides.
+  var unsplit: SideBySideMode {
+    switch self {
+      case .normal, .leftOnRight:
+        return .leftOnLeft
+      case .swapped, .rightOnLeft:
+        return .rightOnRight
+      case .leftOnLeft, .rightOnRight:
+        return self
+    }
+  }
+  
   var sideToHide: SplitSide? {
     switch self {
       case .leftOnLeft, .rightOnLeft:

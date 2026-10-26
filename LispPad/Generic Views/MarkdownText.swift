@@ -118,13 +118,32 @@ struct MarkdownTextView: UIViewRepresentable {
     }
   }
   
-  private class DocumentationStringGenerator: AttributedStringGenerator   {
+  private class DocumentationStringGenerator: AttributedStringGenerator, @unchecked Sendable   {
     static let localBaseUrl = Bundle.main.url(
                                   forResource: "thread-states",
                                   withExtension: "png",
                                   subdirectory: "Documentation/Libraries/images")?
                                 .deletingLastPathComponent()
                                 .deletingLastPathComponent()
+    
+    static let highlighterJSUrl =
+      Bundle(for: MarkdownLibrary.self).url(forResource: "highlight.min",
+                                            withExtension: "js",
+                                            subdirectory: "Root/LispKit/Assets/JavaScript/Highlight")
+    
+    static let highlighterThemesUrl =
+      Bundle(for: MarkdownLibrary.self).url(forResource: "Themes",
+                                            withExtension: nil,
+                                            subdirectory: "Root/LispKit/Assets/JavaScript/Highlight")
+    
+    static let highlighter: SyntaxHighlighter? = {
+      if let highlighterJSUrl = DocumentationStringGenerator.highlighterJSUrl {
+        return SyntaxHighlighter(highlightJSURL: highlighterJSUrl,
+                                 themeDirectory: DocumentationStringGenerator.highlighterThemesUrl)
+      } else {
+        return nil
+      }
+    }()
     
     let rightPadding: Int
     
@@ -153,7 +172,7 @@ struct MarkdownTextView: UIViewRepresentable {
                  codeBlockFontColor: codeBlockFontColor,
                  codeBlockBackground: codeBlockBackground,
                  syntaxHighlighting: syntaxHighlighting,
-                 syntaxHighlighter: MarkdownLibrary.syntaxHighlighter,
+                 syntaxHighlighter: DocumentationStringGenerator.highlighter,
                  borderColor: borderColor,
                  blockquoteColor: blockquoteColor,
                  h1Color: h1Color,
@@ -164,12 +183,12 @@ struct MarkdownTextView: UIViewRepresentable {
                  imageBaseUrl: Self.localBaseUrl)
     }
     
-    private class DocumentationHtmlGenerator: OS26HtmlGenerator {
+    private class DocumentationHtmlGenerator: OS26HtmlGenerator, @unchecked Sendable {
       let rightPadding: Int
       
-      public override init(outer: AttributedStringGenerator) {
+      public override init(outer: AttributedStringGenerator, renderingOptions: RenderingOptions) {
         self.rightPadding = (outer as! DocumentationStringGenerator).rightPadding
-        super.init(outer: outer)
+        super.init(outer: outer, renderingOptions: renderingOptions)
       }
       
       open override func generate(block: Block, parent: Parent, tight: Bool = false) -> String {
@@ -227,8 +246,9 @@ struct MarkdownTextView: UIViewRepresentable {
       }
     }
     
-    open override var htmlGenerator: HtmlGenerator {
-      return DocumentationHtmlGenerator(outer: self)
+    open override func htmlGenerator(options: RenderingOptions? = nil) -> InternalHtmlGenerator {
+      return DocumentationHtmlGenerator(outer: self,
+                                        renderingOptions: options ?? self.renderingOptions)
     }
     
     open override var codeBoxStyle: String {
