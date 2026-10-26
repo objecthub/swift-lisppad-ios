@@ -263,16 +263,7 @@ struct SideBySide<Left: View, Right: View>: View {
        invisibleThickness: CGFloat = 20.0,
        @ViewBuilder left: () -> Left,
        @ViewBuilder right: () -> Right) {
-    let hidden: SplitSide?
-    switch mode.wrappedValue {
-      case .normal, .swapped:
-        hidden = nil
-      case .leftOnLeft, .leftOnRight:
-        hidden = .secondary
-      case .rightOnRight, .rightOnLeft:
-        hidden = .primary
-    }
-    self._hidden = State(initialValue: hidden)
+    self._hidden = State(initialValue: mode.wrappedValue.sideToHide)
     self._delayedMode = State(initialValue: mode.wrappedValue)
     self._mode = mode
     self._fraction = fraction
