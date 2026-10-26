@@ -774,7 +774,9 @@ struct ConsoleView: View {
         }
       }
     } else {
-      self.splitViewMode.toggle()
+      withAnimation {
+        self.splitViewMode.toggle()
+      }
     }
   }
   

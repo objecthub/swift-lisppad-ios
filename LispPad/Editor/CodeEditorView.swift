@@ -1078,7 +1078,9 @@ struct CodeEditorView: View {
       }
     } else {
       // self.showCard = false
-      self.splitViewMode.toggle()
+      withAnimation {
+        self.splitViewMode.toggle()
+      }
     }
   }
   

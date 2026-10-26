@@ -180,7 +180,9 @@ struct SideBySideNavigator: View {
           .foregroundColor(self.focused ? .green : .primary)
           .font(LispPadUI.toolbarSwitchFont)          
       } primaryAction: {
-        self.mode.expand(left: self.leftSide)
+        withAnimation {
+          self.mode.expand(left: self.leftSide)
+        }
       }
     } else {
       HStack(alignment: .center, spacing: 2) {
@@ -242,7 +244,6 @@ struct SideBySideNavigator: View {
 }
 
 struct SideBySide<Left: View, Right: View>: View {
-  @State var hidden: SplitSide?
   @State var delayedMode: SideBySideMode
   @Binding var mode: SideBySideMode
   @Binding var fraction: CGFloat
@@ -263,7 +264,6 @@ struct SideBySide<Left: View, Right: View>: View {
        invisibleThickness: CGFloat = 20.0,
        @ViewBuilder left: () -> Left,
        @ViewBuilder right: () -> Right) {
-    self._hidden = State(initialValue: mode.wrappedValue.sideToHide)
     self._delayedMode = State(initialValue: mode.wrappedValue)
     self._mode = mode
     self._fraction = fraction
@@ -276,11 +276,36 @@ struct SideBySide<Left: View, Right: View>: View {
     self.right = right()
   }
   
+  /// The side that is hidden. This is derived from `mode`, instead of being kept as separate
+  /// state that is synchronized via `onChange`. In this way, whatever transaction changes
+  /// `mode` (e.g. one that disables animations) also applies to hiding and showing a side.
+  /// Writing to this binding (e.g. when dragging the splitter to the edge) updates `mode`.
+  private var hidden: Binding<SplitSide?> {
+    Binding(
+      get: {
+        self.mode.sideToHide
+      },
+      set: { newValue in
+        let newModeValue: SideBySideMode
+        switch newValue {
+          case .primary:
+            newModeValue = self.mode.isSwapped ? .leftOnRight : .rightOnRight
+          case .secondary:
+            newModeValue = self.mode.isSwapped ? .rightOnLeft : .leftOnLeft
+          case nil:
+            return
+        }
+        if self.mode != newModeValue {
+          self.mode = newModeValue
+        }
+      })
+  }
+  
   var body: some View {
     Split(
       orientation: .constant(.horizontal),
       fraction: self.$fraction,
-      hidden: self.$hidden,
+      hidden: self.hidden,
       splitterWidth: self.visibleThickness,
       hideOnSide: true,
       constraints: SplitConstraints(minPFraction: self.leftMinFraction,
@@ -314,27 +339,11 @@ struct SideBySide<Left: View, Right: View>: View {
                  dragToHideP: self.dragToHide,
                  dragToHideS: self.dragToHide)
     .onChange(of: self.mode) { oldValue, newValue in
-      withAnimation {
-        self.hidden = newValue.sideToHide
-      }
       if self.delayedMode.isSideBySide {
         self.delayedMode = newValue
       } else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
           self.delayedMode = newValue
-        }
-      }
-    }
-    .onChange(of: self.hidden) { oldValue, newValue in
-      if newValue == .primary {
-        let newModeValue: SideBySideMode = self.mode.isSwapped ? .leftOnRight : .rightOnRight
-        if self.mode != newModeValue {
-          self.mode = newModeValue
-        }
-      } else if newValue == .secondary {
-        let newModeValue: SideBySideMode = self.mode.isSwapped ? .rightOnLeft : .leftOnLeft
-        if self.mode != newModeValue {
-          self.mode = newModeValue
         }
       }
     }

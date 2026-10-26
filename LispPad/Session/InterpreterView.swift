@@ -758,7 +758,9 @@ struct InterpreterView: View {
         }
       }
     } else {
-      self.splitViewMode.toggle()
+      withAnimation {
+        self.splitViewMode.toggle()
+      }
     }
   }
   
@@ -767,9 +769,13 @@ struct InterpreterView: View {
       case .normal, .swapped, .leftOnLeft, .leftOnRight:
         return
       case .rightOnRight:
-        self.splitViewMode = .leftOnLeft
+        withAnimation {
+          self.splitViewMode = .leftOnLeft
+        }
       case .rightOnLeft:
-        self.splitViewMode = .leftOnRight
+        withAnimation {
+          self.splitViewMode = .leftOnRight
+        }
     }
   }
   
