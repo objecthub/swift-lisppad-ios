@@ -144,7 +144,7 @@ struct LogView: View {
                       }
                     }
                     Divider()
-                    ShareLink("Share Message…", item: entry.message)
+                    ShareLink("Share Message", item: entry.message)
                   }
                   .padding(.leading, 6)
                   .padding(.vertical, 1)
@@ -249,12 +249,12 @@ struct LogView: View {
             Button {
               self.showModal = .shareText(self.sessionLog.exportMessages())
             } label: {
-              Label("Share Messages…", systemImage: "square.and.arrow.up.on.square")
+              Label("Share Messages", systemImage: "square.and.arrow.up.on.square")
             }
             Button {
               self.showModal = .shareText(self.sessionLog.export())
             } label: {
-              Label("Share Log…", systemImage: "square.and.arrow.up")
+              Label("Share Log", systemImage: "square.and.arrow.up")
             }
             Divider()
             Button(role: .destructive) {

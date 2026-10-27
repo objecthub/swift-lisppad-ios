@@ -179,7 +179,7 @@ struct CanvasPanel: View {
             }
             Divider()
             Button {
-              self.state.showProgressView = "Saving Image…"
+              self.state.showProgressView = "Saving Image"
               DispatchQueue.global(qos: .userInitiated).async {
                 if let res = iconImage(for: self.interpreter.canvas.drawing,
                                        width: 1500,
@@ -199,7 +199,7 @@ struct CanvasPanel: View {
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
-              self.state.showProgressView = "Saving Canvas…"
+              self.state.showProgressView = "Saving Canvas"
               DispatchQueue.global(qos: .userInitiated).async {
                 if let image = iconImage(for: self.interpreter.canvas.drawing,
                                          width: self.interpreter.canvas.size.width,
@@ -221,7 +221,7 @@ struct CanvasPanel: View {
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
-              self.state.showProgressView = "Printing Canvas…"
+              self.state.showProgressView = "Printing Canvas"
               DispatchQueue.global(qos: .userInitiated).async {
                 if let res = iconImage(for: self.interpreter.canvas.drawing,
                                        width: self.interpreter.canvas.size.width,
@@ -232,7 +232,7 @@ struct CanvasPanel: View {
                                        renderingHeight: self.interpreter.canvas.size.height,
                                        contentOnly: false) {
                   let printInfo = UIPrintInfo(dictionary: nil)
-                  printInfo.jobName = "Printing LispPad Canvas…"
+                  printInfo.jobName = "Printing LispPad Canvas"
                   printInfo.outputType = .general
                   DispatchQueue.main.async {
                     self.state.showProgressView = nil
@@ -252,7 +252,7 @@ struct CanvasPanel: View {
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Button {
-              self.state.showProgressView = "Sharing Canvas…"
+              self.state.showProgressView = "Sharing Canvas"
               DispatchQueue.global(qos: .userInitiated).async {
                 if let image = iconImage(for: self.interpreter.canvas.drawing,
                                          width: self.interpreter.canvas.size.width,
@@ -269,7 +269,7 @@ struct CanvasPanel: View {
                 }
               }
             } label: {
-              Label("Share Canvas…", systemImage: "square.and.arrow.up")
+              Label("Share Canvas", systemImage: "square.and.arrow.up")
             }
             .disabled(self.interpreter.canvas == .empty || self.state.showProgressView != nil)
             Divider()

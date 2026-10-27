@@ -89,7 +89,7 @@ struct ConsoleView: View {
         Label("Copy Error", systemImage: "doc.on.clipboard")
       }
       Divider()
-      ShareLink("Share Error…", item: text)
+      ShareLink("Share Error", item: text)
     }
   }
   
@@ -132,7 +132,7 @@ struct ConsoleView: View {
                 }
                 Divider()
                 Button {
-                  self.state.showProgressView = "Saving Image…"
+                  self.state.showProgressView = "Saving Image"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
                     if let betterImage = iconImage(for: drawing,
@@ -153,7 +153,7 @@ struct ConsoleView: View {
                   Label("Save Image", systemImage: "square.and.arrow.down")
                 }
                 Button {
-                  self.state.showProgressView = "Printing Image…"
+                  self.state.showProgressView = "Printing Image"
                   DispatchQueue.global(qos: .userInitiated).async {
                     var res = image
                     if let betterImage = iconImage(for: drawing,
@@ -165,7 +165,7 @@ struct ConsoleView: View {
                       res = betterImage
                     }
                     let printInfo = UIPrintInfo(dictionary: nil)
-                    printInfo.jobName = "Printing LispPad image…"
+                    printInfo.jobName = "Printing LispPad image"
                     printInfo.outputType = .general
                     DispatchQueue.main.async {
                       self.state.showProgressView = nil
@@ -179,7 +179,7 @@ struct ConsoleView: View {
                   Label("Print Image", systemImage: "printer")
                 }
                 Button {
-                  self.state.showProgressView = "Sharing Image…"
+                  self.state.showProgressView = "Sharing Image"
                   DispatchQueue.global(qos: .userInitiated).async {
                     if let betterImage = iconImage(for: drawing,
                                                    width: 1500,
@@ -196,7 +196,7 @@ struct ConsoleView: View {
                     }
                   }
                 } label: {
-                  Label("Share Image…", systemImage: "square.and.arrow.up")
+                  Label("Share Image", systemImage: "square.and.arrow.up")
                 }
               }
           }
@@ -230,7 +230,7 @@ struct ConsoleView: View {
                 }
               }
               Divider()
-              ShareLink("Share Text…", item: entry.text)
+              ShareLink("Share Text", item: entry.text)
             }
       }
     }

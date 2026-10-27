@@ -210,10 +210,24 @@ struct DocumentView: View {
 
 /// Gives a control a capsule-shaped background: Liquid Glass on iOS 26+, a plain
 /// material on older versions.
-private struct CapsuleBackground: ViewModifier {
+internal struct CapsuleBackground: ViewModifier {
   func body(content: Content) -> some View {
     if #available(iOS 26.0, *) {
       content.glassEffect(.regular.interactive(), in: Capsule())
+    } else {
+      content.background(.regularMaterial, in: Capsule())
+    }
+  }
+}
+
+/// Gives a control a tinted capsule-shaped background: Liquid Glass on iOS 26+, a plain
+/// material on older versions.
+internal struct TintedCapsuleBackground: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content.glassEffect(.regular
+                            .tint(.gray.opacity(0.2))
+                            .interactive(), in: Capsule())
     } else {
       content.background(.regularMaterial, in: Capsule())
     }

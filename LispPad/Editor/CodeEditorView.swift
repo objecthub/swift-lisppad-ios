@@ -377,15 +377,15 @@ struct CodeEditorView: View {
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarBackButtonHidden(true)
       .toolbar {
-        let mode = self.containerGeometry.navigationBarMode(interpreter: false,
+        /* let mode = self.containerGeometry.navigationBarMode(interpreter: false,
                                                             splitViewMode: self.splitViewMode,
                                                             masterWidthFraction: self.masterWidthFraction)
         switch mode {
           case .minimal, .compact:
             self.minimalToolbar
-          case .full:
+          case .full: */
             self.fullToolbar
-        }
+        // }
       }
       .sheet(item: $showModal, content: self.sheetView)
       .fullScreenCover(item: $showSheet, content: self.sheetView)
@@ -520,7 +520,7 @@ struct CodeEditorView: View {
               self.showModal = .editFile
             }
           } label: {
-            Label("Open…", systemImage: "tray.and.arrow.up")
+            Label("Open", systemImage: "tray.and.arrow.up")
           }
           Button {
             self.dismissCard()
@@ -528,7 +528,7 @@ struct CodeEditorView: View {
               self.showModal = .saveFile
             }
           } label: {
-            Label(self.fileManager.editorDocumentInfo.new ? "Save…" : "Save As…",
+            Label(self.fileManager.editorDocumentInfo.new ? "Save" : "Save As",
                   systemImage: "tray.and.arrow.down")
           }
           Button {
@@ -536,7 +536,7 @@ struct CodeEditorView: View {
             self.histManager.verifyFileLists()
             self.showModal = .organizeFiles
           } label: {
-            Label("Organize…", systemImage: "doc.text.magnifyingglass")
+            Label("Organize", systemImage: "doc.text.magnifyingglass")
           }
           if !self.histManager.recentlyEdited.isEmpty {
             Section("RECENT FILES") {
@@ -775,21 +775,34 @@ struct CodeEditorView: View {
             if self.showSearchField {
               if self.settings.searchReplaceMode {
                 withAnimation(.default) {
-                  self.showSearchField = false
+                  self.settings.searchReplaceMode = false
                 }
+              }
+            } else {
+              withAnimation(.default) {
                 self.settings.searchReplaceMode = false
-              } else {
+                self.showSearchField = true
+              }
+            }
+          } label: {
+            Label("Search", systemImage: "magnifyingglass")
+          }
+          Button {
+            self.dismissCard()
+            if self.showSearchField {
+              if !self.settings.searchReplaceMode {
                 withAnimation(.default) {
                   self.settings.searchReplaceMode = true
                 }
               }
             } else {
               withAnimation(.default) {
+                self.settings.searchReplaceMode = true
                 self.showSearchField = true
               }
             }
           } label: {
-            Label("Search", systemImage: "magnifyingglass")
+            Label("Replace", systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90")
           }
           Divider()
         }
@@ -842,32 +855,25 @@ struct CodeEditorView: View {
     self.leadingToolbarItemGroup(currentFile: false)
     ToolbarItemGroup(placement: .principal) {
       HStack(alignment: .center, spacing: 4) {
-        if self.containerGeometry.navigationBarWidth(
-              interpreter: false,
-              splitViewMode: self.splitViewMode,
-              masterWidthFraction: self.masterWidthFraction) >= 320.0  {
-          Text(self.fileManager.editorDocumentInfo.title)
-            .font(LispPadUI.fileNameFont)
-            .bold()
-            .foregroundColor(.primary)
-            .truncationMode(.middle)
-            .multilineTextAlignment(.center)
-            .lineLimit(2)
-            .fixedSize(horizontal: false, vertical: true)
-            // .frame(maxWidth: max(geometry.size.width - 290, 20))
-        }
-        Text(Image(systemName: "chevron.down.circle.fill"))
-          .font(.caption)
-          .bold()
-          .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+        Text(self.fileManager.editorDocumentInfo.title)
+          .multilineTextAlignment(.center)
+          .allowsTightening(true)
+          .foregroundStyle(.primary)
+          .font(.system(size: 14, weight: .medium))
+          .truncationMode(.tail)
+          .lineLimit(2)
+          .minimumScaleFactor(0.7)
+          .layoutPriority(1)
+        Image(systemName: "chevron.down")
+          .font(.caption.weight(.bold))
+          .imageScale(.small)
+          .foregroundStyle(.secondary)
+          .fixedSize()
+          .accessibilityHidden(true)
       }
-      .padding(.trailing, -2)
-      // The label above stays purely decorative and reactive as before; the actual
-      // tap-to-open-menu interaction is provided by this invisible overlay, which uses
-      // a native UIKit menu so its content can be computed on demand (see
-      // CentralMenuButton's documentation for why this isn't possible with a plain
-      // SwiftUI `Menu` on this platform).
-      .accessibilityHidden(true)
+      .fixedSize(horizontal: false, vertical: true)
+      .padding(.init(top: 0, leading: 8, bottom: 0, trailing: 4))
+      .frame(height: 44)
       .background(
         CentralMenuButton(
           showModal: $showModal,
@@ -881,8 +887,9 @@ struct CodeEditorView: View {
         // (only the (fixed-size) chevron still responds). Giving the button its own
         // generous, fixed-size frame here -- rather than trying to precisely track the
         // label's dynamic size -- sidesteps that mismatch entirely.
-        .frame(width: max(self.containerGeometry.size.width - 200, 20), height: 60)
+        // .frame(width: max(self.containerGeometry.size.width - 150, 20), height: 60)
       )
+      .modifier(TintedCapsuleBackground())
     }
     ToolbarItemGroup(placement: .navigationBarTrailing) {
       HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
@@ -919,7 +926,8 @@ struct CodeEditorView: View {
         }
         .foregroundColor(self.showSearchField ? .gray : .accentColor)
         */
-        Button {
+        /*
+         Button {
           self.dismissCard()
           if self.showSearchField {
             if self.settings.searchReplaceMode {
@@ -941,8 +949,9 @@ struct CodeEditorView: View {
           Image(systemName: "magnifyingglass")
             .font(LispPadUI.toolbarFont)
         }
+        */
         self.docStructureButton
-        self.overflowMenu(search: false)
+        self.overflowMenu(search: true)
       }
     }
   }

@@ -291,15 +291,7 @@ struct InterpreterView: View {
       }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        let mode = self.containerGeometry.navigationBarMode(interpreter: true,
-                                                            splitViewMode: self.splitViewMode,
-                                                            masterWidthFraction: self.masterWidthFraction)
-        switch mode {
-          case .minimal, .compact:
-            self.minimalToolbar
-          case .full:
-            self.fullToolbar
-        }
+        self.fullToolbar
       }
       .navigationDestination(for: NavigationTargets.self) { target in
         switch target {
@@ -491,7 +483,7 @@ struct InterpreterView: View {
             Button {
               self.showModal = .shareConsole
             } label: {
-              Label("Share Console…", systemImage: "square.and.arrow.up")
+              Label("Share Console", systemImage: "square.and.arrow.up")
             }
             .disabled(self.interpreter.console.isEmpty)
             Button(role: .destructive) {
@@ -503,14 +495,7 @@ struct InterpreterView: View {
             Button(role: .destructive) {
               self.showResetActionSheet = true
             } label: {
-              Label("Reset Interpreter…", systemImage: "arrow.triangle.2.circlepath")
-            }
-            Divider()
-            Button {
-              self.histManager.verifyFileLists()
-              self.showModal = .organizeFiles
-            } label: {
-              Label("Organize Files…", systemImage: "doc.text.magnifyingglass")
+              Label("Reset Interpreter", systemImage: "arrow.triangle.2.circlepath")
             }
           } label: {
             Image(systemName: "terminal")
@@ -530,7 +515,7 @@ struct InterpreterView: View {
             self.histManager.verifyFileLists()
             self.showModal = .loadFile
           } label: {
-            Label("Load…", systemImage: "arrow.down.document")
+            Label("Load", systemImage: "arrow.down.document")
           }
           Button {
             let message = self.fileManager.editorDocumentInfo.new ?
@@ -585,86 +570,26 @@ struct InterpreterView: View {
   
   @ToolbarContentBuilder
   private var fullToolbar: some ToolbarContent {
-    self.leadingToolbarItemGroup(env: false)
+    self.leadingToolbarItemGroup(env: true)
     ToolbarItemGroup(placement: .principal) {
-      Menu {
-        Button {
-          self.showModal = .showAbout
-        } label: {
-          Label("About…", systemImage: "questionmark.circle")
-        }
-        Divider()
-        Button {
-          if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
-            UIApplication.shared.open(url)
-          }
-        } label: {
-          Label("Manual…", systemImage: "book.closed")
-        }
-        Button {
-          self.showModal = .showShortcuts
-        } label: {
-          Label("Keyboard Shortcuts…", systemImage: "keyboard")
-        }
-        Button {
-          if let url = self.docManager.r7rsSpec.url {
-            self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
-          }
-        } label: {
-          Label("Language Spec…", systemImage: "doc.richtext")
-        }
-        Button {
-          if let url = self.docManager.lispPadRef.url {
-            self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
-          }
-        } label: {
-          Label("Library Reference…", systemImage: "doc.richtext")
-        }
-      } label: {
-        /* Let's not display a logo here for now.
-         Image("SmallLogo")
-         .resizable()
-         .scaledToFit()
-         .frame(width: 28.0,height: 28.0)
-         .padding(.bottom, -3) */
-        HStack(alignment: .center, spacing: 4) {
-          if self.containerGeometry.navigationBarWidth(
-                interpreter: true,
-                splitViewMode: self.splitViewMode,
-                masterWidthFraction: self.masterWidthFraction) >= 360.0  {
-            Text("LispPad")
-              .font(.body)
-              .bold()
-              .foregroundColor(.primary)
-          }
-          Text(Image(systemName: "chevron.down.circle.fill"))
-            .font(.caption)
-            .bold()
-            .foregroundColor(Color(LispPadUI.menuIndicatorColor))
-        }
-        .padding(.trailing, -2)
+      ViewThatFits(in: .horizontal) {
+        Text("LispPad")
+          .bold()
+          .lineLimit(1)
+          .fixedSize(horizontal: true, vertical: false)
+          .padding(.trailing, -6)
+        /* Image("SmallLogo")
+          .resizable()
+          .scaledToFit()
+          .frame(width: 28.0,height: 28.0)
+          .padding(.bottom, -3) */
+        Text("")
+          .lineLimit(1)
+          .fixedSize(horizontal: true, vertical: false)
       }
     }
     ToolbarItemGroup(placement: .navigationBarTrailing) {
       HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
-        // THIS IS A HUGE HACK (to work around a SwiftUI navigation bug)
-        Button {
-          // UIApplication.shared.endEditing(true)
-          self.state.shouldFocus = self.state.focused
-          self.path.append(NavigationTargets.settings)
-        } label: {
-          Image(systemName: "gearshape")
-            .font(LispPadUI.toolbarFont)
-        }
-        Button {
-          // UIApplication.shared.endEditing(true)
-          self.state.shouldFocus = self.state.focused
-          self.path.append(NavigationTargets.environmentBrowser)
-        } label: {
-          Image(systemName: "square.stack.3d.up")
-            .font(LispPadUI.toolbarFont)
-        }
-        .disabled(!self.docManager.initialized)
         Button {
           withAnimation(.default) {
             UIApplication.shared.endEditing(true)
@@ -675,65 +600,55 @@ struct InterpreterView: View {
             .font(LispPadUI.toolbarFont)
         }
         .disabled(!self.docManager.initialized)
-      }
-    }
-  }
-  
-  @ToolbarContentBuilder
-  private var minimalToolbar: some ToolbarContent {
-    self.leadingToolbarItemGroup(env: true)
-    ToolbarItemGroup(placement: .navigationBarTrailing) {
-      Menu {
-        Button {
-          // UIApplication.shared.endEditing(true)
-          self.state.shouldFocus = self.state.focused
-          self.path.append(NavigationTargets.settings)
-        } label: {
-          Label("Settings", systemImage: "gearshape")
-        }
-        Button {
-          withAnimation(.default) {
-            UIApplication.shared.endEditing(true)
-            self.docShown = true
+        Menu {
+          Button {
+            // UIApplication.shared.endEditing(true)
+            self.state.shouldFocus = self.state.focused
+            self.path.append(NavigationTargets.settings)
+          } label: {
+            Label("Settings", systemImage: "gearshape")
+          }
+          Button {
+            self.histManager.verifyFileLists()
+            self.showModal = .organizeFiles
+          } label: {
+            Label("File Manager", systemImage: "doc.text.magnifyingglass")
+          }
+          Divider()
+          Button {
+            self.showModal = .showAbout
+          } label: {
+            Label("About", systemImage: "questionmark.circle")
+          }
+          Button {
+            if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
+              UIApplication.shared.open(url)
+            }
+          } label: {
+            Label("Manual", systemImage: "safari")
+          }
+          Button {
+            self.showModal = .showShortcuts
+          } label: {
+            Label("Keyboard Shortcuts", systemImage: "keyboard")
+          }
+          Button {
+            if let url = self.docManager.r7rsSpec.url {
+              self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
+            }
+          } label: {
+            Label("Language Spec", systemImage: "doc.richtext")
+          }
+          Button {
+            if let url = self.docManager.lispPadRef.url {
+              self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
+            }
+          } label: {
+            Label("Library Reference", systemImage: "doc.richtext")
           }
         } label: {
-          Label("Libraries", systemImage: "book")
+          Image(systemName: "ellipsis")
         }
-        .disabled(!self.docManager.initialized)
-        Divider()
-        Button {
-          self.showModal = .showAbout
-        } label: {
-          Label("About…", systemImage: "questionmark.circle")
-        }
-        Button {
-          if let url = URL(string: "https://www.lisppad.app/applications/lisppad-go") {
-            UIApplication.shared.open(url)
-          }
-        } label: {
-          Label("Manual…", systemImage: "book.closed")
-        }
-        Button {
-          self.showModal = .showShortcuts
-        } label: {
-          Label("Keyboard Shortcuts…", systemImage: "keyboard")
-        }
-        Button {
-          if let url = self.docManager.r7rsSpec.url {
-            self.showSheet = .showPDF(self.docManager.r7rsSpec.name, url)
-          }
-        } label: {
-          Label("Language Spec…", systemImage: "doc.richtext")
-        }
-        Button {
-          if let url = self.docManager.lispPadRef.url {
-            self.showSheet = .showPDF(self.docManager.lispPadRef.name, url)
-          }
-        } label: {
-          Label("Library Reference…", systemImage: "doc.richtext")
-        }
-      } label: {
-        Image(systemName: "ellipsis")
       }
     }
   }

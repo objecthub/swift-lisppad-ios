@@ -155,7 +155,7 @@ struct CentralMenuButton: UIViewRepresentable {
     private func controlGroupSection() -> UIMenuElement {
       let fm = self.parent.fileManager
       let isNew = fm.editorDocumentInfo.new
-      let saveAction = UIAction(title: isNew ? "Save…" : "Move To…",
+      let saveAction = UIAction(title: isNew ? "Save" : "Move To",
                                 image: UIImage(systemName: isNew ? "tray.and.arrow.down" : "folder")) { [weak self] _ in
         self?.parent.dismissCard()
         fm.editorDocument?.saveFile { _ in
@@ -199,7 +199,7 @@ struct CentralMenuButton: UIViewRepresentable {
       let hm = self.parent.histManager
       let isNew = fm.editorDocumentInfo.new
       let url = fm.editorDocument?.fileURL
-      let renameAction = UIAction(title: "Rename…",
+      let renameAction = UIAction(title: "Rename",
                                   image: UIImage(systemName: "pencil"),
                                   attributes: isNew ? [.disabled] : []) { [weak self] _ in
         self?.parent.dismissCard()
@@ -235,7 +235,7 @@ struct CentralMenuButton: UIViewRepresentable {
 
     private func shareAction(doc: TextDocument) -> UIMenuElement {
       let isNew = self.parent.fileManager.editorDocumentInfo.new
-      return UIAction(title: "Share…",
+      return UIAction(title: "Share",
                       image: UIImage(systemName: "square.and.arrow.up"),
                       attributes: isNew ? [.disabled] : []) { [weak self] _ in
         self?.presentShareSheet(for: doc.fileURL)

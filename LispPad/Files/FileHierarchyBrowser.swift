@@ -171,7 +171,7 @@ struct FileHierarchyBrowser: View {
                 self.showFileImporter = true
                 self.context.selectedUrl = hierarchy.url
               } label: {
-                Label("Import Files…", systemImage: "square.and.arrow.down.on.square")
+                Label("Import Files", systemImage: "square.and.arrow.down.on.square")
               }
               Divider()
             }
@@ -203,7 +203,7 @@ struct FileHierarchyBrowser: View {
                   }
                 }
               } label: {
-                Label("Move…", systemImage: "folder")
+                Label("Move", systemImage: "folder")
               }
             }
           }
@@ -215,7 +215,7 @@ struct FileHierarchyBrowser: View {
                 }
               }
             } label: {
-              Label("Copy…", systemImage: "doc.on.doc")
+              Label("Copy", systemImage: "doc.on.doc")
             }
           }
           if self.options.contains([.mutable, .organizer]) &&
