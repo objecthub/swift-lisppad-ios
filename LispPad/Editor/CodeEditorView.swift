@@ -377,15 +377,7 @@ struct CodeEditorView: View {
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarBackButtonHidden(true)
       .toolbar {
-        /* let mode = self.containerGeometry.navigationBarMode(interpreter: false,
-                                                            splitViewMode: self.splitViewMode,
-                                                            masterWidthFraction: self.masterWidthFraction)
-        switch mode {
-          case .minimal, .compact:
-            self.minimalToolbar
-          case .full: */
-            self.fullToolbar
-        // }
+        self.fullToolbar
       }
       .sheet(item: $showModal, content: self.sheetView)
       .fullScreenCover(item: $showSheet, content: self.sheetView)
@@ -773,54 +765,43 @@ struct CodeEditorView: View {
           Button {
             self.dismissCard()
             if self.showSearchField {
-              if self.settings.searchReplaceMode {
-                withAnimation(.default) {
-                  self.settings.searchReplaceMode = false
-                }
+              withAnimation(.default) {
+                self.settings.searchReplaceMode.toggle()
               }
             } else {
               withAnimation(.default) {
-                self.settings.searchReplaceMode = false
                 self.showSearchField = true
               }
             }
           } label: {
-            Label("Search", systemImage: "magnifyingglass")
-          }
-          Button {
-            self.dismissCard()
             if self.showSearchField {
-              if !self.settings.searchReplaceMode {
-                withAnimation(.default) {
-                  self.settings.searchReplaceMode = true
-                }
+              if self.settings.searchReplaceMode {
+                Label("Search", systemImage: "magnifyingglass")
+              } else {
+                Label("Replace", systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90")
               }
             } else {
-              withAnimation(.default) {
-                self.settings.searchReplaceMode = true
-                self.showSearchField = true
-              }
+              Label("Search/Replace",
+                    systemImage: self.settings.searchReplaceMode ?
+                        "arrow.trianglehead.2.counterclockwise.rotate.90"
+                      : "magnifyingglass")
             }
-          } label: {
-            Label("Replace", systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90")
           }
-          Divider()
         }
       }
-      Group {
-        Button(action: self.autoIndentEditor) {
-          Label("Auto Indent", systemImage: "text.badge.checkmark")
-        }
-        .disabled(self.editorType != .scheme)
+      ControlGroup {
         Button(action: self.indentEditor) {
           Label("Increase Indent", systemImage: "increase.indent")
         }
         Button(action: self.outdentEditor) {
           Label("Decrease Indent", systemImage: "decrease.indent")
         }
+        Button(action: self.autoIndentEditor) {
+          Label("Auto Indent", systemImage: "text.badge.checkmark")
+        }
+        .disabled(self.editorType != .scheme)
       }
-      Divider()
-      Group {
+      ControlGroup {
         Button(action: self.commentEditor) {
           Label("Comment", systemImage: "text.bubble")
         }
@@ -830,7 +811,6 @@ struct CodeEditorView: View {
         }
         .disabled(self.editorType != .scheme)
       }
-      Divider()
       Menu {
         Button(action: self.selectLines) {
           Label("Select", systemImage: "selection.pin.in.out")
@@ -852,7 +832,10 @@ struct CodeEditorView: View {
   
   @ToolbarContentBuilder
   private var fullToolbar: some ToolbarContent {
-    self.leadingToolbarItemGroup(currentFile: false)
+    self.leadingToolbarItemGroup(currentFile:
+      self.containerGeometry.navigationBarMode(interpreter: false,
+                                               splitViewMode: self.splitViewMode,
+                                               masterWidthFraction: self.masterWidthFraction) == .minimal)
     ToolbarItemGroup(placement: .principal) {
       HStack(alignment: .center, spacing: 4) {
         Text(self.fileManager.editorDocumentInfo.title)
@@ -950,17 +933,6 @@ struct CodeEditorView: View {
             .font(LispPadUI.toolbarFont)
         }
         */
-        self.docStructureButton
-        self.overflowMenu(search: true)
-      }
-    }
-  }
-  
-  @ToolbarContentBuilder
-  private var minimalToolbar: some ToolbarContent {
-    self.leadingToolbarItemGroup(currentFile: true)
-    ToolbarItemGroup(placement: .navigationBarTrailing) {
-      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
         self.docStructureButton
         self.overflowMenu(search: true)
       }

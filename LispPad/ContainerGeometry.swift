@@ -156,13 +156,13 @@ struct ContainerGeometry: Equatable {
     // Determine mode based on available width
     // TODO: Currently uses same thresholds for both panes; could be customized per pane
     if interpreter {
-      if width < 300 {
+      if width <= 302 {
         return .minimal
       } else {
         return .full
       }
     } else {
-      if width < 300 {
+      if width <= 302 {
         return .minimal
       } else {
         return .full
