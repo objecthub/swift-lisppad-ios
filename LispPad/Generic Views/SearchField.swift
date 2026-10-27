@@ -477,6 +477,7 @@ struct SearchField: View {
       self.trailingControls
     }
     .padding(8)
+    .background(Color(.secondarySystemBackground))
     .onDisappear {
       self.histManager.saveSearchHistory()
     }

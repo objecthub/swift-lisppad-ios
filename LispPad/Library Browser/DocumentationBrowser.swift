@@ -90,13 +90,14 @@
     /// identifier list. Names that do not fit into this width wrap into two lines.
     private func libraryTitleMaxWidth(paneWidth: CGFloat) -> CGFloat {
       var barWidth = self.paneNavigationBarWidth
+      var buttonsWidth = DocumentationBrowser.toolbarButtonsWidth
       if paneWidth >= DocumentationBrowser.splitLayoutMinWidth {
         // With the balanced split view style, the navigation bar is only as wide as the sidebar
         // column (see `navigationSplitViewColumnWidth` below).
         barWidth = min(barWidth, DocumentationBrowser.sidebarIdealWidth)
+        buttonsWidth += LispPadUI.toolbarButtonWidth + 2 * LispPadUI.toolbarTitleSlack
       }
-      return max(min(barWidth - DocumentationBrowser.toolbarButtonsWidth,
-                     DocumentationBrowser.maxLibraryTitleWidth),
+      return max(min(barWidth - buttonsWidth, DocumentationBrowser.maxLibraryTitleWidth),
                  DocumentationBrowser.minLibraryTitleWidth)
     }
     
@@ -174,12 +175,13 @@
                     }
                   } label: {
                     HStack(alignment: .center, spacing: 4) {
-                      if geometry.size.width >= 380 {
-                        Text("Libraries")
-                          .font(.body)
-                          .bold()
-                          .foregroundColor(.primary)
-                      }
+                      Text("Libraries")
+                        .font(.body)
+                        .bold()
+                        .foregroundColor(.primary)
+                        .allowsTightening(true)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
                       Text(Image(systemName: "chevron.down.circle.fill"))
                         .font(.caption)
                         .bold()
@@ -257,6 +259,7 @@
                           .foregroundColor(.primary)
                           .truncationMode(.middle)
                           .multilineTextAlignment(.center)
+                          .allowsTightening(true)
                           .lineLimit(2)
                           .fixedSize(horizontal: false, vertical: true)
                       }

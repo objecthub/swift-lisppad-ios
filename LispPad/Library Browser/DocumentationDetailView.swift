@@ -140,6 +140,7 @@ struct DocumentationDetailView: View {
             .foregroundColor(.primary)
             .truncationMode(.middle)
             .multilineTextAlignment(.center)
+            .allowsTightening(true)
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: self.titleMaxWidth)
