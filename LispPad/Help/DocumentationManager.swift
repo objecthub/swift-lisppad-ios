@@ -221,12 +221,12 @@ final class DocumentationManager: ObservableObject {
       content.replacingOccurrences(of: "<span style=\"float:right;text-align:rigth;\">",
                                    with: "&nbsp;&nbsp;&nbsp;")
              .replacingOccurrences(of: "</span>  ", with: "  ")
-    let markdown = MarkdownParser.standard.parse(normalizedContent)
+    let markdown = LaTeXMarkdownParser.standard.parse(normalizedContent)
     guard case .document(_) = markdown else {
       return
     }
     libDocs.content = .markdown(markdown)
-    self.insertDefinitionDocs(MarkdownParser.standard.parse(content), into: libDocs)
+    self.insertDefinitionDocs(LaTeXMarkdownParser.standard.parse(content), into: libDocs)
   }
 
   private func isolateName(_ str: Substring) -> String {

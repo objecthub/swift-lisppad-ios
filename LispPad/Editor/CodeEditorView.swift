@@ -1317,7 +1317,7 @@ struct CodeEditorView: View {
           break
       }
     } else if self.editorType == .markdown {
-      let block = MarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
+      let block = LaTeXMarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
       self.showModal = .markdownPreview(block)
     }
   }
