@@ -319,5 +319,17 @@
             .tint(Color.green)
         }
       }
+      .onAppear {
+        // Without a selected library, the detail column has nothing to show. If it fills the pane
+        // (prominent detail style), the sidebar with the list of libraries would be hidden behind
+        // a button, so ask for it right away.
+        if self.state.selectedLib == nil {
+          DispatchQueue.main.async {
+            withAnimation {
+              self.state.columnVisibility = .doubleColumn
+            }
+          }
+        }
+      }
     }
   }
