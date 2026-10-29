@@ -41,13 +41,14 @@ struct DocumentationDetailView: View {
   @State var block: Block? = nil
   @State var url: URL? = nil
   @State var toggle: Bool = true
-  
+  @State var zoomListShown: Bool = false
+
   /// Horizontal space taken up in the navigation bar by the back/forward buttons for web content.
   private static let webNavigationButtonsWidth: CGFloat = 80
   
   /// Horizontal space taken up in the navigation bar by the zoom menu for web content.
-  private static let zoomMenuWidth: CGFloat = 60
-  
+  private static let zoomMenuWidth: CGFloat = 36
+
   /// Upper bound for the width of the title in the navigation bar.
   private static let maxTitleWidth: CGFloat = 320
   
@@ -77,6 +78,69 @@ struct DocumentationDetailView: View {
                DocumentationDetailView.maxTitleWidth)
   }
   
+  /// The zoom levels offered for web content.
+  private static let zoomLevels: [CGFloat] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+
+  /// Width of the list of zoom levels. A system menu would be much wider than its entries, so the
+  /// list is shown in a popover of its own.
+  private static let zoomListWidth: CGFloat = 112
+
+  /// The zoom levels listed in the zoom menu. A pinch gesture can result in a zoom level that is
+  /// not one of the offered levels. In this case, the current zoom level is listed in addition,
+  /// such that it is always shown in the menu.
+  private var zoomChoices: [CGFloat] {
+    let zoom = self.controller.zoom
+    if DocumentationDetailView.zoomLevels.contains(where: { abs($0 - zoom) < 0.01 }) {
+      return DocumentationDetailView.zoomLevels
+    }
+    return (DocumentationDetailView.zoomLevels + [zoom]).sorted()
+  }
+
+  private func percent(_ zoom: CGFloat) -> String {
+    return "\(Int((zoom * 100.0).rounded()))%"
+  }
+
+  /// A button for changing the zoom level of web content. The button only shows an icon to save
+  /// space in the navigation bar. The current zoom level is marked in the list the button opens.
+  private var zoomMenu: some View {
+    Button {
+      self.zoomListShown = true
+    } label: {
+      ViewThatFits(in: .horizontal) {
+        Text("\(self.percent(self.controller.zoom))")
+          .font(LispPadUI.toolbarFont)
+        Image(systemName: "textformat.size")
+          .font(LispPadUI.toolbarIconFont)
+          .accessibilityLabel("Zoom \(self.percent(self.controller.zoom))")
+      }
+    }
+    .popover(isPresented: self.$zoomListShown) {
+      VStack(spacing: 0) {
+        ForEach(self.zoomChoices, id: \.self) { zoom in
+          Button {
+            self.controller.zoom = zoom
+            self.zoomListShown = false
+          } label: {
+            HStack(spacing: 6) {
+              Text(self.percent(zoom))
+              Spacer(minLength: 0)
+              if abs(self.controller.zoom - zoom) < 0.01 {
+                Image(systemName: "checkmark")
+              }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+          }
+          .buttonStyle(.plain)
+        }
+      }
+      .frame(width: DocumentationDetailView.zoomListWidth)
+      .padding(.vertical, 6)
+      .presentationCompactAdaptation(.popover)
+    }
+  }
+
   var body: some View {
     ZStack {
       if let block {
@@ -148,7 +212,7 @@ struct DocumentationDetailView: View {
       }
       if self.url != nil {
         ToolbarItemGroup(placement: .topBarLeading) {
-          HStack(alignment: .center, spacing: 10) {
+          HStack(alignment: .center, spacing: 8) {
             Button(action: {
               self.controller.goBack = true
             }) {
@@ -169,34 +233,11 @@ struct DocumentationDetailView: View {
       }
       if self.isStandalone {
         ToolbarItemGroup(placement: .topBarTrailing) {
-          HStack(alignment: .center, spacing: 8) {
+          // A single item takes up less space than two separate ones. If the navigation bar runs
+          // out of space, it moves all of its items into an overflow menu, which is hard to use.
+          HStack(alignment: .center, spacing: 6) {
             if self.url != nil {
-              Menu {
-                Button("50%") {
-                  self.controller.zoom = 0.5
-                }
-                Button("75%") {
-                  self.controller.zoom = 0.75
-                }
-                Button("100%") {
-                  self.controller.zoom = 1.0
-                }
-                Button("125%") {
-                  self.controller.zoom = 1.25
-                }
-                Button("150%") {
-                  self.controller.zoom = 1.5
-                }
-                Button("175%") {
-                  self.controller.zoom = 1.75
-                }
-                Button("200%") {
-                  self.controller.zoom = 2.0
-                }
-              } label: {
-                Text("\(Int(self.controller.zoom * 100.0))%")
-                  .font(LispPadUI.toolbarFont)
-              }
+              self.zoomMenu
             }
             Button {
               withAnimation {
@@ -207,36 +248,10 @@ struct DocumentationDetailView: View {
                 .font(LispPadUI.toolbarIconFont)
             }
           }
-          .padding(.trailing, 4)
         }
       } else if self.url != nil {
         ToolbarItemGroup(placement: .topBarTrailing) {
-          Menu {
-            Button("50%") {
-              self.controller.zoom = 0.5
-            }
-            Button("75%") {
-              self.controller.zoom = 0.75
-            }
-            Button("100%") {
-              self.controller.zoom = 1.0
-            }
-            Button("125%") {
-              self.controller.zoom = 1.25
-            }
-            Button("150%") {
-              self.controller.zoom = 1.5
-            }
-            Button("175%") {
-              self.controller.zoom = 1.75
-            }
-            Button("200%") {
-              self.controller.zoom = 2.0
-            }
-          } label: {
-            Text("\(Int(self.controller.zoom * 100.0))%")
-              .font(LispPadUI.toolbarFont)
-          }
+          self.zoomMenu
         }
       }
     }

@@ -33,6 +33,10 @@ class WebViewController: ObservableObject {
   @Published var goForward: Bool = false
   @Published var canGoForward: Bool = false
   @Published var zoom: CGFloat = 1.0
+
+  /// Bounds for the zoom level, whether it is chosen explicitly or via a pinch gesture.
+  static let minZoom: CGFloat = 0.5
+  static let maxZoom: CGFloat = 2.0
 }
 
 enum WebResource {
@@ -201,8 +205,12 @@ struct WebView: UIViewRepresentable {
     view.navigationDelegate = context.coordinator
     view.scrollView.delegate = context.coordinator
     context.coordinator.openURLProc = context.environment.openURL
-    view.scrollView.minimumZoomScale = 0.4
-    view.scrollView.maximumZoomScale = 3.0
+    let pinch = UIPinchGestureRecognizer(target: context.coordinator,
+                                         action: #selector(Coordinator.pinched(_:)))
+    pinch.delegate = context.coordinator
+    view.addGestureRecognizer(pinch)
+    context.coordinator.disableNativePinch(of: view)
+    context.coordinator.apply(zoom: self.controller.zoom, to: view)
     DispatchQueue.main.async {
       view.publisher(for: \.canGoBack).assign(to: &controller.$canGoBack)
       view.publisher(for: \.canGoForward).assign(to: &controller.$canGoForward)
@@ -214,14 +222,9 @@ struct WebView: UIViewRepresentable {
   
   public func updateUIView(_ view: WKWebView, context: Context) {
     DispatchQueue.main.async {
-      // Update zoom scale if changed
-      if view.scrollView.zoomScale != self.controller.zoom {
-        context.coordinator.isUpdatingZoomProgrammatically = true
-        view.scrollView.setZoomScale(self.controller.zoom, animated: true)
-        // Reset flag after animation completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-          context.coordinator.isUpdatingZoomProgrammatically = false
-        }
+      // Update zoom level if changed
+      if context.coordinator.appliedZoom != self.controller.zoom {
+        context.coordinator.apply(zoom: self.controller.zoom, to: view)
       }
       // Load content/resources, navigate
       if let resource = controller.load {
@@ -243,7 +246,8 @@ struct WebView: UIViewRepresentable {
     }
   }
   
-  final class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate {
+  final class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate,
+                           UIGestureRecognizerDelegate {
     @ObservedObject var controller: WebViewController
     var openURLProc: OpenURLAction? = nil
     let title: String?
@@ -251,7 +255,9 @@ struct WebView: UIViewRepresentable {
     let credentialProvider: CredentialProvider
     let action: (NavigationNotification) -> Void
     var isUpdatingZoomProgrammatically = false
-    
+    private(set) var appliedZoom: CGFloat = 1.0
+    private var pinchStartZoom: CGFloat = 1.0
+
     init(controller: WebViewController,
          title: String?,
          policyEvaluator: @escaping LinkingPolicy.Evaluator,
@@ -267,22 +273,95 @@ struct WebView: UIViewRepresentable {
       self.action = action
     }
     
+    /// Sets the zoom level of the web view's content. In contrast to magnifying the scroll view
+    /// or setting `pageZoom`, which scale the rendered page, this zooms the document itself. As a
+    /// consequence, the text reflows to the available width.
+    func apply(zoom: CGFloat, to view: WKWebView) {
+      self.appliedZoom = zoom
+      let setZoom = "document.documentElement.style.zoom = '\(zoom)';"
+      // Documents loaded later on (e.g. by following a link) are zoomed upon creation
+      let userContent = view.configuration.userContentController
+      userContent.removeAllUserScripts()
+      userContent.addUserScript(WKUserScript(source: setZoom,
+                                             injectionTime: .atDocumentStart,
+                                             forMainFrameOnly: true))
+      // Zoom the current document, staying at the same relative vertical position within it. The
+      // horizontal position is reset, since a pinch gesture leaves the page scrolled sideways.
+      view.evaluateJavaScript("""
+          (function() {
+            var page = document.scrollingElement || document.documentElement;
+            var position = page.scrollHeight > 0 ? page.scrollTop / page.scrollHeight : 0;
+            \(setZoom)
+            page.scrollTop = position * page.scrollHeight;
+            page.scrollLeft = 0;
+          })();
+        """)
+      // Drop the magnification of a preceding double tap, which is now part of the zoom level
+      self.resetMagnification(of: view.scrollView, animated: false)
+    }
+
+    private func resetMagnification(of scrollView: UIScrollView, animated: Bool) {
+      self.isUpdatingZoomProgrammatically = true
+      scrollView.setZoomScale(1.0, animated: animated)
+      self.isUpdatingZoomProgrammatically = false
+    }
+
+    /// WebKit limits the magnification of a pinch gesture to the range in which the whole width of
+    /// the content is visible. That is incompatible with the zoom levels offered otherwise. So,
+    /// pinch gestures are handled by `pinched(_:)`. WebKit enables its own pinch gesture again
+    /// whenever it sets up a new page, so this needs to be repeated for every navigation.
+    func disableNativePinch(of view: WKWebView) {
+      view.scrollView.pinchGestureRecognizer?.isEnabled = false
+    }
+
+    /// Turns a pinch gesture directly into a zoom level within bounds.
+    @objc func pinched(_ recognizer: UIPinchGestureRecognizer) {
+      guard let view = recognizer.view as? WKWebView else {
+        return
+      }
+      switch recognizer.state {
+        case .began:
+          self.disableNativePinch(of: view)
+          self.pinchStartZoom = self.appliedZoom
+        case .changed:
+          let zoom = min(max(self.pinchStartZoom * recognizer.scale, WebViewController.minZoom),
+                         WebViewController.maxZoom)
+          if abs(zoom - self.appliedZoom) >= 0.01 {
+            self.apply(zoom: zoom, to: view)
+            self.controller.zoom = zoom
+          }
+        default:
+          break
+      }
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    /// Without this, WebKit's own pinch gesture, which is already in progress when `pinched(_:)`
+    /// begins, takes precedence and the latter never gets to see the gesture.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+      return true
+    }
+
     // MARK: - UIScrollViewDelegate
-    
+
+    /// Once a zoom gesture other than a pinch (i.e. a double tap) ends, the magnification it
+    /// produced is turned into a new zoom level of the page content, such that the content is
+    /// laid out again.
     public func scrollViewDidEndZooming(_ scrollView: UIScrollView,
                                         with view: UIView?,
                                         atScale scale: CGFloat) {
-      if !isUpdatingZoomProgrammatically {
-        DispatchQueue.main.async {
-          self.controller.zoom = scale
-        }
-      }
-    }
-    
-    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-      if !isUpdatingZoomProgrammatically {
-        DispatchQueue.main.async {
-          self.controller.zoom = scrollView.zoomScale
+      if !isUpdatingZoomProgrammatically && abs(scale - 1.0) > 0.01 {
+        let zoom = min(max(self.appliedZoom * scale, WebViewController.minZoom),
+                       WebViewController.maxZoom)
+        if abs(zoom - self.appliedZoom) > 0.001 {
+          DispatchQueue.main.async {
+            self.controller.zoom = zoom
+          }
+        } else {
+          // The gesture ended up beyond a bound; just undo its magnification
+          self.resetMagnification(of: scrollView, animated: true)
         }
       }
     }
@@ -354,10 +433,12 @@ struct WebView: UIViewRepresentable {
     }
     
     public func webView(_ view: WKWebView, didCommit navigation: WKNavigation!) {
+      self.disableNativePinch(of: view)
       self.action(.didCommit(view, navigation))
     }
-    
+
     public func webView(_ view: WKWebView, didFinish navigation: WKNavigation!) {
+      self.disableNativePinch(of: view)
       // Set the page title
       if let title = self.title ?? view.title {
         self.controller.pageTitle = title
