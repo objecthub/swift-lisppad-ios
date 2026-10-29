@@ -119,9 +119,16 @@
                       self.state.selectedLibIdents =
                         self.docManager.libraryExports(for: proxy.components, merging: proxy) ?? []
                       self.state.selectedLib = proxy
-                      if !self.state.selectedLibIdents.isEmpty ||
-                         (self.docManager.libraryDocumentation(for: proxy.components) != nil) {
+                      if !self.state.selectedLibIdents.isEmpty {
                         self.state.toggleSidebar.toggle()
+                      } else if self.docManager.libraryDocumentation(for: proxy.components) != nil {
+                        // There is no list of exported symbols to browse. Show the documentation
+                        // right away and keep the library list in the sidebar, such that navigating
+                        // back from the documentation lands on it.
+                        self.state.preferredColumn = .detail
+                        if self.sizeClass == .compact || geometry.size.width < 700 {
+                          self.state.columnVisibility = .detailOnly
+                        }
                       }
                     }
                   } label: {
