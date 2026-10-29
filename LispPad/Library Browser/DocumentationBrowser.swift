@@ -107,96 +107,105 @@
                                        preferredCompactColumn: $state.preferredColumn) {
           ZStack {
             if self.state.showLibraryBrowser {
-              List(self.interpreter.libManager.libraries.filter { proxy in 
-                    (!self.state.showLoadedLibraries || proxy.isLoaded) &&
-                    (self.state.searchLib.isEmpty ||
-                       proxy.name.range(of: self.state.searchLib, options: .caseInsensitive) != nil)
-                   },
-                   id: \.name) { proxy in
-                Button {
-                  withAnimation {
-                    self.state.selectedLibIdents =
-                      self.docManager.libraryExports(for: proxy.components, merging: proxy) ?? []
-                    self.state.selectedLib = proxy
-                    if !self.state.selectedLibIdents.isEmpty ||
-                       (self.docManager.libraryDocumentation(for: proxy.components) != nil) {
-                      self.state.toggleSidebar.toggle()
-                    }
-                  }
-                } label: {
-                  HStack(spacing: 12) {
-                    Text(proxy.name)
-                      .font(.body)
-                    Spacer()
-                    Text(proxy.state)
-                      .font(.caption)
-                      .foregroundStyle(.secondary)
-                  }
-                }
-                .foregroundStyle(proxy == self.state.selectedLib ? Color.white : .primary)
-                .listRowBackground(proxy == self.state.selectedLib ? Color.green : Color.clear)
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                  Button("Import", systemImage: "square.and.arrow.down") {
-                    self.interpreter.import(proxy.components)
-                  }
-                  .tint(.blue)
-                }
-              }
-              .refreshable {
-                self.interpreter.libManager.updateLibraries()
-              }
-              .listStyle(.plain)
-              .searchable(text: $state.searchLib)
-              .navigationBarTitleDisplayMode(.inline)
-              .onChange(of: self.state.selectedLib) { _, _ in
-                self.state.selectedIdent = nil
-              }
-              .onChange(of: self.state.toggleSidebar) { _, _ in
-                withAnimation {
-                  self.state.showLibraryBrowser = false
-                }
-              }
-              .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                  Button {
-                    if self.state.selectedLib != nil {
-                      self.state.toggleSidebar.toggle()
-                    }
-                  } label: {
-                    Image(systemName: "chevron.right")
-                      .font(LispPadUI.toolbarIconFont)
-                  }
-                  .disabled(self.state.selectedLib == nil)
-                }
-                ToolbarItemGroup(placement: .principal) {
-                  Menu {
-                    Toggle(isOn: $state.showLoadedLibraries) {
-                      Label("Only Loaded", systemImage: "line.3.horizontal.decrease")
-                    }
-                  } label: {
-                    HStack(alignment: .center, spacing: 4) {
-                      Text("Libraries")
-                        .font(.body)
-                        .bold()
-                        .foregroundColor(.primary)
-                        .allowsTightening(true)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                      Text(Image(systemName: "chevron.down.circle.fill"))
-                        .font(.caption)
-                        .bold()
-                        .foregroundColor(Color(LispPadUI.menuIndicatorColor))
-                    }
-                  }
-                }
-                ToolbarItemGroup(placement: .topBarTrailing) {
+              ScrollViewReader { scrollProxy in
+                List(self.interpreter.libManager.libraries.filter { proxy in
+                      (!self.state.showLoadedLibraries || proxy.isLoaded) &&
+                      (self.state.searchLib.isEmpty ||
+                         proxy.name.range(of: self.state.searchLib, options: .caseInsensitive) != nil)
+                     },
+                     id: \.name) { proxy in
                   Button {
                     withAnimation {
-                      self.state.docShown = false
+                      self.state.selectedLibIdents =
+                        self.docManager.libraryExports(for: proxy.components, merging: proxy) ?? []
+                      self.state.selectedLib = proxy
+                      if !self.state.selectedLibIdents.isEmpty ||
+                         (self.docManager.libraryDocumentation(for: proxy.components) != nil) {
+                        self.state.toggleSidebar.toggle()
+                      }
                     }
                   } label: {
-                    Image(systemName: "xmark")
-                      .font(LispPadUI.toolbarIconFont)
+                    HStack(spacing: 12) {
+                      Text(proxy.name)
+                        .font(.body)
+                      Spacer()
+                      Text(proxy.state)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
+                  }
+                  .foregroundStyle(proxy == self.state.selectedLib ? Color.white : .primary)
+                  .listRowBackground(proxy == self.state.selectedLib ? Color.green : Color.clear)
+                  .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button("Import", systemImage: "square.and.arrow.down") {
+                      self.interpreter.import(proxy.components)
+                    }
+                    .tint(.blue)
+                  }
+                }
+                .refreshable {
+                  self.interpreter.libManager.updateLibraries()
+                }
+                .listStyle(.plain)
+                .searchable(text: $state.searchLib)
+                .navigationBarTitleDisplayMode(.inline)
+                .onChange(of: self.state.selectedLib) { _, _ in
+                  self.state.selectedIdent = nil
+                }
+                .onChange(of: self.state.toggleSidebar) { _, _ in
+                  withAnimation {
+                    self.state.showLibraryBrowser = false
+                  }
+                }
+                .toolbar {
+                  ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                      if self.state.selectedLib != nil {
+                        self.state.toggleSidebar.toggle()
+                      }
+                    } label: {
+                      Image(systemName: "chevron.right")
+                        .font(LispPadUI.toolbarIconFont)
+                    }
+                    .disabled(self.state.selectedLib == nil)
+                  }
+                  ToolbarItemGroup(placement: .principal) {
+                    Menu {
+                      Toggle(isOn: $state.showLoadedLibraries) {
+                        Label("Only Loaded", systemImage: "line.3.horizontal.decrease")
+                      }
+                    } label: {
+                      HStack(alignment: .center, spacing: 4) {
+                        Text("Libraries")
+                          .font(.body)
+                          .bold()
+                          .foregroundColor(.primary)
+                          .allowsTightening(true)
+                          .multilineTextAlignment(.center)
+                          .lineLimit(2)
+                        Text(Image(systemName: "chevron.down.circle.fill"))
+                          .font(.caption)
+                          .bold()
+                          .foregroundColor(Color(LispPadUI.menuIndicatorColor))
+                      }
+                    }
+                  }
+                  ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                      withAnimation {
+                        self.state.docShown = false
+                      }
+                    } label: {
+                      Image(systemName: "xmark")
+                        .font(LispPadUI.toolbarIconFont)
+                    }
+                  }
+                }
+                .onAppear {
+                  // This list is recreated whenever the user navigates back from the identifier
+                  // list, so bring the selected library back into view.
+                  if let name = self.state.selectedLib?.name {
+                    scrollProxy.scrollTo(name, anchor: .center)
                   }
                 }
               }
