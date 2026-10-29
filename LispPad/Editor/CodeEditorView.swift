@@ -953,8 +953,9 @@ struct CodeEditorView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
         .transition(.move(edge: .top))
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.height(180)])
         .presentationDragIndicator(.hidden)
         .modifier(self.globals.services)
       case .moveFile:
@@ -968,9 +969,9 @@ struct CodeEditorView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
         .transition(.move(edge: .top))
         .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.hidden)
         .modifier(self.globals.services)
       case .saveFile:
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
@@ -982,15 +983,21 @@ struct CodeEditorView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .presentationDetents([.medium, .large])
         .modifier(self.globals.services)
       case .editFile:
         Open(title: "Open") { url, mutable in
           self.fileManager.loadEditorDocument(source: url, makeUntitled: !mutable)
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
         .modifier(self.globals.services)
       case .organizeFiles:
-        Organizer().modifier(self.globals.services)
+        Organizer()
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+          .presentationDragIndicator(.visible)
+          .modifier(self.globals.services)
       case .saveBeforeNew:
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                firstSave: self.fileManager.editorDocumentInfo.new) { url in
@@ -1003,6 +1010,8 @@ struct CodeEditorView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .presentationDetents([.medium, .large])
         .modifier(self.globals.services)
       case .saveBeforeEdit:
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
@@ -1016,6 +1025,8 @@ struct CodeEditorView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .presentationDetents([.medium, .large])
         .modifier(self.globals.services)
       case .saveBeforeOpen(let ourl):
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
@@ -1032,12 +1043,20 @@ struct CodeEditorView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .presentationDetents([.medium, .large])
         .modifier(self.globals.services)
       case .markdownPreview(let block):
         MarkdownViewer(markdown: block)
+          .sheetPlacement(self.splitViewMode.isSideBySide ?
+                          (self.splitViewMode.isSwapped ? .trailing : .leading) : .automatic)
+          .presentationDragIndicator(.visible)
           .modifier(self.globals.services)
       case .showDocumentation(let doc):
         MarkdownViewer(markdown: doc)
+          .sheetPlacement(self.splitViewMode.isSideBySide ?
+                          (self.splitViewMode.isSwapped ? .trailing : .leading) : .automatic)
+          .presentationDragIndicator(.visible)
           .modifier(self.globals.services)
     }
   }

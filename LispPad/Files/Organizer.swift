@@ -26,6 +26,8 @@ struct Organizer: View {
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
   
+  let closeButton: Bool
+  
   @State var showShareSheet: Bool = false
   @State var showFileImporter: Bool = false
   @State var searchAndImport: Bool = false
@@ -34,6 +36,10 @@ struct Organizer: View {
   @State var previewUrl: URL? = nil
   @State var showError: Bool = false
   
+  init(closeButton: Bool = true) {
+    self.closeButton = closeButton
+  }
+  
   var body: some View {
     ZStack {
       Color(.systemGroupedBackground).ignoresSafeArea()
@@ -41,7 +47,7 @@ struct Organizer: View {
         if self.showShareSheet, let url = self.context.selectedUrl {
           ShareSheet(activityItems: [url])
         } else if self.urlToMove == nil {
-          Sheet {
+          Sheet(closeButton: self.closeButton) {
             Form {
               Section {
                 FileHierarchyBrowser(self.fileManager.usageRootDirectories,
@@ -93,6 +99,7 @@ struct Organizer: View {
             .transition(.move(edge: .bottom))
         }
       }
+      .padding(.top, self.closeButton ? 0 : -16)
     }
     .onChange(of: self.context.errorMessage) { _, new in
       self.showError = new != nil

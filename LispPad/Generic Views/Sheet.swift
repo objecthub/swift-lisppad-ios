@@ -24,10 +24,14 @@ struct Sheet<Content: View>: View {
   @Environment(\.dismiss) var dismiss
 
   let backgroundColor: Color?
+  let closeButton: Bool
   let content: Content
 
-  init(backgroundColor: Color? = nil, @ViewBuilder content: () -> Content) {
+  init(backgroundColor: Color? = nil,
+       closeButton: Bool = true,
+       @ViewBuilder content: () -> Content) {
     self.backgroundColor = backgroundColor
+    self.closeButton = closeButton
     self.content = content()
   }
 
@@ -39,14 +43,16 @@ struct Sheet<Content: View>: View {
       VStack(alignment: .center, spacing: 0) {
         self.content
       }
-      Button(action: {
-        self.dismiss()
-      }) {
-        ExitButton()
+      if self.closeButton {
+        Button(action: {
+          self.dismiss()
+        }) {
+          ExitButton()
+        }
+        .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
+        //.keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
+        .padding()
       }
-      .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
-      //.keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
-      .padding()
     }
   }
 }

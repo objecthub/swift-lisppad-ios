@@ -55,6 +55,8 @@
 		CC327C5C2611201100BD7E32 /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
 		CC33237F260A8E6900AD3307 /* DocumentationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33237E260A8E6900AD3307 /* DocumentationManager.swift */; };
 		CC3C8A9F3059A323000576B5 /* intents-xs.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCB51E993053F59C00543849 /* intents-xs.png */; };
+		CC3C97EC3092B49F005B5C78 /* SheetPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C97EB3092B494005B5C78 /* SheetPlacement.swift */; };
+		CC3C97EE3092BAE5005B5C78 /* FileManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C97ED3092BAD9005B5C78 /* FileManagerView.swift */; };
 		CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5157B626DA84AB0056B05B /* FileObserver.swift */; };
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
@@ -622,6 +624,8 @@
 		CC327C5926111E9000BD7E32 /* CodeEditorTextStorageDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditorTextStorageDelegate.swift; sourceTree = "<group>"; };
 		CC327C5B2611201100BD7E32 /* Characters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Characters.swift; sourceTree = "<group>"; };
 		CC33237E260A8E6900AD3307 /* DocumentationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentationManager.swift; sourceTree = "<group>"; };
+		CC3C97EB3092B494005B5C78 /* SheetPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetPlacement.swift; sourceTree = "<group>"; };
+		CC3C97ED3092BAD9005B5C78 /* FileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerView.swift; sourceTree = "<group>"; };
 		CC5157B626DA84AB0056B05B /* FileObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileObserver.swift; sourceTree = "<group>"; };
 		CC55DD7B2646B4C4001AAD10 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
@@ -1314,6 +1318,7 @@
 				CC59FA3526361A3900EDA3CB /* Open.swift */,
 				CCE8E443262C258400E3DC6A /* SaveAs.swift */,
 				CCC856372615DC4A0080B96E /* Organizer.swift */,
+				CC3C97ED3092BAD9005B5C78 /* FileManagerView.swift */,
 				CCC8565C261CE5710080B96E /* TextDocument.swift */,
 			);
 			path = Files;
@@ -1346,6 +1351,7 @@
 				CCBE134E272DE1450046F474 /* WebView.swift */,
 				CC248F8C2958C8E000FFAAF0 /* IntField.swift */,
 				CC972CDC2F807CC70053156E /* PlainFullScreenCover.swift */,
+				CC3C97EB3092B494005B5C78 /* SheetPlacement.swift */,
 			);
 			path = "Generic Views";
 			sourceTree = "<group>";
@@ -1704,6 +1710,7 @@
 				EC130AD426D390D8F0D7D4B1 /* CursorLocationOverlay.swift in Sources */,
 				BBE53BE5348048EA0D9544AB /* SearchMatchCountOverlay.swift in Sources */,
 				CC302E5B2700828600835745 /* SlideOverCard.swift in Sources */,
+				CC3C97EC3092B49F005B5C78 /* SheetPlacement.swift in Sources */,
 				CC972CE12F816D1B0053156E /* AlertButton.swift in Sources */,
 				CCA3C68B2AFFE1FC00C0BDE6 /* AsyncResult.swift in Sources */,
 				CC1CBAE72F8A796C00D55310 /* ModalConfig.swift in Sources */,
@@ -1722,6 +1729,7 @@
 				CCA5F5782AF455CD0009A97E /* InterpreterState.swift in Sources */,
 				CC624CD42735B46B005F15B3 /* TaskSerializer.swift in Sources */,
 				CC894F032CC1B38B00896B1D /* Appearance.swift in Sources */,
+				CC3C97EE3092BAE5005B5C78 /* FileManagerView.swift in Sources */,
 				CC1CBAE42F878F0E00D55310 /* FlexDatePicker.swift in Sources */,
 				CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,

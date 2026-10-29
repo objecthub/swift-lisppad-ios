@@ -29,6 +29,7 @@ struct InterpreterView: View {
   enum NavigationTargets: Hashable {
     case environmentBrowser
     case settings
+    case fileManager
   }
   
   // Sheet identifiers
@@ -147,24 +148,35 @@ struct InterpreterView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .presentationDetents([.large])
         .modifier(self.globals.services)
       case .organizeFiles:
         Organizer()
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+          .presentationDetents([.large])
+          .presentationDragIndicator(.visible)
           .modifier(self.globals.services)
       case .shareConsole:
         ShareSheet(activityItems: [self.interpreter.console.description as NSString])
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .presentationDetents([.medium, .large])
       case .shareImage(let image):
         ShareSheet(activityItems: [image])
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .presentationDetents([.medium, .large])
       case .shareText(let text):
         ShareSheet(activityItems: [text as NSString])
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .presentationDetents([.medium, .large])
       case .showAbout:
         AboutView()
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+          .presentationDragIndicator(.visible)
           .modifier(self.globals.services)
       case .showShortcuts:
         RTFTextView(Bundle.main.url(forResource: "KeyboardShortcuts", withExtension: "rtf"))
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .modifier(self.globals.services)
       case .showPDF(let name, let url):
         DocumentView(title: name, url: url)
@@ -187,9 +199,15 @@ struct InterpreterView: View {
           }
           return true
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
         .modifier(self.globals.services)
       case .showDocumentation(let doc):
         MarkdownViewer(markdown: doc)
+          .sheetPlacement(self.splitViewMode.isSideBySide ?
+                          (self.splitViewMode.isSwapped ? .trailing : .leading) : .automatic)
+          .presentationDragIndicator(.visible)
           .modifier(self.globals.services)
     }
   }
@@ -199,6 +217,7 @@ struct InterpreterView: View {
     switch sheet {
       case .share(_, let url, let onDisappear):
         ShareSheet(activityItems: [url as NSURL])
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .transition(.move(edge: .top))
           .presentationDetents([.medium, .large])
           .presentationDragIndicator(.hidden)
@@ -207,6 +226,7 @@ struct InterpreterView: View {
         Open(title: title, directories: directories) { url, mutable in
           return onOpen(url)
         }
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
         .transition(.move(edge: .top))
         .onDisappear(perform: onDisappear)
         .modifier(self.globals.services)
@@ -215,6 +235,7 @@ struct InterpreterView: View {
           SaveAs(title: title, url: url, firstSave: url == nil, lockFolder: lockFolder) { url in
             onSave(url)
           }
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .transition(.move(edge: .top))
           .presentationDetents([.medium, .large])
           .presentationDragIndicator(.hidden)
@@ -224,6 +245,7 @@ struct InterpreterView: View {
           SaveAs(title: title, url: url, firstSave: url == nil, lockFolder: lockFolder) { url in
             onSave(url)
           }
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
           .transition(.move(edge: .top))
           .presentationDetents([.large, .medium])
           .presentationDragIndicator(.hidden)
@@ -299,6 +321,9 @@ struct InterpreterView: View {
             EnvironmentView(envManager: interpreter.envManager)
           case .settings:
             PreferencesView(selectedTab: self.$state.selectedPreferencesTab)
+          case .fileManager:
+            FileManagerView()
+              .modifier(self.globals.services)
         }
       }
       .sheet(item: self.$showModal, content: self.sheetView)
@@ -610,7 +635,11 @@ struct InterpreterView: View {
           }
           Button {
             self.histManager.verifyFileLists()
-            self.showModal = .organizeFiles
+            // self.showModal = .organizeFiles
+            
+            // UIApplication.shared.endEditing(true)
+            self.state.shouldFocus = self.state.focused
+            self.path.append(NavigationTargets.fileManager)
           } label: {
             Label("File Manager", systemImage: "doc.text.magnifyingglass")
           }

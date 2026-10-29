@@ -366,7 +366,7 @@ struct MainView: View {
 }
 
 /// Helper ViewModifier to conditionally apply toolbarVerticalBehavior on iOS 27.1+
-private struct ToolbarVerticalBehaviorModifier: ViewModifier {
+struct ToolbarVerticalBehaviorModifier: ViewModifier {
   let disallow: Bool
   
   func body(content: Content) -> some View {

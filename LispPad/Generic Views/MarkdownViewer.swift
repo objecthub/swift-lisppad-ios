@@ -30,5 +30,6 @@ struct MarkdownViewer: View {
     ScrollSheet {
       MarkdownText(self.markdown)
     }
+    .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
   }
 }
