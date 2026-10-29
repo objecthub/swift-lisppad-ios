@@ -134,6 +134,7 @@ struct CodeEditorView: View {
   @State var showStructure: Bool = false
   @State var definitionCache: CodeAnalyzer.Definitions? = nil
   @State var structureCache: DocStructureView.DocStructure? = nil
+  @State var structureContentHeight: CGFloat = 0
   @State var cursorSelectedRange: NSRange = NSRange(location: 0, length: 0)
   @State var searchMatchCount: Int = 0
   
@@ -607,133 +608,105 @@ struct CodeEditorView: View {
       if let doc = self.fileManager.editorDocument {
         if doc.info.editorType == .scheme,
            let defs = self.definitionCache ?? CodeAnalyzer.parseDefinitions(doc.text) {
-          List {
-            if defs.values.count > 0 {
-              Section {
-                ForEach(defs.values, id: \.1) { tuple in
-                  Button {
-                    self.editorPosition = NSRange(location: tuple.1, length: 0)
-                    self.showStructure = false
-                  } label: {
-                    Text(tuple.0).font(LispPadUI.definitionsFont)
-                  }
-                }
-              } header: {
-                Text("VALUES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-              }
-              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-              .listRowSeparator(.visible)
-              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-            }
-            if defs.syntax.count > 0 {
-              Section {
-                ForEach(defs.syntax, id: \.1) { tuple in
-                  Button {
-                    self.editorPosition = NSRange(location: tuple.1, length: 0)
-                    self.showStructure = false
-                  } label: {
-                    Text(tuple.0).font(LispPadUI.definitionsFont)
-                  }
-                }
-              } header: {
-                Text("SYNTAX").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-              }
-              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-              .listRowSeparator(.visible)
-              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-            }
-            if defs.records.count > 0 {
-              Section {
-                ForEach(defs.records, id: \.1) { tuple in
-                  Button {
-                    self.editorPosition = NSRange(location: tuple.1, length: 0)
-                    self.showStructure = false
-                  } label: {
-                    Text(tuple.0).font(LispPadUI.definitionsFont)
-                  }
-                }
-              } header: {
-                Text("RECORDS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-              }
-              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-              .listRowSeparator(.visible)
-              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-            }
-            if defs.types.count > 0 {
-              Section {
-                ForEach(defs.types, id: \.1) { tuple in
-                  Button {
-                    self.editorPosition = NSRange(location: tuple.1, length: 0)
-                    self.showStructure = false
-                  } label: {
-                    Text(tuple.0).font(LispPadUI.definitionsFont)
-                  }
-                }
-              } header: {
-                Text("TYPES").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-              }
-              .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-              .listRowSeparator(.visible)
-              .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-            }
-          }
-          .listStyle(.plain)
-          .environment(\.defaultMinListRowHeight, 10)
-          .frame(idealWidth: 300,
-                 idealHeight: popoverHeight(categories: [
-                  defs.values.count,
-                  defs.syntax.count,
-                  defs.records.count,
-                  defs.types.count
-                 ]))
-          .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
-          .onDisappear {
-            self.definitionCache = nil
-            self.structureCache = nil
-          }
+          self.sizedStructurePopover(self.definitionsList(defs))
         } else if doc.info.editorType == .markdown,
-                  let structure = DocStructureView.parseDocStructure(doc.text) {
-          List {
-            if structure.headers.count > 0 {
-              Section {
-                ForEach(structure.headers) { header in
-                  Button {
-                    self.editorPosition = header.range
-                    self.showStructure = false
-                  } label: {
-                    HStack {
-                      Image(systemName: self.image(for: header.level))
-                        .font(LispPadUI.definitionsFont)
-                        .foregroundStyle(Color.gray)
-                      Spacer().frame(minWidth: 12.0, maxWidth: CGFloat(header.level) * 12.0)
-                      Text(header.title)
-                        .fixedSize()
-                        .font(LispPadUI.definitionsFont)
-                    }
-                  }
-                }
-                .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
-                .listRowSeparator(.visible)
-                .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
-              } header: {
-                Text("HEADERS").font(LispPadUI.definitionsCategoryFont).padding(.top, 8)
-              }
-            }
-          }
-          .listStyle(.plain)
-          .environment(\.defaultMinListRowHeight, 10)
-          .frame(idealWidth: 300,
-                 idealHeight: popoverHeight(headers: 1, items: structure.headers.count))
-          .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
-          .onDisappear {
-            self.definitionCache = nil
-            self.structureCache = nil
-          }
+                  let structure = self.structureCache ??
+                                  DocStructureView.parseDocStructure(doc.text) {
+          self.sizedStructurePopover(self.headersList(structure))
         }
       }
     }
   }
-  
+
+  /// The list of definitions shown in the structure popover for Scheme code.
+  @ViewBuilder
+  private func definitionsList(_ defs: CodeAnalyzer.Definitions) -> some View {
+    List {
+      self.definitionsSection("VALUES", defs.values)
+      self.definitionsSection("SYNTAX", defs.syntax)
+      self.definitionsSection("RECORDS", defs.records)
+      self.definitionsSection("TYPES", defs.types)
+    }
+    .listStyle(.plain)
+    .environment(\.defaultMinListRowHeight, 10)
+  }
+
+  @ViewBuilder
+  private func definitionsSection(_ title: String, _ items: [(String, Int)]) -> some View {
+    if items.count > 0 {
+      Section {
+        ForEach(items, id: \.1) { tuple in
+          Button {
+            self.editorPosition = NSRange(location: tuple.1, length: 0)
+            self.showStructure = false
+          } label: {
+            Text(tuple.0).font(LispPadUI.definitionsFont)
+          }
+        }
+      } header: {
+        Text(title).font(LispPadUI.definitionsCategoryFont)
+      }
+      .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+      .listRowSeparator(.visible)
+      .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+    }
+  }
+
+  /// The list of headers shown in the structure popover for Markdown text.
+  @ViewBuilder
+  private func headersList(_ structure: DocStructureView.DocStructure) -> some View {
+    List {
+      if structure.headers.count > 0 {
+        Section {
+          ForEach(structure.headers) { header in
+            Button {
+              self.editorPosition = header.range
+              self.showStructure = false
+            } label: {
+              HStack {
+                Image(systemName: self.image(for: header.level))
+                  .font(LispPadUI.definitionsFont)
+                  .foregroundStyle(Color.gray)
+                Spacer().frame(minWidth: 12.0, maxWidth: CGFloat(header.level) * 12.0)
+                Text(header.title)
+                  .fixedSize()
+                  .font(LispPadUI.definitionsFont)
+              }
+            }
+          }
+          .listRowInsets(.init(top: 8, leading: 12, bottom: 8, trailing: 8))
+          .listRowSeparator(.visible)
+          .alignmentGuide(.listRowSeparatorLeading) { d in -20 }
+        } header: {
+          Text("HEADERS").font(LispPadUI.definitionsCategoryFont)
+        }
+      }
+    }
+    .listStyle(.plain)
+    .environment(\.defaultMinListRowHeight, 10)
+  }
+
+  /// Sizes the structure popover to the actual content height of `list`, which gets measured
+  /// via the list's scroll geometry. This way the height follows whatever row and header
+  /// metrics the current OS version uses. The height is capped, in which case the list scrolls.
+  @ViewBuilder
+  private func sizedStructurePopover(_ list: some View) -> some View {
+    list
+      .onScrollGeometryChange(for: CGFloat.self) { geometry in
+        geometry.contentSize.height + geometry.contentInsets.top + geometry.contentInsets.bottom
+      } action: { _, height in
+        self.structureContentHeight = height
+      }
+      .frame(idealWidth: 300,
+             idealHeight: min(max(self.structureContentHeight, 40.0), 600.0))
+      .presentationCompactAdaptation(horizontal: .popover, vertical: .popover)
+      .onDisappear {
+        self.definitionCache = nil
+        self.structureCache = nil
+        self.structureContentHeight = 0
+      }
+  }
+
   @ViewBuilder
   private func overflowMenu(search: Bool) -> some View {
     Menu {
@@ -1357,22 +1330,6 @@ struct CodeEditorView: View {
   
   private func fileNotFoundAlert() -> Alert {
     return Alert(title: Text("File not found"))
-  }
-  
-  private func popoverHeight(categories: [Int]) -> CGFloat {
-    var num = 0
-    var items = 0
-    for cat in categories {
-      if cat > 0 {
-        num += 1
-      }
-      items += cat
-    }
-    return max(min(CGFloat(num) * 60.3 + CGFloat(items) * 33.6, 600.0), 40.0)
-  }
-  
-  private func popoverHeight(headers: Int, items: Int) -> CGFloat {
-    return max(min(CGFloat(headers) * 52.3 + CGFloat(items) * 36.6, 600.0), 40.0)
   }
   
   private func image(for level: Int) -> String {
