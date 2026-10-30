@@ -115,16 +115,16 @@ Constructs a date-time representation out of the given date time components. _tz
 **(week-\>date-time _year week wday hour min_)**  
 **(week-\>date-time _year week wday hour min sec_)**  
 **(week-\>date-time _year week wday hour min sec nano_)**  
-**(week-\>date-time _tz year week_)** 
+**(week-\>date-time _tz year week_)**  
 **(week-\>date-time _tz year week wday_)**  
 **(week-\>date-time _tz year week wday hour_)**  
 **(week-\>date-time _tz year week wday hour min_)**  
 **(week-\>date-time _tz year week wday hour min sec_)**  
 **(week-\>date-time _tz year week wday hour min sec nano_)**  
 
-Constructs a date-time representation out of the given date time components. _tz_ is the only string argument; it is referring to a time zone. All other arguments are numeric arguments. Argument _wday_ specifies the week day in the given week. Week days are given numbers from 1 (= Monday) to 7 (= Sunday). This procedure returns a date-time object for the specified time at the given date.
+Constructs a date-time representation out of the given date time components. _tz_ is either a string or symbol, in which case it is an identifier for a timezone, or it is a pair _(locale . timezone)_ with _locale_ being a symbol identifying a locale and _timezone_ identifying a timezone. All other arguments are numeric arguments. Argument _wday_ specifies the week day in the given week. Week days are given numbers from 1 (= Monday) to 7 (= Sunday). This procedure returns a date-time object for the specified time at the given date.
 
-The difference to `date-time` is that this procedure does not refer to a month and day. It rather refers to the week number as well as the weekday within this specified week number.
+The difference to `date-time` is that this procedure does not refer to a month and day. It rather refers to the week number as well as the weekday within this specified week number. The locale (system default if it is not provided) determines if a week starts with a Monday or Sunday.
 
 **(date-time-in-timezone _dtime_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(date-time-in-timezone _dtime tzone_)**  

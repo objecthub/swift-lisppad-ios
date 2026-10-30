@@ -13,7 +13,7 @@ Library `(lispkit iterate)` defines syntactical forms supporting frequently used
 ```scheme
 (let ((res 0))
   (dotimes (i 10 res)
-    (set! res (+ res i))))  ⟹  45
+    (set! res (+ res i))))  ⇒  45
 ```
 
 **(dolist (_var lst_) _body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
@@ -26,7 +26,7 @@ Library `(lispkit iterate)` defines syntactical forms supporting frequently used
 ```scheme
 (let ((res ""))
   (dolist (x '("a" "b" "c") res)
-    (set! res (string-append res x))))  ⟹  "abc"
+    (set! res (string-append res x))))  ⇒  "abc"
 ```
 
 **(loop _break body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
@@ -38,7 +38,7 @@ Library `(lispkit iterate)` defines syntactical forms supporting frequently used
   (loop break
     (if (> i 100)
         (break i)
-        (set! i (* i 2)))))  ⟹  128
+        (set! i (* i 2)))))  ⇒  128
 ```
 
 **(while _condition body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
@@ -52,7 +52,7 @@ Library `(lispkit iterate)` defines syntactical forms supporting frequently used
     (if (> i 10) (exit))
     (set! sum (+ sum i))
     (set! i (fx1+ i)))
-  (cons i sum))  ⟹  (11 . 55)
+  (cons i sum))  ⇒  (11 . 55)
 ```
 
 **(for _var_ from _lo_ to _hi body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
@@ -66,7 +66,7 @@ When this `for` form is being executed, first _lo_ and _hi_ are evaluated. Both 
 (let ((res '()))
   (for x from 1 to 16 step 2
     (set! res (cons x res)))
-  res)  ⟹  (15 13 11 9 7 5 3 1)
+  res)  ⇒  (15 13 11 9 7 5 3 1)
 ```
 
 **(for _var_ in _lst body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
@@ -81,7 +81,34 @@ When this `for` form is being executed, first _lst_ or _(x ...)_ is evaluated. T
 (let ((res '()))
   (for x in (iota 16) where (odd? x)
     (set! res (cons x res)))
-  res)  ⟹  (15 13 11 9 7 5 3 1)
+  res)  ⇒  (15 13 11 9 7 5 3 1)
+```
+
+**(for _(i var)_ in _lst body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
+**(for _(i var)_ in _lst_ where _condition body ..._)**   
+**(for _(i var)_ from _(x ...) body ..._)**   
+
+These forms of `for` work like the forms above, but they bind two variables: _var_ iterates through the elements of the list, and _i_ is bound to the index of the current element. The index of the first element is 0, the index of the second element is 1, and so on. If a _where_ predicate is provided, the index counts all elements of the list, not only the ones for which _condition_ holds.
+
+```scheme
+(let ((res '()))
+  (for (i x) in '(a b c)
+    (set! res (cons (cons i x) res)))
+  res)  ⇒  ((2 . c) (1 . b) (0 . a))
+```
+
+```scheme
+(let ((res '()))
+  (for (i x) in '(a b c d) where (odd? i)
+    (set! res (cons x res)))
+  res)  ⇒  (d b)
+```
+
+```scheme
+(let ((res '()))
+  (for (i x) from (10 20 30)
+    (set! res (cons (cons i x) res)))
+  res)  ⇒  ((2 . 30) (1 . 20) (0 . 10))
 ```
 
 **(exit-with _break body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>   
@@ -93,5 +120,5 @@ When this `for` form is being executed, first _lst_ or _(x ...)_ is evaluated. T
 (exit-with break
   (display "hello")
   (break #f)
-  (display "world"))  ⟹  #f  ; printing "hello"
+  (display "world"))  ⇒  #f  ; printing "hello"
 ```

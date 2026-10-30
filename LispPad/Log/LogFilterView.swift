@@ -20,6 +20,7 @@
 import SwiftUI
 
 struct LogFilterView: View {
+  @Environment(\.dismiss) var dismiss
   @EnvironmentObject var settings: UserSettings
   @EnvironmentObject var sessionLog: SessionLog
   @Binding var showLogFilterPopOver: Bool
@@ -49,6 +50,16 @@ struct LogFilterView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .center, spacing: 0) {
+        Button(role: .cancel) {
+          self.minSeverityFilter = self.settings.logSeverityFilter
+          self.logMessageFilter = self.settings.logMessageFilter
+          self.filterMessage = self.settings.logFilterMessages
+          self.filterTag = self.settings.logFilterTags
+          self.showLogFilterPopOver = false
+        } label: {
+          ExitButton(size: 26, legacySize: 20)
+        }
+        .padding(.trailing, 12)
         Button(role: .destructive) {
           self.minSeverityFilter = .debug
           self.logMessageFilter = ""
@@ -58,17 +69,15 @@ struct LogFilterView: View {
           ResetButton(size: 26, legacySize: 20)
         }
         Spacer()
-        Button(role: .destructive) {
-          self.minSeverityFilter = self.settings.logSeverityFilter
-          self.logMessageFilter = self.settings.logMessageFilter
-          self.filterMessage = self.settings.logFilterMessages
-          self.filterTag = self.settings.logFilterTags
-          self.showLogFilterPopOver = false
+        Button {
+          self.dismiss()
         } label: {
-          ExitButton(size: 26, legacySize: 20)
+          ImageButton(size: 26, legacySize: 20)
+            .tint(.green)
         }
       }
       .padding(.init(top: 10, leading: 14, bottom: 8, trailing: 14))
+      .background(Color(.tertiarySystemGroupedBackground))
       self.rowSeparator
       HStack(alignment: .center, spacing: 0) {
         Text("Severity")

@@ -65,6 +65,13 @@ struct CanvasSizeEditor: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .center, spacing: 0) {
+        Button(role: .cancel) {
+          self.cancelled = true
+          self.dismiss()
+        } label: {
+          ExitButton(size: 26, legacySize: 20)
+        }
+        .padding(.trailing, 12)
         Button(role: .destructive) {
           self.name = self.initialName
           self.width = self.initialWidth
@@ -74,14 +81,15 @@ struct CanvasSizeEditor: View {
           ResetButton(size: 26, legacySize: 20)
         }
         Spacer()
-        Button(role: .destructive) {
-          self.cancelled = true
+        Button {
           self.dismiss()
         } label: {
-          ExitButton(size: 26, legacySize: 20)
+          ImageButton(size: 26, legacySize: 20)
+            .tint(.green)
         }
       }
       .padding(.init(top: 10, leading: 14, bottom: 8, trailing: 14))
+      .background(Color(.tertiarySystemGroupedBackground))
       self.rowSeparator
       TextField("Canvas Name", text: self.$name, prompt: Text("Canvas Name"))
         .autocapitalization(.none)

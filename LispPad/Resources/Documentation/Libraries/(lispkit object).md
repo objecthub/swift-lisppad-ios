@@ -2,7 +2,6 @@
 
 Library `(lispkit object)` implements a simple, delegation-based object system for LispKit. It provides procedural and declarative interfaces for objects and classes. The class system is optional. It mostly provides means to define and manage new object types and construct objects using object constructors.
 
-
 ## Introduction
 
 Similar to other Scheme and Lisp-based object systems, methods of objects are defined in terms of object/class-specific specializations of generic procedures. A generic procedure consists of methods for the various objects/classes it supports. A generic procedure performs a dynamic dispatch on the first parameter (the `self` parameter) to determine the applicable method.
@@ -15,8 +14,8 @@ Generic procedures can be defined using the `define-generic` form. Here is an ex
 (define-generic (point-coordinates self))
 (define-generic (set-point-coordinates! self x y))
 (define-generic (point-move! self x y)
-  (let ((c (point-coordinate self)))
-    (set-point-coordinate! self (+ (car c) x) (+ (cdr c) y))))
+  (let ((coord (point-coordinate self)))
+    (set-point-coordinate! self (+ (car coord) x) (+ (cdr coord) y))))
 ```
 
 ### Objects
@@ -26,14 +25,10 @@ An object encapsulates a list of methods each implementing a generic procedure. 
 ```scheme
 (define (make-point x y)
   (object ()
-    ((point-coordinates self)
-      (cons x y))
-    ((set-point-coordinates! self nx ny)
-      (set! x nx) (set! y ny))
+    ((point-coordinates self) (cons x y))
+    ((set-point-coordinates! self nx ny) (set! x nx) (set! y ny))
     ((object-description self)
-      (string-append (object-description x)
-                     "/"
-                     (object-description y)))))
+      (string-append (object-description x) "/" (object-description y)))))
 ```
 
 This is a function creating new point objects. The `x` and `y` parameters of the constructor function are used for representing the state of the point object. The created point objects implement three generic procedures: `point-coordinates`, `set-point-coordinates`, and `object-description`. The latter procedure is defined directly by the library and, in general, used for creating a string representation of any object. By implementing the `object-description` method, the behavior gets customized for the object.
@@ -79,7 +74,6 @@ The following interaction illustrates the behavior:
 
 Objects can delegate functionality to multiple delegatees. The order in which they are listed determines the methods which are being inherited in case there are conflicts, i.e. multiple delegatees implement a method for the same generic procedure.
 
-
 ### Classes
 
 Classes add syntactic sugar, simplifying the creation and management of objects. They play the following role in the object-system of LispKit:
@@ -94,14 +88,10 @@ The following code defines a `point` class with similar functionality as above:
 ```scheme
 (define-class (point x y) ()
   (object ()
-    ((point-coordinates self)
-      (cons x y))
-    ((set-point-coordinates! self nx ny)
-      (set! x nx) (set! y ny))
+    ((point-coordinates self) (cons x y))
+    ((set-point-coordinates! self nx ny) (set! x nx) (set! y ny))
     ((object-description self)
-      (string-append (object-description x)
-                     "/"
-                     (object-description y)))))
+      (string-append (object-description x) "/" (object-description y)))))
 ```
 
 Instances of this class are created by using the generic procedure `make-instance` which is implemented by all class objects:

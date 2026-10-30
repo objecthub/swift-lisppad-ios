@@ -395,6 +395,10 @@ Returns the 2-letter language code string for the language targeted by the local
 
 Returns the alpha currency code as a symbol for the currency associated with the country targeted by _locale_. If _locale_ does not target a country, `locale-currency` returns `#f`.
 
+**(locale-sunday-first? _locale_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if weeks in _locale_ start with a Sunday; `#f` is returned if Monday is the first day of a week in _locale_.
+
 
 ## Execution environment
 
@@ -468,11 +472,11 @@ Returns the amount of memory allocated by the application executing the LispKit 
 
 **(device-battery-level)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the current battery charge level of the device executing the LispKit code as a floating-point number between `0.0` (empty) and `1.0` (full). Returns `#f` if there is no battery, or if the battery level cannot be determined.
+Returns the current battery charge level of the device executing the LispKit code as an inexact number between `0.0` (empty) and `1.0` (full). Returns `#f` if there is no battery, or if the battery level cannot be determined (e.g. on Linux).
 
 **(device-battery-state)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a symbol describing the charging state of the device's battery. Possible values are `charging`, `full`, `discharging`, `plugged-in-no-charging` (macOS only), and `unknown`. Returns `#f` if there is no battery, or if the battery state cannot be determined.
+Returns a symbol describing the charging state of the device's battery. Possible values are `charging`, `full`, `discharging`, `plugged-in-no-charging` (macOS only), and `unknown`. Returns `#f` if there is no battery, or if the battery state cannot be determined (e.g. on Linux).
 
 **(system-uptime)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

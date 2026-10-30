@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4 (2026-10-29)
+
+- TODO
+
 ## 2.3.1 (2026-09-15)
 
 - Introduced `(lisppad system)` to enable programs across macOS and iOS that use functionality exposed by `(lisppad system macos)` and `(lisppad system ios)`

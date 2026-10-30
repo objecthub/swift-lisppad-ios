@@ -62,13 +62,16 @@ public struct ImageButton: View {
   let legacyName: String
   let size: CGFloat
 
-  init(systemName: String = "checkmark", legacyName: String? = nil, size: CGFloat? = nil) {
+  init(systemName: String = "checkmark",
+       legacyName: String? = nil,
+       size: CGFloat? = nil,
+       legacySize: CGFloat? = nil) {
     self.systemName = systemName
     self.legacyName = legacyName ?? systemName
     if #available(iOS 26.0, *) {
       self.size = size ?? 36.0
     } else {
-      self.size = size ?? 24.0
+      self.size = legacySize ?? size ?? 24.0
     }
   }
   

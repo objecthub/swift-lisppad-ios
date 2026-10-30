@@ -383,6 +383,57 @@ Loads an image from the file at the given relative file _path_ and returns the c
 
 where _dir_ is `"Images"` if it is not provided as a parameter. It then searches the asset paths in their given order for a file matching this relative file path. Once the first matching file is found, the file is loaded as an image file and the image gets returned by `load-image-asset`. It is an error if no matching image was found.
 
+**(mermaid-\>image _source_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(mermaid-\>image _source config_)**  
+
+Draws the diagram described by the string _source_ in the [Mermaid](https://mermaid.js.org) syntax and returns it as an image on a transparent background. Drawn diagrams are cached. An error is signaled if Mermaid rejects the diagram, if drawing it takes longer than the timeout, or if the image cannot be created. _config_ is an optional association list with symbol keys that configure the diagram; defaults are in parentheses:
+
+- `theme`: Mermaid theme, one of `default`, `neutral`, `dark`, `forest`, and `base` (`default`); diagrams are drawn on a transparent background, so use `dark` for dark backgrounds
+- `theme-variables`: association list overriding variables of the theme, e.g. `((primaryColor . "#ffcc00"))`; names are symbols or strings, values are strings (`()`)
+- `font-family`: font family of the text in the diagram, or `#f` for the font of Mermaid's theme (`#f`)
+- `scale`: factor by which the resolution of the image is higher than its size in points (`2`)
+- `width`: width in points of the page that the diagram is laid out on; wider diagrams are scaled down (`800`)
+- `margin`: margin in points around the diagram; `#f` keeps the margins that Mermaid adds, which depend on the diagram type (`8`)
+- `timeout`: maximum time in seconds for drawing the diagram (`5`)
+
+The keys `max-width` and `spacing` are accepted, too, but they have no effect on the image.
+
+```scheme
+(define diagram
+  (mermaid->image "graph LR\n  A[Start] --> B{Choice}\n  B -->|yes| C[Done]"
+                  '((theme . forest) (scale . 3))))
+(save-bitmap "diagram.png" diagram 'png)
+```
+
+**(latex-math-\>image _tex_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(latex-math-\>image _tex display?_)**  
+**(latex-math-\>image _tex display? size_)**  
+**(latex-math-\>image _tex display? size color_)**  
+**(latex-math-\>image _tex display? size color config_)**  
+
+Typesets the LaTeX formula _tex_, a string without dollar signs, with [KaTeX](https://katex.org) and returns it as an image on a transparent background. The formula is drawn by a headless web view using the KaTeX resources that come with LispKit, so no network connection is needed. Drawn formulas are cached. An error is signaled if KaTeX rejects the formula (the message of KaTeX is part of the error), if it is too long, if drawing it takes longer than the timeout, or if the image cannot be created. All arguments except _tex_ are optional, and `#f` selects the default:
+
+- _display?_ is `#t` for display math, which is centered and uses larger operators, and `#f` for a formula within a line of text (`#f`).
+- _size_ is the font size in points, between 1 and 1000, of the text that the formula is meant to be shown in. It determines the size of the image (`14`).
+- _color_ is the color of the formula, a color object (black).
+- _config_ is an association list with symbol keys; defaults are in parentheses:
+    - `scale`: factor by which the resolution of the image is higher than its size in points (`3`)
+    - `macros`: association list defining commands which formulas can use; names (e.g. `"\\half"`) and expansions (e.g. `"\\frac{1}{2}"`) are strings, and names can also be symbols (`()`)
+    - `max-expand`: maximum number of macro expansions in a formula (`1000`)
+    - `max-size`: maximum size in `em` that a formula can specify, e.g. for `\rule`, or `#f` for no limit (`#f`)
+    - `min-rule-thickness`: minimum thickness in `em` of fraction lines and similar items, or `#f` for the default of KaTeX (`#f`)
+    - `max-length`: maximum length of the formula in bytes (`10000`)
+    - `timeout`: maximum time in seconds for drawing the formula; 0 means no limit (`15`)
+
+The keys `max-width` and `spacing` are accepted, too, but they are not used.
+
+```scheme
+(define formula
+  (latex-math->image "\\int_0^1 x^2\\,dx = \\frac{1}{3}" #t 24 (color 0.8 0.1 0.1)))
+(image-size formula)
+  ⇒  (178.0 . 78.0)
+```
+
 **(bytevector-\>image _bvec_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(bytevector-\>image _bvec start_)**  
 **(bytevector-\>image _bvec start end_)**  
@@ -497,14 +548,59 @@ Sets the EXIF metadata for the given bitmap _bmap_ to _exif_. _exif_ is an assoc
       (DateTimeDigitized . "2019:10:27 14:21:39")))
 ```
 
-**(make-bitmap _drawing size_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(make-bitmap _drawing size ppi_)**  
+**(make-bitmap _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(make-bitmap _obj size_)**  
+**(make-bitmap _obj size ppi_)**  
+**(make-bitmap _obj size ppi ipol_)**  
 
-Creates a new bitmap-based image by drawing the object _drawing_ into an empty bitmap of size _size_ in points. _ppi_ determines the number of pixels per inch. By default, _ppi_ is set to 72. In this case, the number of pixels of the bitmap corresponds to the number of points (since 1 pixel corresponds to 1/72 of an inch). For a _ppi_ value of 144, the horizontal and vertial number of pixels is doubled, etc.
+Creates a new bitmap-based image by drawing the object _obj_ into an empty bitmap of size _size_ in points. _obj_ is either a drawing or an image. Images do not have to be bitmaps; for instance, a vector image loaded from a PDF file is converted into a bitmap by `make-bitmap`. An image is scaled to fill the bitmap; its aspect ratio is not preserved.
+
+_size_ is optional for images: if it is omitted or `#f`, the new bitmap has the same size as the image. For drawings, _size_ is required.
+
+_ppi_ determines the number of pixels per inch. For drawings, _ppi_ is set to 72 by default. In this case, the number of pixels of the bitmap corresponds to the number of points (since 1 pixel corresponds to 1/72 of an inch). For a _ppi_ value of 144, the horizontal and vertical number of pixels is doubled, etc. For images, _ppi_ is set to the resolution of the image by default (72 for images without a fixed resolution), so that converting a bitmap keeps all its pixels. `#f` selects the default.
+
+_ipol_ determines the interpolation quality used if an image is scaled. It is an integer between 0 and 4: 0 is the default, 1 turns interpolation off, 2 is low, 3 is high, and 4 is medium quality. `#f` selects the default.
+
+```scheme
+(define photo (load-image (asset-file-path "Inga" "jpg" "Images")))
+(bitmap-pixels (make-bitmap photo))
+  ⇒  (1200 . 1200)
+(bitmap-pixels (make-bitmap photo (size 300 150) 144))
+  ⇒  (600 . 300)
+```
 
 **(bitmap-crop _bitmap rect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Crops a rectangle from the given bitmap and returns the result in a new bitmap. _rect_ is a rectangle in pixels. Its intersection with the dimensions of _bitmap_ (in pixels) are used for cropping.
+
+**(bitmap-trim _bitmap_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(bitmap-trim _bitmap threshold_)**  
+**(bitmap-trim _bitmap threshold inset_)**  
+
+Removes the transparent area around the content of _bitmap_ and returns the result in a new image. The content of a bitmap is the smallest rectangle that contains all pixels that are not transparent. _threshold_ is an integer between 0 and 255 that determines which pixels count as transparent: all pixels whose alpha value is at most _threshold_ are considered to be transparent. By default, _threshold_ is 2, which ignores the faint edges created by antialiasing. With a _threshold_ of 0, every pixel that is not completely transparent belongs to the content.
+
+_inset_ specifies the width of the transparent space, in points, that is left between the content and the edges of the resulting image. By default, there is no such space. Wherever the transparent area around the content of _bitmap_ is wider than requested by _inset_, it is cut off. Wherever it is narrower, transparent space is added. The widths are rounded to whole pixels; negative widths are treated like 0. _inset_ can be specified in the following ways:
+
+   * `#f`: no space on any edge (the default),
+   * a number: space of this width on all four edges,
+   * `(`_horizontal vertical_`)` or `(`_horizontal_ `.` _vertical_`)`: space of width _horizontal_ on the left and right edge, and space of width _vertical_ on the top and bottom edge,
+   * `(`_top left bottom right_`)`: space for each edge individually, or
+   * `((`_top_ `.` _bottom_`)` `.` `(`_left_ `.` _right_`))`: space for each edge individually, with the two vertical and the two horizontal widths paired up.
+
+The resolution of _bitmap_ is preserved, i.e. the size of the new image in points is the size of the content plus the insets.  `bitmap-trim` returns `#f` if trimming could not be performed.
+
+```scheme
+(define bmp
+  (make-bitmap
+    (drawing (fill (rectangle (point 20 30) (size 40 10))))
+             (size 100 80)))
+(image-size bmp)
+  ⇒  (100.0 . 80.0)
+(image-size (bitmap-trim bmp))
+  ⇒  (40.0 . 10.0)
+(image-size (bitmap-trim bmp 2 '(4 8)))
+  ⇒  (48.0 . 26.0)
+```
 
 **(bitmap-blur _bitmap radius_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
