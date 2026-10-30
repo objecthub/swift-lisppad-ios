@@ -36,4 +36,8 @@ final class MutableBlock: ObservableObject {
       self.version = self.version &+ 1
     }
   }
+
+  /// Where the reader is in the document. It belongs to the version of the document it was
+  /// taken at, so it does not apply to a document that replaced it.
+  let readingPosition = MarkdownReadingPosition()
 }

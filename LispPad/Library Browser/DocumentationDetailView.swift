@@ -36,7 +36,13 @@ struct DocumentationDetailView: View {
   /// The title of the detail column and the width of the navigation bar it is shown in.
   let title: String
   let barWidth: CGFloat
-  
+
+  /// Where the reader is in the documentation shown. The detail column is created again when the
+  /// width of the pane crosses the threshold for the split layout, e.g. when the device is
+  /// rotated. This is what brings the reader back to where they were. It is reset whenever
+  /// something else is selected, such that the new documentation starts at its beginning.
+  let position: MarkdownReadingPosition
+
   @StateObject var controller = WebViewController()
   @State var block: Block? = nil
   @State var url: URL? = nil
@@ -146,12 +152,12 @@ struct DocumentationDetailView: View {
       if let block {
         if toggle {
           ScrollView(.vertical) {
-            MarkdownText(block)
+            MarkdownText(block, position: self.position)
               .padding(16)
           }
         } else {
           ScrollView(.vertical) {
-            MarkdownText(block)
+            MarkdownText(block, position: self.position)
               .padding(16)
           }
         }
@@ -256,6 +262,7 @@ struct DocumentationDetailView: View {
       }
     }
     .onChange(of: self.selectedLib) {
+      self.position.reset()
       if let selectedLib {
         switch self.docManager.libraryDocumentation(for: selectedLib.components) {
           case .markdown(let block):
@@ -279,6 +286,7 @@ struct DocumentationDetailView: View {
       self.selectedIdent = nil
     }
     .onChange(of: self.selectedIdent) {
+      self.position.reset()
       if let selectedIdent {
         if !selectedIdent.isEmpty {
           self.toggle.toggle()

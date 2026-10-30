@@ -122,6 +122,9 @@ struct CodeEditorView: View {
   @StateObject var keyboardObserver = KeyboardObserver()
   @StateObject var cardContent = MutableBlock()
   @State var showCard: Bool = false
+  /// Where the reader is in the Markdown preview. The preview is created again when the layout of
+  /// the editor changes, e.g. when the device is rotated.
+  @State var previewPosition = MarkdownReadingPosition()
   @State var showSearchField: Bool = false
   @State var showSheet: SheetAction? = nil
   @State var showModal: SheetAction? = nil
@@ -1020,13 +1023,13 @@ struct CodeEditorView: View {
         .presentationDetents([.medium, .large])
         .modifier(self.globals.services)
       case .markdownPreview(let block):
-        MarkdownViewer(markdown: block)
+        MarkdownViewer(markdown: block, position: self.previewPosition)
           .sheetPlacement(self.splitViewMode.isSideBySide ?
                           (self.splitViewMode.isSwapped ? .trailing : .leading) : .automatic)
           .presentationDragIndicator(.visible)
           .modifier(self.globals.services)
       case .showDocumentation(let doc):
-        MarkdownViewer(markdown: doc)
+        MarkdownViewer(markdown: doc, position: self.previewPosition)
           .sheetPlacement(self.splitViewMode.isSideBySide ?
                           (self.splitViewMode.isSwapped ? .trailing : .leading) : .automatic)
           .presentationDragIndicator(.visible)
@@ -1310,6 +1313,7 @@ struct CodeEditorView: View {
       }
     } else if self.editorType == .markdown {
       let block = LaTeXMarkdownParser.standard.parse(self.fileManager.editorDocument?.text ?? "")
+      self.previewPosition.reset()
       self.showModal = .markdownPreview(block)
     }
   }

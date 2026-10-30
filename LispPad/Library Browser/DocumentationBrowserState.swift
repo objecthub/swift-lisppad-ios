@@ -19,7 +19,11 @@ class DocumentationBrowserState: ObservableObject {
   @Published var showLibraryBrowser: Bool = true
   @Published var toggleSidebar: Bool = false
   @Published var selectedLibIdents: [String] = []
-  
+
+  /// Where the reader is in the documentation of the selected library or identifier. This
+  /// survives the detail column being created again, e.g. when the device is rotated.
+  let readingPosition = MarkdownReadingPosition()
+
   func detailTitle() -> String {
     if self.selectedIdent?.isEmpty ?? true {
       return self.selectedLib?.name ?? "Documentation"

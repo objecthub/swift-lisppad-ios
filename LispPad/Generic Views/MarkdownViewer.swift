@@ -26,9 +26,13 @@ import MarkdownKit
 struct MarkdownViewer: View {
   let markdown: Block
 
+  /// Where the reader is in `markdown`. The sheet is created again when the geometry changes, e.g.
+  /// when the device is rotated. This is what brings the reader back to where they were.
+  var position: MarkdownReadingPosition? = nil
+
   var body: some View {
     ScrollSheet {
-      MarkdownText(self.markdown)
+      MarkdownText(self.markdown, position: self.position)
     }
     .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
   }

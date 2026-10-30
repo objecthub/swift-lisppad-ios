@@ -311,7 +311,8 @@
                                   docShown: $state.docShown,
                                   title: self.detailTitle,
                                   barWidth: self.detailNavigationBarWidth(
-                                              paneWidth: geometry.size.width))
+                                              paneWidth: geometry.size.width),
+                                  position: self.state.readingPosition)
           .navigationTitle(self.detailTitle)
           .navigationBarTitleDisplayMode(.inline)
           .navigationSplitViewColumnWidth(min: 280, ideal: 500, max: 900)
