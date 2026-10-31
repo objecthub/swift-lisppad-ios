@@ -322,7 +322,7 @@ struct InterpreterView: View {
           case .settings:
             PreferencesView(selectedTab: self.$state.selectedPreferencesTab)
           case .fileManager:
-            FileManagerView()
+            FileManagerView(splitViewMode: self.splitViewMode)
               .modifier(self.globals.services)
         }
       }
@@ -489,7 +489,7 @@ struct InterpreterView: View {
                 Divider()
               }
             }
-            Picker("", selection: Binding(get: { self.state.consoleTab },
+            Picker("Switch", selection: Binding(get: { self.state.consoleTab },
                                           set: { newValue in
                                                  // No `withAnimation` here: as of iOS 27, wrapping
                                                  // this assignment in an explicit animation makes

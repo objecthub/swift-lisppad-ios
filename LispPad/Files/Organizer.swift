@@ -22,11 +22,24 @@ import SwiftUI
 import QuickLook
 
 struct Organizer: View {
+
+  /// Determines how the organizer is presented.
+  enum Style {
+    /// The organizer is itself presented as a sheet. The share sheet and the move view replace
+    /// the content of the organizer.
+    case sheet
+    /// The organizer is the target of a navigation. The share sheet and the move view are
+    /// presented as sheets on top of the organizer.
+    case navigationTarget
+  }
+
   @Environment(\.dismiss) var dismiss
+  @EnvironmentObject var globals: LispPadGlobals
   @EnvironmentObject var fileManager: FileManager
   @EnvironmentObject var histManager: HistoryManager
-  
-  let closeButton: Bool
+
+  let style: Style
+  let splitViewMode: SideBySideMode?
   
   @State var showShareSheet: Bool = false
   @State var showFileImporter: Bool = false
@@ -35,63 +48,88 @@ struct Organizer: View {
   @StateObject var context = FileHierarchyBrowser.BrowserContext()
   @State var previewUrl: URL? = nil
   @State var showError: Bool = false
-  
-  init(closeButton: Bool = true) {
-    self.closeButton = closeButton
+
+  init(style: Style = .sheet, splitViewMode: SideBySideMode? = nil) {
+    self.style = style
+    self.splitViewMode = splitViewMode
   }
   
+  private var closeButton: Bool {
+    return self.style == .sheet
+  }
+
+  /// Presents the share sheet on top of the organizer, if it is a navigation target.
+  private var presentShareSheet: Binding<Bool> {
+    return Binding(get: { self.style == .navigationTarget &&
+                          self.showShareSheet &&
+                          self.context.selectedUrl != nil },
+                   set: { if !$0 { self.showShareSheet = false } })
+  }
+
+  /// Presents the move view on top of the organizer, if it is a navigation target.
+  private var presentMove: Binding<Bool> {
+    return Binding(get: { self.style == .navigationTarget && self.urlToMove != nil },
+                   set: { if !$0 { self.urlToMove = nil } })
+  }
+
+  private var browser: some View {
+    Sheet(closeButton: self.closeButton) {
+      Form {
+        Section {
+          FileHierarchyBrowser(self.fileManager.usageRootDirectories,
+                               options: [.organizer],
+                               showShareSheet: $showShareSheet,
+                               showFileImporter: $showFileImporter,
+                               urlToMove: $urlToMove,
+                               context: self.context,
+                               previewUrl: $previewUrl,
+                               onSelection: { url in })
+          .font(.body)
+        } header: {
+          Text("Usage")
+            .padding(.top, 30)
+        }
+        Section {
+          FileHierarchyBrowser(self.fileManager.userRootDirectories,
+                               options: [.mutable, .organizer],
+                               showShareSheet: $showShareSheet,
+                               showFileImporter: $showFileImporter,
+                               urlToMove: $urlToMove,
+                               context: self.context,
+                               previewUrl: $previewUrl,
+                               onSelection: { url in })
+            .font(.body)
+        } header: {
+          Text("Locations")
+        }
+        Section {
+          FileHierarchyBrowser(self.fileManager.systemRootDirectories,
+                               options: [.organizer],
+                               showShareSheet: $showShareSheet,
+                               showFileImporter: $showFileImporter,
+                               urlToMove: $urlToMove,
+                               context: self.context,
+                               previewUrl: $previewUrl,
+                               onSelection: { url in })
+            .font(.body)
+        } header: {
+          Text("System")
+        }
+      }
+      .transition(.move(edge: .top))
+    }
+  }
+
   var body: some View {
     ZStack {
       Color(.systemGroupedBackground).ignoresSafeArea()
       VStack(alignment: .center, spacing: 0) {
-        if self.showShareSheet, let url = self.context.selectedUrl {
+        if self.style == .navigationTarget {
+          self.browser
+        } else if self.showShareSheet, let url = self.context.selectedUrl {
           ShareSheet(activityItems: [url])
         } else if self.urlToMove == nil {
-          Sheet(closeButton: self.closeButton) {
-            Form {
-              Section {
-                FileHierarchyBrowser(self.fileManager.usageRootDirectories,
-                                     options: [.organizer],
-                                     showShareSheet: $showShareSheet,
-                                     showFileImporter: $showFileImporter,
-                                     urlToMove: $urlToMove,
-                                     context: self.context,
-                                     previewUrl: $previewUrl,
-                                     onSelection: { url in })
-                .font(.body)
-              } header: {
-                Text("Usage")
-                  .padding(.top, 30)
-              }
-              Section {
-                FileHierarchyBrowser(self.fileManager.userRootDirectories,
-                                     options: [.mutable, .organizer],
-                                     showShareSheet: $showShareSheet,
-                                     showFileImporter: $showFileImporter,
-                                     urlToMove: $urlToMove,
-                                     context: self.context,
-                                     previewUrl: $previewUrl,
-                                     onSelection: { url in })
-                  .font(.body)
-              } header: {
-                Text("Locations")
-              }
-              Section {
-                FileHierarchyBrowser(self.fileManager.systemRootDirectories,
-                                     options: [.organizer],
-                                     showShareSheet: $showShareSheet,
-                                     showFileImporter: $showFileImporter,
-                                     urlToMove: $urlToMove,
-                                     context: self.context,
-                                     previewUrl: $previewUrl,
-                                     onSelection: { url in })
-                  .font(.body)
-              } header: {
-                Text("System")
-              }
-            }
-            .transition(.move(edge: .top))
-          }
+          self.browser
         } else {
           Move(showShareSheet: $showShareSheet,
                showFileImporter: $showFileImporter,
@@ -100,6 +138,30 @@ struct Organizer: View {
         }
       }
       .padding(.top, self.closeButton ? 0 : -16)
+    }
+    .sheet(isPresented: self.presentShareSheet) {
+      if let url = self.context.selectedUrl {
+        ShareSheet(activityItems: [url])
+          .sheetPlacement((self.splitViewMode?.isSideBySide ?? false) ?
+                             ((self.splitViewMode?.isSwapped ?? false) ? .leading : .trailing)
+                           : .automatic)
+          .presentationDragIndicator(.visible)
+          .presentationDetents([.medium, .large])
+          .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+          .modifier(self.globals.services)
+      }
+    }
+    .sheet(isPresented: self.presentMove, onDismiss: { self.context.invalidateCaches() }) {
+      Move(showShareSheet: $showShareSheet,
+           showFileImporter: $showFileImporter,
+           urlToMove: $urlToMove)
+        .sheetPlacement((self.splitViewMode?.isSideBySide ?? false) ?
+                         ((self.splitViewMode?.isSwapped ?? false) ? .leading : .trailing)
+                       : .automatic)
+        .presentationDragIndicator(.visible)
+        .presentationDetents([.medium, .large])
+        .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
+        .modifier(self.globals.services)
     }
     .onChange(of: self.context.errorMessage) { _, new in
       self.showError = new != nil

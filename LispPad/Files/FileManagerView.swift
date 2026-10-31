@@ -22,8 +22,10 @@ import SwiftUI
 struct FileManagerView: View {
   @Environment(\.dismiss) private var dismiss
   
+  let splitViewMode: SideBySideMode
+  
   var body: some View {
-    Organizer(closeButton: false)
+    Organizer(style: .navigationTarget, splitViewMode: splitViewMode)
       .navigationTitle("File Manager")
       .navigationBarTitleDisplayMode(.inline)
       .navigationBarBackButtonHidden(false)
