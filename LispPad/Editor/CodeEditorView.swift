@@ -793,9 +793,10 @@ struct CodeEditorView: View {
                       : "magnifyingglass")
             }
           }
+          Divider()
         }
       }
-      ControlGroup {
+      Group {
         Button(action: self.indentEditor) {
           Label("Increase Indent", systemImage: "increase.indent")
         }
@@ -807,7 +808,8 @@ struct CodeEditorView: View {
         }
         .disabled(self.editorType != .scheme)
       }
-      ControlGroup {
+      Divider()
+      Group {
         Button(action: self.commentEditor) {
           Label("Comment", systemImage: "text.bubble")
         }
@@ -817,6 +819,7 @@ struct CodeEditorView: View {
         }
         .disabled(self.editorType != .scheme)
       }
+      Divider()
       Menu {
         Button(action: self.selectLines) {
           Label("Select", systemImage: "selection.pin.in.out")
