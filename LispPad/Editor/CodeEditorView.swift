@@ -496,12 +496,15 @@ struct CodeEditorView: View {
   @ToolbarContentBuilder
   private func leadingToolbarItemGroup(currentFile: Bool) -> some ToolbarContent {
     ToolbarItemGroup(placement: .navigationBarLeading) {
-      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator)  {
+      ToolbarControls {
         SideBySideNavigator(leftSide: false,
                             allowSplit: self.allowSplit,
                             focused: self.editorFocused,
                             mode: self.$splitViewMode,
                             fraction: self.$masterWidthFraction)
+        .when(iOSAppOnMac: true) {
+          $0.background(self.centralMenuAnchor)
+        }
         Menu {
           if currentFile {
             Group {
@@ -593,17 +596,24 @@ struct CodeEditorView: View {
           .alert(isPresented: $showAbortAlert, content: self.abortAlert)
         }
       }
-      // Invisible anchor from which the central menu pops up. It lives on the toolbar group
-      // itself rather than on the "doc" menu's label, since that label is torn down while
-      // the menu is dismissing.
-      .background(
-        CentralMenuButton(showModal: $showModal,
-                          notSavedAlertAction: $notSavedAlertAction,
-                          editorType: $editorType,
-                          presentTrigger: self.centralMenuTrigger,
-                          anchorOnly: true,
-                          dismissCard: self.dismissCard))
+      // The anchor from which the central menu pops up lives on the toolbar group itself
+      // rather than on the "doc" menu's label, since that label is torn down while the menu
+      // is dismissing. On a Mac, the controls of the group are separate items of the toolbar;
+      // there, the anchor lives on the first one (see above).
+      .when(iOSAppOnMac: false) {
+        $0.background(self.centralMenuAnchor)
+      }
     }
+  }
+
+  /// Invisible anchor from which the central menu pops up.
+  private var centralMenuAnchor: some View {
+    CentralMenuButton(showModal: $showModal,
+                      notSavedAlertAction: $notSavedAlertAction,
+                      editorType: $editorType,
+                      presentTrigger: self.centralMenuTrigger,
+                      anchorOnly: true,
+                      dismissCard: self.dismissCard)
   }
   
   @ViewBuilder
@@ -871,7 +881,7 @@ struct CodeEditorView: View {
       .modifier(TintedCapsuleBackground())
     }
     ToolbarItemGroup(placement: .navigationBarTrailing) {
-      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+      ToolbarControls {
         /*
         Menu {
           Button {

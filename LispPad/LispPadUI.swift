@@ -108,3 +108,43 @@ struct LispPadUI {
     // UINavigationBar.appearance().barTintColor = UIColor(named: "NavigationBarColor")
   }
 }
+
+/// Lays out the controls of a toolbar item group.
+///
+/// An `HStack` gives control over the spacing of the controls. When an iOS app runs on a Mac,
+/// the toolbar shows only the first control of such a stack and clips the rest. There, the
+/// controls are handed to the toolbar directly, which groups them like the stack does. Note
+/// that modifiers applied to this view are then applied to each of the controls; use
+/// `when(iOSAppOnMac:_:)` to attach something (e.g. a presentation) only once.
+struct ToolbarControls<Content: View>: View {
+  let spacing: CGFloat
+  let content: Content
+  
+  init(spacing: CGFloat = LispPadUI.toolbarSeparator, @ViewBuilder content: () -> Content) {
+    self.spacing = spacing
+    self.content = content()
+  }
+  
+  var body: some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      self.content
+    } else {
+      HStack(alignment: .center, spacing: self.spacing) {
+        self.content
+      }
+    }
+  }
+}
+
+extension View {
+  /// Applies `transform` if the app runs as an iOS app on a Mac (`iOSAppOnMac == true`) or
+  /// everywhere else (`iOSAppOnMac == false`).
+  @ViewBuilder
+  func when<Result: View>(iOSAppOnMac: Bool, _ transform: (Self) -> Result) -> some View {
+    if ProcessInfo.processInfo.isiOSAppOnMac == iOSAppOnMac {
+      transform(self)
+    } else {
+      self
+    }
+  }
+}

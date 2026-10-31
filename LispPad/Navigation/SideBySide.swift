@@ -196,7 +196,7 @@ struct SideBySideNavigator: View {
         }
       }
     } else {
-      HStack(alignment: .center, spacing: 2) {
+      ToolbarControls(spacing: 2) {
         Button(action: {
           withAnimation {
             self.mode.toggle()

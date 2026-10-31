@@ -47,7 +47,7 @@ import LispKit
     WindowGroup {
       MainView(urlToOpen: $urlToOpen)
         .preferredColorScheme(self.settings.appearance.colorScheme)
-        .environmentObject(KeyCommandHandler.empty)
+        .environmentObject(self.globals.keyCommandHandler)
         .environmentObject(self.globals)
         .environmentObject(self.globals.interpreter)
         .onOpenURL { url in

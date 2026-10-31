@@ -218,7 +218,7 @@ struct DocumentationDetailView: View {
       }
       if self.url != nil {
         ToolbarItemGroup(placement: .topBarLeading) {
-          HStack(alignment: .center, spacing: 8) {
+          ToolbarControls(spacing: 8) {
             Button(action: {
               self.controller.goBack = true
             }) {
@@ -241,7 +241,7 @@ struct DocumentationDetailView: View {
         ToolbarItemGroup(placement: .topBarTrailing) {
           // A single item takes up less space than two separate ones. If the navigation bar runs
           // out of space, it moves all of its items into an overflow menu, which is hard to use.
-          HStack(alignment: .center, spacing: 6) {
+          ToolbarControls(spacing: 6) {
             if self.url != nil {
               self.zoomMenu
             }

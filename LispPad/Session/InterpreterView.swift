@@ -468,7 +468,7 @@ struct InterpreterView: View {
   @ToolbarContentBuilder
   private func leadingToolbarItemGroup(env: Bool) -> some ToolbarContent {
     ToolbarItemGroup(placement: .navigationBarLeading) {
-      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+      ToolbarControls {
         SideBySideNavigator(leftSide: true,
                             allowSplit: self.allowSplit,
                             focused: self.state.focused,
@@ -526,6 +526,9 @@ struct InterpreterView: View {
             Image(systemName: "terminal")
               .font(LispPadUI.toolbarFont)
           }
+          .when(iOSAppOnMac: true) {
+            $0.actionSheet(isPresented: self.$showResetActionSheet, content: self.resetActionSheet)
+          }
         } else {
           Button(action: {
             self.alertAction = .abortEvaluation
@@ -578,19 +581,23 @@ struct InterpreterView: View {
         }
         .disabled(!self.interpreter.isReady)
       }
-      .actionSheet(isPresented: self.$showResetActionSheet) {
-        ActionSheet(title: Text("Reset"),
-                    message: Text("Clear console and reset interpreter?"),
-                    buttons: [.destructive(Text("Reset interpreter"), action: {
-          _ = self.interpreter.reset()
-        }),
-                              .destructive(Text("Reset console & interpreter"), action: {
-                                self.interpreter.console.reset()
-                                _ = self.interpreter.reset()
-                              }),
-                              .cancel()])
+      .when(iOSAppOnMac: false) {
+        $0.actionSheet(isPresented: self.$showResetActionSheet, content: self.resetActionSheet)
       }
     }
+  }
+
+  private func resetActionSheet() -> ActionSheet {
+    return ActionSheet(title: Text("Reset"),
+                       message: Text("Clear console and reset interpreter?"),
+                       buttons: [.destructive(Text("Reset interpreter"), action: {
+      _ = self.interpreter.reset()
+    }),
+                                 .destructive(Text("Reset console & interpreter"), action: {
+                                   self.interpreter.console.reset()
+                                   _ = self.interpreter.reset()
+                                 }),
+                                 .cancel()])
   }
   
   @ToolbarContentBuilder
@@ -614,7 +621,7 @@ struct InterpreterView: View {
       }
     }
     ToolbarItemGroup(placement: .navigationBarTrailing) {
-      HStack(alignment: .center, spacing: LispPadUI.toolbarSeparator) {
+      ToolbarControls {
         Button {
           withAnimation(.default) {
             UIApplication.shared.endEditing(true)

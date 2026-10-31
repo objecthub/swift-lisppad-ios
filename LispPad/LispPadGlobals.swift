@@ -30,7 +30,7 @@ final class LispPadGlobals: ObservableObject {
   let fileManager: FileManager
   let docManager = DocumentationManager()
   let interpreter = Interpreter()
-  
+  let keyCommandHandler = KeyCommandHandler.empty
   
   init() {
     Context.simplifiedDescriptions = true
@@ -46,18 +46,18 @@ final class LispPadGlobals: ObservableObject {
                     fileManager: self.fileManager,
                     docManager: self.docManager,
                     interpreter: self.interpreter,
+                    keyCommandHandler: self.keyCommandHandler,
                     sessionLog: SessionLog.standard)
   }
 
   struct Services: ViewModifier {
-    @EnvironmentObject var keyHandler: KeyCommandHandler
-    
     let globals: LispPadGlobals
     let settings: UserSettings
     let histManager: HistoryManager
     let fileManager: FileManager
     let docManager: DocumentationManager
     let interpreter: Interpreter
+    let keyCommandHandler: KeyCommandHandler
     let sessionLog: SessionLog
 
     func body(content: Content) -> some View {
@@ -70,7 +70,7 @@ final class LispPadGlobals: ObservableObject {
         .environmentObject(self.docManager)
         .environmentObject(self.interpreter)
         .environmentObject(self.sessionLog)
-        .environmentObject(self.keyHandler)
+        .environmentObject(self.keyCommandHandler)
     }
   }
 }
