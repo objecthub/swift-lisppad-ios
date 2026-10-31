@@ -39,19 +39,19 @@ struct DocumentView: View {
   
   var body: some View {
     Sheet(backgroundColor: Color(.secondarySystemBackground)) {
-      GeometryReader { geometry in
-        VStack {
-          PDFViewer(document: self.document,
-                    viewSize: geometry.size,
-                    safeAreaInsets: geometry.safeAreaInsets,
-                    controller: self.controller,
-                    showsPageLabel: !self.showSearch)
-              .navigationTitle(self.title)
-              .navigationBarHidden(false)
+      ZStack(alignment: .topLeading) {
+        GeometryReader { geometry in
+          VStack {
+            PDFViewer(document: self.document,
+                      viewSize: geometry.size,
+                      safeAreaInsets: geometry.safeAreaInsets,
+                      controller: self.controller,
+                      showsPageLabel: !self.showSearch)
+                .navigationTitle(self.title)
+                .navigationBarHidden(false)
+          }
+          .ignoresSafeArea()
         }
-        .ignoresSafeArea()
-      }
-      .overlay(alignment: .topLeading) {
         HStack(spacing: 12) {
           if self.showSearch {
             self.searchBar

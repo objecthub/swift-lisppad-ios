@@ -237,11 +237,7 @@ struct PDFViewer: UIViewRepresentable {
     pdfView.pageShadowsEnabled = false
     pdfView.document = self.document
     pdfView.usePageViewController(true)
-    let thumbnailView = PDFThumbnailView(
-      frame: CGRect(x: 0,
-                    y: self.viewSize.height - PDFViewer.thumbnailSize.height - 8,
-                    width: viewSize.width,
-                    height: PDFViewer.thumbnailSize.height))
+    let thumbnailView = PDFThumbnailView(frame: pdfView.thumbnailFrame)
     thumbnailView.backgroundColor = UIColor.clear
     thumbnailView.thumbnailSize = PDFViewer.thumbnailSize
     thumbnailView.layoutMode = .horizontal
@@ -263,7 +259,43 @@ struct PDFViewer: UIViewRepresentable {
   }
   
   class MyPDFView: PDFView {
-    var viewSize: CGSize = CGSize(width: 0, height: 0)
+    var viewSize: CGSize = CGSize(width: 0, height: 0) {
+      didSet {
+        if self.viewSize != oldValue {
+          self.setNeedsLayout()
+        }
+      }
+    }
+    
+    /// The thumbnail bar sits at the bottom edge of the view. It spans the whole width of the
+    /// view, which, unlike `viewSize`, includes the horizontal safe areas.
+    var thumbnailFrame: CGRect {
+      return CGRect(x: 0,
+                    y: self.viewSize.height - PDFViewer.thumbnailSize.height - 8,
+                    width: self.bounds.width,
+                    height: PDFViewer.thumbnailSize.height)
+    }
+    
+    /// The page label is centered below the top safe area.
+    var pageLabelFrame: CGRect {
+      return CGRect(x: 0,
+                    y: self.safeAreaInsets.top + 4,
+                    width: self.bounds.width,
+                    height: 20)
+    }
+    
+    /// Keeps the thumbnail bar and the page label in place when the size of the view changes,
+    /// e.g. by rotating the device.
+    override func layoutSubviews() {
+      super.layoutSubviews()
+      for view in self.subviews {
+        if view is PDFThumbnailView {
+          view.frame = self.thumbnailFrame
+        } else if view is UILabel {
+          view.frame = self.pageLabelFrame
+        }
+      }
+    }
     
     var showsPageLabel: Bool = true {
       didSet {
@@ -281,10 +313,7 @@ struct PDFViewer: UIViewRepresentable {
         }
       }
       // Add new label
-      let pageLabel = UILabel(frame: CGRect(x: 0,
-                                            y: self.safeAreaInsets.top + 4,
-                                            width: self.viewSize.width,
-                                            height: 20))
+      let pageLabel = UILabel(frame: self.pageLabelFrame)
       pageLabel.font = UIFont.systemFont(ofSize: 14.0)
       pageLabel.textAlignment = .center
       pageLabel.isHidden = !self.showsPageLabel
