@@ -44,6 +44,17 @@ enum SideBySideMode: Int {
     }
   }
   
+  /// Makes sure that the editor is shown: if only the interpreter is shown, the editor takes
+  /// its place. All other modes show the editor already and stay as they are.
+  mutating func showEditor() {
+    switch self {
+      case .leftOnLeft, .leftOnRight:
+        self.toggle()
+      default:
+        break
+    }
+  }
+
   mutating func swap() {
     switch self {
       case .normal:

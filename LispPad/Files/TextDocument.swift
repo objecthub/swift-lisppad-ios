@@ -20,6 +20,7 @@
 
 import UIKit
 import SwiftUI
+import CryptoKit
 
 final class TextDocument: UIDocument, ObservableObject, Identifiable {
 
@@ -45,6 +46,75 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
 
   /// Textual content
   var text = ""
+
+  /// Identifies a text by its content without keeping the text.
+  typealias Fingerprint = SHA256Digest
+
+  static func fingerprint(of text: String) -> Fingerprint {
+    var text = text
+    return text.withUTF8 { SHA256.hash(data: UnsafeRawBufferPointer($0)) }
+  }
+
+  /// The fingerprint of the text as it was last read from or written to the file. It differs
+  /// from the fingerprint of `text` as long as there are edits which are not saved yet. The
+  /// document is never marked as changed, so `UIDocument` cannot tell on its own whether
+  /// reloading the file would lose edits. A fingerprint takes 32 bytes, whereas a copy of the
+  /// text would double the memory for it as soon as the user types.
+  private(set) var savedFingerprint = TextDocument.fingerprint(of: "")
+
+  /// Becomes true once the document has content from its file. From then on, `load` is a
+  /// reload of a file that was changed by somebody else.
+  private var hasLoaded = false
+
+  /// The fingerprint of the text handed over by the latest save; it becomes
+  /// `savedFingerprint` if the save succeeds.
+  private var writtenFingerprint: Fingerprint? = nil
+
+  /// The fingerprint of the content of the file if it changed on disk while there were unsaved
+  /// edits. The document stays in conflict until the user chooses a version.
+  private(set) var conflictFingerprint: Fingerprint? = nil
+
+  var hasConflict: Bool {
+    return self.conflictFingerprint != nil
+  }
+
+  /// Reads the file for reloads, one at a time and in order.
+  private let reloadQueue = DispatchQueue(label: "net.objecthub.LispPad.document-reload",
+                                          qos: .userInitiated)
+
+  /// What to do with the document if its file changed on disk.
+  enum ExternalChange {
+    /// The document stays as it is.
+    case ignore
+    /// There are no edits to lose: the document takes over the content of the file.
+    case adopt
+    /// Both the document and the file changed: the user has to decide.
+    case conflict
+  }
+
+  static func resolve(local: Fingerprint, saved: Fingerprint, disk: Fingerprint) -> ExternalChange {
+    if disk == saved {
+      return .ignore
+    } else if local == saved || local == disk {
+      return .adopt
+    } else {
+      return .conflict
+    }
+  }
+
+  /// The content of the file, decoded.
+  private struct DiskContent {
+    let text: String
+    let fingerprint: Fingerprint
+  }
+
+  /// Returns nil if `data` is not UTF-8.
+  private static func decode(_ data: Data) -> DiskContent? {
+    guard let text = String(data: data, encoding: .utf8) else {
+      return nil
+    }
+    return DiskContent(text: text, fingerprint: Self.fingerprint(of: text))
+  }
 
   /// Currently selected range
   var selectedRange = NSRange(location: 0, length: 0)
@@ -121,6 +191,13 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   /// to the foreground in the meantime, the document remains a presenter.
   func saveAndSuspendFilePresenter(completion: @escaping () -> Void = {}) {
     self.filePresenterSuspensionPending = true
+    guard !self.hasConflict else {
+      // The user has not decided yet which version to keep; saving would overwrite the
+      // one they have not seen. Nothing is in flight, so stepping aside right away is safe.
+      self.suspendFilePresenter()
+      completion()
+      return
+    }
     self.saveFile { _ in
       if self.filePresenterSuspensionPending {
         self.suspendFilePresenter()
@@ -145,6 +222,84 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     self.filePresenterSuspended = false
     if !self.documentState.contains(.closed) {
       NSFileCoordinator.addFilePresenter(self)
+      // Presenters are not told about changes made while they were not registered.
+      self.reloadIfChangedOnDisk()
+    }
+  }
+
+  /// Reads the file again; `reconcile` decides what happens if its content is not what the
+  /// document last saw. This does not use `UIDocument.revert(toContentsOf:)`, which fails if
+  /// `UIDocument` itself is reverting at the same time.
+  func reloadIfChangedOnDisk(completion: @escaping () -> Void = {}) {
+    guard self.hasLoaded, !self.documentState.contains(.closed) else {
+      completion()
+      return
+    }
+    let url = self.fileURL
+    self.reloadQueue.async {
+      var content: DiskContent? = nil
+      var coordinatorError: NSError?
+      NSFileCoordinator(filePresenter: self).coordinate(readingItemAt: url,
+                                                        options: [],
+                                                        error: &coordinatorError) { readURL in
+        if let data = try? Data(contentsOf: readURL) {
+          content = Self.decode(data)
+        }
+      }
+      DispatchQueue.main.async {
+        self.reconcile(with: content)
+        completion()
+      }
+    }
+  }
+
+  /// Changes that were not made with file coordination (e.g. by git clients) are not
+  /// reloaded by `UIDocument`, so look at the file whenever the presenter is told about one.
+  override func presentedItemDidChange() {
+    super.presentedItemDidChange()
+    DispatchQueue.main.async {
+      self.reloadIfChangedOnDisk()
+    }
+  }
+
+  /// Settles a conflict between unsaved edits and a changed file. If the user keeps their
+  /// version, the file counts as seen, so the next save overwrites it. Otherwise the file is
+  /// read again, which also catches a newer change, after the edits are declared saved so
+  /// that the reload takes the file over. Until then, the conflict keeps automatic saves from
+  /// overwriting the file.
+  func resolveConflict(keepLocal: Bool, completion: @escaping () -> Void = {}) {
+    guard let disk = self.conflictFingerprint else {
+      completion()
+      return
+    }
+    if keepLocal {
+      self.savedFingerprint = disk
+      self.endConflict()
+      completion()
+    } else {
+      self.savedFingerprint = Self.fingerprint(of: self.text)
+      self.reloadIfChangedOnDisk {
+        self.endConflict()
+        completion()
+      }
+    }
+  }
+
+  private func endConflict() {
+    self.conflictFingerprint = nil
+    self.fileManager?.editorDocumentConflict = false
+  }
+
+  private func adopt(_ disk: DiskContent, notify: Bool) {
+    let changed = self.text != disk.text
+    self.text = disk.text
+    self.savedFingerprint = disk.fingerprint
+    let length = (disk.text as NSString).length
+    let location = min(self.selectedRange.location, length)
+    self.selectedRange = NSRange(location: location,
+                                 length: min(self.selectedRange.length, length - location))
+    if notify && changed {
+      self.fileManager?.editorDocumentReloaded()
     }
   }
 
@@ -261,13 +416,58 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     }
   }
   
+  /// Called when the document is opened, and again when `UIDocument` reads the file anew
+  /// because somebody else changed it.
   override func load(fromContents contents: Any, ofType typeName: String?) throws {
     if let data = contents as? Data {
-      self.text = String(data: data, encoding: .utf8) ?? ""
+      self.reconcile(with: Self.decode(data))
     }
   }
-  
+
+  /// Brings the document in line with the content of its file, unless that would lose edits
+  /// which are not saved yet. `disk` is nil if the file is not UTF-8 or could not be read.
+  private func reconcile(with disk: DiskContent?) {
+    let reload = self.hasLoaded
+    self.hasLoaded = true
+    guard let disk else {
+      // A file which is not UTF-8 opens as an empty text. Do not replace a text by that
+      // if another app saved the file with another encoding in the meantime.
+      if !reload {
+        self.adopt(DiskContent(text: "", fingerprint: Self.fingerprint(of: "")), notify: false)
+      }
+      return
+    }
+    guard disk.fingerprint != self.savedFingerprint else {
+      return
+    }
+    switch Self.resolve(local: Self.fingerprint(of: self.text),
+                        saved: self.savedFingerprint,
+                        disk: disk.fingerprint) {
+      case .ignore:
+        break
+      case .adopt:
+        self.adopt(disk, notify: reload)
+      case .conflict:
+        self.conflictFingerprint = disk.fingerprint
+        self.fileManager?.editorDocumentConflict = true
+    }
+  }
+
   override func contents(forType typeName: String) throws -> Any {
-    return self.text.data(using: .utf8) ?? Data()
+    let data = self.text.data(using: .utf8) ?? Data()
+    self.writtenFingerprint = SHA256.hash(data: data)
+    return data
+  }
+
+  override func save(to url: URL,
+                     for saveOperation: UIDocument.SaveOperation,
+                     completionHandler: ((Bool) -> Void)? = nil) {
+    super.save(to: url, for: saveOperation) { success in
+      if success, let fingerprint = self.writtenFingerprint {
+        self.savedFingerprint = fingerprint
+        self.hasLoaded = true
+      }
+      completionHandler?(success)
+    }
   }
 }

@@ -59,7 +59,38 @@ class FileManager: ObservableObject {
   private(set) var applicationSupportURL: URL? = nil
   
   /// The document currently loaded into the editor
-  @Published var editorDocument: TextDocument? = nil
+  @Published var editorDocument: TextDocument? = nil {
+    didSet {
+      if oldValue !== self.editorDocument {
+        self.editorDocumentConflict = false
+      }
+    }
+  }
+
+  /// True while the file of the editor document was changed by somebody else and the editor
+  /// has unsaved edits at the same time; the user is asked which version to keep.
+  @Published var editorDocumentConflict: Bool = false
+
+  /// Counts the times the editor document took over a content that was changed on disk.
+  @Published var editorDocumentReloadCount: Int = 0
+
+  /// Used to track the last editor view reload
+  private var editorDocumentReloadSeen: Int = 0
+
+  func editorDocumentReloaded() {
+    self.editorDocumentReloadCount += 1
+  }
+
+  /// Tells the editor view whether it has to show the text of the editor document again
+  /// while keeping the selection and scroll position.
+  func requireEditorReload() -> Bool {
+    if self.editorDocumentReloadSeen != self.editorDocumentReloadCount {
+      self.editorDocumentReloadSeen = self.editorDocumentReloadCount
+      return true
+    } else {
+      return false
+    }
+  }
 
   @Published var editorDocumentInfo: TextDocument.Info = TextDocument.Info(title: "Untitled",
                                                                            new: true,
@@ -76,6 +107,8 @@ class FileManager: ObservableObject {
   func requireEditorUpdate() -> Bool {
     if self.editorDocumentUpdateDate != self.editorDocumentLoadDate {
       self.editorDocumentUpdateDate = self.editorDocumentLoadDate
+      // A new document is shown from its start; a pending reload is obsolete
+      self.editorDocumentReloadSeen = self.editorDocumentReloadCount
       return true
     } else {
       return false

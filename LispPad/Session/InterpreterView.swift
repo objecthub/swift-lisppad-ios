@@ -709,17 +709,8 @@ struct InterpreterView: View {
   }
   
   private func switchToEditor() {
-    switch self.splitViewMode {
-      case .normal, .swapped, .leftOnLeft, .leftOnRight:
-        return
-      case .rightOnRight:
-        withAnimation {
-          self.splitViewMode = .leftOnLeft
-        }
-      case .rightOnLeft:
-        withAnimation {
-          self.splitViewMode = .leftOnRight
-        }
+    withAnimation {
+      self.splitViewMode.showEditor()
     }
   }
   

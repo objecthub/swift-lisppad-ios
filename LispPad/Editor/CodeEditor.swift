@@ -139,6 +139,27 @@ struct CodeEditor: UIViewRepresentable {
         textView.becomeFirstResponder()
         textView.scrollRangeToVisible(self.extend(textView.selectedRange, in: textView))
       }
+    } else if self.fileManager.requireEditorReload() {
+      // The file was changed by somebody else: show its content, but stay where the reader is
+      let selection = textView.selectedRange
+      let offset = textView.contentOffset
+      if let range = textView.textRange(from: textView.beginningOfDocument,
+                                        to: textView.endOfDocument) {
+        textView.replace(range, withText: self.text)
+      } else {
+        textView.text = self.text
+      }
+      let length = (textView.text as NSString).length
+      let location = min(selection.location, length)
+      textView.selectedRange = NSRange(location: location,
+                                       length: min(selection.length, length - location))
+      textView.layoutIfNeeded()
+      let maxOffsetY = max(-textView.adjustedContentInset.top,
+                           textView.contentSize.height - textView.bounds.height
+                             + textView.adjustedContentInset.bottom)
+      textView.setContentOffset(CGPoint(x: offset.x, y: min(offset.y, maxOffsetY)),
+                                animated: false)
+      textView.refreshSearchHighlights()
     }
     if textView.font != self.settings.editorFont {
       textView.font = self.settings.editorFont

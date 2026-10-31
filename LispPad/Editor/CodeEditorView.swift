@@ -73,7 +73,8 @@ struct CodeEditorView: View {
     case replaceAll(String, String)
     case installOverwrites(String, URL)
     case installFailed(String, Error?)
-    
+    case changedOnDisk
+
     var id: Int {
       switch self {
         case .newFile:
@@ -94,6 +95,8 @@ struct CodeEditorView: View {
           return 7
         case .installFailed(_, _):
           return 8
+        case .changedOnDisk:
+          return 9
       }
     }
   }
@@ -448,7 +451,24 @@ struct CodeEditorView: View {
                          message: Text("Could not install \(what)." +
                                        (err != nil ? " \(err!.richDescription())" : "")),
                          dismissButton: .default(Text("OK")))
-            
+          case .changedOnDisk:
+            return Alert(title: Text("File changed on disk"),
+                         message: Text("“\(self.fileManager.editorDocumentInfo.title)” was " +
+                                       "modified by another app, but the editor has unsaved " +
+                                       "changes. Do you want to keep your version, which " +
+                                       "replaces the file when saved, or reload the file and " +
+                                       "discard your changes?"),
+                         primaryButton: .default(Text("Keep Mine"), action: {
+                           self.fileManager.editorDocument?.resolveConflict(keepLocal: true)
+                         }),
+                         secondaryButton: .destructive(Text("Reload"), action: {
+                           self.fileManager.editorDocument?.resolveConflict(keepLocal: false)
+                         }))
+        }
+      }
+      .onChange(of: self.fileManager.editorDocumentConflict) { _, conflict in
+        if conflict {
+          self.notSavedAlertAction = .changedOnDisk
         }
       }
       .onChange(of: self.urlToOpen) { _, optUrl in
