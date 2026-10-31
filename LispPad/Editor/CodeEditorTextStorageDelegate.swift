@@ -23,10 +23,6 @@ import LispKit
 
 final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
   
-  private static let initialIdentCharacters = CharacterSet(charactersIn: "!$%&*/:<=>?^_~@")
-  private static let subsequentIdentCharacters = CharacterSet(charactersIn: "+-.")
-  private static let digitCharacters = CharacterSet(charactersIn: "0123456789")
-  
   /// Is this powering the console input?
   let console: Bool
   
@@ -52,164 +48,18 @@ final class CodeEditorTextStorageDelegate: NSObject, NSTextStorageDelegate {
                         : UserSettings.standard.schemeHighlightSyntax
   }
   
-  private func markupIdentifier(_ ident: String) -> Bool {
-    return self.docManager.documentationAvailable(for: ident)
-  }
-
   private func highlightSchemeSyntax(_ textStorage: NSTextStorage,
                                      _ str: NSString,
                                      _ range: NSRange) {
-    var start = range.location
-    let end = range.location + range.length
-    var commentStart = Int.min
-    var stringStart = Int.min
-    var numberStart = Int.min
-    var symbolStart = Int.min
-    textStorage.addAttribute(.foregroundColor, value: UserSettings.standard.textColor, range: range)
-    while start < end {
-      let ch = str.character(at: start)
-      if symbolStart < 0 {
-        switch ch {
-          case D0, D1, D2, D3, D4, D5, D6, D7, D8, D9:
-            guard commentStart < 0 && stringStart < 0 && numberStart < 0 else {
-              start += 1
-              continue
-            }
-            numberStart = start
-          default:
-            if numberStart >= 0 {
-              textStorage.addAttribute(
-                .foregroundColor,
-                value: UserSettings.standard.literalsColor,
-                range: NSRange(location: numberStart, length: start - numberStart))
-              numberStart = .min
-            }
-        }
-      }
-      switch ch {
-        case DQUOTE:
-          guard commentStart < 0 else {
-            break
-          }
-          if stringStart >= 0 {
-            textStorage.addAttribute(
-              .foregroundColor,
-              value: UserSettings.standard.literalsColor,
-              range: NSRange(location: stringStart, length: start - stringStart + 1))
-            stringStart = .min
-          } else if symbolStart >= 0 {
-            let range = NSRange(location: symbolStart, length: start - symbolStart)
-            if self.markupIdentifier(str.substring(with: range)) {
-              textStorage.addAttribute(
-                .foregroundColor,
-                value: UserSettings.standard.docuIdentColor, range: range)
-            }
-            symbolStart = .min
-            stringStart = start
-          } else {
-            stringStart = start
-          }
-        case NEWLINE:
-          if commentStart >= 0 {
-            textStorage.addAttribute(
-              .foregroundColor,
-              value: UserSettings.standard.commentsColor,
-              range: NSRange(location: commentStart, length: start - commentStart))
-            commentStart = .min
-          } else if stringStart >= 0 {
-            textStorage.addAttribute(
-              .foregroundColor,
-              value: UserSettings.standard.literalsColor,
-              range: NSRange(location: stringStart, length: start - stringStart))
-            stringStart = .min
-          } else if symbolStart >= 0 {
-            let range = NSRange(location: symbolStart, length: start - symbolStart)
-            if self.markupIdentifier(str.substring(with: range)) {
-              textStorage.addAttribute(.foregroundColor,
-                                       value: UserSettings.standard.docuIdentColor,
-                                       range: range)
-            }
-            symbolStart = .min
-          }
-        case SEMI:
-          if commentStart < 0 && stringStart < 0 {
-            if symbolStart >= 0 {
-              let range = NSRange(location: symbolStart, length: start - symbolStart)
-              if self.markupIdentifier(str.substring(with: range)) {
-                textStorage.addAttribute(
-                  .foregroundColor,
-                  value: UserSettings.standard.docuIdentColor, range: range)
-              }
-              symbolStart = .min
-            }
-            commentStart = start
-          }
-        case LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET, HASH, QUOTE,
-             BQUOTE, COMMA, BACKSLASH, BAR:
-          if commentStart < 0 && stringStart < 0 {
-            if symbolStart >= 0 {
-              let range = NSRange(location: symbolStart, length: start - symbolStart)
-              if self.markupIdentifier(str.substring(with: range)) {
-                textStorage.addAttribute(
-                  .foregroundColor,
-                  value: UserSettings.standard.docuIdentColor, range: range)
-              }
-              symbolStart = .min
-            }
-            textStorage.addAttribute(
-              .foregroundColor,
-              value: UserSettings.standard.parensColor,
-              range: NSRange(location: start, length: 1))
-          }
-        default:
-          if symbolStart >= 0 {
-            if let sc = UnicodeScalar(ch),
-               !CharacterSet.letters.contains(sc),
-               !Self.initialIdentCharacters.contains(sc),
-               !Self.subsequentIdentCharacters.contains(sc),
-               !Self.digitCharacters.contains(sc) {
-              let range = NSRange(location: symbolStart, length: start - symbolStart)
-              if self.markupIdentifier(str.substring(with: range)) {
-                textStorage.addAttribute(
-                  .foregroundColor,
-                  value: UserSettings.standard.docuIdentColor, range: range)
-              }
-              symbolStart = .min
-            }
-          } else if self.markupIdent,
-                    commentStart < 0,
-                    stringStart < 0,
-                    let sc = UnicodeScalar(ch),
-                    CharacterSet.letters.contains(sc) || Self.initialIdentCharacters.contains(sc) {
-            symbolStart = start
-          }
-          break
-      }
-      start += 1
-    }
-    if commentStart >= 0 {
-      textStorage.addAttribute(
-        .foregroundColor,
-        value: UserSettings.standard.commentsColor,
-        range: NSRange(location: commentStart, length: start - commentStart))
-    } else if stringStart >= 0 {
-      textStorage.addAttribute(
-        .foregroundColor,
-        value: UserSettings.standard.literalsColor,
-        range: NSRange(location: stringStart, length: start - stringStart))
-    } else if numberStart >= 0 {
-      textStorage.addAttribute(
-        .foregroundColor,
-        value: UserSettings.standard.literalsColor,
-        range: NSRange(location: numberStart, length: start - numberStart))
-    } else if symbolStart >= 0 {
-      let range = NSRange(location: symbolStart, length: start - symbolStart)
-      if self.markupIdentifier(str.substring(with: range)) {
-        textStorage.addAttribute(
-          .foregroundColor,
-          value: UserSettings.standard.docuIdentColor, range: range)
-      }
-    }
+    let settings = UserSettings.standard
+    let highlighter = SchemeSyntaxHighlighter(
+      palette: SchemeSyntaxPalette(text: settings.textColor,
+                                   parens: settings.parensColor,
+                                   literals: settings.literalsColor,
+                                   comments: settings.commentsColor,
+                                   docuIdent: settings.docuIdentColor),
+      isDocumented: self.markupIdent ? self.docManager.documentationAvailable : nil)
+    highlighter.highlight(textStorage, str, range)
   }
   
   private func codeBlockOpen(_ str: NSString, _ end: Int) -> Bool {

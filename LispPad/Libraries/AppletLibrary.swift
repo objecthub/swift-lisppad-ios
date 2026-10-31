@@ -138,9 +138,9 @@ public final class AppletLibrary: NativeLibrary {
           case "html":
             return .html
           case "scm":
-            return .schemeProgram
+            return .lispPadProgram
           case "sld":
-            return .schemeLibrary
+            return .lispPadLibrary
           case "data":
             return .data
           case "gzip":

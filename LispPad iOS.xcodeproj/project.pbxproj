@@ -81,7 +81,6 @@
 		CC7A991D303D0791007C7347 /* (lispkit sxml).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A990E303D0396007C7347 /* (lispkit sxml).md */; };
 		CC7A991E303D0799007C7347 /* (lispkit draw chart).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC7A9914303D047C007C7347 /* (lispkit draw chart).md */; };
 		CC84C24A25FE59EE00758581 /* LispPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24925FE59EE00758581 /* LispPadApp.swift */; };
-		CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C24B25FE59EE00758581 /* LispPadDocument.swift */; };
 		CC84C25025FE59F000758581 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C24F25FE59F000758581 /* Assets.xcassets */; };
 		CC84C25325FE59F000758581 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC84C25225FE59F000758581 /* Preview Assets.xcassets */; };
 		CC84C26225FE6BFF00758581 /* InterpreterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC84C26125FE6BFF00758581 /* InterpreterView.swift */; };
@@ -231,6 +230,10 @@
 		CCE441442F356C5100266C57 /* (lispkit vision).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE441392F3564FE00266C57 /* (lispkit vision).md */; };
 		CCE5701D26AC7E75008DF3D0 /* Sheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701C26AC7E75008DF3D0 /* Sheet.swift */; };
 		CCE5701F26AC7EBE008DF3D0 /* ScrollSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */; };
+		CCE57E0100000000000000AD /* LispPad QuickLook.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CCE57E0100000000000000A2 /* LispPad QuickLook.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CCE57E0100000000000000AE /* Characters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC327C5B2611201100BD7E32 /* Characters.swift */; };
+		CCE57E0100000000000000B2 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE57E0100000000000000B1 /* QuickLook.framework */; };
+		CCE57E0100000000000000B4 /* UserSettings+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE57E0100000000000000B3 /* UserSettings+Preview.swift */; };
 		CCE74B54295A4139002660C4 /* (lisppad draw map).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC248F8E2959EF8000FFAAF0 /* (lisppad draw map).md */; };
 		CCE80A2A2CEFF96F008C63A2 /* (lispkit url).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A1C2CEFF35E008C63A2 /* (lispkit url).md */; };
 		CCE80A2B2CEFF977008C63A2 /* (lispkit thread shared-queue).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCE80A262CEFF56A008C63A2 /* (lispkit thread shared-queue).md */; };
@@ -303,6 +306,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = CC84C24525FE59EE00758581;
 			remoteInfo = LispPad;
+		};
+		CCE57E0100000000000000AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC84C23E25FE59EE00758581 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CCE57E0100000000000000A1;
+			remoteInfo = "LispPad QuickLook";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -538,6 +548,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCE57E0100000000000000AC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CCE57E0100000000000000AD /* LispPad QuickLook.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCE8E4272621A48D00E3DC6A /* Copy Documentation/Documents */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -654,7 +675,6 @@
 		CC7A9916303D04CC007C7347 /* (lispkit wt-tree).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit wt-tree).md"; sourceTree = "<group>"; };
 		CC84C24625FE59EE00758581 /* LispPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC84C24925FE59EE00758581 /* LispPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadApp.swift; sourceTree = "<group>"; };
-		CC84C24B25FE59EE00758581 /* LispPadDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadDocument.swift; sourceTree = "<group>"; };
 		CC84C24F25FE59F000758581 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CC84C25225FE59F000758581 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		CC84C25425FE59F000758581 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -795,6 +815,9 @@
 		CCE4413B2F35654700266C57 /* (lispkit image process).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit image process).md"; sourceTree = "<group>"; };
 		CCE5701C26AC7E75008DF3D0 /* Sheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sheet.swift; sourceTree = "<group>"; };
 		CCE5701E26AC7EBE008DF3D0 /* ScrollSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollSheet.swift; sourceTree = "<group>"; };
+		CCE57E0100000000000000A2 /* LispPad QuickLook.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "LispPad QuickLook.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCE57E0100000000000000B1 /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
+		CCE57E0100000000000000B3 /* UserSettings+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettings+Preview.swift"; sourceTree = "<group>"; };
 		CCE80A122CEFF21B008C63A2 /* (lispkit system keychain).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system keychain).md"; sourceTree = "<group>"; };
 		CCE80A142CEFF252008C63A2 /* (lispkit system pasteboard).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system pasteboard).md"; sourceTree = "<group>"; };
 		CCE80A162CEFF284008C63A2 /* (lispkit json).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit json).md"; sourceTree = "<group>"; };
@@ -870,8 +893,20 @@
 		E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadKeyboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CCE57E0100000000000000AA /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CCE57E0100000000000000A1 /* LispPad QuickLook */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CC0AD5B5306FB2A400B58056 /* LispPadTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LispPadTests; sourceTree = "<group>"; };
+		CCE57E0100000000000000A9 /* LispPad QuickLook */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CCE57E0100000000000000AA /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "LispPad QuickLook"; sourceTree = "<group>"; };
+		CCE57E0100000000000000AB /* Preview */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Preview; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -890,6 +925,14 @@
 			files = (
 				CCC85649261995030080B96E /* LispKit.xcframework in Frameworks */,
 				CCAC0F08278F9B3B00E5B6F8 /* Atomics in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCE57E0100000000000000A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCE57E0100000000000000B2 /* QuickLook.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -962,6 +1005,7 @@
 				CCC8564E2619F67A0080B96E /* Assets */,
 				CC84C24825FE59EE00758581 /* LispPad */,
 				CC0AD5B5306FB2A400B58056 /* LispPadTests */,
+				CCE57E0100000000000000A9 /* LispPad QuickLook */,
 				CC84C24725FE59EE00758581 /* Products */,
 				CC84C26625FE77BF00758581 /* Frameworks */,
 			);
@@ -972,6 +1016,7 @@
 			children = (
 				CC84C24625FE59EE00758581 /* LispPad.app */,
 				CC0AD5B4306FB2A400B58056 /* LispPadTests.xctest */,
+				CCE57E0100000000000000A2 /* LispPad QuickLook.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -998,6 +1043,7 @@
 				CCC8564326198A500080B96E /* Generic Views */,
 				CC321E672F6DFEDC0094C57A /* Intents */,
 				CCFBC5C92605F4D700E29F99 /* Util */,
+				CCE57E0100000000000000AB /* Preview */,
 				CC8B95B82607FFBC00830B4F /* Libraries */,
 				CC8B951F26079EC700830B4F /* Resources */,
 				CCF8F09827C430DE00C2D660 /* Fonts */,
@@ -1025,6 +1071,7 @@
 		CC84C26625FE77BF00758581 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CCE57E0100000000000000B1 /* QuickLook.framework */,
 				CC84C26725FE77BF00758581 /* LispKit.xcframework */,
 			);
 			name = Frameworks;
@@ -1380,6 +1427,7 @@
 				CCF8F09627C2E96700C2D660 /* FontMap.swift */,
 				CCEA5A18263DF7F400D78C62 /* UserSettings.swift */,
 				CCEA5A1A263E142100D78C62 /* UserDefaultsExtensions.swift */,
+				CCE57E0100000000000000B3 /* UserSettings+Preview.swift */,
 				CC327C4C260FBD0800BD7E32 /* HistoryManager.swift */,
 				CCC8565F261D09410080B96E /* PreferencesView.swift */,
 			);
@@ -1444,7 +1492,6 @@
 		CCFBC5BA25FE8E0A00E29F99 /* Editor */ = {
 			isa = PBXGroup;
 			children = (
-				CC84C24B25FE59EE00758581 /* LispPadDocument.swift */,
 				CC327C502610A3C800BD7E32 /* CodeEditorView.swift */,
 				CC327C4E26109C5B00BD7E32 /* CodeEditor.swift */,
 				CC327C542610B60400BD7E32 /* CodeEditorTextView.swift */,
@@ -1517,6 +1564,7 @@
 				CC84C24225FE59EE00758581 /* Sources */,
 				CC84C24325FE59EE00758581 /* Frameworks */,
 				CCC8564B261995030080B96E /* Embed Frameworks */,
+				CCE57E0100000000000000AC /* Embed Foundation Extensions */,
 				CC84C24425FE59EE00758581 /* Resources */,
 				CCE8E4272621A48D00E3DC6A /* Copy Documentation/Documents */,
 				CC8B957E2607B44200830B4F /* Copy Documentation/Libraries */,
@@ -1533,6 +1581,10 @@
 			buildRules = (
 			);
 			dependencies = (
+				CCE57E0100000000000000B0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CCE57E0100000000000000AB /* Preview */,
 			);
 			name = LispPad;
 			packageProductDependencies = (
@@ -1541,6 +1593,29 @@
 			productName = LispPad;
 			productReference = CC84C24625FE59EE00758581 /* LispPad.app */;
 			productType = "com.apple.product-type.application";
+		};
+		CCE57E0100000000000000A1 /* LispPad QuickLook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CCE57E0100000000000000A6 /* Build configuration list for PBXNativeTarget "LispPad QuickLook" */;
+			buildPhases = (
+				CCE57E0100000000000000A3 /* Sources */,
+				CCE57E0100000000000000A4 /* Frameworks */,
+				CCE57E0100000000000000A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CCE57E0100000000000000A9 /* LispPad QuickLook */,
+				CCE57E0100000000000000AB /* Preview */,
+			);
+			name = "LispPad QuickLook";
+			packageProductDependencies = (
+			);
+			productName = "LispPad QuickLook";
+			productReference = CCE57E0100000000000000A2 /* LispPad QuickLook.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -1558,6 +1633,9 @@
 					};
 					CC84C24525FE59EE00758581 = {
 						CreatedOnToolsVersion = 12.4;
+					};
+					CCE57E0100000000000000A1 = {
+						CreatedOnToolsVersion = 27.1;
 					};
 				};
 			};
@@ -1579,6 +1657,7 @@
 			targets = (
 				CC84C24525FE59EE00758581 /* LispPad */,
 				CC0AD5B3306FB2A400B58056 /* LispPadTests */,
+				CCE57E0100000000000000A1 /* LispPad QuickLook */,
 			);
 		};
 /* End PBXProject section */
@@ -1623,6 +1702,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCE57E0100000000000000A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1652,6 +1738,7 @@
 				CCA3C6902B002D3300C0BDE6 /* CanvasConfig.swift in Sources */,
 				CCC8563D261767660080B96E /* FileHierarchyBrowser.swift in Sources */,
 				CCEA5A1B263E142100D78C62 /* UserDefaultsExtensions.swift in Sources */,
+				CCE57E0100000000000000B4 /* UserSettings+Preview.swift in Sources */,
 				CC890A58267E8CD000FA8BAA /* EditorTextViewDelegate.swift in Sources */,
 				CC7A62BE275D375C009F72E4 /* Console.swift in Sources */,
 				CC84C27425FE79F600758581 /* Interpreter.swift in Sources */,
@@ -1674,7 +1761,6 @@
 				CCE8E42226219C0000E3DC6A /* PDFViewer.swift in Sources */,
 				CC7236372EA3B74700E86419 /* Zoomable.swift in Sources */,
 				CCEA5A19263DF7F400D78C62 /* UserSettings.swift in Sources */,
-				CC84C24C25FE59EE00758581 /* LispPadDocument.swift in Sources */,
 				CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */,
 				CCA5F5722AF38BCA0009A97E /* SplitConfig.swift in Sources */,
 				CC327C4B260E818500BD7E32 /* MarkdownText.swift in Sources */,
@@ -1761,6 +1847,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCE57E0100000000000000A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCE57E0100000000000000AE /* Characters.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1768,6 +1862,11 @@
 			isa = PBXTargetDependency;
 			target = CC84C24525FE59EE00758581 /* LispPad */;
 			targetProxy = CC0AD5B8306FB2A400B58056 /* PBXContainerItemProxy */;
+		};
+		CCE57E0100000000000000B0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CCE57E0100000000000000A1 /* LispPad QuickLook */;
+			targetProxy = CCE57E0100000000000000AF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2023,6 +2122,62 @@
 			};
 			name = Release;
 		};
+		CCE57E0100000000000000A7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "LispPad QuickLook/LispPadQuickLook.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 131;
+				DEVELOPMENT_TEAM = C72Z63N8M5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "LispPad QuickLook/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.4;
+				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS.QuickLook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CCE57E0100000000000000A8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "LispPad QuickLook/LispPadQuickLook.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 131;
+				DEVELOPMENT_TEAM = C72Z63N8M5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "LispPad QuickLook/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.4;
+				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispPad.iOS.QuickLook;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2049,6 +2204,15 @@
 			buildConfigurations = (
 				CC84C25825FE59F000758581 /* Debug */,
 				CC84C25925FE59F000758581 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CCE57E0100000000000000A6 /* Build configuration list for PBXNativeTarget "LispPad QuickLook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCE57E0100000000000000A7 /* Debug */,
+				CCE57E0100000000000000A8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

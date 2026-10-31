@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 struct FileExtensions {
   
@@ -81,4 +82,13 @@ struct FileExtensions {
         return "doc"
     }
   }
+}
+
+extension UTType {
+  
+  /// The types exported by LispPad's Info.plist. They conform to `public.text` rather than
+  /// `public.plain-text`, since Quick Look always uses the system's previewer for plain text,
+  /// which would bypass LispPad's preview extension.
+  static let lispPadProgram = UTType(exportedAs: "net.objecthub.lisppad.program")
+  static let lispPadLibrary = UTType(exportedAs: "net.objecthub.lisppad.library")
 }

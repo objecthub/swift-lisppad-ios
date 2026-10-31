@@ -147,7 +147,7 @@ struct Open: View {
       self.showError = new != nil
     }
     .fileImporter(isPresented: $showFileImporter,
-                  allowedContentTypes: [.plainText],
+                  allowedContentTypes: [.plainText, .lispPadProgram, .lispPadLibrary],
                   allowsMultipleSelection: true) { result in
       let sai = self.searchAndImport
       self.searchAndImport = false

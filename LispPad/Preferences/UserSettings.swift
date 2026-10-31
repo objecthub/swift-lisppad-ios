@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import Combine
 import SwiftUI
 import UIKit
 
@@ -670,7 +671,10 @@ final class UserSettings: ObservableObject {
   private(set) var codeColor: UIColor = .black
   
   var syntaxHighlightingUpdate: Date = .now
-  
+
+  /// Publishes the settings for the Quick Look extension; see `UserSettings+Preview.swift`
+  var previewSettingsObserver: AnyCancellable?
+
   private init() {
     self.foldersOnICloud = UserDefaults.standard.boolean(forKey: Self.foldersOnICloudKey)
     self.foldersOnDevice = UserDefaults.standard.boolean(forKey: Self.foldersOnDeviceKey)
@@ -837,5 +841,6 @@ final class UserSettings: ObservableObject {
     self.codeColor = UIColor { [unowned self] traits in
       return traits.userInterfaceStyle == .dark ? self.codeDarkColor : self.codeLightColor
     }
+    self.startPublishingPreviewSettings()
   }
 }

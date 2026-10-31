@@ -62,6 +62,7 @@ import LispKit
       switch newValue {
         case .active:
           self.globals.histManager.setupFilePresenters()
+          self.globals.fileManager.editorDocument?.resumeFilePresenter()
         case .inactive:
           break
         case .background:
@@ -69,7 +70,7 @@ import LispKit
             self.globals.histManager.trackRecentFile(doc.fileURL)
           }
           self.globals.histManager.suspendFilePresenters()
-          self.globals.fileManager.editorDocument?.saveFile()
+          self.globals.fileManager.editorDocument?.saveAndSuspendFilePresenter()
           self.globals.histManager.saveCommandHistory()
           self.globals.histManager.saveSearchHistory()
           self.globals.histManager.saveFilesHistory()

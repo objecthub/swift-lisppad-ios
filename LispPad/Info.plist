@@ -150,7 +150,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.plain-text</string>
+				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Scheme program</string>
@@ -175,7 +175,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.plain-text</string>
+				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Scheme library</string>

@@ -106,6 +106,48 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
     }
   }
   
+  /// An open document is a file presenter. Before another process can read or write the file,
+  /// e.g. for the Quick Look preview in the Files app, it has to wait until the document has
+  /// handed the file over. The document does not respond while the app is in the background,
+  /// which leaves the other process waiting until the user returns to the app. Hence, the
+  /// document steps aside while the app is in the background.
+  private var filePresenterSuspended = false
+  private var filePresenterSuspensionPending = false
+
+  /// Saves the document and then steps aside as file presenter. The document is the presenter
+  /// of its own save; if it stepped aside while the save is still running, the save's claim
+  /// on the file would stay open and block other processes from writing the file for as long
+  /// as the app is suspended. Hence, this waits for the save to complete. If the app returns
+  /// to the foreground in the meantime, the document remains a presenter.
+  func saveAndSuspendFilePresenter(completion: @escaping () -> Void = {}) {
+    self.filePresenterSuspensionPending = true
+    self.saveFile { _ in
+      if self.filePresenterSuspensionPending {
+        self.suspendFilePresenter()
+      }
+      completion()
+    }
+  }
+
+  func suspendFilePresenter() {
+    guard !self.filePresenterSuspended, !self.documentState.contains(.closed) else {
+      return
+    }
+    self.filePresenterSuspended = true
+    NSFileCoordinator.removeFilePresenter(self)
+  }
+
+  func resumeFilePresenter() {
+    self.filePresenterSuspensionPending = false
+    guard self.filePresenterSuspended else {
+      return
+    }
+    self.filePresenterSuspended = false
+    if !self.documentState.contains(.closed) {
+      NSFileCoordinator.addFilePresenter(self)
+    }
+  }
+
   func loadFile(action: @escaping ((Bool) -> Void) = { success in }) {
     if self.fileExists {
       self.open(completionHandler: action)

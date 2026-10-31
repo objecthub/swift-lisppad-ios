@@ -97,9 +97,22 @@ final class DocumentationManager: ObservableObject {
       DispatchQueue.main.async {
         self.initialized = true
       }
+      self.publishSymbols()
     }
   }
-  
+
+  /// Writes the identifiers for which there is documentation to the app group's container,
+  /// from where the Quick Look extension reads them. The file is left alone if it is up to date.
+  private func publishSymbols() {
+    guard let url = SchemePreview.documentedSymbolsURL else {
+      return
+    }
+    let content = self.symbols.sorted().joined(separator: "\n")
+    if (try? String(contentsOf: url, encoding: .utf8)) != content {
+      try? content.write(to: url, atomically: true, encoding: .utf8)
+    }
+  }
+
   /// Returns the documentation for the given library name
   func libraryDocumentation(for components: [String]) -> Content? {
     return self.documentation[components]?.content

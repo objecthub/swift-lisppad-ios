@@ -76,7 +76,7 @@ struct ContainerGeometryTests {
   
   @Test("Navigation bar width: iPhone Duo")
   func testNavigationBarIPhoneDuo() async throws {
-    var cg = ContainerGeometry(size: CGSize(width: 951.0, height: 543.0),
+    let cg = ContainerGeometry(size: CGSize(width: 951.0, height: 543.0),
                                safeAreaInsets: .init(top: 82.0, leading: 0.0, bottom: 44.0, trailing: 0.0),
                                reserved: [CGRect(x: 817.0, y: -82.0, width: 134.0, height: 82.0)])
     #expect(leftNavBarWidth(cg, frac: 0.5) == 475.5)
