@@ -312,7 +312,6 @@ struct ConsoleView: View {
       Image(systemName: self.executeButtonIcon)
         .font(.system(size: 18, weight: .semibold))
         .foregroundStyle(.white)
-        .blendMode(.overlay)
         .frame(width: self.buttonDiameter ?? 44, height: self.buttonDiameter ?? 44)
         .modifier(ConsoleButtonChrome(tint: self.executeButtonTint))
         .contentShape(Circle())

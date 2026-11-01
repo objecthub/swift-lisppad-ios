@@ -964,7 +964,7 @@ struct CodeEditorView: View {
         }
         .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
         .transition(.move(edge: .top))
-        .presentationDetents([.height(180)])
+        .presentationDetents([.height(200)])
         .presentationDragIndicator(.hidden)
         .modifier(self.globals.services)
       case .moveFile:

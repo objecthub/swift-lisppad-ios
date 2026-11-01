@@ -79,14 +79,16 @@ public struct ImageButton: View {
     if #available(iOS 26.0, *) {
       Image(systemName: self.systemName)
         .font(.system(size: self.size * 0.5, weight: .semibold))
-        .foregroundStyle(.primary)
+        .foregroundStyle(.secondary)
         .frame(width: self.size, height: self.size)
+        .tint(.primary)
         .glassEffect(.regular.interactive(), in: Circle())
     } else {
       Image(systemName: self.legacyName)
         .font(.system(size: self.size, weight: .regular))
         .foregroundStyle(.primary)
         .frame(height: self.size)
+        .foregroundColor(Color(UIColor.lightGray))
     }
   }
 }
