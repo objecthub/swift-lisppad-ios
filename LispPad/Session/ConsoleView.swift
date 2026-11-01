@@ -46,6 +46,8 @@ struct ConsoleView: View {
   @State var containerTop: CGFloat = 0
   @State var visiblePageTop: CGFloat? = nil
   @State var pageShift: CGFloat = 0
+  @State var viewBottom: CGFloat = 0
+  @State var keyboardInsetResynced = false
   @StateObject var keyboardObserver = KeyboardObserver()
   
   let font: Font
@@ -726,6 +728,53 @@ struct ConsoleView: View {
     }
     .safeAreaInset(edge: .bottom, spacing: 0) {
       self.control
+    }
+    .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: {
+      self.viewBottom = $0
+    }
+    // Once the view's bottom edge or the focus has settled, make sure that the keyboard inset
+    // SwiftUI applied to this view is still the right one.
+    .task(id: [self.viewBottom, self.state.focused ? 1.0 : 0.0]) {
+      try? await Task.sleep(for: .milliseconds(200))
+      if !Task.isCancelled {
+        self.checkKeyboardInset()
+      }
+    }
+  }
+
+  /// When the first responder moves between two text views with different keyboard accessory
+  /// views (e.g. when switching between the editor and the console on an iPhone), SwiftUI may
+  /// end up with a keyboard inset that reserves the height of the accessory view a second time.
+  /// The input field then floats above the keyboard until the next keyboard transition. This
+  /// view avoids the keyboard, so its bottom edge is expected to coincide with the top edge of
+  /// the keyboard's accessory view as UIKit actually laid it out. If the accessory view sits
+  /// lower by exactly its own height, SwiftUI's inset is stale. Asking UIKit to lay out the
+  /// input views once more makes SwiftUI measure the keyboard again. This is attempted once
+  /// per out-of-sync period, so a failed attempt cannot turn into a loop.
+  private func checkKeyboardInset() {
+    guard UIDevice.current.userInterfaceIdiom == .phone, self.viewBottom > 0 else {
+      return
+    }
+    let bottom = self.viewBottom
+    self.updateConsole = { textView in
+      guard textView.isFirstResponder,
+            let accessory = textView.inputAccessoryView,
+            let window = accessory.window else {
+        self.keyboardInsetResynced = false
+        return
+      }
+      // UIKit parks the accessory view off-screen while the keyboard is being dismissed, e.g.
+      // when another view is pushed onto the navigation stack. That is not a stale inset.
+      let frame = accessory.convert(accessory.bounds, to: nil)
+      guard frame.minY < window.bounds.height,
+            abs(frame.minY - bottom - frame.height) < 6.0 else {
+        self.keyboardInsetResynced = false
+        return
+      }
+      if !self.keyboardInsetResynced {
+        self.keyboardInsetResynced = true
+        textView.reloadInputViews()
+      }
     }
   }
   
