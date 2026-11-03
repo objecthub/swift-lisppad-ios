@@ -34,7 +34,6 @@ struct ConsoleView: View {
   @State var dynamicHeight: CGFloat = 100
   @State var sentinelVisible: Bool = true
   @State var scrollToBottomRequest: Int = 0
-  @State var buttonDiameter: CGFloat? = nil
   @State var executeMenuPresented: Bool = false
   @State var inputBuffer: String? = nil
   @State var inputHistoryIndex: Int = -1
@@ -67,6 +66,17 @@ struct ConsoleView: View {
   @Binding var updateConsole: ((CodeEditorTextView) -> Void)?
   @Binding var updateEditor: ((CodeEditorTextView) -> Void)?
   
+  /// Space between a round button (submit, scroll-to-bottom) and the top, bottom and right
+  /// edge of the slot it occupies next to the input field.
+  static let buttonInset: CGFloat = 1
+
+  /// Diameter of the round buttons (submit, scroll-to-bottom): always the height of a
+  /// one-line input field minus the button's inset, so it can never grow with the field or
+  /// freeze at a bad value.
+  var buttonDiameter: CGFloat {
+    return ConsoleEditor.singleLineHeight(font: self.settings.inputFont) - 2 * Self.buttonInset
+  }
+
   func errorText(image: String, text: String?) -> Text {
     return text == nil ? Text("") : Text("\n") +
                                     Text(Image(systemName: image)) +
@@ -296,15 +306,6 @@ struct ConsoleView: View {
           }
         }
         .modifier(ConsoleInputBarChrome())
-        .onChange(of: self.dynamicHeight) { oldValue, newValue in
-          // Captured once, from the field's first genuine (single-line) layout pass, and
-          // never touched again, so the button's size stays fixed even as the field grows
-          // for multi-line input. The very first reported height can transiently be 0
-          // before layout settles, so that spurious value is ignored.
-          if self.buttonDiameter == nil && newValue > 1 {
-            self.buttonDiameter = newValue
-          }
-        }
       // A plain Menu's presentation lifecycle (onAppear/onDisappear on its content) is not
       // reliably reported on iOS 26, which made `executeMenuPresented` -- and therefore the
       // console field's `allowsHitTesting` -- flicker or stick. Driving a `.popover` off an
@@ -312,11 +313,12 @@ struct ConsoleView: View {
       // implicitly on outside-tap dismissal via the isPresented binding) is fully
       // deterministic instead.
       Image(systemName: self.executeButtonIcon)
-        .font(.system(size: 18, weight: .semibold))
+        .font(.system(size: 17, weight: .semibold))
         .foregroundStyle(.white)
-        .frame(width: self.buttonDiameter ?? 44, height: self.buttonDiameter ?? 44)
+        .frame(width: self.buttonDiameter, height: self.buttonDiameter)
         .modifier(ConsoleButtonChrome(tint: self.executeButtonTint))
-        .contentShape(Circle())
+        .padding([.top, .bottom, .trailing], Self.buttonInset)
+        .contentShape(Rectangle())
         .onTapGesture {
           guard !self.state.consoleInput.isEmpty, self.ready || self.readingStatus == .accept else {
             return
@@ -611,7 +613,7 @@ struct ConsoleView: View {
         TabView(selection: self.$state.consoleTab) {
           LogView(font: self.font,
                   state: self.state,
-                  buttonDiameter: self.buttonDiameter ?? 44,
+                  buttonDiameter: self.buttonDiameter,
                   bottomInset: geo.safeAreaInsets.bottom,
                   input: self.$state.consoleInput,
                   showSheet: self.$showSheet,
@@ -680,7 +682,7 @@ struct ConsoleView: View {
           }
           .overlay(alignment: .bottomTrailing) {
             ScrollToBottomButton(visible: !self.sentinelVisible,
-                                 diameter: self.buttonDiameter ?? 44,
+                                 diameter: self.buttonDiameter,
                                  bottomInset: geo.safeAreaInsets.bottom) {
               self.scrollToBottomRequest += 1
             }
@@ -852,16 +854,19 @@ struct ScrollToBottomButton: View {
   var body: some View {
     Button(action: self.action) {
       Image(systemName: "chevron.down")
-        .font(.system(size: 16, weight: .semibold))
+        .font(.system(size: 15, weight: .semibold))
+        .foregroundStyle(Color.primary.opacity(0.8))
         .frame(width: self.diameter, height: self.diameter)
-        .contentShape(Circle())
+        .modifier(GlassCircle())
+        // Same inset and tap area as the submit button (see `controlContent`)
+        .padding([.top, .bottom, .trailing], ConsoleView.buttonInset)
+        .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
-    .modifier(GlassCircle())
     .accessibilityLabel("Scroll to bottom")
     .padding(.trailing, 6)  // same as the submit button (see `control`)
     .padding(.bottom, self.bottomInset + 8)
-    .opacity(self.shown ? 0.6 : 0)
+    .opacity(self.shown ? 0.75 : 0)
     .allowsHitTesting(self.shown)
     .animation(.easeInOut(duration: 0.25), value: self.shown)
     .task(id: self.visible) {

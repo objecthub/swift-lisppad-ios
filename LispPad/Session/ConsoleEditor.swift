@@ -41,6 +41,14 @@ struct ConsoleEditor: UIViewRepresentable {
   let returnAction: (() -> Void)?
   let customReturn: () -> Bool
   
+  static let verticalInset: CGFloat = 8
+
+  /// Height of the field holding exactly one line. Derived from the font alone, so it
+  /// can't be skewed by transient layout passes or by multi-line text in the field.
+  static func singleLineHeight(font: UIFont) -> CGFloat {
+    return ceil(font.lineHeight) + 2 * Self.verticalInset
+  }
+
   public func makeCoordinator() -> Coordinator {
     return ConsoleEditorTextViewDelegate(text: _text,
                                          selectedRange: $selectedRange,
@@ -68,6 +76,8 @@ struct ConsoleEditor: UIViewRepresentable {
     textView.isUserInteractionEnabled = true
     textView.allowsHitTesting = self.allowsHitTesting
     textView.contentInsetAdjustmentBehavior = .automatic
+    textView.textContainerInset = UIEdgeInsets(top: Self.verticalInset, left: 0,
+                                               bottom: Self.verticalInset, right: 0)
     textView.keyboardDismissMode = // UIDevice.current.userInterfaceIdiom == .pad ? .none :
                                    .interactive
     textView.smartQuotesType = .no
