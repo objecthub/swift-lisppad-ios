@@ -76,6 +76,21 @@ struct FileHierarchyBrowser: View {
   // file hierarchy gets computed on demand and the hierarchy might change for mutable
   // hierarchy views). Need to figure out a better way to do this.
   @StateObject var refresher = Refresher()
+
+  // Vertical row padding of dense lists (see `denseListRow()`); the selection highlight is
+  // derived from it
+  @ScaledMetric(relativeTo: .body) private var rowPadding = LispPadUI.listRowVerticalPadding
+
+  // How far the highlight of a selected row reaches beyond the row content
+  private var highlightInsets: EdgeInsets {
+    let vertical: CGFloat
+    if #available(iOS 26.0, *) {
+      vertical = max(self.rowPadding - 2, 0)
+    } else {
+      vertical = 9
+    }
+    return EdgeInsets(top: -vertical, leading: -8, bottom: -vertical, trailing: -2)
+  }
   
   // Internal state
   private let roots: [FileHierarchy]
@@ -330,7 +345,7 @@ struct FileHierarchyBrowser: View {
         .background(
           RoundedRectangle(cornerRadius: 8)
             .fill(Color(UIColor.secondarySystemFill))
-            .padding(.init(top: -9, leading: -8, bottom: -9, trailing: -2))
+            .padding(self.highlightInsets)
         )
       } else {
         if (hierarchy.type == .file) && !self.options.contains(.files) ||
@@ -362,7 +377,7 @@ struct FileHierarchyBrowser: View {
               if self.isSelected(hierarchy) {
                 RoundedRectangle(cornerRadius: 8)
                   .fill(Color(UIColor.tertiarySystemFill))
-                  .padding(.init(top: -9, leading: -8, bottom: -9, trailing: -2))
+                  .padding(self.highlightInsets)
               }
             }
           }
@@ -398,7 +413,7 @@ struct FileHierarchyBrowser: View {
                 if self.isSelected(hierarchy) {
                   RoundedRectangle(cornerRadius: 8)
                     .fill(Color(UIColor.tertiarySystemFill))
-                    .padding(.init(top: -9, leading: -8, bottom: -9, trailing: -2))
+                    .padding(self.highlightInsets)
                 }
               }
             }
@@ -413,6 +428,9 @@ struct FileHierarchyBrowser: View {
          children: \.children,
          rowContent: self.rowContent)
     .listStyle(.automatic)
+    // The browser is always embedded in a form, which takes over its rows. Therefore, the row
+    // insets are set on the list as a whole, and the form has to apply `denseList()`.
+    .denseListRow()
     .scrollDismissesKeyboard(.interactively)
   }
 }

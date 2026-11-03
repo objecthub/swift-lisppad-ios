@@ -37,9 +37,11 @@ struct EnvironmentView: View {
             .font(.body)
         }
         .disabled(!self.docManager.hasDocumentation(for: symbol.identifier))
+        .denseListRow()
       }
     }
     .listStyle(.plain)
+    .denseList()
     .searchable(text: $searchText)
     .scrollDismissesKeyboard(.interactively)
     .navigationBarTitleDisplayMode(.inline)

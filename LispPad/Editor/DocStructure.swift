@@ -21,8 +21,8 @@
 import SwiftUI
 import MarkdownKit
 
-struct DocStructureView: View {
-
+struct DocStructure {
+  
   struct Header: Identifiable {
     let id = UUID()
     let title: String
@@ -30,67 +30,12 @@ struct DocStructureView: View {
     let range: NSRange
   }
 
-  struct DocStructure {
-    let headers: [Header]
-    
-    var isEmpty: Bool {
-      return self.headers.isEmpty
-    }
+  let headers: [Header]
+  
+  var isEmpty: Bool {
+    return self.headers.isEmpty
   }
-
-  @Environment(\.dismiss) var dismiss
-  let structure: DocStructure
-  @Binding var position: NSRange?
-
-  var body: some View {
-    ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
-      Color(.systemGroupedBackground).ignoresSafeArea()
-      Form {
-        if self.structure.headers.count > 0 {
-          ForEach(self.structure.headers) { header in
-            Button(action: { self.position = header.range
-                             self.dismiss() }) {
-              HStack {
-                Image(systemName: self.image(for: header.level))
-                Spacer().frame(minWidth: 16.0, maxWidth: CGFloat(header.level) * 16.0)
-                Text(header.title)
-              }
-            }
-          }
-          .font(.body)
-        }
-      }
-      .padding(.top)
-      Button(action: {
-        self.dismiss()
-      }) {
-        ExitButton()
-      }
-      .keyboardShortcut(KeyEquivalent.escape, modifiers: [])
-      //.keyCommand(UIKeyCommand.inputEscape, modifiers: [], title: "Close sheet")
-      .padding()
-    }
-  }
-
-  private func image(for level: Int) -> String {
-    switch level {
-      case 1:
-        return "1.square"
-      case 2:
-        return "2.square"
-      case 3:
-        return "3.square"
-      case 4:
-        return "4.square"
-      case 5:
-        return "5.square"
-      case 6:
-        return "6.square"
-      default:
-        return "h.square"
-    }
-  }
-
+  
   static func parseDocStructure(_ text: String,
                                 maxCount: Int = 20000,
                                 maxDefs: Int = 200,
@@ -150,19 +95,5 @@ struct DocStructureView: View {
       }
     }
     return headers.count > 0 ? DocStructure(headers: headers) : nil
-  }
-}
-
-struct DocStructureView_Previews: PreviewProvider {
-  @State static var position: NSRange? = nil
-  static var previews: some View {
-    DocStructureView(
-      structure: DocStructureView.DocStructure(
-        headers: [
-          DocStructureView.Header(title: "1st header", level: 1, range: NSRange(location: 0, length: 1)),
-          DocStructureView.Header(title: "2nd header", level: 2, range: NSRange(location: 1, length: 2)),
-          DocStructureView.Header(title: "3rd header", level: 3, range: NSRange(location: 2, length: 3))
-        ]),
-      position: $position)
   }
 }

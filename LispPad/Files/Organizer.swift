@@ -116,6 +116,7 @@ struct Organizer: View {
           Text("System")
         }
       }
+      .denseList()
       .transition(.move(edge: .top))
     }
   }

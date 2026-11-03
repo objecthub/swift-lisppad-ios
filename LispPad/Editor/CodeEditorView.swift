@@ -139,7 +139,7 @@ struct CodeEditorView: View {
   @State var menuIsOpen: Bool = false
   @State var showStructure: Bool = false
   @State var definitionCache: CodeAnalyzer.Definitions? = nil
-  @State var structureCache: DocStructureView.DocStructure? = nil
+  @State var structureCache: DocStructure? = nil
   @State var structureContentHeight: CGFloat = 0
   @State var cursorSelectedRange: NSRange = NSRange(location: 0, length: 0)
   @State var searchMatchCount: Int = 0
@@ -626,7 +626,7 @@ struct CodeEditorView: View {
           self.definitionCache = defs
           self.showStructure = true
         } else if doc.info.editorType == .markdown,
-                  let structure = DocStructureView.parseDocStructure(doc.text),
+                  let structure = DocStructure.parseDocStructure(doc.text),
                   !structure.isEmpty {
           self.structureCache = structure
           self.showStructure = true
@@ -644,7 +644,7 @@ struct CodeEditorView: View {
           self.sizedStructurePopover(self.definitionsList(defs))
         } else if doc.info.editorType == .markdown,
                   let structure = self.structureCache ??
-                                  DocStructureView.parseDocStructure(doc.text) {
+                                  DocStructure.parseDocStructure(doc.text) {
           self.sizedStructurePopover(self.headersList(structure))
         }
       }
@@ -687,7 +687,7 @@ struct CodeEditorView: View {
 
   /// The list of headers shown in the structure popover for Markdown text.
   @ViewBuilder
-  private func headersList(_ structure: DocStructureView.DocStructure) -> some View {
+  private func headersList(_ structure: DocStructure) -> some View {
     List {
       if structure.headers.count > 0 {
         Section {

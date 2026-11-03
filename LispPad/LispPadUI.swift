@@ -95,7 +95,15 @@ struct LispPadUI {
   
   // Horizontal space kept free around a title in the navigation bar
   static let toolbarTitleSlack: CGFloat = 8
-  
+
+  // Vertical padding inside a list row at the default text size (see `denseListRow()`). With
+  // the 17 pt body font, a row is 2 pt taller for every point of padding: 12 gives rows of
+  // about 44 pt, as on iOS 18, while the system default on iOS 26 and later is about 52 pt.
+  static let listRowVerticalPadding: CGFloat = 12
+
+  // Minimum height of a list row at the default text size (see `denseList()`)
+  static let listRowMinHeight: CGFloat = 36
+
   static func configure() {
     let coloredAppearance = UINavigationBarAppearance()
     coloredAppearance.configureWithOpaqueBackground()
@@ -106,6 +114,56 @@ struct LispPadUI {
     UINavigationBar.appearance().compactAppearance = coloredAppearance
     UINavigationBar.appearance().scrollEdgeAppearance = coloredAppearance
     // UINavigationBar.appearance().barTintColor = UIColor(named: "NavigationBarColor")
+  }
+}
+
+/// Sets the minimum row height of a list, scaled like `.body` text.
+///
+/// Since iOS 26, lists use roomier default row metrics than before. This restores a denser
+/// layout there; earlier versions keep their system defaults. Use it together with
+/// `denseListRow()`, which has to be applied to the rows (not the list). When a list is nested
+/// in a form, the form takes over its rows and has to apply this modifier, too.
+private struct DenseList: ViewModifier {
+  @ScaledMetric(relativeTo: .body) private var minRowHeight = LispPadUI.listRowMinHeight
+
+  @ViewBuilder
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content.environment(\.defaultMinListRowHeight, self.minRowHeight)
+    } else {
+      content
+    }
+  }
+}
+
+/// Sets the vertical padding of a list row, scaled like `.body` text. The horizontal insets
+/// remain the ones of the system. Has to be applied to the content of a row (or to a
+/// `ForEach` or `Section`), not to the list itself. The exception is a list nested in a form:
+/// there, it has to be applied to the nested list, since applying it to its rows has no effect.
+/// Earlier than iOS 26 it does nothing.
+private struct DenseListRow: ViewModifier {
+  @ScaledMetric(relativeTo: .body) private var padding = LispPadUI.listRowVerticalPadding
+
+  @ViewBuilder
+  func body(content: Content) -> some View {
+    if #available(iOS 26.0, *) {
+      content.listRowInsets(.vertical, self.padding)
+    } else {
+      content
+    }
+  }
+}
+
+extension View {
+
+  /// Makes the rows of this list denser, depending on the dynamic text size.
+  func denseList() -> some View {
+    return self.modifier(DenseList())
+  }
+
+  /// Makes this list row denser, depending on the dynamic text size.
+  func denseListRow() -> some View {
+    return self.modifier(DenseListRow())
   }
 }
 

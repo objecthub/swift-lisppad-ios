@@ -156,6 +156,7 @@ struct Move: View {
           Text("Folder")
         }
       }
+      .denseList()
       VStack(alignment: .leading, spacing: 0) {
         HStack(alignment: .top, spacing: 16) {
           Spacer()

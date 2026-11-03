@@ -61,7 +61,7 @@
 		CC5157B726DA84AB0056B05B /* FileObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5157B626DA84AB0056B05B /* FileObserver.swift */; };
 		CC55DD7C2646B4C4001AAD10 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7B2646B4C4001AAD10 /* MainView.swift */; };
 		CC55DD80264869B7001AAD10 /* LispPadGlobals.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */; };
-		CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD8126492307001AAD10 /* DocStructureView.swift */; };
+		CC55DD8226492307001AAD10 /* DocStructure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD8126492307001AAD10 /* DocStructure.swift */; };
 		CC55DD84264A739D001AAD10 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */; };
 		CC55DD86264ADB59001AAD10 /* Mutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55DD85264ADB59001AAD10 /* Mutable.swift */; };
 		CC59FA342635A55500EDA3CB /* DirectoryTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */; };
@@ -650,7 +650,7 @@
 		CC5157B626DA84AB0056B05B /* FileObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileObserver.swift; sourceTree = "<group>"; };
 		CC55DD7B2646B4C4001AAD10 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		CC55DD7F264869B7001AAD10 /* LispPadGlobals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispPadGlobals.swift; sourceTree = "<group>"; };
-		CC55DD8126492307001AAD10 /* DocStructureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocStructureView.swift; sourceTree = "<group>"; };
+		CC55DD8126492307001AAD10 /* DocStructure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocStructure.swift; sourceTree = "<group>"; };
 		CC55DD83264A739D001AAD10 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
 		CC55DD85264ADB59001AAD10 /* Mutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutable.swift; sourceTree = "<group>"; };
 		CC59FA332635A55500EDA3CB /* DirectoryTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryTracker.swift; sourceTree = "<group>"; };
@@ -1504,7 +1504,7 @@
 				CC1CBAE82F90578300D55310 /* CentralMenuButton.swift */,
 				CCEA5A0E263AC5DA00D78C62 /* TextFormatter.swift */,
 				CCC8565A261BADAD0080B96E /* CodeAnalyzer.swift */,
-				CC55DD8126492307001AAD10 /* DocStructureView.swift */,
+				CC55DD8126492307001AAD10 /* DocStructure.swift */,
 				C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */,
 				C5B434FBE98D07CA72E52772 /* SearchMatchCountOverlay.swift */,
 			);
@@ -1819,7 +1819,7 @@
 				CC1CBAE42F878F0E00D55310 /* FlexDatePicker.swift in Sources */,
 				CC6598CD27240997004C9B89 /* SessionLog.swift in Sources */,
 				CC327C47260E1D5100BD7E32 /* ShareSheet.swift in Sources */,
-				CC55DD8226492307001AAD10 /* DocStructureView.swift in Sources */,
+				CC55DD8226492307001AAD10 /* DocStructure.swift in Sources */,
 				CC327C45260E03FB00BD7E32 /* ResignKeyboard.swift in Sources */,
 				CCA3C68E2B00193900C0BDE6 /* CanvasView.swift in Sources */,
 				CC321E662F6DA82B0094C57A /* Shortcuts.swift in Sources */,
@@ -2071,7 +2071,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 133;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
@@ -2100,7 +2100,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LispPad/LispPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 133;
 				DEVELOPMENT_ASSET_PATHS = "\"LispPad/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = LispPad/Info.plist;
@@ -2127,7 +2127,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "LispPad QuickLook/LispPadQuickLook.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 133;
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "LispPad QuickLook/Info.plist";
@@ -2155,7 +2155,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "LispPad QuickLook/LispPadQuickLook.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 133;
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "LispPad QuickLook/Info.plist";

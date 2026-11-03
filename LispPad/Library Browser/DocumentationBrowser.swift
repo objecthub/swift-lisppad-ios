@@ -143,6 +143,7 @@
                   }
                   .foregroundStyle(proxy == self.state.selectedLib ? Color.white : .primary)
                   .listRowBackground(proxy == self.state.selectedLib ? Color.green : Color.clear)
+                  .denseListRow()
                   .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button("Import", systemImage: "square.and.arrow.down") {
                       self.interpreter.import(proxy.components)
@@ -154,6 +155,7 @@
                   self.interpreter.libManager.updateLibraries()
                 }
                 .listStyle(.plain)
+                .denseList()
                 .searchable(text: $state.searchLib)
                 .navigationBarTitleDisplayMode(.inline)
                 .onChange(of: self.state.selectedLib) { _, _ in
@@ -225,8 +227,10 @@
                    id: \.self,
                    selection: $state.selectedIdent) { ident in
                 NavigationLink(ident, value: ident)
+                  .denseListRow()
               }
               .listStyle(.plain)
+              .denseList()
               .searchable(text: $state.searchIdent)
               .navigationBarTitleDisplayMode(.inline)
               .gesture(DragGesture()

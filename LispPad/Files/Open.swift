@@ -111,6 +111,7 @@ struct Open: View {
               Text("System")
             }
           }
+          .denseList()
           VStack(alignment: .center, spacing: 0) {
             HStack {
               Button {
