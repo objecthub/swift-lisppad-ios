@@ -132,6 +132,14 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
                      editorType: FileExtensions.editorType(for: url ?? self.fileURL))
   }
   
+  /// An "Untitled" document is backed by a file in the private storage of LispPad, which no
+  /// other app modifies. Whenever such a file changes, LispPad did it itself, e.g. by replacing
+  /// it with a copy of a read-only file that gets opened in the editor. There is nothing to
+  /// reconcile in that case, so such a document does not look out for changes on disk.
+  private var watchesFile: Bool {
+    return !self.info.new
+  }
+
   var saveAsURL: URL? {
     if self.info.new {
       return PortableURL.Base.documents.url?.appendingPathComponent("Untitled.scm")
@@ -231,7 +239,7 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   /// document last saw. This does not use `UIDocument.revert(toContentsOf:)`, which fails if
   /// `UIDocument` itself is reverting at the same time.
   func reloadIfChangedOnDisk(completion: @escaping () -> Void = {}) {
-    guard self.hasLoaded, !self.documentState.contains(.closed) else {
+    guard self.hasLoaded, self.watchesFile, !self.documentState.contains(.closed) else {
       completion()
       return
     }
@@ -429,6 +437,10 @@ final class TextDocument: UIDocument, ObservableObject, Identifiable {
   private func reconcile(with disk: DiskContent?) {
     let reload = self.hasLoaded
     self.hasLoaded = true
+    // `UIDocument` reads a file again on its own if it was changed; ignore that, too
+    guard !reload || self.watchesFile else {
+      return
+    }
     guard let disk else {
       // A file which is not UTF-8 opens as an empty text. Do not replace a text by that
       // if another app saved the file with another encoding in the meantime.

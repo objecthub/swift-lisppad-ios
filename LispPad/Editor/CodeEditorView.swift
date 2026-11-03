@@ -33,7 +33,7 @@ struct CodeEditorView: View {
     case organizeFiles
     case saveBeforeNew
     case saveBeforeEdit
-    case saveBeforeOpen(URL)
+    case saveBeforeOpen(URL, makeUntitled: Bool)
     case markdownPreview(Block)
     case showDocumentation(Block)
     
@@ -53,7 +53,7 @@ struct CodeEditorView: View {
           return 5
         case .saveBeforeEdit:
           return 6
-        case .saveBeforeOpen(_):
+        case .saveBeforeOpen(_, _):
           return 7
         case .markdownPreview(_):
           return 8
@@ -67,7 +67,7 @@ struct CodeEditorView: View {
     case newFile
     case editFile
     case deleteFile
-    case openFile(URL)
+    case openFile(URL, makeUntitled: Bool)
     case notSaved
     case couldNotDuplicate
     case replaceAll(String, String)
@@ -83,7 +83,7 @@ struct CodeEditorView: View {
           return 1
         case .deleteFile:
           return 2
-        case .openFile(_):
+        case .openFile(_, _):
           return 3
         case .notSaved:
           return 4
@@ -415,13 +415,13 @@ struct CodeEditorView: View {
                      save: { self.showModal = .saveBeforeEdit },
                      discard: { self.fileManager.editorDocument?.text = ""
                                 self.showModal = .editFile })
-          case .openFile(let url):
+          case .openFile(let url, let makeUntitled):
             return self.notSavedOnOpenAlert(
-                     save: { self.showModal = .saveBeforeOpen(url) },
+                     save: { self.showModal = .saveBeforeOpen(url, makeUntitled: makeUntitled) },
                      discard: {
                       self.fileManager.loadEditorDocument(
                         source: url,
-                        makeUntitled: false,
+                        makeUntitled: makeUntitled,
                         action: { success in })
                      })
           case .notSaved:
@@ -475,7 +475,7 @@ struct CodeEditorView: View {
         if let url = optUrl {
           if (self.fileManager.editorDocumentInfo.new) &&
              !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
-            self.notSavedAlertAction = .openFile(url)
+            self.notSavedAlertAction = .openFile(url, makeUntitled: false)
           } else {
             self.fileManager.loadEditorDocument(source: url, makeUntitled: false)
           }
@@ -564,7 +564,13 @@ struct CodeEditorView: View {
                   Button(action: {
                     self.dismissCard()
                     if purl.fileExists {
-                      self.fileManager.loadEditorDocument(source: url, makeUntitled: !purl.mutable)
+                      if (self.fileManager.editorDocumentInfo.new) &&
+                         !(self.fileManager.editorDocument?.text.isEmpty ?? true) {
+                        self.notSavedAlertAction = .openFile(url, makeUntitled: !purl.mutable)
+                      } else {
+                        self.fileManager.loadEditorDocument(source: url,
+                                                            makeUntitled: !purl.mutable)
+                      }
                     } else {
                       self.histManager.verifyRecentFiles()
                       self.showFileNotFoundAlert = true
@@ -1037,7 +1043,7 @@ struct CodeEditorView: View {
         .modifier(ToolbarVerticalBehaviorModifier(disallow: MainView.disableVerticalToolbar))
         .presentationDetents([.medium, .large])
         .modifier(self.globals.services)
-      case .saveBeforeOpen(let ourl):
+      case .saveBeforeOpen(let ourl, let makeUntitled):
         SaveAs(url: self.fileManager.editorDocument?.saveAsURL,
                firstSave: self.fileManager.editorDocumentInfo.new) { url in
           self.fileManager.editorDocument?.saveFileAs(url) { newURL in
@@ -1046,7 +1052,7 @@ struct CodeEditorView: View {
             } else {
               self.fileManager.loadEditorDocument(
                 source: ourl,
-                makeUntitled: false,
+                makeUntitled: makeUntitled,
                 action: { success in })
             }
           }
