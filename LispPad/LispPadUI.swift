@@ -30,6 +30,9 @@ struct LispPadUI {
   // Size of items in the toolbar
   static let toolbarItemSize: CGFloat = 16
   
+  // Size of items in the toolbar
+  static let toolbarIconSize: CGFloat = 15
+  
   // Size of items in the definitions panel
   static let definitionsSize: CGFloat = 15
   
@@ -52,7 +55,7 @@ struct LispPadUI {
   
   // Toolbar font for icons
   static let toolbarIconFont: SwiftUI.Font = {
-    return .system(size: LispPadUI.toolbarItemSize, weight: .regular)
+    return .system(size: LispPadUI.toolbarIconSize, weight: .semibold)
   }()
   
   // Toolbar item font for switch items

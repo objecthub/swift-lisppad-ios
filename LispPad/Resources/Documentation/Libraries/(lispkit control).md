@@ -400,9 +400,7 @@ A `when-let*` expression is evaluated as follows: first, every clause is evaluat
 
 ## Iteration
 
-**(do \(\(_variable init step_\) ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**(_test res ..._)**   
-&nbsp;&nbsp;&nbsp;&nbsp;**_command ..._)**  
+**(do ((_variable init step_) ...) (_test res_ ...) _command_ ...)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 A `do` expression is an iteration construct. It specifies a set of variables to be bound, how they are to be initialized at the start, and how they are to be updated on each iteration. When a termination condition _test_ is met (i.e. it evaluates to `#t`), the loop exits after evaluating the _res_ expressions.
 
