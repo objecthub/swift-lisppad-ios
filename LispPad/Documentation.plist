@@ -34,6 +34,8 @@
 		<string>(lispkit char-set).md</string>
 		<key>lispkit char</key>
 		<string>(lispkit char).md</string>
+		<key>lispkit cmdline</key>
+		<string>(lispkit cmdline).md</string>
 		<key>lispkit combinator</key>
 		<string>(lispkit combinator).md</string>
 		<key>lispkit comparator</key>
@@ -64,6 +66,8 @@
 		<string>(lispkit draw chart bar).md</string>
 		<key>lispkit draw chart function</key>
 		<string>(lispkit draw chart function).md</string>
+		<key>lispkit draw chart pie</key>
+		<string>(lispkit draw chart pie).md</string>
 		<key>lispkit draw map</key>
 		<string>(lispkit draw map).md</string>
 		<key>lispkit draw turtle</key>
@@ -104,6 +108,8 @@
 		<string>(lispkit list).md</string>
 		<key>lispkit list set</key>
 		<string>(lispkit list set).md</string>
+		<key>lispkit list util</key>
+		<string>(lispkit list util).md</string>
 		<key>lispkit location</key>
 		<string>(lispkit location).md</string>
 		<key>lispkit log</key>
@@ -134,6 +140,8 @@
 		<string>(lispkit record).md</string>
 		<key>lispkit regexp</key>
 		<string>(lispkit regexp).md</string>
+		<key>lispkit sequence</key>
+		<string>(lispkit sequence).md</string>
 		<key>lispkit serialize</key>
 		<string>(lispkit serialize).md</string>
 		<key>lispkit set</key>
@@ -223,6 +231,8 @@
 		<string>srfi/srfi-34.html</string>
 		<key>srfi 35</key>
 		<string>srfi/srfi-35.html</string>
+		<key>srfi 37</key>
+		<string>srfi/srfi-37.html</string>
 		<key>srfi 39</key>
 		<string>srfi/srfi-39.html</string>
 		<key>srfi 41</key>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN""http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>SRFI 37: args-fold: a program argument processor</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+
+<H1>Title</H1>
+
+args-fold: a program argument processor
+
+<H1>Author</H1>
+
+Anthony Carrico
+
+<h1>Status</h1>
+
+<p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+37+at+srfi+dotschemers+dot+org">srfi-37@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-37">archive</a>.</p>
+<UL>
+<LI>Draft: 2002-09-23--2002-12-23
+<LI>Final: 2003-01-13
+<li id="pfn1">Post-finalization note added on 2020-11-30: POSIX, the
+GNU extensions, and this SRFI are not formally specified and
+conflicting implementations do exist.  For portability, you probably
+need to avoid optional short arguments and required long option
+arguments, but we have no proof of that statement.  The SRFI author,
+Anthony Carrico, declares the reference implementation to be in the
+public domain.  You may import the source code into your program to
+avoid portability issues.  [ed. note: See the related
+<a href="https://srfi-email.schemers.org/srfi-37/msg/14502790/">email
+discussion</a>.]</li>
+</UL>
+
+<h1>Abstract</h1>
+
+<p>Many operating systems make the set of argument strings used to invoke a program available (often following the program name string in an array called argv). Most programs need to parse and process these argument strings in one way or another. This SRFI describes a set of procedures that support processing program arguments according to POSIX and GNU C Library Reference Manual guidelines.</p>
+
+<h1>Rationale</h1>
+
+<p>Program arguments are the primary interface to many programs, so processing arguments is a common programming task. There are many common (often conflicting) ways to take care of this task, so a custom processor is often necessary; however, many programmers (and their users) would welcome a convenient interface supporting common guidelines.</p>
+
+<p>POSIX provides several <a href="http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap12.html#tag_12_02">guidelines</a> for the specification of program options, option-arguments, and operands. It also notes historical exceptions to these guidelines. The GNU C Library Reference Manual <a href="http://www.gnu.org/manual/glibc/html_node/Argument-Syntax.html">describes</a> long option extensions to the POSIX guidelines.</p>
+
+<p>This SRFI supports creating programs following the guidelines mentioned above by
+<ul>
+  <li>parsing short-options and long-options in any order and possibly repeated,</li>
+  <li>option-arguments (possibly required or forbidden),</li>
+  <li>operands (non-option argument strings),</li>
+  <li>and recognizing option processing termination.</li>
+</ul>
+It parses argument strings according to the following rules:</p>
+
+<ul>
+  <li>Each short-option name is a single character.</li>
+  <li>One or more short-options are accepted in a single argument string when grouped behind one <b>-</b> delimiter character. Examples: <b>-a -bcd</b></i></li>
+  <li>A short-option-argument is accepted in a separate argument string immediately following a short-option. Examples: <b>-a foo -bcd bar</b></li>
+  <li>Also (for historical reasons) a short-option-argument is accepted immediately following the last short-option in a single argument string. Examples: <b>-afoo -bcdbar</b></li>
+  <li>Each long-option name is one or more characters.</li>
+  <li>One long-option is accepted in a single argument string when preceded by two <b>-</b> delimiter characters. Example: <b>--help</b></li>
+  <li>In a single argument string, a long-option followed by one <b>=</b> delimiter character followed by a long-option-argument is accepted. Example: <b>--speed=fast</b></li>
+  <li>The first <b>--</b> argument string is accepted as a delimiter indicating the end of options. It is not treated as an option or an operand. Any argument strings following this delimiter are treated as operands, even if they begin with the <b>-</b> character.</li>
+  <li>All other argument strings are treated as operands. This includes argument strings consisting of a single <b>-</b> character.</li>
+  <li>Operands may be intermingled with options in any order.</li>
+</ul>
+
+<p>Preliminary versions of this interface are already available for some Scheme implementations: <a href="http://www.call-with-current-continuation.org/manual.html#script-utils">here</a> for Chicken, and <a href="http://www.scsh.net/resources/getopt.html">here</a> for Scsh.</p>
+
+<h1>Specification</h1>
+
+<p>Args-fold is an iterator similar to SRFI 1's fold procedure ("the fundamental list iterator"). As it parses options and operands, it calls their corresponding operand and option processors. Unlike mapping, folding passes state, called seeds, from one processor to the next.</p>
+
+<p>For example, a program may need a list of operands and a table of options. To build these, args-fold could be seeded with an empty operand list, and an empty option table. The operand processor could add the operands to the operand list, and the option processors could add the options to the option table. Along the way, some option processors might even take immediate action for options like <i>--version</i> or <i>--help</i>. This kind of heterogeneous processing is appropriate for program arguments, and folding allows a functional implementation if desired.</p>
+
+<pre>procedure prototype: (option-processor OPTION NAME ARG SEEDS ...)</pre>
+
+<p>Prototype for an option-processor. It should return the next seeds as values. OPTION will be the option. NAME will be one of the OPTION's option-names as encountered by args-fold. ARG will be a string, or #f if args-fold didn't encounter an option-argument.</p>
+
+<pre>procedure prototype: (operand-processor OPERAND SEEDS ...)</pre>
+
+<p>Prototype for an operand-processor. It should return the next seeds as values. OPERAND will be a string.</p>
+
+<pre>procedure: (option NAMES REQUIRED-ARG? OPTIONAL-ARG? OPTION-PROC)</pre>
+
+<p>Return an option. NAMES is a list of short (character) and long (string) option names. REQUIRED-ARG? specifies if this options requires an option-argument (boolean). OPTIONAL-ARG? specifies if this option can accept an option-argument (boolean). OPTION-PROC is a procedure (following the option-processor prototype) used to process this option.</p>
+
+<pre>
+procedure: (option-names OPTION)
+procedure: (option-required-arg? OPTION)
+procedure: (option-optional-arg? OPTION)
+procedure: (option-processor OPTION)
+</pre>
+
+<p>Return the contents of corresponding fields of OPTION.</p>
+
+<pre>procedure: (args-fold ARGS OPTIONS UNRECOGNIZED-OPTION-PROC OPERAND-PROC SEEDS ...)</pre>
+
+<p>Parse argument strings left-to-right, calling the appropriate processors in-order (for the parsed known options, unknown options, and operands), passing the seed values from one processor to the next and returning the final seeds values as results. ARGS is a list of strings. OPTIONS is a list of options. UNRECOGNIZED-OPTION-PROC is a procedure (following the option-processor prototype) for unrecognized options. NOTE: args-fold will create temporary options as necessary for the UNRECOGNIZED-OPTION-PROC. OPERAND-PROC is a procedure (following the operand-processor prototype) for operands.</p>
+
+<a href="https://srfi.schemers.org/srfi-37/srfi-37-reference.scm">Source for the reference implementation.</a>
+
+<h1>Copyright</h1>
+
+<p>Copyright (C) Anthony Carrico (2002). All Rights Reserved.</p>
+
+<p>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+</p>
+<p>
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+</p>
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+
+<hr>
+<address>Editor: <a href="mailto:srfi minus editors at srfi dot schemers dot org">David Rush</a></address>
+</body>
+</html>

@@ -297,6 +297,16 @@
 		CCFBC5CB2605F50B00E29F99 /* RichText.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFBC5CA2605F50B00E29F99 /* RichText.swift */; };
 		EC130AD426D390D8F0D7D4B1 /* CursorLocationOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EA0187B5D9B1B338EC4C83 /* CursorLocationOverlay.swift */; };
 		EDD6B00D9ED9405B96A4DF25 /* iPadKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */; };
+		CCA94106E91FA338CBB21A86 /* (lispkit cmdline).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CCF2407FEA66DB85F169C8C0 /* (lispkit cmdline).md */; };
+		CC1F854B297C7D8E18FA8973 /* (lispkit draw chart pie).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC536E26E938F9079E5280A0 /* (lispkit draw chart pie).md */; };
+		CCEF9121B2AB321500CEECD3 /* (lispkit list util).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC38D77A49EF705FEF44C670 /* (lispkit list util).md */; };
+		CC867346681DF4D4141FB63D /* (lispkit sequence).md in Copy Documentation/Libraries */ = {isa = PBXBuildFile; fileRef = CC37A048629A63F913B30281 /* (lispkit sequence).md */; };
+		CC3EDCDBF18E2BA519B11273 /* bar-chart-temperature.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCDFDD58EB13C02A038D296A /* bar-chart-temperature.png */; };
+		CCB74554A55376A815AB1669 /* bar-chart-engagements.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC973A4A78B5A7C55238579D /* bar-chart-engagements.png */; };
+		CC2F69CDFA66CD2908017F28 /* function-chart-sincos.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC64ACE2BE2A8E79376599A9 /* function-chart-sincos.png */; };
+		CC8B8B5AEA31B9FEBD29D10D /* function-chart-parabola.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC2C644C657318F7142C5B7B /* function-chart-parabola.png */; };
+		CC46EF03E28079563B555D06 /* pie-chart-fruits.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CCCF4C578AAC3FF6D4A3F0F9 /* pie-chart-fruits.png */; };
+		CC29409DEA4A5D673E1C8CED /* pie-chart-revenue.png in Copy Documentation/Libraries/images */ = {isa = PBXBuildFile; fileRef = CC44BF377E720BE5E88A4746 /* pie-chart-revenue.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -447,6 +457,10 @@
 				CC8B95A62607B48400830B4F /* (lispkit test).md in Copy Documentation/Libraries */,
 				CC8B95A72607B48400830B4F /* (lispkit type).md in Copy Documentation/Libraries */,
 				CC8B95A82607B48400830B4F /* (lispkit vector).md in Copy Documentation/Libraries */,
+				CCA94106E91FA338CBB21A86 /* (lispkit cmdline).md in Copy Documentation/Libraries */,
+				CC1F854B297C7D8E18FA8973 /* (lispkit draw chart pie).md in Copy Documentation/Libraries */,
+				CCEF9121B2AB321500CEECD3 /* (lispkit list util).md in Copy Documentation/Libraries */,
+				CC867346681DF4D4141FB63D /* (lispkit sequence).md in Copy Documentation/Libraries */,
 			);
 			name = "Copy Documentation/Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -591,6 +605,12 @@
 				CC7A55912997D5700014D600 /* sample-graph.png in Copy Documentation/Libraries/images */,
 				CCA9E3DC28A9C97300628DE5 /* bar-chart-params.png in Copy Documentation/Libraries/images */,
 				CCEF3E2D27CA2D8500FB56EB /* thread-states.png in Copy Documentation/Libraries/images */,
+				CC3EDCDBF18E2BA519B11273 /* bar-chart-temperature.png in Copy Documentation/Libraries/images */,
+				CCB74554A55376A815AB1669 /* bar-chart-engagements.png in Copy Documentation/Libraries/images */,
+				CC2F69CDFA66CD2908017F28 /* function-chart-sincos.png in Copy Documentation/Libraries/images */,
+				CC8B8B5AEA31B9FEBD29D10D /* function-chart-parabola.png in Copy Documentation/Libraries/images */,
+				CC46EF03E28079563B555D06 /* pie-chart-fruits.png in Copy Documentation/Libraries/images */,
+				CC29409DEA4A5D673E1C8CED /* pie-chart-revenue.png in Copy Documentation/Libraries/images */,
 			);
 			name = "Copy Documentation/Libraries/images";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -891,6 +911,16 @@
 		CCFBC5C126054D6C00E29F99 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		CCFBC5CA2605F50B00E29F99 /* RichText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichText.swift; sourceTree = "<group>"; };
 		E01A536E91FA4E65ADA01C5E /* iPadKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadKeyboard.swift; sourceTree = "<group>"; };
+		CCF2407FEA66DB85F169C8C0 /* (lispkit cmdline).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit cmdline).md"; sourceTree = "<group>"; };
+		CC536E26E938F9079E5280A0 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
+		CC38D77A49EF705FEF44C670 /* (lispkit list util).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list util).md"; sourceTree = "<group>"; };
+		CC37A048629A63F913B30281 /* (lispkit sequence).md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit sequence).md"; sourceTree = "<group>"; };
+		CCDFDD58EB13C02A038D296A /* bar-chart-temperature.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-chart-temperature.png"; sourceTree = "<group>"; };
+		CC973A4A78B5A7C55238579D /* bar-chart-engagements.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-chart-engagements.png"; sourceTree = "<group>"; };
+		CC64ACE2BE2A8E79376599A9 /* function-chart-sincos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "function-chart-sincos.png"; sourceTree = "<group>"; };
+		CC2C644C657318F7142C5B7B /* function-chart-parabola.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "function-chart-parabola.png"; sourceTree = "<group>"; };
+		CCCF4C578AAC3FF6D4A3F0F9 /* pie-chart-fruits.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pie-chart-fruits.png"; sourceTree = "<group>"; };
+		CC44BF377E720BE5E88A4746 /* pie-chart-revenue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pie-chart-revenue.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -1135,6 +1165,7 @@
 				CC8B952926079FBA00830B4F /* (lispkit bytevector).md */,
 				CC8B953126079FBA00830B4F /* (lispkit char-set).md */,
 				CC8B954226079FBA00830B4F /* (lispkit char).md */,
+				CCF2407FEA66DB85F169C8C0 /* (lispkit cmdline).md */,
 				CC8B954426079FBA00830B4F /* (lispkit combinator).md */,
 				CC8B953D26079FBA00830B4F /* (lispkit comparator).md */,
 				CC8B952626079FBA00830B4F /* (lispkit control).md */,
@@ -1150,6 +1181,7 @@
 				CC7A9914303D047C007C7347 /* (lispkit draw chart).md */,
 				CCA9E3CE28A926BB00628DE5 /* (lispkit draw chart bar).md */,
 				CCC6B5233027656B00282F28 /* (lispkit draw chart function).md */,
+				CC536E26E938F9079E5280A0 /* (lispkit draw chart pie).md */,
 				CCE441312F35602900266C57 /* (lispkit draw map).md */,
 				CC8B953526079FBA00830B4F /* (lispkit draw turtle).md */,
 				CCE4412F2F355FEB00266C57 /* (lispkit draw web).md */,
@@ -1170,6 +1202,7 @@
 				CCE80A182CEFF2D4008C63A2 /* (lispkit json schema).md */,
 				CC8B954E26079FBA00830B4F /* (lispkit list).md */,
 				CCC233672B45FBD000C88C68 /* (lispkit list set).md */,
+				CC38D77A49EF705FEF44C670 /* (lispkit list util).md */,
 				CCE441332F35604C00266C57 /* (lispkit location).md */,
 				CC8B952426079FBA00830B4F /* (lispkit log).md */,
 				CC8B952A26079FBA00830B4F /* (lispkit markdown).md */,
@@ -1185,6 +1218,7 @@
 				CC8B954A26079FBA00830B4F /* (lispkit queue).md */,
 				CC8B954726079FBA00830B4F /* (lispkit record).md */,
 				CC8B954B26079FBA00830B4F /* (lispkit regexp).md */,
+				CC37A048629A63F913B30281 /* (lispkit sequence).md */,
 				CCE80A242CEFF4BA008C63A2 /* (lispkit serialize).md */,
 				CC8B952D26079FBA00830B4F /* (lispkit set).md */,
 				CC8B952E26079FBA00830B4F /* (lispkit sqlite).md */,
@@ -1465,6 +1499,12 @@
 				CC7A55902997D4E60014D600 /* sample-graph.png */,
 				CCEF3E2A27CA2C9F00FB56EB /* thread-states.png */,
 				CCA9E3D028A9270500628DE5 /* bar-chart-params.png */,
+				CC44BF377E720BE5E88A4746 /* pie-chart-revenue.png */,
+				CCCF4C578AAC3FF6D4A3F0F9 /* pie-chart-fruits.png */,
+				CC2C644C657318F7142C5B7B /* function-chart-parabola.png */,
+				CC64ACE2BE2A8E79376599A9 /* function-chart-sincos.png */,
+				CC973A4A78B5A7C55238579D /* bar-chart-engagements.png */,
+				CCDFDD58EB13C02A038D296A /* bar-chart-temperature.png */,
 				CCC6B5293027761B00282F28 /* applet-program-model.png */,
 				CCC6B52B3027766500282F28 /* intent-source-selection.png */,
 				CCC6B52D3027768000282F28 /* program-intent.png */,
